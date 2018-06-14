@@ -836,7 +836,7 @@ const struct taint_flag taint_flags[TAINT_FLAGS_COUNT] = {
 	TAINT_FLAG(RESERVED28,			'?', '-'),
 	TAINT_FLAG(RESERVED29,			'?', '-'),
 	TAINT_FLAG(RESERVED30,			'?', '-'),
-	TAINT_FLAG(RESERVED31,			'?', '-'),
+	TAINT_FLAG(UNPRIVILEGED_BPF,		'u', ' '),
 };
 
 #undef TAINT_FLAG
