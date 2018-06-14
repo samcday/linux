@@ -825,6 +825,18 @@ const struct taint_flag taint_flags[TAINT_FLAGS_COUNT] = {
 	TAINT_FLAG(RANDSTRUCT,			'T', ' '),
 	TAINT_FLAG(TEST,			'N', ' '),
 	TAINT_FLAG(FWCTL,			'J', ' '),
+	TAINT_FLAG(20,				'?', '-'),
+	TAINT_FLAG(21,				'?', '-'),
+	TAINT_FLAG(22,				'?', '-'),
+	TAINT_FLAG(23,				'?', '-'),
+	TAINT_FLAG(24,				'?', '-'),
+	TAINT_FLAG(25,				'?', '-'),
+	TAINT_FLAG(26,				'?', '-'),
+	TAINT_FLAG(27,				'?', '-'),
+	TAINT_FLAG(RESERVED28,			'?', '-'),
+	TAINT_FLAG(RESERVED29,			'?', '-'),
+	TAINT_FLAG(RESERVED30,			'?', '-'),
+	TAINT_FLAG(RESERVED31,			'?', '-'),
 };
 
 #undef TAINT_FLAG
