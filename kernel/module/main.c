@@ -604,6 +604,7 @@ static const struct module_attribute modinfo_##field = {              \
 
 MODINFO_ATTR(version);
 MODINFO_ATTR(srcversion);
+MODINFO_ATTR(rhelversion);
 
 static void setup_modinfo_import_ns(struct module *mod, const char *s)
 {
@@ -1086,6 +1087,7 @@ const struct module_attribute *const modinfo_attrs[] = {
 	&module_uevent,
 	&modinfo_version,
 	&modinfo_srcversion,
+	&modinfo_rhelversion,
 	&modinfo_import_ns,
 	&modinfo_initstate,
 	&modinfo_coresize,

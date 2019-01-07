@@ -413,6 +413,7 @@ struct module {
 	struct module_attribute *modinfo_attrs;
 	const char *version;
 	const char *srcversion;
+	const char *rhelversion;
 	const char *imported_namespaces;
 	struct kobject *holders_dir;
 
