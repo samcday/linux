@@ -132,47 +132,13 @@
 &esdhc3 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_esdhc3>;
-	non-removable;
 	vmmc-supply = <&reg_3p3v>;
 	vqmmc-supply = <&reg_3p3v>;
+	bus-width = <8>;
+	non-removable;
+	// max-frequency = <50000000>;
+	disable-wp;
 	status = "okay";
-
-	partitions {
-		compatible = "fixed-partitions";
-		#address-cells = <1>;
-		#size-cells = <1>;
-
-		kernel: kernel@41000 {
-			label = "kernel";
-			reg = <0x41000 0xe00000>;
-		};
-
-		diags_kernel: diags_kernel@e41000 {
-			label = "diags_kernel";
-			reg = <0xe41000 0xe00000>;
-		};
-	};
-
-	boot0-partitions {
-		compatible = "fixed-partitions";
-		#address-cells = <1>;
-		#size-cells = <1>;
-
-		imx_header: imx_header@400 {
-			label = "imx_header";
-			reg = <0x400 0x800>;
-		};
-
-		self: self@1000 {
-			label = "self";
-			reg = <0x1000 0x3e000>;
-		};
-
-		userdata: userdata@3f000 {
-			label = "userdata";
-			reg = <0x3f000 0x1400>;
-		};
-	};
 };
 
 &ecspi2 {
@@ -238,11 +204,11 @@
 				regulator-always-on;
 			};
 
-			vdig_reg: vdig {
-				regulator-min-microvolt = <1200000>;
-				regulator-max-microvolt = <1200000>;
-				regulator-boot-on;
-			};
+			// vdig_reg: vdig {
+			// 	regulator-min-microvolt = <1200000>;
+			// 	regulator-max-microvolt = <1200000>;
+			// 	regulator-boot-on;
+			// };
 
 			vpll_reg: vpll {
 				regulator-min-microvolt = <1050000>;
