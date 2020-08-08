@@ -1,85 +1,71 @@
-// SPDX-License-Identifier: GPL-2.0+
-//
-// Copyright 2013 Greg Ungerer <gerg@uclinux.org>
-// Copyright 2011 Freescale Semiconductor, Inc.
-// Copyright 2011 Linaro Ltd.
+/*
+ * Copyright 2017 Alexander Kurz <akurz@blala.de>
+ *
+ * The code contained herein is licensed under the GNU General Public
+ * License. You may obtain a copy of the GNU General Public License
+ * Version 2 or later at the following locations:
+ *
+ * http://www.opensource.org/licenses/gpl-license.html
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 /dts-v1/;
-#include "imx50.dtsi"
+#include "imx50-kindle-common.dtsi"
+#include <dt-bindings/interrupt-controller/irq.h>
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/input/input.h>
 
 / {
 	model = "Amazon Kindle 4th Generation (Tequila)";
-	compatible = "fsl,imx50-evk", "fsl,imx50";
+	compatible = "amazon,kindle-d01100", "fsl,imx50";
 
 	chosen {
-		stdout-path = "serial0:115200n8";
+		stdout-path = &uart1;
 	};
 
 	memory@70000000 {
 		device_type = "memory";
-		reg = <0x70000000 0x80000000>;
+		reg = <0x70000000 0x10000000>;
 	};
-};
-
-&cspi {
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_cspi>;
-	cs-gpios = <&gpio4 11 0>, <&gpio4 13 0>;
-	status = "okay";
 };
 
 &iomuxc {
-	imx50-tequila {
-		pinctrl_uart1: uart1grp {
-			fsl,pins = <
-				MX50_PAD_UART1_TXD__UART1_TXD_MUX	0x1c4
-				MX50_PAD_UART1_RXD__UART1_RXD_MUX	0x1e4
-			>;
-		};
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_hog>;
 
-		pinctrl_wdog: wdoggrp {
+	imx50-kindle-d01100 {
+		pinctrl_hog: hoggrp {
 			fsl,pins = <
-				MX50_PAD_WDOG__WDOG1_WDOG_RST_B_DEB	0xc
-			>;
-		};
-
-		pinctrl_cspi: cspigrp {
-			fsl,pins = <
-				MX50_PAD_CSPI_MISO__CSPI_MISO		0xc4
-				MX50_PAD_CSPI_MOSI__CSPI_MOSI		0xc4
-				MX50_PAD_CSPI_SCLK__CSPI_SCLK		0xc4
-				MX50_PAD_CSPI_SS0__GPIO4_11			0x0
-				MX50_PAD_ECSPI1_MOSI__GPIO4_13		0xc4
-			>;
-		};
-
-		pinctrl_pmic: pmicgrp {
-			fsl,pins = <
-				MX50_PAD_UART1_CTS__GPIO6_8		0x1c4
-			>;
-		};
-
-		pinctrl_sdhc1: sdhc1grp {
-			fsl,pins = <
-				MX50_PAD_SD1_CMD__ESDHC1_CMD		0x400020d5
-				MX50_PAD_SD1_CLK__ESDHC1_CLK		0x20d5
-				MX50_PAD_SD1_D0__ESDHC1_DAT0		0x20d5
-				MX50_PAD_SD1_D1__ESDHC1_DAT1		0x20d5
-				MX50_PAD_SD1_D2__ESDHC1_DAT2		0x20d5
-				MX50_PAD_SD1_D3__ESDHC1_DAT3		0x20d5
+				MX50_PAD_EIM_EB1__GPIO1_20		0xc0
+				MX50_PAD_EIM_EB0__GPIO1_19		0xc0
+				MX50_PAD_EIM_CS2__GPIO1_16		0xc0
+				MX50_PAD_EIM_CS1__GPIO1_17		0xc0
+				MX50_PAD_EIM_CS0__GPIO1_18		0xc0
+				MX50_PAD_SSI_RXC__GPIO6_5		0x84
 			>;
 		};
 	};
 };
 
-&uart1 {
+&i2c2 {
+	clock-frequency = <50000>;
 	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_uart1>;
+	pinctrl-0 = <&pinctrl_i2c2>;
 	status = "okay";
-};
- 
-&sdhc1 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_sdhc1>;
-	status = "okay";
+
+	max14656@35 {
+		compatible = "maxim,max14656";
+		reg = <0x35>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_charger_detect>;
+		interrupt-parent = <&gpio6>;
+		interrupts = <26 IRQ_TYPE_LEVEL_HIGH>;
+	};
+
+	smart-battery@55 {
+		compatible = "ti,bq27210";
+		reg = <0x55>;
+		ti,i2c-retry-count = <2>;
+		ti,poll-retry-count = <10>;
+	};
 };

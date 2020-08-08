@@ -1,0 +1,94 @@
+[root@kindle fread]# ./kexec --type=zImage -f ./zImage_with_dtb
+MX50 Accessory shutdown
+MXC Watchdog # 0 shutdown
+Starting new kernel
+Bye!
+Uncompressing Linux... done, booting the kernel.
+Booting Linux on physical CPU 0x0
+Linux version 5.8.0-kindle4+ (jmacato@sabertooth) (arm-linux-gnueabihf-gcc (GCC) 9.3.0, GNU ld (GNU Binutils) 2.32) #2 Sat Aug 8 11:11:33 PST 2020
+CPU: ARMv7 Processor [412fc085] revision 5 (ARMv7), cr=50c5387d
+CPU: PIPT / VIPT nonaliasing data cache, VIPT aliasing instruction cache
+OF: fdt: Machine model: Amazon Kindle 4th Generation (Tequila)
+Memory policy: Data cache writeback
+Zone ranges:
+  Normal   [mem 0x0000000070000000-0x000000007fffffff]
+Movable zone start for each node
+Early memory node ranges
+  node   0: [mem 0x0000000070000000-0x000000007fffffff]
+Initmem setup node 0 [mem 0x0000000070000000-0x000000007fffffff]
+CPU: All CPU(s) started in SVC mode.
+Built 1 zonelists, mobility grouping on.  Total pages: 65024
+Kernel command line: console=ttymxc0,115200n8 earlycon
+Dentry cache hash table entries: 32768 (order: 5, 131072 bytes, linear)
+Inode-cache hash table entries: 16384 (order: 4, 65536 bytes, linear)
+mem auto-init: stack:off, heap alloc:off, heap free:off
+Memory: 254352K/262144K available (3072K kernel code, 177K rwdata, 808K rodata, 1024K init, 141K bss, 7792K reserved, 0K cma-reserved)
+SLUB: HWalign=64, Order=0-3, MinObjects=0, CPUs=1, Nodes=1
+NR_IRQS: 16, nr_irqs: 16, preallocated irqs: 16
+TrustZone Interrupt Controller (TZIC) initialized
+random: get_random_bytes called from start_kernel+0x271/0x3ac with crng_init=0
+CPU identified as i.MX50, silicon rev 1.1
+Switching to timer-based delay loop, resolution 125ns
+sched_clock: 32 bits at 8MHz, resolution 125ns, wraps every 268435455937ns
+clocksource: mxc_timer1: mask: 0xffffffff max_cycles: 0xffffffff, max_idle_ns: 238907555784 ns
+Console: colour dummy device 80x30
+Calibrating delay loop (skipped), value calculated using timer frequency.. 16.00 BogoMIPS (lpj=40000)
+pid_max: default: 32768 minimum: 301
+Mount-cache hash table entries: 1024 (order: 0, 4096 bytes, linear)
+Mountpoint-cache hash table entries: 1024 (order: 0, 4096 bytes, linear)
+CPU: Testing write buffer coherency: ok
+CPU0: Spectre v2: firmware did not set auxiliary control register IBE bit, system vulnerable
+Setting up static identity map for 0x70100000 - 0x70100038
+devtmpfs: initialized
+VFP support v0.3: implementor 41 architecture 3 part 30 variant c rev 2
+clocksource: jiffies: mask: 0xffffffff max_cycles: 0xffffffff, max_idle_ns: 9556302231375000 ns
+futex hash table entries: 256 (order: -1, 3072 bytes, linear)
+pinctrl core: initialized pinctrl subsystem
+NET: Registered protocol family 16
+DMA: preallocated 256 KiB pool for atomic coherent allocations
+cpuidle: using governor menu
+No ATAGs?
+imx50-pinctrl 53fa8000.iomuxc: initialized IMX pinctrl driver
+cryptd: max_cpu_qlen set to 1000
+clocksource: Switched to clocksource mxc_timer1
+NET: Registered protocol family 2
+tcp_listen_portaddr_hash hash table entries: 512 (order: 0, 4096 bytes, linear)
+TCP established hash table entries: 2048 (order: 1, 8192 bytes, linear)
+TCP bind hash table entries: 2048 (order: 1, 8192 bytes, linear)
+TCP: Hash tables configured (established 2048 bind 2048)
+UDP hash table entries: 256 (order: 0, 4096 bytes, linear)
+UDP-Lite hash table entries: 256 (order: 0, 4096 bytes, linear)
+NET: Registered protocol family 1
+workingset: timestamp_bits=30 max_order=16 bucket_order=0
+Block layer SCSI generic (bsg) driver version 0.4 loaded (major 251)
+io scheduler mq-deadline registered
+io scheduler kyber registered
+imx-sdma 63fb0000.sdma: loaded firmware 1.0
+53fbc000.serial: ttymxc0 at MMIO 0x53fbc000 (irq = 47, base_baud = 1500000) is a IMX
+printk: console [ttymxc0] enabled
+loop: module loaded
+zram: Added device: zram0
+spi_imx 63fc0000.spi: dma setup error -19, use pio
+spi_imx 63fc0000.spi: probed
+NET: Registered protocol family 10
+Segment Routing with IPv6
+NET: Registered protocol family 17
+ThumbEE CPU extension supported.
+Registering SWP/SWPB emulation handler
+VFS: Cannot open root device "(null)" or unknown-block(0,0): error -6
+Please append a correct "root=" boot option; here are the available partitions:
+Kernel panic - not syncing: VFS: Unable to mount root fs on unknown-block(0,0)
+CPU: 0 PID: 1 Comm: swapper Not tainted 5.8.0-kindle4+ #2
+Hardware name: Freescale i.MX50 (Device Tree Support)
+[<80108b39>] (unwind_backtrace) from [<8010779b>] (show_stack+0xb/0xc)
+[<8010779b>] (show_stack) from [<8011787f>] (panic+0xb7/0x230)
+[<8011787f>] (panic) from [<8050117b>] (mount_block_root+0x23d/0x2a4)
+[<8050117b>] (mount_block_root) from [<80501329>] (prepare_namespace+0xe1/0x118)
+[<80501329>] (prepare_namespace) from [<80390763>] (kernel_init+0x7/0xd0)
+[<80390763>] (kernel_init) from [<80100129>] (ret_from_fork+0x11/0x28)
+Exception stack(0x8f849fb0 to 0x8f849ff8)
+9fa0:                                     00000000 00000000 00000000 00000000
+9fc0: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+9fe0: 00000000 00000000 00000000 00000000 00000013 00000000
+---[ end Kernel panic - not syncing: VFS: Unable to mount root fs on unknown-block(0,0) ]---
+<break>
