@@ -33,15 +33,17 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_hog>;
 
-	pinctrl_hog: hoggrp {
-		fsl,pins = <
-			MX50_PAD_EIM_EB1__GPIO1_20		0xc0
-			MX50_PAD_EIM_EB0__GPIO1_19		0xc0
-			MX50_PAD_EIM_CS2__GPIO1_16		0xc0
-			MX50_PAD_EIM_CS1__GPIO1_17		0xc0
-			MX50_PAD_EIM_CS0__GPIO1_18		0xc0
-			MX50_PAD_SSI_RXC__GPIO6_5		0x84
-		>;
+	imx50-kindle4nt {
+		pinctrl_hog: hoggrp {
+			fsl,pins = <
+				MX50_PAD_EIM_EB1__GPIO1_20		0xc0
+				MX50_PAD_EIM_EB0__GPIO1_19		0xc0
+				MX50_PAD_EIM_CS2__GPIO1_16		0xc0
+				MX50_PAD_EIM_CS1__GPIO1_17		0xc0
+				MX50_PAD_EIM_CS0__GPIO1_18		0xc0
+				MX50_PAD_SSI_RXC__GPIO6_5		0x84
+			>;
+		};
 	};
 };
 
