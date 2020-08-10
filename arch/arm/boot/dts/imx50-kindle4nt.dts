@@ -38,7 +38,6 @@
 		col-scan-delay-us = <10>;
 		debounce-delay-ms = <10>;
 		wakeup-source;
-		// gpio-activelow;
 
 		col-gpios = <&gpio5 12 GPIO_ACTIVE_LOW>;
 
