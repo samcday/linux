@@ -32,6 +32,22 @@
 
 &iomuxc {
 	imx50-kindle {
+
+		pinctrl_keyboard: keyboardgrp {
+			fsl,pins = <
+				MX50_PAD_KEY_COL0__KPP_COL_0 	0xc4 
+				MX50_PAD_KEY_ROW0__KPP_ROW_0 	0xc4
+				MX50_PAD_KEY_COL1__KPP_COL_1 	0xc4
+				MX50_PAD_KEY_ROW1__KPP_ROW_1 	0xc4
+				MX50_PAD_KEY_COL2__KPP_COL_2 	0xc4
+				MX50_PAD_KEY_ROW2__KPP_ROW_2 	0xc4
+				MX50_PAD_KEY_COL3__KPP_COL_3 	0xc4
+				MX50_PAD_KEY_ROW3__KPP_ROW_3 	0xc4
+				
+				MX50_PAD_SD2_D4__KPP_COL_6	 	0xc4
+			>;
+		};
+
 		pinctrl_uart1: uart1grp {
 			fsl,pins = <
 				MX50_PAD_UART1_TXD__UART1_TXD_MUX	0xe4
@@ -79,20 +95,20 @@
 			>;
 		};
 
-		pinctrl_esdhc2: esdhc2grp {
-			fsl,pins = <
-				MX50_PAD_SD2_CMD__ESDHC2_CMD		0x84
-				MX50_PAD_SD2_CLK__ESDHC2_CLK		0x84
-				MX50_PAD_SD2_D0__ESDHC2_DAT0		0x84
-				MX50_PAD_SD2_D1__ESDHC2_DAT1		0x84
-				MX50_PAD_SD2_D2__ESDHC2_DAT2		0x84
-				MX50_PAD_SD2_D3__ESDHC2_DAT3		0x84
+		// pinctrl_esdhc2: esdhc2grp {
+		// 	fsl,pins = <
+		// 		MX50_PAD_SD2_CMD__ESDHC2_CMD		0x84
+		// 		MX50_PAD_SD2_CLK__ESDHC2_CLK		0x84
+		// 		MX50_PAD_SD2_D0__ESDHC2_DAT0		0x84
+		// 		MX50_PAD_SD2_D1__ESDHC2_DAT1		0x84
+		// 		MX50_PAD_SD2_D2__ESDHC2_DAT2		0x84
+		// 		MX50_PAD_SD2_D3__ESDHC2_DAT3		0x84
 
-				MX50_PAD_EIM_DA5__GPIO1_5		0xe4 /* wake-on-lan */
-				MX50_PAD_SD3_WP__GPIO5_28		0x84 /* power */
-				MX50_PAD_DISP_RS__GPIO2_17		0xe4 /* ? */
-			>;
-		};
+		// 		MX50_PAD_EIM_DA5__GPIO1_5		0xe4 /* wake-on-lan */
+		// 		MX50_PAD_SD3_WP__GPIO5_28		0x84 /* power */
+		// 		MX50_PAD_DISP_RS__GPIO2_17		0xe4 /* ? */
+		// 	>;
+		// };
 
 		pinctrl_i2c1: i2c1grp {
 			fsl,pins = <
@@ -136,7 +152,7 @@
 	vqmmc-supply = <&reg_3p3v>;
 	bus-width = <8>;
 	non-removable;
-	// max-frequency = <50000000>;
+	// max-frequency = <52000000>;
 	disable-wp;
 	status = "okay";
 };
@@ -274,8 +290,8 @@
 	};
 };
 
-&usbotg {
-	phy_type = "utmi";
-	dr_mode = "peripheral";
-	status = "okay";
-};
+// &usbotg {
+// 	phy_type = "utmi";
+// 	dr_mode = "peripheral";
+// 	status = "okay";
+// };
