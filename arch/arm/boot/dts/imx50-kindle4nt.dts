@@ -51,16 +51,16 @@
 			&gpio4 4 GPIO_ACTIVE_LOW
 			&gpio4 6 GPIO_ACTIVE_LOW
 		>;
-
+ 
 		linux,keymap = <
-			MATRIX_KEY(0, 0, KEY_A)
-			MATRIX_KEY(1, 0, KEY_S)
-			MATRIX_KEY(2, 0, KEY_D)
-			MATRIX_KEY(3, 0, KEY_F)
-			MATRIX_KEY(4, 0, KEY_G)
-			MATRIX_KEY(5, 0, KEY_H)
-			MATRIX_KEY(6, 0, KEY_J)
-			MATRIX_KEY(7, 0, KEY_K) 
+			MATRIX_KEY(0, 0, KEY_LEFTCTRL)
+			MATRIX_KEY(1, 0, KEY_MENU)
+			MATRIX_KEY(2, 0, KEY_PAGEDOWN)
+			MATRIX_KEY(3, 0, KEY_F21)
+			MATRIX_KEY(4, 0, KEY_F23)
+			MATRIX_KEY(5, 0, KEY_PAGEUP)
+			MATRIX_KEY(6, 0, KEY_HOME)
+			MATRIX_KEY(7, 0, KEY_BACK) 
 		>;
 
 	};
@@ -74,28 +74,28 @@
 			label = "Fiveway UP Button";
 			gpios = <&gpio1 20 GPIO_ACTIVE_LOW>;
 			linux,code = <KEY_UP>;
-			autorepeat;
+			linux,autorepeat;
 		};
 
 		down {
 			label = "Fiveway DOWN Button";
 			gpios = <&gpio1 19 GPIO_ACTIVE_LOW>;
 			linux,code = <KEY_DOWN>;
-			autorepeat;
+			linux,autorepeat;
 		};
 
 		left {
 			label = "Fiveway LEFT Button";
 			gpios = <&gpio1 16 GPIO_ACTIVE_LOW>;
 			linux,code = <KEY_LEFT>;
-			autorepeat;
+			linux,autorepeat;
 		};
 
 		right {
 			label = "Fiveway RIGHT Button";
 			gpios = <&gpio1 17 GPIO_ACTIVE_LOW>;
 			linux,code = <KEY_RIGHT>;
-			autorepeat;
+			linux,autorepeat;
 		};
 
 		select {
