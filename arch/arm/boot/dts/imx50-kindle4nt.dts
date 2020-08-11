@@ -17,8 +17,8 @@
 #include <dt-bindings/input/input.h>
 
 / {
-	model = "Amazon Kindle 4th Generation (Tequila)";
-	compatible = "amazon,kindle-d01100", "fsl,imx50";
+	model = "Kindle 4th Generation (Tequila)";
+	compatible = "fsl,imx50";
 
 	chosen {
 		stdout-path = &uart1;
