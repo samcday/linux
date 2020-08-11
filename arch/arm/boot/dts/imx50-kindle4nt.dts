@@ -338,7 +338,7 @@
 				regulator-min-microvolt = <2500000>;
 				regulator-max-microvolt = <3000000>;
 			};
-			
+
 			vgen2_reg: vgen2 {
 				regulator-min-microvolt = <1200000>;
 				regulator-max-microvolt = <3150000>;
@@ -385,4 +385,12 @@
 		ti,i2c-retry-count = <2>;
 		ti,poll-retry-count = <10>;
 	};
+};
+
+&usbh1 {
+	status = "okay";
+};
+
+&usbotg {
+	status = "okay";
 };
