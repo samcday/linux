@@ -29,15 +29,15 @@
 		reg = <0x70000000 0x10000000>;
 	};
 
-
-	keyboard {
+	sidebuttons: keyboard {
 		compatible = "gpio-matrix-keypad";
 		pinctrl-names = "default";
-		pinctrl-0 = <&pinctrl_keyboard>;
+		pinctrl-0 = <&pinctrl_sidebuttons>;
 
 		col-scan-delay-us = <10>;
 		debounce-delay-ms = <10>;
-		wakeup-source;
+
+		linux,no-autorepeat;
 
 		col-gpios = <&gpio5 12 GPIO_ACTIVE_LOW>;
 
@@ -54,47 +54,76 @@
 
 		linux,keymap = <
 			MATRIX_KEY(0, 0, KEY_A)
-			MATRIX_KEY(1, 0, KEY_B)
-			MATRIX_KEY(2, 0, KEY_C)
-			MATRIX_KEY(3, 0, KEY_D)
-			MATRIX_KEY(4, 0, KEY_E)
-			MATRIX_KEY(5, 0, KEY_F)
-			MATRIX_KEY(6, 0, KEY_G)
-			MATRIX_KEY(7, 0, KEY_H) 
+			MATRIX_KEY(1, 0, KEY_S)
+			MATRIX_KEY(2, 0, KEY_D)
+			MATRIX_KEY(3, 0, KEY_F)
+			MATRIX_KEY(4, 0, KEY_G)
+			MATRIX_KEY(5, 0, KEY_H)
+			MATRIX_KEY(6, 0, KEY_J)
+			MATRIX_KEY(7, 0, KEY_K) 
 		>;
 
-		// linux,keymap = <
-		// 	MATRIX_KEY(0, 0, KEY_LEFTCTRL)
-		// 	MATRIX_KEY(0, 1, KEY_MENU)
-		// 	MATRIX_KEY(0, 2, KEY_PAGEDOWN)
-		// 	MATRIX_KEY(0, 3, KEY_F21)
-		// 	MATRIX_KEY(0, 4, KEY_F23)
-		// 	MATRIX_KEY(0, 5, KEY_PAGEUP)
-		// 	MATRIX_KEY(0, 6, KEY_HOME)
-		// 	MATRIX_KEY(0, 7, KEY_BACK) 
-		// >;
-
 	};
 
-};
+	fiveway: gpio-keys {
+		compatible = "gpio-keys";
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_fivewaybuttons>;
 
-&iomuxc {
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_hog>;
+		up {
+			label = "Fiveway UP Button";
+			gpios = <&gpio1 20 GPIO_ACTIVE_LOW>;
+			linux,code = <KEY_UP>;
+			autorepeat;
+		};
 
-	imx50-kindle4nt {
-		pinctrl_hog: hoggrp {
-			fsl,pins = <
-				MX50_PAD_EIM_EB1__GPIO1_20		0xc0
-				MX50_PAD_EIM_EB0__GPIO1_19		0xc0
-				MX50_PAD_EIM_CS2__GPIO1_16		0xc0
-				MX50_PAD_EIM_CS1__GPIO1_17		0xc0
-				MX50_PAD_EIM_CS0__GPIO1_18		0xc0
-				MX50_PAD_SSI_RXC__GPIO6_5		0x84
-			>;
+		down {
+			label = "Fiveway DOWN Button";
+			gpios = <&gpio1 19 GPIO_ACTIVE_LOW>;
+			linux,code = <KEY_DOWN>;
+			autorepeat;
+		};
+
+		left {
+			label = "Fiveway LEFT Button";
+			gpios = <&gpio1 16 GPIO_ACTIVE_LOW>;
+			linux,code = <KEY_LEFT>;
+			autorepeat;
+		};
+
+		right {
+			label = "Fiveway RIGHT Button";
+			gpios = <&gpio1 17 GPIO_ACTIVE_LOW>;
+			linux,code = <KEY_RIGHT>;
+			autorepeat;
+		};
+
+		select {
+			label = "Fiveway SELECT Button";
+			gpios = <&gpio1 18 GPIO_ACTIVE_LOW>;
+			linux,code = <KEY_ENTER>;
 		};
 	};
+
 };
+
+// &iomuxc {
+// 	pinctrl-names = "default";
+// 	pinctrl-0 = <&pinctrl_hog>;
+
+// 	imx50-kindle4nt {
+// 		pinctrl_hog: hoggrp {
+// 			fsl,pins = <
+// 				MX50_PAD_EIM_EB1__GPIO1_20		0xc0
+// 				MX50_PAD_EIM_EB0__GPIO1_19		0xc0
+// 				MX50_PAD_EIM_CS2__GPIO1_16		0xc0
+// 				MX50_PAD_EIM_CS1__GPIO1_17		0xc0
+// 				MX50_PAD_EIM_CS0__GPIO1_18		0xc0
+// 				MX50_PAD_SSI_RXC__GPIO6_5		0x84
+// 			>;
+// 		};
+// 	};
+// };
 
 &i2c2 {
 	clock-frequency = <50000>;
