@@ -65,65 +65,50 @@
 
 	};
 
-	fiveway: gpio-keys {
+	fiveway_directional: gpio-keys0 {
 		compatible = "gpio-keys";
 		pinctrl-names = "default";
-		pinctrl-0 = <&pinctrl_fivewaybuttons>;
+		pinctrl-0 = <&pinctrl_fiveway_directional>;
+		autorepeat;
 
 		up {
 			label = "Fiveway UP Button";
-			gpios = <&gpio1 20 GPIO_ACTIVE_LOW>;
+			gpios = <&gpio1 20 GPIO_ACTIVE_HIGH>;
 			linux,code = <KEY_UP>;
-			linux,autorepeat;
 		};
 
 		down {
 			label = "Fiveway DOWN Button";
-			gpios = <&gpio1 19 GPIO_ACTIVE_LOW>;
+			gpios = <&gpio1 19 GPIO_ACTIVE_HIGH>;
 			linux,code = <KEY_DOWN>;
-			linux,autorepeat;
 		};
 
 		left {
 			label = "Fiveway LEFT Button";
-			gpios = <&gpio1 16 GPIO_ACTIVE_LOW>;
+			gpios = <&gpio1 16 GPIO_ACTIVE_HIGH>;
 			linux,code = <KEY_LEFT>;
-			linux,autorepeat;
 		};
 
 		right {
 			label = "Fiveway RIGHT Button";
-			gpios = <&gpio1 17 GPIO_ACTIVE_LOW>;
+			gpios = <&gpio1 17 GPIO_ACTIVE_HIGH>;
 			linux,code = <KEY_RIGHT>;
-			linux,autorepeat;
-		};
-
-		select {
-			label = "Fiveway SELECT Button";
-			gpios = <&gpio1 18 GPIO_ACTIVE_LOW>;
-			linux,code = <KEY_ENTER>;
 		};
 	};
 
+	fiveway_select: gpio-keys1 {
+		compatible = "gpio-keys";
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_fiveway_select>;
+		wakeup-source;
+
+		select {
+			label = "Fiveway SELECT Button";
+			gpios = <&gpio1 18 GPIO_ACTIVE_HIGH>;
+			linux,code = <KEY_ENTER>;
+		};
+	};
 };
-
-// &iomuxc {
-// 	pinctrl-names = "default";
-// 	pinctrl-0 = <&pinctrl_hog>;
-
-// 	imx50-kindle4nt {
-// 		pinctrl_hog: hoggrp {
-// 			fsl,pins = <
-// 				MX50_PAD_EIM_EB1__GPIO1_20		0xc0
-// 				MX50_PAD_EIM_EB0__GPIO1_19		0xc0
-// 				MX50_PAD_EIM_CS2__GPIO1_16		0xc0
-// 				MX50_PAD_EIM_CS1__GPIO1_17		0xc0
-// 				MX50_PAD_EIM_CS0__GPIO1_18		0xc0
-// 				MX50_PAD_SSI_RXC__GPIO6_5		0x84
-// 			>;
-// 		};
-// 	};
-// };
 
 &i2c2 {
 	clock-frequency = <50000>;
