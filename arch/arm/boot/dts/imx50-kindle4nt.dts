@@ -315,12 +315,6 @@
 				regulator-always-on;
 			};
 
-			// vdig_reg: vdig {
-			// 	regulator-min-microvolt = <1200000>;
-			// 	regulator-max-microvolt = <1200000>;
-			// 	regulator-boot-on;
-			// };
-
 			vpll_reg: vpll {
 				regulator-min-microvolt = <1050000>;
 				regulator-max-microvolt = <1800000>;
@@ -335,16 +329,6 @@
 				regulator-always-on;
 			};
 
-			// vvideo_reg: vvideo {
-			// 	regulator-min-microvolt = <2775000>;
-			// 	regulator-max-microvolt = <2775000>;
-			// };
-
-			// vaudio_reg: vaudio {
-			// 	regulator-min-microvolt = <2300000>;
-			// 	regulator-max-microvolt = <3000000>;
-			// };
-
 			vsd_reg: vsd {
 				regulator-min-microvolt = <1800000>;
 				regulator-max-microvolt = <3150000>;
@@ -354,12 +338,7 @@
 				regulator-min-microvolt = <2500000>;
 				regulator-max-microvolt = <3000000>;
 			};
-
-			// vgen1_reg: vgen1 {
-			// 	regulator-min-microvolt = <3000000>;
-			// 	regulator-max-microvolt = <3000000>;
-			// };
-
+			
 			vgen2_reg: vgen2 {
 				regulator-min-microvolt = <1200000>;
 				regulator-max-microvolt = <3150000>;
