@@ -110,7 +110,6 @@
 		compatible = "gpio-keys";
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_fiveway_select>;
-		wakeup-source;
 
 		select {
 			label = "Fiveway SELECT Button";
@@ -121,8 +120,7 @@
 };
 
 &iomuxc {
-	imx50-kindle {
- 
+	imx50-kindle { 
 		/*
 			Values correlated from Linux 2.6.31 source 
 			in mx50_yoshi.c.
@@ -141,8 +139,8 @@
 
 				MX50_PAD_SD2_D4__GPIO5_12	0x00			
 			>;
-		};
- 
+		}; 
+
 		pinctrl_fiveway_directional: gpiokeysgrp1 {
 			fsl,pins = <
 				MX50_PAD_EIM_EB1__GPIO1_20  0x00 // Up
@@ -157,20 +155,11 @@
 				MX50_PAD_EIM_CS0__GPIO1_18  0x00 // Select
 			>;
 		};
-
+ 
 		pinctrl_uart1: uart1grp {
 			fsl,pins = <
 				MX50_PAD_UART1_TXD__UART1_TXD_MUX	0xe4
 				MX50_PAD_UART1_RXD__UART1_RXD_MUX	0xe4
-			>;
-		};
-
-		pinctrl_ecspi2: ecspi2grp {
-			fsl,pins = <
-				MX50_PAD_ECSPI2_SCLK__ECSPI2_SCLK	0x84
-				MX50_PAD_ECSPI2_MOSI__ECSPI2_MOSI	0x84
-				MX50_PAD_ECSPI2_MISO__ECSPI2_MISO	0x84
-				MX50_PAD_ECSPI2_SS0__GPIO4_19		0x84
 			>;
 		};
 
@@ -250,22 +239,6 @@
 	// max-frequency = <52000000>;
 	disable-wp;
 	status = "okay";
-};
-
-&ecspi2 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_ecspi2>;
-	fsl,spi-num-chipselects = <1>;
-	cs-gpios = <&gpio4 19 0>;
-	status = "okay";
-
-	flash: m25p80@0 {
-		#address-cells = <1>;
-		#size-cells = <1>;
-		compatible = "jedec,spi-nor";
-		spi-max-frequency = <1000000>;
-		reg = <0>;
-	};
 };
 
 &cspi {
@@ -385,12 +358,4 @@
 		ti,i2c-retry-count = <2>;
 		ti,poll-retry-count = <10>;
 	};
-};
-
-&usbh1 {
-	status = "okay";
-};
-
-&usbotg {
-	status = "okay";
 };
