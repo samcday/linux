@@ -55,6 +55,9 @@ struct lapbethdev {
 
 static LIST_HEAD(lapbeth_devices);
 
+static void lapbeth_connected(struct net_device *dev, int reason);
+static void lapbeth_disconnected(struct net_device *dev, int reason);
+
 /* ------------------------------------------------------------------------ */
 
 /*
@@ -167,11 +170,17 @@ static netdev_tx_t lapbeth_xmit(struct sk_buff *skb,
 	case X25_IFACE_DATA:
 		break;
 	case X25_IFACE_CONNECT:
-		if ((err = lapb_connect_request(dev)) != LAPB_OK)
+		err = lapb_connect_request(dev);
+		if (err == LAPB_CONNECTED)
+			lapbeth_connected(dev, LAPB_OK);
+		else if (err != LAPB_OK)
 			pr_err("lapb_connect_request error: %d\n", err);
 		goto drop;
 	case X25_IFACE_DISCONNECT:
-		if ((err = lapb_disconnect_request(dev)) != LAPB_OK)
+		err = lapb_disconnect_request(dev);
+		if (err == LAPB_NOTCONNECTED)
+			lapbeth_disconnected(dev, LAPB_OK);
+		else if (err != LAPB_OK)
 			pr_err("lapb_disconnect_request err: %d\n", err);
 		fallthrough;
 	default:
@@ -198,8 +207,6 @@ static void lapbeth_data_transmit(struct net_device *ndev, struct sk_buff *skb)
 	struct net_device *dev;
 	int size = skb->len;
 
-	skb->protocol = htons(ETH_P_X25);
-
 	ptr = skb_push(skb, 2);
 
 	*ptr++ = size % 256;
@@ -209,6 +216,10 @@ static void lapbeth_data_transmit(struct net_device *ndev, struct sk_buff *skb)
 	ndev->stats.tx_bytes += size;
 
 	skb->dev = dev = lapbeth->ethdev;
+
+	skb->protocol = htons(ETH_P_DEC);
+
+	skb_reset_network_header(skb);
 
 	dev_hard_header(skb, dev, ETH_P_DEC, bcast_addr, NULL, 0);
 
@@ -340,6 +351,7 @@ static int lapbeth_new_device(struct net_device *dev)
 	 */
 	ndev->needed_headroom = -1 + 3 + 2 + dev->hard_header_len
 					   + dev->needed_headroom;
+	ndev->needed_tailroom = dev->needed_tailroom;
 
 	lapbeth = netdev_priv(ndev);
 	lapbeth->axdev = ndev;

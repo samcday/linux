@@ -2100,15 +2100,6 @@ static void __fib_info_notify_update(struct net *net, struct fib_table *tb,
 			rtmsg_fib(RTM_NEWROUTE, htonl(n->key), fa,
 				  KEYLENGTH - fa->fa_slen, tb->tb_id,
 				  info, NLM_F_REPLACE);
-
-			/* call_fib_entry_notifiers will be removed when
-			 * in-kernel notifier is implemented and supported
-			 * for nexthop objects
-			 */
-			call_fib_entry_notifiers(net, FIB_EVENT_ENTRY_REPLACE,
-						 n->key,
-						 KEYLENGTH - fa->fa_slen, fa,
-						 NULL);
 		}
 	}
 }
@@ -2121,7 +2112,8 @@ void fib_info_notify_update(struct net *net, struct nl_info *info)
 		struct hlist_head *head = &net->ipv4.fib_table_hash[h];
 		struct fib_table *tb;
 
-		hlist_for_each_entry_rcu(tb, head, tb_hlist)
+		hlist_for_each_entry_rcu(tb, head, tb_hlist,
+					 lockdep_rtnl_is_held())
 			__fib_info_notify_update(net, tb, info);
 	}
 }

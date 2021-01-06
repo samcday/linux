@@ -154,7 +154,7 @@ int l3mdev_master_upper_ifindex_by_index_rcu(struct net *net, int ifindex)
 EXPORT_SYMBOL_GPL(l3mdev_master_upper_ifindex_by_index_rcu);
 
 /**
- *	l3mdev_fib_table - get FIB table id associated with an L3
+ *	l3mdev_fib_table_rcu - get FIB table id associated with an L3
  *                             master interface
  *	@dev: targeted interface
  */
@@ -241,6 +241,7 @@ EXPORT_SYMBOL_GPL(l3mdev_link_scope_lookup);
  *				L3 master device
  *	@net: network namespace for device index lookup
  *	@fl:  flow struct
+ *	@arg: store the table the rule matched with here
  */
 
 int l3mdev_fib_rule_match(struct net *net, struct flowi *fl,

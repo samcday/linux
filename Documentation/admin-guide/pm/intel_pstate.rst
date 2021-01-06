@@ -56,7 +56,7 @@ Operation Modes
 
 ``intel_pstate`` can operate in two different modes, active or passive.  In the
 active mode, it uses its own internal performance scaling governor algorithm or
-allows the hardware to do preformance scaling by itself, while in the passive
+allows the hardware to do performance scaling by itself, while in the passive
 mode it responds to requests made by a generic ``CPUFreq`` governor implementing
 a certain performance scaling algorithm.  Which of them will be in effect
 depends on what kernel command line options are used and on the capabilities of
@@ -123,7 +123,9 @@ Energy-Performance Bias (EPB) knob (otherwise), which means that the processor's
 internal P-state selection logic is expected to focus entirely on performance.
 
 This will override the EPP/EPB setting coming from the ``sysfs`` interface
-(see `Energy vs Performance Hints`_ below).
+(see `Energy vs Performance Hints`_ below).  Moreover, any attempts to change
+the EPP/EPB to a value different from 0 ("performance") via ``sysfs`` in this
+configuration will be rejected.
 
 Also, in this configuration the range of P-states available to the processor's
 internal P-state selection logic is always restricted to the upper boundary
@@ -378,13 +380,13 @@ argument is passed to the kernel in the command line.
 
 ``no_turbo``
 	If set (equal to 1), the driver is not allowed to set any turbo P-states
-	(see `Turbo P-states Support`_).  If unset (equalt to 0, which is the
+	(see `Turbo P-states Support`_).  If unset (equal to 0, which is the
 	default), turbo P-states can be set by the driver.
 	[Note that ``intel_pstate`` does not support the general ``boost``
 	attribute (supported by some other scaling drivers) which is replaced
 	by this one.]
 
-	This attrubute does not affect the maximum supported frequency value
+	This attribute does not affect the maximum supported frequency value
 	supplied to the ``CPUFreq`` core and exposed via the policy interface,
 	but it affects the maximum possible value of per-policy P-state	limits
 	(see `Interpretation of Policy Attributes`_ below for details).
