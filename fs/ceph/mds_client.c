@@ -176,6 +176,13 @@ static int parse_reply_info_in(void **p, void *end,
 			memset(&info->snap_btime, 0, sizeof(info->snap_btime));
 		}
 
+		/* snapshot count, remains zero for v<=3 */
+		if (struct_v >= 4) {
+			ceph_decode_64_safe(p, end, info->rsnaps, bad);
+		} else {
+			info->rsnaps = 0;
+		}
+
 		*p = end;
 	} else {
 		if (features & CEPH_FEATURE_MDS_INLINE_DATA) {
@@ -214,7 +221,7 @@ static int parse_reply_info_in(void **p, void *end,
 		}
 
 		info->dir_pin = -ENODATA;
-		/* info->snap_btime remains zero */
+		/* info->snap_btime and info->rsnaps remain zero */
 	}
 	return 0;
 bad:
@@ -433,6 +440,13 @@ static int ceph_parse_deleg_inos(void **p, void *end,
 
 		ceph_decode_64_safe(p, end, start, bad);
 		ceph_decode_64_safe(p, end, len, bad);
+
+		/* Don't accept a delegation of system inodes */
+		if (start < CEPH_INO_SYSTEM_BASE) {
+			pr_warn_ratelimited("ceph: ignoring reserved inode range delegation (start=0x%llx len=0x%llx)\n",
+					start, len);
+			continue;
+		}
 		while (len--) {
 			int err = xa_insert(&s->s_delegated_inos, ino = start++,
 					    DELEGATED_INO_AVAILABLE,
@@ -3306,7 +3320,7 @@ out_err:
 	/* kick calling process */
 	complete_request(mdsc, req);
 
-	ceph_update_metadata_latency(&mdsc->metric, req->r_start_latency,
+	ceph_update_metadata_metrics(&mdsc->metric, req->r_start_latency,
 				     req->r_end_latency, err);
 out:
 	ceph_mdsc_put_request(req);
@@ -3780,7 +3794,7 @@ static int reconnect_caps_cb(struct inode *inode, struct ceph_cap *cap,
 		rec.v1.cap_id = cpu_to_le64(cap->cap_id);
 		rec.v1.wanted = cpu_to_le32(__ceph_caps_wanted(ci));
 		rec.v1.issued = cpu_to_le32(cap->issued);
-		rec.v1.size = cpu_to_le64(inode->i_size);
+		rec.v1.size = cpu_to_le64(i_size_read(inode));
 		ceph_encode_timespec64(&rec.v1.mtime, &inode->i_mtime);
 		ceph_encode_timespec64(&rec.v1.atime, &inode->i_atime);
 		rec.v1.snaprealm = cpu_to_le64(ci->i_snap_realm->ino);
@@ -5038,7 +5052,7 @@ bad:
 	return;
 }
 
-static struct ceph_connection *con_get(struct ceph_connection *con)
+static struct ceph_connection *mds_get_con(struct ceph_connection *con)
 {
 	struct ceph_mds_session *s = con->private;
 
@@ -5047,7 +5061,7 @@ static struct ceph_connection *con_get(struct ceph_connection *con)
 	return NULL;
 }
 
-static void con_put(struct ceph_connection *con)
+static void mds_put_con(struct ceph_connection *con)
 {
 	struct ceph_mds_session *s = con->private;
 
@@ -5058,7 +5072,7 @@ static void con_put(struct ceph_connection *con)
  * if the client is unresponsive for long enough, the mds will kill
  * the session entirely.
  */
-static void peer_reset(struct ceph_connection *con)
+static void mds_peer_reset(struct ceph_connection *con)
 {
 	struct ceph_mds_session *s = con->private;
 	struct ceph_mds_client *mdsc = s->s_mdsc;
@@ -5067,7 +5081,7 @@ static void peer_reset(struct ceph_connection *con)
 	send_mds_reconnect(mdsc, s);
 }
 
-static void dispatch(struct ceph_connection *con, struct ceph_msg *msg)
+static void mds_dispatch(struct ceph_connection *con, struct ceph_msg *msg)
 {
 	struct ceph_mds_session *s = con->private;
 	struct ceph_mds_client *mdsc = s->s_mdsc;
@@ -5125,8 +5139,8 @@ out:
  * Note: returned pointer is the address of a structure that's
  * managed separately.  Caller must *not* attempt to free it.
  */
-static struct ceph_auth_handshake *get_authorizer(struct ceph_connection *con,
-					int *proto, int force_new)
+static struct ceph_auth_handshake *
+mds_get_authorizer(struct ceph_connection *con, int *proto, int force_new)
 {
 	struct ceph_mds_session *s = con->private;
 	struct ceph_mds_client *mdsc = s->s_mdsc;
@@ -5142,7 +5156,7 @@ static struct ceph_auth_handshake *get_authorizer(struct ceph_connection *con,
 	return auth;
 }
 
-static int add_authorizer_challenge(struct ceph_connection *con,
+static int mds_add_authorizer_challenge(struct ceph_connection *con,
 				    void *challenge_buf, int challenge_buf_len)
 {
 	struct ceph_mds_session *s = con->private;
@@ -5153,7 +5167,7 @@ static int add_authorizer_challenge(struct ceph_connection *con,
 					    challenge_buf, challenge_buf_len);
 }
 
-static int verify_authorizer_reply(struct ceph_connection *con)
+static int mds_verify_authorizer_reply(struct ceph_connection *con)
 {
 	struct ceph_mds_session *s = con->private;
 	struct ceph_mds_client *mdsc = s->s_mdsc;
@@ -5165,7 +5179,7 @@ static int verify_authorizer_reply(struct ceph_connection *con)
 		NULL, NULL, NULL, NULL);
 }
 
-static int invalidate_authorizer(struct ceph_connection *con)
+static int mds_invalidate_authorizer(struct ceph_connection *con)
 {
 	struct ceph_mds_session *s = con->private;
 	struct ceph_mds_client *mdsc = s->s_mdsc;
@@ -5288,15 +5302,15 @@ static int mds_check_message_signature(struct ceph_msg *msg)
 }
 
 static const struct ceph_connection_operations mds_con_ops = {
-	.get = con_get,
-	.put = con_put,
-	.dispatch = dispatch,
-	.get_authorizer = get_authorizer,
-	.add_authorizer_challenge = add_authorizer_challenge,
-	.verify_authorizer_reply = verify_authorizer_reply,
-	.invalidate_authorizer = invalidate_authorizer,
-	.peer_reset = peer_reset,
+	.get = mds_get_con,
+	.put = mds_put_con,
 	.alloc_msg = mds_alloc_msg,
+	.dispatch = mds_dispatch,
+	.peer_reset = mds_peer_reset,
+	.get_authorizer = mds_get_authorizer,
+	.add_authorizer_challenge = mds_add_authorizer_challenge,
+	.verify_authorizer_reply = mds_verify_authorizer_reply,
+	.invalidate_authorizer = mds_invalidate_authorizer,
 	.sign_message = mds_sign_message,
 	.check_message_signature = mds_check_message_signature,
 	.get_auth_request = mds_get_auth_request,
