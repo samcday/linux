@@ -8,6 +8,9 @@
 #include <dt-bindings/regulator/qcom,rpmh-regulator.h>
 #include <dt-bindings/sound/qcom,q6afe.h>
 #include <dt-bindings/sound/qcom,q6asm.h>
+#include <dt-bindings/sound/qcom,q6afe.h>
+#include <dt-bindings/sound/qcom,q6asm.h>
+#include <dt-bindings/sound/qcom,q6voice.h>
 #include "sdm845.dtsi"
 #include "sdm845-wcd9340.dtsi"
 #include "pm8998.dtsi"
@@ -529,8 +532,16 @@
 		};
 	};
 
+	dai-link-voicemmode1 {
+		link-name = "VoiceMMode1";
+		cpu {
+			sound-dai = <&q6voicedai VOICEMMODE1>;
+		};
+	};
+
 	tas2559-dai-link {
 		link-name = "Primary Spkr Playback";
+
 		cpu {
 			sound-dai = <&q6afedai QUATERNARY_MI2S_RX>;
 		};
@@ -540,7 +551,7 @@
 		};
 
 		codec {
-			sound-dai = <&tas2559_codec 0>;
+			sound-dai = <&tas2559_codec>;
 		};
 	};
 
@@ -727,3 +738,15 @@
 	qcom,snoc-host-cap-skip-quirk;
 };
 
+/* qdsp6 hacks */
+&q6cvp {
+	status = "okay";
+};
+
+&q6cvs {
+	status = "okay";
+};
+
+&q6mvm {
+	status = "okay";
+};
