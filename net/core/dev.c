@@ -4345,6 +4345,12 @@ static int dev_ifsioc(struct net *net, struct ifreq *ifr, unsigned int cmd)
 		default:
 			if ((cmd >= SIOCDEVPRIVATE &&
 			    cmd <= SIOCDEVPRIVATE + 15) ||
+
+#if defined(CONFIG_FEC_L2SWITCH)
+			    (cmd >= 0x9101 &&
+			    cmd <= 0x92ff) ||
+#endif
+
 			    cmd == SIOCBONDENSLAVE ||
 			    cmd == SIOCBONDRELEASE ||
 			    cmd == SIOCBONDSETHWADDR ||
@@ -4537,6 +4543,10 @@ int dev_ioctl(struct net *net, unsigned int cmd, void __user *arg)
 		 */
 		default:
 			if (cmd == SIOCWANDEV ||
+#if defined(CONFIG_FEC_L2SWITCH)
+			    (cmd >= 0x9101 &&
+			    cmd <= 0x92ff) ||
+#endif
 			    (cmd >= SIOCDEVPRIVATE &&
 			     cmd <= SIOCDEVPRIVATE + 15)) {
 				dev_load(net, ifr.ifr_name);
@@ -4783,12 +4793,6 @@ int register_netdevice(struct net_device *dev)
 	if (dev->features & NETIF_F_SG)
 		dev->features |= NETIF_F_GSO;
 
-	netdev_initialize_kobject(dev);
-	ret = netdev_register_kobject(dev);
-	if (ret)
-		goto err_uninit;
-	dev->reg_state = NETREG_REGISTERED;
-
 	/*
 	 *	Default initial state at registry is that the
 	 *	device is present.
@@ -4799,6 +4803,12 @@ int register_netdevice(struct net_device *dev)
 	dev_init_scheduler(dev);
 	dev_hold(dev);
 	list_netdevice(dev);
+
+	netdev_initialize_kobject(dev);
+	ret = netdev_register_kobject(dev);
+	if (ret)
+		goto err_uninit;
+	dev->reg_state = NETREG_REGISTERED;
 
 	/* Notify protocols, that a new device appeared. */
 	ret = call_netdevice_notifiers(NETDEV_REGISTER, dev);

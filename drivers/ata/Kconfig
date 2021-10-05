@@ -55,6 +55,14 @@ config SATA_AHCI
 
 	  If unsure, say N.
 
+config SATA_AHCI_PLATFORM
+	tristate "Platform AHCI SATA support"
+	help
+	  This option enables support for Platform AHCI Serial ATA
+	  controllers.
+
+	  If unsure, say N.
+
 config SATA_SIL24
 	tristate "Silicon Image 3124/3132 SATA support"
 	depends on PCI
@@ -751,5 +759,14 @@ config PATA_BF54X
 
 	  If unsure, say N.
 
+config PATA_FSL
+       tristate "Freescale on-chip PATA support"
+       depends on (ARCH_MX5 || ARCH_MX37 || ARCH_MX35 || ARCH_MX3 || ARCH_MX27)
+       help
+         On Freescale processors, say Y here if you wish to use the on-chip
+         ATA interface.
+         If you are unsure, say N to this.
+
 endif # ATA_SFF
+
 endif # ATA
