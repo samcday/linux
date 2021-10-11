@@ -29,17 +29,6 @@
 		reg = <0x70000000 0x10000000>;
 	};
 
-	/* this is a dummy fixed-voltage "regulator", mainly to satisfy
-	* the esdhc implementation requiring vmmc-supply and vqmmc-supply
-	*/
-	reg_3p3v: regulator-3p3v {
-		compatible = "regulator-fixed";
-		regulator-name = "3P3V";
-		regulator-min-microvolt = <3300000>;
-		regulator-max-microvolt = <3300000>;
-		regulator-always-on;
-	};
-
 	sidebuttons: keyboard {
 		compatible = "gpio-matrix-keypad";
 		pinctrl-names = "default";
@@ -232,8 +221,6 @@
 &esdhc3 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_esdhc3>;
-	vmmc-supply = <&reg_3p3v>;
-	vqmmc-supply = <&reg_3p3v>;
 	bus-width = <8>;
 	non-removable;
 	// max-frequency = <52000000>;
