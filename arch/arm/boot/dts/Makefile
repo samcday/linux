@@ -389,7 +389,8 @@ dtb-$(CONFIG_SOC_IMX35) += \
 	imx35-pdk.dtb
 dtb-$(CONFIG_SOC_IMX50) += \
 	imx50-evk.dtb \
-	imx50-kobo-aura.dtb
+	imx50-kobo-aura.dtb \
+	imx50-kindle4nt.dtb
 dtb-$(CONFIG_SOC_IMX51) += \
 	imx51-apf51.dtb \
 	imx51-apf51dev.dtb \
