@@ -1021,6 +1021,10 @@ static inline unsigned long find_kallsyms_symbol_value(struct module *mod,
 
 #endif  /* CONFIG_MODULES && CONFIG_KALLSYMS */
 
+#ifdef CONFIG_RHEL_DIFFERENCES
+void module_rh_check_status(const char * module_name);
+#endif
+
 /* Define __free(module_put) macro for struct module *. */
 DEFINE_FREE(module_put, struct module *, if (_T) module_put(_T))
 
