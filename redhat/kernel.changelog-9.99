@@ -1,3 +1,9 @@
+* Wed Aug 30 2023 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.6.0-0.rc0.6c1b980a7e79.1.eln130]
+- redhat: drop unneeded build-time dependency gcc-plugin-devel (Coiby Xu)
+- Reset RHEL release and trim changelog after rebase (Justin M. Forbes)
+- Linux v6.6.0-0.rc0.6c1b980a7e79
+Resolves: 
+
 * Tue Aug 29 2023 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.6.0-0.rc0.1c59d383390f.59.eln130]
 - all: x86: move wayward x86 specific config home (Peter Robinson)
 - all: de-dupe non standard config options (Peter Robinson)
