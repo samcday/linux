@@ -1,3 +1,10 @@
+* Thu Aug 31 2023 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.6.0-0.rc0.b97d64c72259.2.eln130]
+- Fix tarball creation logic (Don Zickus)
+- redhat: bump libcpupower soname to match upstream (Patrick Talbert)
+- Turn on MEMFD_CREATE in pending as it is selected by CONFIG_TMPFS (Justin M. Forbes)
+- Linux v6.6.0-0.rc0.b97d64c72259
+Resolves: 
+
 * Wed Aug 30 2023 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.6.0-0.rc0.6c1b980a7e79.1.eln130]
 - redhat: drop unneeded build-time dependency gcc-plugin-devel (Coiby Xu)
 - Reset RHEL release and trim changelog after rebase (Justin M. Forbes)
