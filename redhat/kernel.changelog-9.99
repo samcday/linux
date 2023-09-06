@@ -1,3 +1,12 @@
+* Wed Sep 06 2023 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.6.0-0.rc0.65d6e954e378.8]
+- Rename pipeline repo branch and DW tree names (Michael Hofmann)
+- Adjust comments that refer to ARK in a Rawhide context (Michael Hofmann)
+- Rename variable names starting with ark- to rawhide- (Michael Hofmann)
+- Rename trigger-ark to trigger-rawhide (Michael Hofmann)
+- Fix up config mismatches for Fedora (Justin M. Forbes)
+- Linux v6.6.0-0.rc0.65d6e954e378
+Resolves: 
+
 * Tue Sep 05 2023 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.6.0-0.rc0.3f86ed6ec0b3.7]
 - redhat/configs: Texas Instruments Inc. K3 multicore SoC architecture (Steve Best)
 - Linux v6.6.0-0.rc0.3f86ed6ec0b3
