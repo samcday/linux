@@ -1,3 +1,13 @@
+* Thu Sep 07 2023 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.6.0-0.rc0.7ba2090ca64e.9]
+- Fix Fedora release scheduled job (Don Zickus)
+- Move squashfs to kernel-modules-core (Justin M. Forbes)
+- redhat: Explicitly disable CONFIG_COPS (Vitaly Kuznetsov)
+- redhat: Add dist-check-licenses target (Vitaly Kuznetsov)
+- redhat: Introduce "Verify SPDX-License-Identifier tags" selftest (Vitaly Kuznetsov)
+- redhat: Use kspdx-tool output for the License: field (Vitaly Kuznetsov)
+- Linux v6.6.0-0.rc0.7ba2090ca64e
+Resolves: 
+
 * Wed Sep 06 2023 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.6.0-0.rc0.65d6e954e378.8]
 - Rename pipeline repo branch and DW tree names (Michael Hofmann)
 - Adjust comments that refer to ARK in a Rawhide context (Michael Hofmann)
