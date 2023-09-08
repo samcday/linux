@@ -1,3 +1,7 @@
+* Fri Sep 08 2023 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.6.0-0.rc0.a48fa7efaf11.10]
+- Linux v6.6.0-0.rc0.a48fa7efaf11
+Resolves: 
+
 * Thu Sep 07 2023 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.6.0-0.rc0.7ba2090ca64e.9]
 - Fix Fedora release scheduled job (Don Zickus)
 - Move squashfs to kernel-modules-core (Justin M. Forbes)
