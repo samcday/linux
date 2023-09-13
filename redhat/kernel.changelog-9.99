@@ -1,3 +1,7 @@
+* Wed Sep 13 2023 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.6.0-0.rc1.3669558bdf35.15]
+- Linux v6.6.0-0.rc1.3669558bdf35
+Resolves: 
+
 * Tue Sep 12 2023 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.6.0-0.rc1.14]
 - New configs in drivers/media (Fedora Kernel Team)
 - redhat/docs: Add a mention of bugzilla for bugs (Prarit Bhargava)
