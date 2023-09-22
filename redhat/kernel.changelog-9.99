@@ -1,3 +1,9 @@
+* Fri Sep 22 2023 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.6.0-0.rc2.27bbf45eae9c.23]
+- gitlab-ci: use --with debug/base to select kernel variants (Michael Hofmann)
+- kernel.spec: add rpmbuild --without base option (Michael Hofmann)
+- Linux v6.6.0-0.rc2.27bbf45eae9c
+Resolves: 
+
 * Thu Sep 21 2023 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.6.0-0.rc2.42dc814987c1.22]
 - redhat: spec: Fix typo for kernel_variant_preun for 16k-debug flavor (Neal Gompa)
 - Linux v6.6.0-0.rc2.42dc814987c1
