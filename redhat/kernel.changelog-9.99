@@ -1,3 +1,7 @@
+* Sat Sep 23 2023 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.6.0-0.rc2.d90b0276af8f.24]
+- Linux v6.6.0-0.rc2.d90b0276af8f
+Resolves: 
+
 * Fri Sep 22 2023 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.6.0-0.rc2.27bbf45eae9c.23]
 - gitlab-ci: use --with debug/base to select kernel variants (Michael Hofmann)
 - kernel.spec: add rpmbuild --without base option (Michael Hofmann)
