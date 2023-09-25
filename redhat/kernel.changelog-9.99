@@ -1,3 +1,8 @@
+* Mon Sep 25 2023 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.6.0-0.rc3.26]
+- Change default pending for XFS_ONLINE_SCRUB_STATSas it now selects XFS_DEBUG (Justin M. Forbes)
+- Linux v6.6.0-0.rc3
+Resolves: 
+
 * Sun Sep 24 2023 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.6.0-0.rc2.3aba70aed91f.25]
 - Linux v6.6.0-0.rc2.3aba70aed91f
 Resolves: 
