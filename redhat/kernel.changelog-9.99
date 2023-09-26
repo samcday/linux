@@ -1,3 +1,7 @@
+* Tue Sep 26 2023 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.6.0-0.rc3.27]
+- Remove XFS_ASSERT_FATAL from pending-fedora (Justin M. Forbes)
+Resolves: 
+
 * Mon Sep 25 2023 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.6.0-0.rc3.26]
 - Change default pending for XFS_ONLINE_SCRUB_STATSas it now selects XFS_DEBUG (Justin M. Forbes)
 - Linux v6.6.0-0.rc3
