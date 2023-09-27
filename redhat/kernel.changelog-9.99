@@ -1,3 +1,15 @@
+* Wed Sep 27 2023 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.6.0-0.rc3.0e945134b680.28]
+- kernel.spec: adjust build option comment (Michael Hofmann)
+- kernel.spec: allow to enable arm64_16k variant (Michael Hofmann)
+- gitlab-ci: enable build-only pipelines for Rawhide/16k/aarch64 (Michael Hofmann)
+- kernel.spec.template: Fix --without bpftool (Prarit Bhargava)
+- redhat/configs: NXP BBNSM Power Key Driver (Steve Best)
+- redhat/self-test: Update data for cross compile fields (Prarit Bhargava)
+- redhat/Makefile.cross: Add message for disabled subpackages (Prarit Bhargava)
+- redhat/Makefile.cross: Update cross targets with disabled subpackages (Prarit Bhargava)
+- Linux v6.6.0-0.rc3.0e945134b680
+Resolves: 
+
 * Tue Sep 26 2023 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.6.0-0.rc3.27]
 - Remove XFS_ASSERT_FATAL from pending-fedora (Justin M. Forbes)
 Resolves: 
