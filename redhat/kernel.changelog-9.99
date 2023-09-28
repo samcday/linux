@@ -1,3 +1,7 @@
+* Thu Sep 28 2023 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.6.0-0.rc3.633b47cb009d.29]
+- Linux v6.6.0-0.rc3.633b47cb009d
+Resolves: 
+
 * Wed Sep 27 2023 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.6.0-0.rc3.0e945134b680.28]
 - kernel.spec: adjust build option comment (Michael Hofmann)
 - kernel.spec: allow to enable arm64_16k variant (Michael Hofmann)
