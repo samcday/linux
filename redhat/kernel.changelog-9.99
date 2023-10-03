@@ -1,3 +1,8 @@
+* Tue Oct 03 2023 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.6.0-0.rc4.ce36c8b14987.34]
+- common: aarch64: enable NXP Flex SPI (Peter Robinson)
+- Linux v6.6.0-0.rc4.ce36c8b14987
+Resolves: 
+
 * Mon Oct 02 2023 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.6.0-0.rc4.33]
 - Linux v6.6.0-0.rc4
 Resolves: 
