@@ -1,3 +1,12 @@
+* Fri Oct 06 2023 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.6.0-0.rc4.b78b18fb8ee1.37]
+- Add clang config framework (Don Zickus)
+- Apply partial snippet configs to all configs (Don Zickus)
+- Remove unpackaged kgcov config files (Don Zickus)
+- redhat/configs: enable missing Kconfig options for Qualcomm RideSX4 (Brian Masney)
+- enable CONFIG_ADDRESS_MASKING for x86_64 (Chris von Recklinghausen)
+- Linux v6.6.0-0.rc4.b78b18fb8ee1
+Resolves: 
+
 * Thu Oct 05 2023 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.6.0-0.rc4.3006adf3be79.36]
 - Linux v6.6.0-0.rc4.3006adf3be79
 Resolves: 
