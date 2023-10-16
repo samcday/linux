@@ -1,3 +1,7 @@
+* Mon Oct 16 2023 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.6.0-0.rc6.47]
+- Linux v6.6.0-0.rc6
+Resolves: 
+
 * Sun Oct 15 2023 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.6.0-0.rc5.9a3dad63edbe.46]
 - Fedora filter updates after configs (Justin M. Forbes)
 - Fedora configs for 6.6 (Justin M. Forbes)
