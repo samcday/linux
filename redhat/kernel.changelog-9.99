@@ -1,3 +1,7 @@
+* Wed Oct 18 2023 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.6.0-0.rc6.06dc10eae55b.49]
+- Linux v6.6.0-0.rc6.06dc10eae55b
+Resolves: 
+
 * Tue Oct 17 2023 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.6.0-0.rc6.213f891525c2.48]
 - redhat: disable kunit by default (Nico Pache)
 - redhat/configs: enable the AMD_PMF driver for RHEL (David Arcari)
