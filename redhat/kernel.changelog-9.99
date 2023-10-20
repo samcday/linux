@@ -1,3 +1,12 @@
+* Fri Oct 20 2023 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.6.0-0.rc6.ce55c22ec8b2.51]
+- redhat/configs: share CONFIG_ARM64_ERRATUM_2966298 between rhel and fedora (Mark Salter)
+- configs: Remove S390 IOMMU config options that no longer exist (Jerry Snitselaar)
+- redhat: docs: clarify where bugs and issues are created (Scott Weaver)
+- redhat/scripts/rh-dist-git.sh does not take any arguments: fix error message (Denys Vlasenko)
+- Add target_branch for gen_config_patches.sh (Don Zickus)
+- Linux v6.6.0-0.rc6.ce55c22ec8b2
+Resolves: 
+
 * Thu Oct 19 2023 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.6.0-0.rc6.dd72f9c7e512.50]
 - Linux v6.6.0-0.rc6.dd72f9c7e512
 Resolves: 
