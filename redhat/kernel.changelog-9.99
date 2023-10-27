@@ -1,3 +1,7 @@
+* Fri Oct 27 2023 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.6.0-0.rc7.750b95887e56.58]
+- Linux v6.6.0-0.rc7.750b95887e56
+Resolves: 
+
 * Thu Oct 26 2023 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.6.0-0.rc7.611da07b89fd.57]
 - Updated Fedora configs (Justin M. Forbes)
 - Turn on UFSHCD for Fedora x86 (Justin M. Forbes)
