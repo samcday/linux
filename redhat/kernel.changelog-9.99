@@ -1,3 +1,8 @@
+* Sat Oct 28 2023 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.6.0-0.rc7.56567a20b22b.59]
+- Consolidate configs into common for 6.6 (Justin M. Forbes)
+- Linux v6.6.0-0.rc7.56567a20b22b
+Resolves: 
+
 * Fri Oct 27 2023 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.6.0-0.rc7.750b95887e56.58]
 - Linux v6.6.0-0.rc7.750b95887e56
 Resolves: 
