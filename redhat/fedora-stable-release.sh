@@ -17,11 +17,11 @@ ApplyPatches="0"
 
 for release in $( cat redhat/release_targets );  do 
 	case "$release" in
-	39) build=30$releasenum
+	40) build=30$releasenum
 	    ;;
-	38) build=20$releasenum
+	39) build=20$releasenum
 	    ;;
-	37) build=10$releasenum
+	38) build=10$releasenum
 	    ;;
 	esac
 	if [[ $ApplyPatches == "1" ]] ; then
