@@ -1,3 +1,16 @@
+* Tue Nov 28 2023 Justin M. Forbes <jforbes@fedoraproject.org> [6.6.3-0]
+- Add BugsFixed for 6.6.3 (Justin M. Forbes)
+- Update BugsFixed (Justin M. Forbes)
+- Turn on USB_DWC3 for Fedora (rhbz 2250955) (Justin M. Forbes)
+- Revert "netfilter: nf_tables: remove catchall element in GC sync path" (Justin M. Forbes)
+- More BugsFixed (Justin M. Forbes)
+- netfilter: nf_tables: remove catchall element in GC sync path (Pablo Neira Ayuso)
+- frop the build number back to 200 for fedora-srpm.sh (Justin M. Forbes)
+- ACPI: video: Use acpi_device_fix_up_power_children() (Hans de Goede)
+- ACPI: PM: Add acpi_device_fix_up_power_children() function (Hans de Goede)
+- Linux v6.6.3
+Resolves: 
+
 * Mon Nov 20 2023 Justin M. Forbes <jforbes@fedoraproject.org> [6.6.2-0]
 - Add bug for AMD ACPI alarm (Justin M. Forbes)
 - rtc: cmos: Use ACPI alarm for non-Intel x86 systems too (Mario Limonciello)
