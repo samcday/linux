@@ -1,3 +1,9 @@
+* Sun Dec 03 2023 Justin M. Forbes <jforbes@fedoraproject.org> [6.6.4-0]
+- redhat: Fix macro for kernel-uki-virt flavor (Neal Gompa)
+- Change the uki reqs for Fedora (Justin M. Forbes)
+- Linux v6.6.4
+Resolves: 
+
 * Tue Nov 28 2023 Justin M. Forbes <jforbes@fedoraproject.org> [6.6.3-0]
 - Add BugsFixed for 6.6.3 (Justin M. Forbes)
 - Update BugsFixed (Justin M. Forbes)
