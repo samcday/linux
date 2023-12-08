@@ -1,3 +1,8 @@
+* Fri Dec 08 2023 Augusto Caringi <acaringi@redhat.com> [6.6.5-0]
+- Add io_uring CVE for 6.6.5 (Justin M. Forbes)
+- Linux v6.6.5
+Resolves: 
+
 * Sun Dec 03 2023 Justin M. Forbes <jforbes@fedoraproject.org> [6.6.4-0]
 - redhat: Fix macro for kernel-uki-virt flavor (Neal Gompa)
 - Change the uki reqs for Fedora (Justin M. Forbes)
