@@ -1,3 +1,8 @@
+* Mon Dec 11 2023 Augusto Caringi <acaringi@redhat.com> [6.6.6-0]
+- redhat/configs: Enable UCLAMP_TASK for PipeWire and WirePlumber (Neal Gompa)
+- Linux v6.6.6
+Resolves: 
+
 * Fri Dec 08 2023 Augusto Caringi <acaringi@redhat.com> [6.6.5-0]
 - Add io_uring CVE for 6.6.5 (Justin M. Forbes)
 - Linux v6.6.5
