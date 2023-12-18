@@ -1684,6 +1684,7 @@ err:
 	if (cs35l41_safe_reset(cs35l41->regmap, cs35l41->hw_cfg.bst_type))
 		gpiod_set_value_cansleep(cs35l41->reset_gpio, 0);
 	gpiod_put(cs35l41->reset_gpio);
+	gpiod_put(cs35l41->cs_gpio);
 	kfree(cs35l41->acpi_subsystem_id);
 
 	return ret;
@@ -1708,6 +1709,7 @@ void cs35l41_hda_remove(struct device *dev)
 	if (cs35l41_safe_reset(cs35l41->regmap, cs35l41->hw_cfg.bst_type))
 		gpiod_set_value_cansleep(cs35l41->reset_gpio, 0);
 	gpiod_put(cs35l41->reset_gpio);
+	gpiod_put(cs35l41->cs_gpio);
 	kfree(cs35l41->acpi_subsystem_id);
 }
 EXPORT_SYMBOL_NS_GPL(cs35l41_hda_remove, SND_HDA_SCODEC_CS35L41);
