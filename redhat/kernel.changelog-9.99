@@ -1,3 +1,13 @@
+* Wed Dec 20 2023 Augusto Caringi <acaringi@redhat.com> [6.6.8-0]
+- Add BugsFixed entries for rhbz#2254797 and #rhbz2254704 (Justin M. Forbes)
+- Add support for various laptops using CS35L41 HDA without _DSD (Stefan Binding)
+- fedora: arm64: Enable required AllWinner pinctrl drivers (Peter Robinson)
+- fedora: arm64: cleanup Allwinner Pinctrl drivers (Peter Robinson)
+- fedora: aarch64: Enable some DW drivers (Peter Robinson)
+- Basic scaffolding to create a kernel-headers package (Justin M. Forbes)
+- Linux v6.6.8
+Resolves: 
+
 * Wed Dec 13 2023 Augusto Caringi <acaringi@redhat.com> [6.6.7-0]
 - Add rhbz#2253632 rhbz#2253633 to BugsFixed (Justin M. Forbes)
 - Turn on DRM_ACCEL drivers for Fedora (Justin M. Forbes)
