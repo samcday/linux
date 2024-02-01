@@ -1,3 +1,8 @@
+* Wed Jan 31 2024 Justin M. Forbes <jforbes@fedoraproject.org> [6.6.15-0]
+- Config update for stable backport (Justin M. Forbes)
+- Linux v6.6.15
+Resolves: 
+
 * Fri Jan 26 2024 Augusto Caringi <acaringi@redhat.com> [6.6.14-0]
 - Add some CVE fixes staged for 6.6.14 (Justin M. Forbes)
 - Linux v6.6.14
