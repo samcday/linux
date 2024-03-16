@@ -1,0 +1,15 @@
+# Symbol: DRM_PANEL_SAMSUNG_S6D2AA0X62_LPM053A250A [=n]
+# Type  : tristate
+# Defined at drivers/gpu/drm/panel/msm8916-generated/Kconfig:112
+#   Prompt: Samsung S6D2AA0X62 LPM053A250A
+#   Depends on: HAS_IOMEM [=y] && DRM [=y] && DRM_PANEL [=y] && GPIOLIB [=y] && OF [=y] && REGULATOR [=y] && DRM_MIPI_DSI [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Graphics support
+#         -> Display Panels
+#           -> MSM8916 panel drivers generated with linux-mdss-dsi-panel-driver-generator
+#             -> Samsung S6D2AA0X62 LPM053A250A (DRM_PANEL_SAMSUNG_S6D2AA0X62_LPM053A250A [=n])
+# 
+# 
+# 
+# CONFIG_DRM_PANEL_SAMSUNG_S6D2AA0X62_LPM053A250A is not set

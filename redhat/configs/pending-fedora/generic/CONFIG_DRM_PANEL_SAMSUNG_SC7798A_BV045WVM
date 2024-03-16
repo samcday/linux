@@ -1,0 +1,15 @@
+# Symbol: DRM_PANEL_SAMSUNG_SC7798A_BV045WVM [=n]
+# Type  : tristate
+# Defined at drivers/gpu/drm/panel/msm8916-generated/Kconfig:136
+#   Prompt: Samsung SC7798A BV045WVM
+#   Depends on: HAS_IOMEM [=y] && DRM [=y] && DRM_PANEL [=y] && GPIOLIB [=y] && OF [=y] && REGULATOR [=y] && DRM_MIPI_DSI [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Graphics support
+#         -> Display Panels
+#           -> MSM8916 panel drivers generated with linux-mdss-dsi-panel-driver-generator
+#             -> Samsung SC7798A BV045WVM (DRM_PANEL_SAMSUNG_SC7798A_BV045WVM [=n])
+# 
+# 
+# 
+# CONFIG_DRM_PANEL_SAMSUNG_SC7798A_BV045WVM is not set

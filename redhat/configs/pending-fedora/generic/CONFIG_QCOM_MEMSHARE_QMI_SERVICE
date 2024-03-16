@@ -1,0 +1,14 @@
+# Symbol: QCOM_MEMSHARE_QMI_SERVICE [=n]
+# Type  : tristate
+# Defined at drivers/soc/qcom/Kconfig:81
+#   Prompt: Qualcomm QMI Shared Memory Service (MEMSHARE)
+#   Location:
+#     -> Device Drivers
+#       -> SOC (System On Chip) specific Drivers
+#         -> Qualcomm SoC drivers
+#           -> Qualcomm QMI Shared Memory Service (MEMSHARE) (QCOM_MEMSHARE_QMI_SERVICE [=n])
+# Selects: QCOM_QMI_HELPERS [=m]
+# 
+# 
+# 
+# CONFIG_QCOM_MEMSHARE_QMI_SERVICE is not set

@@ -1,0 +1,15 @@
+# Symbol: TOUCHSCREEN_HIMAX_HX852X [=n]
+# Type  : tristate
+# Defined at drivers/input/touchscreen/Kconfig:430
+#   Prompt: Himax HX852x(ES) touchscreen
+#   Depends on: INPUT [=y] && INPUT_TOUCHSCREEN [=y] && I2C [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Input device support
+#         -> Generic input layer (needed for keyboard, mouse, ...) (INPUT [=y])
+#           -> Touchscreens (INPUT_TOUCHSCREEN [=y])
+#             -> Himax HX852x(ES) touchscreen (TOUCHSCREEN_HIMAX_HX852X [=n])
+# 
+# 
+# 
+# CONFIG_TOUCHSCREEN_HIMAX_HX852X is not set

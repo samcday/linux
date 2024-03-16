@@ -1,0 +1,15 @@
+# Symbol: DRM_PANEL_ASUS_Z010D_R69339 [=n]
+# Type  : tristate
+# Defined at drivers/gpu/drm/panel/msm8916-generated/Kconfig:28
+#   Prompt: Asus Z010D R69339
+#   Depends on: HAS_IOMEM [=y] && DRM [=y] && DRM_PANEL [=y] && GPIOLIB [=y] && OF [=y] && REGULATOR [=y] && DRM_MIPI_DSI [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Graphics support
+#         -> Display Panels
+#           -> MSM8916 panel drivers generated with linux-mdss-dsi-panel-driver-generator
+#             -> Asus Z010D R69339 (DRM_PANEL_ASUS_Z010D_R69339 [=n])
+# 
+# 
+# 
+# CONFIG_DRM_PANEL_ASUS_Z010D_R69339 is not set

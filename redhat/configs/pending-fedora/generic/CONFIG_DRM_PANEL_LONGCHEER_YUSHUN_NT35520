@@ -1,0 +1,15 @@
+# Symbol: DRM_PANEL_LONGCHEER_YUSHUN_NT35520 [=n]
+# Type  : tristate
+# Defined at drivers/gpu/drm/panel/msm8916-generated/Kconfig:64
+#   Prompt: Longcheer YUSHUN NT35520
+#   Depends on: HAS_IOMEM [=y] && DRM [=y] && DRM_PANEL [=y] && GPIOLIB [=y] && OF [=y] && REGULATOR [=y] && DRM_MIPI_DSI [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Graphics support
+#         -> Display Panels
+#           -> MSM8916 panel drivers generated with linux-mdss-dsi-panel-driver-generator
+#             -> Longcheer YUSHUN NT35520 (DRM_PANEL_LONGCHEER_YUSHUN_NT35520 [=n])
+# 
+# 
+# 
+# CONFIG_DRM_PANEL_LONGCHEER_YUSHUN_NT35520 is not set

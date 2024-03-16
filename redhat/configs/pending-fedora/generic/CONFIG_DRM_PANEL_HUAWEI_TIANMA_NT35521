@@ -1,0 +1,15 @@
+# Symbol: DRM_PANEL_HUAWEI_TIANMA_NT35521 [=n]
+# Type  : tristate
+# Defined at drivers/gpu/drm/panel/msm8916-generated/Kconfig:44
+#   Prompt: Huawei TIANMA NT35521
+#   Depends on: HAS_IOMEM [=y] && DRM [=y] && DRM_PANEL [=y] && GPIOLIB [=y] && OF [=y] && REGULATOR [=y] && DRM_MIPI_DSI [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Graphics support
+#         -> Display Panels
+#           -> MSM8916 panel drivers generated with linux-mdss-dsi-panel-driver-generator
+#             -> Huawei TIANMA NT35521 (DRM_PANEL_HUAWEI_TIANMA_NT35521 [=n])
+# 
+# 
+# 
+# CONFIG_DRM_PANEL_HUAWEI_TIANMA_NT35521 is not set

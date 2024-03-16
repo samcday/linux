@@ -1,0 +1,15 @@
+# Symbol: DRM_PANEL_SAMSUNG_HX8389C_GH9607501A [=n]
+# Type  : tristate
+# Defined at drivers/gpu/drm/panel/msm8916-generated/Kconfig:100
+#   Prompt: Samsung HX8389C GH9607501A
+#   Depends on: HAS_IOMEM [=y] && DRM [=y] && DRM_PANEL [=y] && GPIOLIB [=y] && OF [=y] && REGULATOR [=y] && DRM_MIPI_DSI [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Graphics support
+#         -> Display Panels
+#           -> MSM8916 panel drivers generated with linux-mdss-dsi-panel-driver-generator
+#             -> Samsung HX8389C GH9607501A (DRM_PANEL_SAMSUNG_HX8389C_GH9607501A [=n])
+# 
+# 
+# 
+# CONFIG_DRM_PANEL_SAMSUNG_HX8389C_GH9607501A is not set

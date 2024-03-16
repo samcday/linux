@@ -1,0 +1,15 @@
+# Symbol: DRM_PANEL_SAMSUNG_S6E3FA2_AMS549EH01 [=n]
+# Type  : tristate
+# Defined at drivers/gpu/drm/panel/msm8916-generated/Kconfig:120
+#   Prompt: Samsung S6E3FA2 AMS549EH01
+#   Depends on: HAS_IOMEM [=y] && DRM [=y] && DRM_PANEL [=y] && GPIOLIB [=y] && OF [=y] && REGULATOR [=y] && DRM_MIPI_DSI [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Graphics support
+#         -> Display Panels
+#           -> MSM8916 panel drivers generated with linux-mdss-dsi-panel-driver-generator
+#             -> Samsung S6E3FA2 AMS549EH01 (DRM_PANEL_SAMSUNG_S6E3FA2_AMS549EH01 [=n])
+# 
+# 
+# 
+# CONFIG_DRM_PANEL_SAMSUNG_S6E3FA2_AMS549EH01 is not set

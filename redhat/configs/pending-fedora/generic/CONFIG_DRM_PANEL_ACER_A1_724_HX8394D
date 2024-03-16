@@ -1,0 +1,15 @@
+# Symbol: DRM_PANEL_ACER_A1_724_HX8394D [=n]
+# Type  : tristate
+# Defined at drivers/gpu/drm/panel/msm8916-generated/Kconfig:8
+#   Prompt: Acer A1 724 HX8394D
+#   Depends on: HAS_IOMEM [=y] && DRM [=y] && DRM_PANEL [=y] && GPIOLIB [=y] && OF [=y] && REGULATOR [=y] && DRM_MIPI_DSI [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Graphics support
+#         -> Display Panels
+#           -> MSM8916 panel drivers generated with linux-mdss-dsi-panel-driver-generator
+#             -> Acer A1 724 HX8394D (DRM_PANEL_ACER_A1_724_HX8394D [=n])
+# 
+# 
+# 
+# CONFIG_DRM_PANEL_ACER_A1_724_HX8394D is not set

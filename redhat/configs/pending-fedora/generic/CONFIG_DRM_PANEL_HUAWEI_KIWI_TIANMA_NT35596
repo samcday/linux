@@ -1,0 +1,15 @@
+# Symbol: DRM_PANEL_HUAWEI_KIWI_TIANMA_NT35596 [=n]
+# Type  : tristate
+# Defined at drivers/gpu/drm/panel/msm8916-generated/Kconfig:40
+#   Prompt: Huawei KIWI TIANMA NT35596
+#   Depends on: HAS_IOMEM [=y] && DRM [=y] && DRM_PANEL [=y] && GPIOLIB [=y] && OF [=y] && REGULATOR [=y] && DRM_MIPI_DSI [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Graphics support
+#         -> Display Panels
+#           -> MSM8916 panel drivers generated with linux-mdss-dsi-panel-driver-generator
+#             -> Huawei KIWI TIANMA NT35596 (DRM_PANEL_HUAWEI_KIWI_TIANMA_NT35596 [=n])
+# 
+# 
+# 
+# CONFIG_DRM_PANEL_HUAWEI_KIWI_TIANMA_NT35596 is not set

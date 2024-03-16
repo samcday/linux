@@ -1,0 +1,15 @@
+# Symbol: DRM_PANEL_MOTOROLA_OSPREY_INX [=n]
+# Type  : tristate
+# Defined at drivers/gpu/drm/panel/msm8916-generated/Kconfig:80
+#   Prompt: Motorola OSPREY INX
+#   Depends on: HAS_IOMEM [=y] && DRM [=y] && DRM_PANEL [=y] && GPIOLIB [=y] && OF [=y] && REGULATOR [=y] && DRM_MIPI_DSI [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Graphics support
+#         -> Display Panels
+#           -> MSM8916 panel drivers generated with linux-mdss-dsi-panel-driver-generator
+#             -> Motorola OSPREY INX (DRM_PANEL_MOTOROLA_OSPREY_INX [=n])
+# 
+# 
+# 
+# CONFIG_DRM_PANEL_MOTOROLA_OSPREY_INX is not set

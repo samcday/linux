@@ -1,0 +1,17 @@
+# Symbol: SND_SOC_QDSP6_Q6VOICE [=n]
+# Type  : tristate
+# Defined at sound/soc/qcom/Kconfig:146
+#   Prompt: QDSP6 Q6Voice audio driver
+#   Depends on: SOUND [=m] && SND [=m] && SND_SOC [=m] && SND_SOC_QCOM [=m] && SND_SOC_QDSP6 [=m]
+#   Location:
+#     -> Device Drivers
+#       -> Sound card support (SOUND [=m])
+#         -> Advanced Linux Sound Architecture (SND [=m])
+#           -> ALSA for SoC audio support (SND_SOC [=m])
+#             -> ASoC support for QCOM platforms (SND_SOC_QCOM [=m])
+#               -> QDSP6 Q6Voice audio driver (SND_SOC_QDSP6_Q6VOICE [=n])
+# Selects: SND_SOC_QDSP6_Q6VOICE_DAI [=n]
+# 
+# 
+# 
+# CONFIG_SND_SOC_QDSP6_Q6VOICE is not set

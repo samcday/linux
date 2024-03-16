@@ -1,0 +1,15 @@
+# Symbol: DRM_PANEL_MOTOROLA_HARPIA_TIANMA [=n]
+# Type  : tristate
+# Defined at drivers/gpu/drm/panel/msm8916-generated/Kconfig:76
+#   Prompt: Motorola HARPIA TIANMA
+#   Depends on: HAS_IOMEM [=y] && DRM [=y] && DRM_PANEL [=y] && GPIOLIB [=y] && OF [=y] && REGULATOR [=y] && DRM_MIPI_DSI [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Graphics support
+#         -> Display Panels
+#           -> MSM8916 panel drivers generated with linux-mdss-dsi-panel-driver-generator
+#             -> Motorola HARPIA TIANMA (DRM_PANEL_MOTOROLA_HARPIA_TIANMA [=n])
+# 
+# 
+# 
+# CONFIG_DRM_PANEL_MOTOROLA_HARPIA_TIANMA is not set
