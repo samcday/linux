@@ -44,7 +44,7 @@ DIST ?=
 
 # This is the source branch that you are building out of typically this is
 # the current branch.
-DIST_BRANCH ?= "fedora-6.6"
+DIST_BRANCH ?= "fedora-msm8916-6.6"
 
 # This is a human readable distribution variable that is used to determine the
 # OS version (fedora, centos, or rhel).
@@ -86,7 +86,7 @@ NO_CONFIGCHECKS ?=
 # the kernel src.rpm, which will contain shas and commits not upstream. The
 # value of PATCHLIST_URL in this case should point to the git repository where
 # the commits are located, and will be added as a prefix to the shas listed.
-PATCHLIST_URL ?= "https://gitlab.com/cki-project/kernel-ark/-/commit"
+PATCHLIST_URL ?= "https://github.com/samcday/linux/commit/"
 
 # RELEASED_KERNEL swaps between the pre-release secureboot keys and
 # the release one, for vmlinux signing. It also controls whether Fedora
@@ -161,3 +161,6 @@ endif
 # be set to 1 to decrease the kernel UTS_RELEASE and SPECBUILD by 11 characters
 # (YYYYMMDDgit).
 UPSTREAMBUILD_GIT_ONLY ?=
+
+# kernel variant extra version suffix
+VARIANTSTREAM = .msm8916
