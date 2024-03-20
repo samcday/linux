@@ -1,3 +1,11 @@
+* Wed Mar 20 2024 Augusto Caringi <acaringi@redhat.com> [6.8.1-0]
+- redhat/configs: Enable CONFIG_MITIGATION_RFDS (Augusto Caringi)
+- fedora: Enable MCP9600 (Peter Robinson)
+- temporarily remove LIBBPF_DYNAMIC=1 from perf build (Thorsten Leemhuis)
+- Added required files for rebase (Augusto Caringi)
+- Linux v6.8.1
+Resolves: 
+
 * Tue Mar 12 2024 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.8.0-1]
 - redhat: remove "END OF CHANGELOG" marker from kernel.changelog (Herton R. Krzesinski)
 - gitlab-ci: enable all variants for rawhide/eln builder image gating (Michael Hofmann)
