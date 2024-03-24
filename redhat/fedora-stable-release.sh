@@ -24,6 +24,7 @@ fi
 # ApplyPatches="1" under that releases case switch and we will apply any
 # patches from redhat/patches for that release only.
 ApplyPatches="0"
+CURRENTHEAD=$( git rev-parse --short HEAD )
 
 for release in $( cat redhat/release_targets );  do 
 	case "$release" in
@@ -37,9 +38,9 @@ for release in $( cat redhat/release_targets );  do
 	    ;;
 	esac
 	if [[ $ApplyPatches == "1" ]] ; then
-		for patch in redhat/patches/* ; do patch -p1 < $patch ; done
+		for patch in redhat/patches/* ; do git am $patch ; done
 	fi
 	make IS_FEDORA=1 DIST=".fc$release" BUILDID="" BUILD=$build RHDISTGIT_BRANCH=f$release dist-git;
 	sleep 60;
-	git checkout .
+	git reset --hard $CURRENTHEAD
 done
