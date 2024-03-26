@@ -391,8 +391,6 @@ Summary: The Linux kernel
 %define with_bpftool 0
 %define with_kernel_abi_stablelists 0
 %define with_selftests 0
-%define with_cross 0
-%define with_cross_headers 0
 %define with_ipaclones 0
 %endif
 
@@ -422,8 +420,6 @@ Summary: The Linux kernel
 %define with_bpftool 0
 %define with_kernel_abi_stablelists 0
 %define with_selftests 0
-%define with_cross 0
-%define with_cross_headers 0
 %define with_ipaclones 0
 %define with_headers 0
 %define with_efiuki 0
@@ -2484,7 +2480,7 @@ BuildKernel() {
     fi
 
     # build and copy the vmlinux-gdb plugin files into kernel-debuginfo
-    %{make} %{?_smp_mflags} scripts_gdb
+    %{make} ARCH=$Arch %{?_smp_mflags} scripts_gdb
     cp -a --parents scripts/gdb/{,linux/}*.py $RPM_BUILD_ROOT%{debuginfodir}/lib/modules/$KernelVer
     # this should be a relative symlink (Kbuild creates an absolute one)
     ln -s scripts/gdb/vmlinux-gdb.py $RPM_BUILD_ROOT%{debuginfodir}/lib/modules/$KernelVer/vmlinux-gdb.py
