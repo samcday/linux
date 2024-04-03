@@ -1,3 +1,12 @@
+* Wed Apr 03 2024 Justin M. Forbes <jforbes@fedoraproject.org> [6.8.3-0]
+- Fix up redhat directory for stable reabses (Justin M. Forbes)
+- Add some CVE fixes for 6.8.3 (Justin M. Forbes)
+- Add bug to BugsFixed (Justin M. Forbes)
+- Revert "Bluetooth: hci_qca: Set BDA quirk bit if fwnode exists in DT" (Johan Hovold)
+- Config updates for stable (Justin M. Forbes)
+- Linux v6.8.3
+Resolves: 
+
 * Tue Mar 26 2024 Justin M. Forbes <jforbes@fedoraproject.org> [6.8.2-0]
 - xfs: fix SEEK_HOLE/DATA for regions with active COW extents (Dave Chinner)
 - redhat: make libperf-devel require libperf %%{version}-%%{release} (Jan Stancek)
