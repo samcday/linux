@@ -1,3 +1,7 @@
+* Thu Apr 04 2024 Justin M. Forbes <jforbes@fedoraproject.org> [6.8.4-0]
+- Linux v6.8.4
+Resolves: 
+
 * Wed Apr 03 2024 Justin M. Forbes <jforbes@fedoraproject.org> [6.8.3-0]
 - Fix up redhat directory for stable reabses (Justin M. Forbes)
 - Add some CVE fixes for 6.8.3 (Justin M. Forbes)
