@@ -1,3 +1,11 @@
+* Wed Apr 10 2024 Justin M. Forbes <jforbes@fedoraproject.org> [6.8.5-0]
+- Set configs for SPECTRE_BHI (Justin M. Forbes)
+- Add AMD PMF bug (Justin M. Forbes)
+- redhat/configs: Enable CONFIG_AMDTEE for x86 (David Arcari)
+- Add CVE fix for 6.8.5 (Justin M. Forbes)
+- Linux v6.8.5
+Resolves: 
+
 * Thu Apr 04 2024 Justin M. Forbes <jforbes@fedoraproject.org> [6.8.4-0]
 - Linux v6.8.4
 Resolves: 
