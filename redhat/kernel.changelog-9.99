@@ -1,3 +1,12 @@
+* Sat Apr 27 2024 Justin M. Forbes <jforbes@fedoraproject.org> [6.8.8-0]
+- Update BugsFixed for 6.8.8 (Justin M. Forbes)
+- Turn on ISM for Fedora (Justin M. Forbes)
+- Turn off some Fedora UBSAN options to avoid false positives (Justin M. Forbes)
+- fedora: aarch64: Enable a QCom Robotics platforms requirements (Peter Robinson)
+- Turn on UBSAN for Fedora (Justin M. Forbes)
+- Linux v6.8.8
+Resolves: 
+
 * Wed Apr 17 2024 Augusto Caringi <acaringi@redhat.com> [6.8.7-0]
 - redhat/configs: Enable CONFIG_MITIGATION_SPECTRE_BHI (Augusto Caringi)
 - Turn on XEN_BALLOON_MEMORY_HOTPLUG for Fedora (Justin M. Forbes)
