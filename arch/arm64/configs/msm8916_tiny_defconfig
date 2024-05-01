@@ -1,0 +1,11 @@
+# These 7 lines are the absolute minimum required to boot to user-space with UART.
+CONFIG_ARCH_QCOM=y
+CONFIG_CPU_FREQ=y
+CONFIG_CPUFREQ_DT=y
+CONFIG_SERIAL_MSM=y
+CONFIG_SERIAL_MSM_CONSOLE=y
+CONFIG_COMMON_CLK_QCOM=y
+CONFIG_MSM_GCC_8916=y
+
+# This shaves about 300kb off the resulting image size.
+# CONFIG_CC_OPTIMIZE_FOR_SIZE=y
