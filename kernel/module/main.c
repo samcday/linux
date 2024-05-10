@@ -66,6 +66,8 @@
 #define CREATE_TRACE_POINTS
 #include <trace/events/module.h>
 
+#include <linux/rh_features.h>
+
 /*
  * Mutex protects:
  * 1) List of modules (also safely readable within RCU read section),
@@ -3981,6 +3983,10 @@ void print_modules(void)
 		pr_cont(" [last unloaded: %s%s]", last_unloaded_module.name,
 			last_unloaded_module.taints);
 	pr_cont("\n");
+
+#ifdef CONFIG_RHEL_DIFFERENCES
+	rh_print_used_features();
+#endif
 }
 
 #ifdef CONFIG_MODULE_DEBUGFS
