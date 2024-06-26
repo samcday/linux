@@ -10,6 +10,7 @@
 #include <linux/platform_device.h>
 #include <linux/usb/typec_dp.h>
 #include <linux/usb/typec_mux.h>
+#include "../mux.h"
 
 struct gpio_sbu_mux {
 	struct gpio_desc *enable_gpio;
@@ -34,6 +35,9 @@ static int gpio_sbu_switch_set(struct typec_switch_dev *sw,
 
 	enabled = sbu_mux->enabled;
 	swapped = sbu_mux->swapped;
+
+	dev_warn(&sw->dev, "switch orientation %d, en %d, swapped %d\n", orientation,
+		enabled, swapped);
 
 	switch (orientation) {
 	case TYPEC_ORIENTATION_NONE:
@@ -68,6 +72,8 @@ static int gpio_sbu_mux_set(struct typec_mux_dev *mux,
 
 	if (!sbu_mux->enable_gpio)
 		return -EOPNOTSUPP;
+
+	dev_info(&mux->dev, "mux state %lu\n", state->mode);
 
 	mutex_lock(&sbu_mux->lock);
 
