@@ -901,6 +901,8 @@ int qcom_pmic_typec_port_probe_pmi8998(struct platform_device *pdev,
 	struct pmic_typec_port *pmic_typec_port;
 	int ret, irq;
 
+	dev_dbg(dev, "PMI8998 typec\n");
+
 	pmic_typec_port = devm_kzalloc(dev, sizeof(*pmic_typec_port), GFP_KERNEL);
 	if (!pmic_typec_port)
 		return -ENOMEM;
@@ -916,8 +918,10 @@ int qcom_pmic_typec_port_probe_pmi8998(struct platform_device *pdev,
 	mutex_init(&pmic_typec_port->vbus_lock);
 
 	pmic_typec_port->vdd_vbus = devm_regulator_get(dev, "vdd-vbus");
-	if (IS_ERR(pmic_typec_port->vdd_vbus))
+	if (IS_ERR(pmic_typec_port->vdd_vbus)) {
+		dev_err(dev, "Failed to get vdd-vbus regulator\n");
 		return PTR_ERR(pmic_typec_port->vdd_vbus);
+	}
 
 	pmic_typec_port->dev = dev;
 	pmic_typec_port->base = base;
