@@ -52,7 +52,7 @@ static int visionox_rm69299_power_on(struct visionox_rm69299 *ctx)
 
 static int visionox_rm69299_power_off(struct visionox_rm69299 *ctx)
 {
-	gpiod_set_value(ctx->reset_gpio, 0);
+	//gpiod_set_value(ctx->reset_gpio, 0);
 
 	return regulator_bulk_disable(ARRAY_SIZE(ctx->supplies), ctx->supplies);
 }
@@ -62,19 +62,21 @@ static int visionox_rm69299_unprepare(struct drm_panel *panel)
 	struct visionox_rm69299 *ctx = panel_to_ctx(panel);
 	int ret;
 
-	ctx->dsi->mode_flags = 0;
+	return 0;
 
-	ret = mipi_dsi_dcs_write(ctx->dsi, MIPI_DCS_SET_DISPLAY_OFF, NULL, 0);
-	if (ret < 0)
-		dev_err(ctx->panel.dev, "set_display_off cmd failed ret = %d\n", ret);
+	// ctx->dsi->mode_flags = 0;
 
-	/* 120ms delay required here as per DCS spec */
-	msleep(120);
+	// ret = mipi_dsi_dcs_write(ctx->dsi, MIPI_DCS_SET_DISPLAY_OFF, NULL, 0);
+	// if (ret < 0)
+	// 	dev_err(ctx->panel.dev, "set_display_off cmd failed ret = %d\n", ret);
 
-	ret = mipi_dsi_dcs_write(ctx->dsi, MIPI_DCS_ENTER_SLEEP_MODE, NULL, 0);
-	if (ret < 0) {
-		dev_err(ctx->panel.dev, "enter_sleep cmd failed ret = %d\n", ret);
-	}
+	// /* 120ms delay required here as per DCS spec */
+	// msleep(120);
+
+	// ret = mipi_dsi_dcs_write(ctx->dsi, MIPI_DCS_ENTER_SLEEP_MODE, NULL, 0);
+	// if (ret < 0) {
+	// 	dev_err(ctx->panel.dev, "enter_sleep cmd failed ret = %d\n", ret);
+	// }
 
 	ret = visionox_rm69299_power_off(ctx);
 
@@ -85,6 +87,8 @@ static int visionox_rm69299_prepare(struct drm_panel *panel)
 {
 	struct visionox_rm69299 *ctx = panel_to_ctx(panel);
 	int ret;
+
+	return 0;
 
 	ret = visionox_rm69299_power_on(ctx);
 	if (ret < 0)
@@ -140,17 +144,17 @@ power_off:
 	return ret;
 }
 
-static const struct drm_display_mode visionox_rm69299_1080x2248_60hz = {
-	.name = "1080x2248",
+static const struct drm_display_mode visionox_rm69299_1080x2160_60hz = {
+	.name = "1080x2160",
 	.clock = 158695,
 	.hdisplay = 1080,
 	.hsync_start = 1080 + 26,
 	.hsync_end = 1080 + 26 + 2,
 	.htotal = 1080 + 26 + 2 + 36,
-	.vdisplay = 2248,
-	.vsync_start = 2248 + 56,
-	.vsync_end = 2248 + 56 + 4,
-	.vtotal = 2248 + 56 + 4 + 4,
+	.vdisplay = 2160,
+	.vsync_start = 2160 + 56,
+	.vsync_end = 2160 + 56 + 4,
+	.vtotal = 2160 + 56 + 4 + 4,
 	.flags = 0,
 };
 
@@ -161,7 +165,7 @@ static int visionox_rm69299_get_modes(struct drm_panel *panel,
 	struct drm_display_mode *mode;
 
 	mode = drm_mode_duplicate(connector->dev,
-				  &visionox_rm69299_1080x2248_60hz);
+				  &visionox_rm69299_1080x2160_60hz);
 	if (!mode) {
 		dev_err(ctx->panel.dev, "failed to create a new display mode\n");
 		return 0;
@@ -206,12 +210,16 @@ static int visionox_rm69299_probe(struct mipi_dsi_device *dsi)
 	if (ret < 0)
 		return ret;
 
-	ctx->reset_gpio = devm_gpiod_get(ctx->panel.dev,
-					 "reset", GPIOD_OUT_LOW);
-	if (IS_ERR(ctx->reset_gpio)) {
-		dev_err(dev, "cannot get reset gpio %ld\n", PTR_ERR(ctx->reset_gpio));
-		return PTR_ERR(ctx->reset_gpio);
-	}
+	ret = regulator_bulk_enable(ARRAY_SIZE(ctx->supplies), ctx->supplies);
+	if (ret < 0)
+		return ret;
+
+	// ctx->reset_gpio = devm_gpiod_get(ctx->panel.dev,
+	// 				 "reset", GPIOD_OUT_LOW);
+	// if (IS_ERR(ctx->reset_gpio)) {
+	// 	dev_err(dev, "cannot get reset gpio %ld\n", PTR_ERR(ctx->reset_gpio));
+	// 	return PTR_ERR(ctx->reset_gpio);
+	// }
 
 	drm_panel_init(&ctx->panel, dev, &visionox_rm69299_drm_funcs,
 		       DRM_MODE_CONNECTOR_DSI);
@@ -246,6 +254,7 @@ static void visionox_rm69299_remove(struct mipi_dsi_device *dsi)
 
 static const struct of_device_id visionox_rm69299_of_match[] = {
 	{ .compatible = "visionox,rm69299-1080p-display", },
+	{ .compatible = "visionox,rm69299-shift", },
 	{ /* sentinel */ }
 };
 MODULE_DEVICE_TABLE(of, visionox_rm69299_of_match);
