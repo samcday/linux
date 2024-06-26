@@ -78,26 +78,27 @@ static int qcom_pmic_typec_probe(struct platform_device *pdev)
 	if (res->pdphy_res) {
 		ret = of_property_read_u32_index(np, "reg", 1, &base);
 		if (ret)
-			return ret;
+			return dev_err_probe(&pdev->dev, ret, "%d failed\n", __LINE__);
 
 		ret = qcom_pmic_typec_pdphy_probe(pdev, tcpm,
 						  res->pdphy_res, regmap, base);
 		if (ret)
-			return ret;
+			return dev_err_probe(&pdev->dev, ret, "%d failed\n", __LINE__);
 	} else {
 		ret = qcom_pmic_typec_pdphy_stub_probe(pdev, tcpm);
 		if (ret)
-			return ret;
+			return dev_err_probe(&pdev->dev, ret, "%d failed\n", __LINE__);
 	}
 
 	platform_set_drvdata(pdev, tcpm);
 
 	tcpm->tcpc.fwnode = device_get_named_child_node(tcpm->dev, "connector");
 	if (!tcpm->tcpc.fwnode)
-		return -EINVAL;
+		return dev_err_probe(&pdev->dev, -EINVAL, "%d failed\n", __LINE__);
 
 	bridge_dev = devm_drm_dp_hpd_bridge_alloc(tcpm->dev, to_of_node(tcpm->tcpc.fwnode));
 	if (IS_ERR(bridge_dev)) {
+		dev_err(tcpm->dev, "Failed to allocate bridge device: %ld\n", PTR_ERR(bridge_dev));
 		ret = PTR_ERR(bridge_dev);
 		goto fwnode_remove;
 	}
@@ -105,20 +106,27 @@ static int qcom_pmic_typec_probe(struct platform_device *pdev)
 	tcpm->tcpm_port = tcpm_register_port(tcpm->dev, &tcpm->tcpc);
 	if (IS_ERR(tcpm->tcpm_port)) {
 		ret = PTR_ERR(tcpm->tcpm_port);
+		dev_err(tcpm->dev, "Failed to register TCPM port: %d\n", ret);
 		goto fwnode_remove;
 	}
 
 	ret = tcpm->port_start(tcpm, tcpm->tcpm_port);
-	if (ret)
+	if (ret) {
+		dev_err(tcpm->dev, "port_start failed: %d\n", ret);
 		goto port_unregister;
+	}
 
 	ret = tcpm->pdphy_start(tcpm, tcpm->tcpm_port);
-	if (ret)
+	if (ret) {
+		dev_err(tcpm->dev, "pdphy start failed %d\n", ret);
 		goto port_stop;
+	}
 
 	ret = devm_drm_dp_hpd_bridge_add(tcpm->dev, bridge_dev);
-	if (ret)
+	if (ret) {
+		dev_err(tcpm->dev, "devm_drm_dp_hpd_bridge_add failed %d\n", ret);
 		goto pdphy_stop;
+	}
 
 	return 0;
 
