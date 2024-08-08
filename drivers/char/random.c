@@ -55,6 +55,7 @@
 #include <linux/suspend.h>
 #include <linux/siphash.h>
 #include <linux/sched/isolation.h>
+#include <linux/fips.h>
 #include <crypto/chacha.h>
 #include <crypto/blake2s.h>
 #include <vdso/datapage.h>
@@ -738,7 +739,8 @@ static void __cold _credit_init_bits(size_t bits)
 			queue_work(system_dfl_wq, &set_ready);
 		atomic_notifier_call_chain(&random_ready_notifier, 0, NULL);
 		if (IS_ENABLED(CONFIG_VDSO_GETRANDOM))
-			WRITE_ONCE(vdso_k_rng_data->is_ready, true);
+			if (!fips_enabled)
+				WRITE_ONCE(vdso_k_rng_data->is_ready, true);
 		wake_up_interruptible(&crng_init_wait);
 		kill_fasync(&fasync, SIGIO, POLL_IN);
 		pr_notice("crng init done\n");
