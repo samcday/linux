@@ -504,7 +504,7 @@ LSKELS := fexit_sleep.c trace_printk.c trace_vprintk.c map_ptr_kern.c 	\
 LSKELS_SIGNED := fentry_test.c fexit_test.c atomics.c
 
 # Generate both light skeleton and libbpf skeleton for these
-LSKELS_EXTRA := test_ksyms_module.c test_ksyms_weak.c kfunc_call_test.c \
+LSKELS_EXTRA := test_ksyms_module.c kfunc_call_test.c \
 	kfunc_call_test_subprog.c
 SKEL_BLACKLIST += $$(LSKELS) $$(LSKELS_SIGNED)
 
