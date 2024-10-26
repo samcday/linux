@@ -17,6 +17,8 @@ then
         XZ_OPTIONS="-M 3G"
 fi
 
+XZ_OPTIONS+=" -0"
+
 if [ -f "$TARBALL" ]; then
 	TARID=$(xzcat -qq "$TARBALL" | git get-tar-commit-id 2>/dev/null)
 	if [ "$_GITID" = "$TARID" ]; then
