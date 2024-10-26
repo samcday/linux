@@ -128,8 +128,8 @@ ifdef NO_CONFIGCHECKS
    PROCESS_CONFIGS_CHECK_OPTS=
    BUILDOPTS += -configchecks
 else
-   PROCESS_CONFIGS_CHECK_OPTS=-n -t -c
-   PROCESS_CONFIGS_OPTS=-n -w -c
+   PROCESS_CONFIGS_CHECK_OPTS=-t
+   PROCESS_CONFIGS_OPTS=-w
 endif
 
 # this section is needed in order to make O= to work
