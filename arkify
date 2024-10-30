@@ -1,7 +1,7 @@
 # /bin/bash
 #
 # Early WIP; missing:
-# - ark-infra-mainline-latest is ignored for now
+# - arkify-infra-mainline-latest is ignored for now
 # - anything to update the ark-infra, which is where things get messy
 # - anything for next and stable branches
 
@@ -14,18 +14,27 @@ current_branch=$(git rev-parse --abbrev-ref HEAD)
 #
 # add stuff we need
 #
-git remote add --no-tags -t ark-infra-mainline -t mainline -t ark-scripts ark-vanilla  https://gitlab.com/knurd42/linux.git/
-git fetch ark-vanilla 
+echo adding remote
+git remote add --no-tags -t arkify-infra-mainline -t mainline -t arkify-arkify arkify https://gitlab.com/knurd42/linux.git/
+
+echo fetching remote
+git fetch --quiet arkify 
+
 # create a "mainline" branch, which the ark-infra requires to seperate upstream
 # from downstream. FIXME: Would a remote work? IIRC it does not, but I might be
 # mistaken (Thorsten)
-git branch --track mainline ark-vanilla/mainline
 
+echo creating branch 'mainline'
+git branch --quiet --track mainline arkify/mainline
+
+echo creating branch 'arkify-infra-mainline'
 #
 # prep and adjust ark-infra in a seperate branch
 #
-git branch --track ark-infra-mainline ark-vanilla/ark-infra-mainline
-git checkout ark-infra-mainline
+git branch --quiet --track arkify-infra-mainline arkify/arkify-infra-mainline
+git checkout --quiet arkify-infra-mainline
+
+echo adjusting configuration in redhat/Makefile.variables
 echo $'\n'"DISTLOCALVERSION ?= .$(whoami)" >> redhat/Makefile.variables
 # FIXME: this hardcodes a few things:
 #  BUMP_RELEASE (might not be a good idea for this usecase)
@@ -41,17 +50,20 @@ sed -i '
 	s!^\(UPSTREAM_BRANCH \?.\?=\)\(.*\)!\1 '"${current_branch}"'! ;
 	s!\(VERSION_ON_UPSTREAM \?.\?=\)\(.*\)!\1 1! ;
        ' redhat/Makefile.variables
-git commit -s -m 'local ark-infra configuration' redhat/Makefile.variables
+git commit --quiet -s -m 'local ark-infra configuration' redhat/Makefile.variables
 
 #
 # import ark-infra
 #
-git checkout "${current_branch}"
-git archive --format=tar ark-infra-mainline makefile Makefile.rhelver redhat/ .copr | tar -x
+echo adding ark-infra to branch "${current_branch}"
+git checkout --quiet "${current_branch}"
+git archive --format=tar arkify-infra-mainline makefile Makefile.rhelver redhat/ .copr | tar -x
 # FIXME: is this actually needed?
 sed -i '/# We are using a recursive / i include Makefile.rhelver\n' Makefile
 git add Makefile makefile Makefile.rhelver redhat/
 git add -f .copr redhat/kabi/kabi-module/kabi*
-git commit -q -s -m "import ark-infra"
-make dist-srpm
-echo "now use 'mock redhat/rpm/SRPMS/kernel-*.src.rpm' or something else to build the srpm"
+git commit --quiet -s -m "import ark-infra"
+echo done
+echo
+echo "Now run 'make dist-srpm' and then use something like"
+echo "'mock redhat/rpm/SRPMS/kernel-*.src.rpm' to build the SRPM."
