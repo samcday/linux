@@ -16,7 +16,7 @@ current_branch=$(git rev-parse --abbrev-ref HEAD)
 # add stuff we need
 #
 echo * Adding remote 'arkify'.
-git remote add --no-tags -t arkify-infra-mainline -t arkify-infra-mainline -t mainline -t arkify-arkify arkify https://gitlab.com/knurd42/linux.git/
+git remote add -t arkify-infra-mainline -t arkify-infra-mainline -t mainline -t arkify-arkify arkify https://gitlab.com/knurd42/linux.git/
 
 echo * Fetching remote 'arkify'.
 git fetch --quiet arkify 
