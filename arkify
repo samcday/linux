@@ -65,10 +65,12 @@ if ! git branch -l | grep "^[[:blank:]]*arkify-infra-mainline" &> /dev/null; the
 	       ' redhat/Makefile.variables
 	git commit --quiet -s -m 'local ark-infra configuration' redhat/Makefile.variables
 else
-	merge_base="$(git merge-base "${current_branch}" arkify/arkify-infra-mainline)"
-	echo "* Merging ark-infra changes from arkify/arkify-infra-mainline."
-	git checkout --quiet arkify-infra-mainline
-	git merge arkify/arkify-infra-mainline
+	merge_base="$(git merge-base "arkify-infra-mainline" "arkify/arkify-infra-mainline")"
+	if [[ "$(git rev-parse arkify/arkify-infra-mainline)" != "${merge_base}" ]]; then
+		echo "* Merging ark-infra changes from arkify/arkify-infra-mainline."
+		git checkout --quiet arkify-infra-mainline
+		git merge arkify/arkify-infra-mainline
+	fi
 fi
 #
 # import ark-infra
