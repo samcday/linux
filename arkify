@@ -75,15 +75,19 @@ fi
 #
 # import ark-infra
 #
-echo "* Bulk importing ark-infra from arkify-infra-mainline to branch "${current_branch}.
 git checkout --quiet "${current_branch}"
+rm -rf redhat/
 git archive --format=tar arkify-infra-mainline makefile Makefile.rhelver redhat/ .copr | tar -x
 # FIXME: is this actually needed?
-sed -i '/# We are using a recursive / i include Makefile.rhelver\n' Makefile
+if ! grep -E '^include Makefile.rhelver$' Makefile &>/dev/null; then
+	sed -i '/# We are using a recursive / i include Makefile.rhelver\n' Makefile
+fi
 git add Makefile makefile Makefile.rhelver redhat/
 git add -f .copr redhat/kabi/kabi-module/kabi*
-git commit --quiet -s -m "import ark-infra"
-echo Done!
+if ! git diff --cached --exit-code 2> /dev/null; then
+	echo "* Bulk importing ark-infra from arkify-infra-mainline to branch "${current_branch}.
+	git commit --quiet -s -m "import ark-infra"
+fi
 echo
-echo "Now run 'make dist-srpm' and then use something like"
+echo "Done; now run 'make dist-srpm' and then use something like"
 echo "'mock redhat/rpm/SRPMS/kernel-*.src.rpm' to build the SRPM."
