@@ -1,11 +1,9 @@
 # /bin/bash
 #
 # Early WIP; missing:
-# - check if the current branch is one with the Linux sources
+# - check if the current branch contains Linux
 # - arkify-infra-mainline-latest is ignored for now
-# - anything to update the ark-infra, which is where things get messy; among it:
-#   * Update arkify-upstream-foo branch on updates
-# - anything for next and stable branches
+# - next and stable branches are not supported yet
 
 #
 # go
