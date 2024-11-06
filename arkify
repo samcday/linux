@@ -82,9 +82,9 @@ if ! grep -E '^include Makefile.rhelver$' Makefile &>/dev/null; then
 fi
 git add Makefile makefile Makefile.rhelver redhat/
 git add -f .copr redhat/kabi/kabi-module/kabi*
-if ! git diff --cached --exit-code 2> /dev/null; then
+if ! git diff --cached --exit-code &> /dev/null; then
 	echo "* Bulk importing ark-infra from arkify-infra-mainline to branch "${current_branch}.
-	git commit --quiet -s -m "import ark-infra"
+	git commit --quiet -s -m "bulk import ark-infra"
 fi
 echo
 echo "Done; now run 'make dist-srpm' and then use something like"
