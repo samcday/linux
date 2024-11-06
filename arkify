@@ -15,24 +15,24 @@ current_branch=$(git rev-parse --abbrev-ref HEAD)
 #
 # add stuff we need
 #
-echo * Adding remote 'arkify'.
+echo "* Adding remote 'arkify'".
 git remote add -t arkify-infra-mainline -t arkify-infra-mainline -t mainline -t arkify-arkify arkify https://gitlab.com/knurd42/linux.git/
 
-echo * Fetching remote 'arkify'.
+echo "* Fetching remote 'arkify'".
 git fetch --quiet arkify 
 
 # create a "mainline" branch, which the ark-infra requires to seperate upstream
 # from downstream. FIXME: Would a remote work? IIRC it does not, but I might be
 # mistaken (Thorsten)
 
-echo * Creating branch 'mainline'.
+echo "* Creating branch 'mainline'."
 git branch --quiet --track mainline arkify/mainline
 
-echo * Creating branch 'arkify-infra-mainline'.
+echo "* Creating branch 'arkify-infra-mainline'."
 git branch --quiet --track arkify-infra-mainline arkify/arkify-infra-mainline
 git checkout --quiet arkify-infra-mainline
 
-echo * Adjusting ark-infra configuration in redhat/Makefile.variables.
+echo "* Adjusting ark-infra configuration in redhat/Makefile.variables."
 echo $'\n'"DISTLOCALVERSION ?= .$(whoami)" >> redhat/Makefile.variables
 # FIXME: this hardcodes a few things:
 #  BUMP_RELEASE (might not be a good idea for this usecase)
@@ -53,7 +53,7 @@ git commit --quiet -s -m 'local ark-infra configuration' redhat/Makefile.variabl
 #
 # import ark-infra
 #
-echo * Adding ark-infra to branch "${current_branch}".
+echo "* Adding ark-infra to branch "${current_branch}.
 git checkout --quiet "${current_branch}"
 git archive --format=tar arkify-infra-mainline makefile Makefile.rhelver redhat/ .copr | tar -x
 # FIXME: is this actually needed?
