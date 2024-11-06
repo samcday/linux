@@ -30,17 +30,16 @@ done
 echo "* Fetching remote 'arkify'".
 git fetch --quiet arkify 
 
-# create a "mainline" branch, which the ark-infra requires to seperate upstream
-# from downstream. FIXME: Would a remote work? IIRC it does not, but I might be
-# mistaken (Thorsten)
-
-echo "* Creating branch 'arkify-upstream-${current_branch}'."
+# create a branch the ark-infra requires to separate upstream from downstream.
+# FIXME: Would a remote work? IIRC it does not, but I might be # mistaken (Thorsten).
 merge_base="$(git merge-base "${current_branch}" arkify/arkify-infra-mainline)"
-git branch --force --quiet "arkify-upstream-${current_branch}" "${merge_base}"
-
-echo "* Creating branch 'arkify-infra-mainline'."
-git branch --quiet --track arkify-infra-mainline arkify/arkify-infra-mainline
-git checkout --quiet arkify-infra-mainline
+if ! git branch -l | grep "^[[:blank:]]*arkify-upstream-${current_branch}" &> /dev/null; then
+	echo "* Creating branch 'arkify-upstream-${current_branch}' based on ${merge_base}."
+	git branch --quiet "arkify-upstream-${current_branch}" "${merge_base}"
+elif  ! [[ "$(git rev-parse arkify-upstream-master)" == "${merge_base}" ]]; then
+	echo "* Force updating branch 'arkify-upstream-${current_branch}' to ${merge_base}."
+	git branch --force --quiet "arkify-upstream-${current_branch}" "${merge_base}"
+fi
 
 echo "* Adjusting ark-infra configuration in redhat/Makefile.variables."
 echo $'\n'"DISTLOCALVERSION ?= .$(whoami)" >> redhat/Makefile.variables
