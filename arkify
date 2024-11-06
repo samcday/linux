@@ -25,8 +25,9 @@ git fetch --quiet arkify
 # from downstream. FIXME: Would a remote work? IIRC it does not, but I might be
 # mistaken (Thorsten)
 
-echo "* Creating branch 'mainline'."
-git branch --quiet --track mainline arkify/mainline
+echo "* Creating branch 'arkify-upstream-${current_branch}'."
+merge_base="$(git merge-base "${current_branch}" arkify/arkify-infra-mainline)"
+git branch --force --quiet "arkify-upstream-${current_branch}" "${merge_base}"
 
 echo "* Creating branch 'arkify-infra-mainline'."
 git branch --quiet --track arkify-infra-mainline arkify/arkify-infra-mainline
@@ -45,7 +46,7 @@ sed -i '
 	s!^\(DISTRO \?.\?=\)\(.*\)!\1 fedora! ;
 	s!^\(PATCHLIST_URL \?.\?=\)\(.*\)!\1 none! ;
 	s!^\(RELEASED_KERNEL \?.\?=\)\(.*\)!\11! ;
-	s!^\(UPSTREAM_BRANCH \?.\?=\)\(.*\)!\1 '"${current_branch}"'! ;
+	s!^\(UPSTREAM_BRANCH \?.\?=\)\(.*\)!\1 '"arkify-upstream-${current_branch}"'! ;
 	s!\(VERSION_ON_UPSTREAM \?.\?=\)\(.*\)!\1 1! ;
        ' redhat/Makefile.variables
 git commit --quiet -s -m 'local ark-infra configuration' redhat/Makefile.variables
