@@ -3,7 +3,8 @@
 # Early WIP; missing:
 # - check if the current branch is one with the Linux sources
 # - arkify-infra-mainline-latest is ignored for now
-# - anything to update the ark-infra, which is where things get messy
+# - anything to update the ark-infra, which is where things get messy; among it:
+#   * Update arkify-upstream-foo branch on updates
 # - anything for next and stable branches
 
 #
@@ -15,8 +16,16 @@ current_branch=$(git rev-parse --abbrev-ref HEAD)
 #
 # add stuff we need
 #
-echo "* Adding remote 'arkify'".
-git remote add -t arkify-infra-mainline -t arkify-infra-mainline -t mainline -t arkify-arkify arkify https://gitlab.com/knurd42/linux.git/
+if ! git remote -v | grep -e '^arkify[[:blank:]]*https://gitlab.com/knurd42/linux.git/' &> /dev/null; then
+	echo "* Adding remote 'arkify'".
+	git remote add -t arkify-arkify arkify https://gitlab.com/knurd42/linux.git/
+fi
+remote_branches="$(git branch --list -r 'arkify*')"
+for branch in arkify-infra-mainline mainline; do
+	if ! echo "${remote_branches}" | grep -E "^[[:blank:]] arkify/${branch}$" &> /dev/null; then
+		git remote set-branches --add arkify ${branch}
+	fi
+done
 
 echo "* Fetching remote 'arkify'".
 git fetch --quiet arkify 
