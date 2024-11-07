@@ -92,13 +92,14 @@ fi
 # import ark-infra
 #
 git checkout --quiet "${target_branch}"
-rm -rf makefile Makefile.rhelver Kconfig.redhat redhat/
-git archive --format=tar arkify-infra-mainline makefile Makefile.rhelver Kconfig.redhat redhat/ .copr | tar -x
+rm -rf makefile Makefile.rhelver redhat/
+# note: omitting Kconfig.redhat here and in related commands on purpose:
+git archive --format=tar arkify-infra-mainline makefile Makefile.rhelver redhat/ .copr | tar -x
 # FIXME: is this actually needed?
 if ! grep -E '^include Makefile.rhelver$' Makefile &>/dev/null; then
 	sed -i '/# We are using a recursive / i include Makefile.rhelver\n' Makefile
 fi
-git add makefile Makefile.rhelver Makefile Kconfig.redhat redhat
+git add makefile Makefile.rhelver Makefile redhat
 git add -f .copr
 if ! git diff --cached --exit-code &> /dev/null; then
 	echo "* Bulk importing ark infrastructure from arkify-infra-mainline to branch "${target_branch}.
