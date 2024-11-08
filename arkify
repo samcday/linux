@@ -5,19 +5,24 @@
 # # WARNING, arkify is still early WIP! #
 # #######################################
 #
+# #######################################
+#
 # Poor man's TODO list:
-# - Check if the current branch contains Linux.
+#
+# - Check if PWD contains a .git and a the Linux sources.
+# - Check if all tools required to run 'make dist-srpm' are installed.
 # - arkify-infra-mainline-latest is ignored for now.
 # - Support -next.
 # - Support stable and stable-rc.
 # - Error handling, including collision detection for the names chosen for the
-#    remotes and branches we create.
+#   remotes and branches we create.
 # - Importing the ark-infra from the day where the target branch branched of from
 #   mainline, as newer ones might not be a good fit.
 # - Suggest to apply fixes from the right arkify-fixes tag that might be needed
 #   to make the SRPM work at that point.
 # - Fix all FIXME in the code.
 
+# #######################################
 #
 # go
 #
@@ -39,7 +44,7 @@ for branch in arkify-infra-mainline arkify-upstream-mainline; do
 done
 
 echo "* Fetching remote 'arkify'".
-git fetch --quiet arkify 
+git fetch --quiet arkify
 
 #
 # create a branch the ark-infra requires to separate upstream from downstream.
