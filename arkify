@@ -9,14 +9,13 @@
 #
 # Poor man's TODO list:
 #
-# - Check if PWD contains a .git and a the Linux sources.
 # - Check if all tools required to run 'make dist-srpm' are installed.
 # - arkify-infra-mainline-latest is ignored for now.
 # - Support -next.
 # - Support stable and stable-rc.
 # - Error handling, including collision detection for the names chosen for the
 #   remotes and branches we create.
-# - Importing the ark-infra from the day where the target branch branched of from
+# - Import the ark-infra from the day where the target branch branched of from
 #   mainline, as newer ones might not be a good fit.
 # - Suggest to apply fixes from the right arkify-fixes tag that might be needed
 #   to make the SRPM work at that point.
@@ -28,6 +27,15 @@
 #
 set -e
 target_branch=$(git rev-parse --abbrev-ref HEAD)
+
+#
+# startup check
+#
+if [[ ! -d '.git' ]] || [[ $(head -n 1 'README' 2> /dev/null) != 'Linux kernel' ]]; then
+	echo "Aborting: This doesn't look like Git repository with the Linux sources."
+	exit 1
+fi
+
 
 #
 # add stuff we need
