@@ -9,7 +9,6 @@
 #
 # Poor man's TODO list:
 #
-# - Check if all tools required to run 'make dist-srpm' are installed.
 # - arkify-infra-mainline-latest is ignored for now.
 # - Support -next.
 # - Support stable and stable-rc.
@@ -29,13 +28,28 @@ set -e
 target_branch=$(git rev-parse --abbrev-ref HEAD)
 
 #
-# startup check
+# startup check: git & kernel
 #
 if [[ ! -d '.git' ]] || [[ $(head -n 1 'README' 2> /dev/null) != 'Linux kernel' ]]; then
 	echo "Aborting: This doesn't look like Git repository with the Linux sources."
 	exit 1
 fi
 
+#
+# startup check: packages
+#
+missing_pkgs=''
+# following list taken from https://cki-project.gitlab.io/kernel-ark/
+for pkg in git make gcc flex bison bzip2 rpm-build python3-pyyaml; do
+	if ! rpm -q "${pkg}" &> /dev/null; then
+		missing_pkgs+=" ${pkg}"
+	fi
+done
+if [[ "${missing_pkgs}" ]]; then
+	echo "Aborting, please install the following packages${missing_pkgs}"
+	exit
+fi
+unset pkg missing_pkgs
 
 #
 # add stuff we need
