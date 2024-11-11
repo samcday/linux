@@ -1,4 +1,4 @@
-# /bin/bash
+#! /bin/bash
 # SPDX-License-Identifier: MIT
 #
 # #######################################
@@ -129,7 +129,7 @@ fi
 git add makefile Makefile.rhelver Makefile redhat
 git add -f .copr
 if ! git diff --cached --exit-code &> /dev/null; then
-	echo "* Bulk importing ark infrastructure from arkify-infra-mainline to branch "${target_branch}.
+	echo "* Bulk importing ark infrastructure from arkify-infra-mainline to branch ${target_branch}."
 	git commit --quiet -s -m "bulk import ark-infra"
 fi
 echo
