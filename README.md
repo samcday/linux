@@ -5,8 +5,8 @@ allow building SRPMs that are pretty close to those used by Fedora to build
 its kernels.
 
 WARNING: arkify is early "work in progress"; it might forever remain in that
-stage if no community interest in it surfaces over time. See the arkify's
-header for a poor man's TODO list.
+stage if no community interest in it surfaces over time. See
+[arkify's header for a poor man's TODO list](https://gitlab.com/knurd42/linux/-/blob/arkify-arkify/arkify#L8).
 
 ## Get started
 
@@ -46,7 +46,7 @@ That ark infrastructure contains everything needed to build the SRPM, among it
 a spec file template (redhat/kernel.spec.template) and the bits to create
 configuration files for various archs and kernel variants; see the
 [kernel-ark documentation](https://cki-project.gitlab.io/kernel-ark/) and its
-[repository](https://gitlab.com/cki-project/kernel-ark)) for details.
+[repository](https://gitlab.com/cki-project/kernel-ark) for details.
 
 Running arify again later will update arkify-upstream-<target_branchname> and
 arkify-infra-mainline, to then bulk-import the code from the latter to the
