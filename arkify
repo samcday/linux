@@ -27,9 +27,15 @@ _afy_perform_startup()
 {
 	set -e
 
+	# check Fedora
+	if ! [[ -e /etc/os-release ]] || ! grep 'NAME="Fedora Linux"' /etc/os-release &> /dev/null; then
+		echo "Aborting: arkify currently only supports Fedora Linux."
+		exit
+	fi
+
 	# check git & kernel
 	if [[ ! -d '.git' ]] || [[ $(head -n 1 'README' 2> /dev/null) != 'Linux kernel' ]]; then
-		echo "Aborting: This doesn't look like Git repository with the Linux sources."
+		echo "Aborting: this does not look like Git repository with the Linux sources."
 		exit 1
 	fi
 
