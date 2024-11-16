@@ -130,7 +130,6 @@ _afy_handle_arkify-infra-branch()
 			s!^\(DISTRO \?.\?=\)\(.*\)!\1 fedora! ;
 			s!^\(PATCHLIST_URL \?.\?=\)\(.*\)!\1 none! ;
 			s!^\(RELEASED_KERNEL \?.\?=\)\(.*\)!\11! ;
-			s!^\(UPSTREAM_BRANCH \?.\?=\)\(.*\)!\1 '"arkify-upstream-${_afy_target_branch}"'! ;
 			s!\(VERSION_ON_UPSTREAM \?.\?=\)\(.*\)!\1 1! ;
 		       ' redhat/Makefile.variables
 		git commit --quiet -s -m 'local ark-infra configuration' redhat/Makefile.variables
@@ -156,6 +155,9 @@ _afy_import_arkify-infra()
 	rm -rf makefile Makefile.rhelver redhat/
 	# note: omitting Kconfig.redhat here and in related commands on purpose:
 	git archive --format=tar arkify-infra-"${_afy_target_kind}" makefile Makefile.rhelver redhat/ .copr | tar -x
+	sed -i '
+		s!^\(UPSTREAM_BRANCH \?.\?=\)\(.*\)!\1 '"arkify-upstream-${_afy_target_branch}"'! ;
+	       ' redhat/Makefile.variables
 	# FIXME: is this actually needed?
 	if ! grep -E '^include Makefile.rhelver$' Makefile &>/dev/null; then
 		sed -i '/# We are using a recursive / i include Makefile.rhelver\n' Makefile
