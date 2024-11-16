@@ -33,6 +33,11 @@ _afy_perform_startup()
 		exit
 	fi
 
+	if ! LC_ALL=C git status 2>/dev/null | grep '^nothing to commit, working tree clean' &> /dev/null; then
+		echo "Aborting: uncommitted changes or untracked files present." >&2
+		exit 1
+	fi
+
 	# check git & kernel
 	if [[ ! -d '.git' ]] || [[ $(head -n 1 'README' 2> /dev/null) != 'Linux kernel' ]]; then
 		echo "Aborting: this does not look like Git repository with the Linux sources."
