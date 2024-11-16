@@ -10,8 +10,6 @@
 # Poor man's TODO list:
 #
 # - arkify-infra-mainline-latest is ignored for now.
-# - Support -next.
-# - Support stable and stable-rc.
 # - Error handling, including collision detection for the names chosen for the
 #   remotes and branches we create.
 # - Import the ark-infra from the day where the target branch branched of from
@@ -58,6 +56,14 @@ _afy_perform_startup()
 	fi
 
 	_afy_target_branch=$(git rev-parse --abbrev-ref HEAD)
+	if [[ -e "$(git rev-parse --show-toplevel)/Next/SHA1s" ]]; then
+		_afy_target_kind=next
+	elif grep -e '^SUBLEVEL = [1-9]' "$(git rev-parse --show-toplevel)"/Makefile &> /dev/null; then
+		_afy_target_kind="$(make -s kernelversion)"
+		_afy_target_kind="stable-${_afy_target_kind%.*}"
+	else
+		_afy_target_kind=mainline
+	fi
 }
 
 
@@ -69,9 +75,9 @@ _afy_ensure_remote_present()
 	fi
 	local remote_branches
 	remote_branches="$(git branch --list -r 'arkify*')"
-	for branch in arkify-infra-mainline arkify-upstream-mainline; do
+	for branch in arkify-infra-"${_afy_target_kind}" arkify-upstream-"${_afy_target_kind}"; do
 		if ! echo "${remote_branches}" | grep -E "^[[:blank:]] arkify/${branch}$" &> /dev/null; then
-			git remote set-branches --add arkify ${branch}
+			git remote set-branches --add arkify "${branch}"
 		fi
 	done
 }
@@ -89,7 +95,7 @@ _afy_handle_arkify-upstream-branch()
 	# create a branch the ark-infra requires to separate upstream from downstream.
 	# FIXME: Would a remote work? IIRC it does not, but I might be # mistaken (Thorsten).
 	local merge_base
-	merge_base="$(git merge-base "${_afy_target_branch}" arkify/arkify-upstream-mainline)"
+	merge_base="$(git merge-base "${_afy_target_branch}" arkify/arkify-upstream-"${_afy_target_kind}")"
 	if ! git branch -l | grep "^[[:blank:]]*arkify-upstream-${_afy_target_branch}" &> /dev/null; then
 		echo "* Creating branch 'arkify-upstream-${_afy_target_branch}' based on ${merge_base:0:14}."
 		git branch --quiet "arkify-upstream-${_afy_target_branch}" "${merge_base}"
@@ -108,10 +114,10 @@ _afy_handle_arkify-upstream-branch()
 _afy_handle_arkify-infra-branch()
 {
 	# create a branch with the ark-infra to allow local changes
-	if ! git branch -l | grep "^[[:blank:]]*arkify-infra-mainline" &> /dev/null; then
-		echo "* Creating and checking out branch 'arkify-infra-mainline'."
-		git branch --quiet --track arkify-infra-mainline arkify/arkify-infra-mainline
-		git checkout --quiet arkify-infra-mainline
+	if ! git branch -l | grep "^[[:blank:]]*arkify-infra-${_afy_target_kind}" &> /dev/null; then
+		echo "* Creating and checking out branch 'arkify-infra-${_afy_target_kind}'."
+		git branch --quiet --track arkify-infra-"${_afy_target_kind}" arkify/arkify-infra-"${_afy_target_kind}"
+		git checkout --quiet arkify-infra-"${_afy_target_kind}"
 
 		echo "* Adjusting ark-infra configuration in 'redhat/Makefile.variables'."
 		echo $'\n'"DISTLOCALVERSION ?= .$(whoami)" >> redhat/Makefile.variables
@@ -132,11 +138,11 @@ _afy_handle_arkify-infra-branch()
 		git commit --quiet -s -m 'local ark-infra configuration' redhat/Makefile.variables
 	else
 		local merge_base
-		merge_base="$(git merge-base "arkify-infra-mainline" "arkify/arkify-infra-mainline")"
-		if [[ "$(git rev-parse arkify/arkify-infra-mainline)" != "${merge_base}" ]]; then
-			echo "* Merging ark-infra changes from arkify/arkify-infra-mainline."
-			git checkout --quiet arkify-infra-mainline
-			git merge arkify/arkify-infra-mainline
+		merge_base="$(git merge-base "arkify-infra-${_afy_target_kind}" "arkify/arkify-infra-${_afy_target_kind}")"
+		if [[ "$(git rev-parse arkify/arkify-infra-"${_afy_target_kind}")" != "${merge_base}" ]]; then
+			echo "* Merging ark-infra changes from arkify/arkify-infra-${_afy_target_kind}."
+			git checkout --quiet arkify-infra-"${_afy_target_kind}"
+			git merge arkify/arkify-infra-"${_afy_target_kind}"
 		fi
 	fi
 }
@@ -151,7 +157,7 @@ _afy_import_arkify-infra()
 
 	rm -rf makefile Makefile.rhelver redhat/
 	# note: omitting Kconfig.redhat here and in related commands on purpose:
-	git archive --format=tar arkify-infra-mainline makefile Makefile.rhelver redhat/ .copr | tar -x
+	git archive --format=tar arkify-infra-"${_afy_target_kind}" makefile Makefile.rhelver redhat/ .copr | tar -x
 	# FIXME: is this actually needed?
 	if ! grep -E '^include Makefile.rhelver$' Makefile &>/dev/null; then
 		sed -i '/# We are using a recursive / i include Makefile.rhelver\n' Makefile
@@ -159,16 +165,17 @@ _afy_import_arkify-infra()
 	git add makefile Makefile.rhelver Makefile redhat
 	git add -f .copr
 	if ! git diff --cached --exit-code &> /dev/null; then
-		echo "* Importing ark infrastructure from 'arkify-infra-mainline'."
+		echo "* Importing ark infrastructure from 'arkify-infra-${_afy_target_kind}'."
 		git commit --quiet -s -m "bulk import ark-infra"
 	else
-		echo "* Nothing to import, ark infrastructure is up to date with 'arkify-infra-mainline'."
+		echo "* Nothing to import, ark infrastructure is up to date with 'arkify-infra-${_afy_target_kind}'."
 	fi
 }
 
 
 # define two vairables that _afy_perform_startup will set
 _afy_target_branch=''
+_afy_target_kind=''
 _afy_perform_startup
 
 # go
