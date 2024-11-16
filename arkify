@@ -19,119 +19,141 @@
 # - Suggest to apply fixes from the right arkify-fixes tag that might be needed
 #   to make the SRPM work at that point.
 # - Fix all FIXME in the code.
-
+#
 # #######################################
-#
-# go
-#
-set -e
-target_branch=$(git rev-parse --abbrev-ref HEAD)
 
-#
-# startup check: git & kernel
-#
-if [[ ! -d '.git' ]] || [[ $(head -n 1 'README' 2> /dev/null) != 'Linux kernel' ]]; then
-	echo "Aborting: This doesn't look like Git repository with the Linux sources."
-	exit 1
-fi
 
-#
-# startup check: packages
-#
-missing_pkgs=''
-# following list taken from https://cki-project.gitlab.io/kernel-ark/
-for pkg in git make gcc flex bison bzip2 rpm-build python3-pyyaml; do
-	if ! rpm -q "${pkg}" &> /dev/null; then
-		missing_pkgs+=" ${pkg}"
+_afy_perform_startup()
+{
+	set -e
+
+	# check git & kernel
+	if [[ ! -d '.git' ]] || [[ $(head -n 1 'README' 2> /dev/null) != 'Linux kernel' ]]; then
+		echo "Aborting: This doesn't look like Git repository with the Linux sources."
+		exit 1
 	fi
-done
-if [[ "${missing_pkgs}" ]]; then
-	echo "Aborting, please install the following packages${missing_pkgs}"
-	exit
-fi
-unset pkg missing_pkgs
 
-#
-# add stuff we need
-#
-if ! git remote -v | grep -e '^arkify[[:blank:]]*https://gitlab.com/knurd42/linux.git/' &> /dev/null; then
-	echo "* Adding remote 'arkify'".
-	git remote add -t arkify-arkify arkify https://gitlab.com/knurd42/linux.git/
-fi
-remote_branches="$(git branch --list -r 'arkify*')"
-for branch in arkify-infra-mainline arkify-upstream-mainline; do
-	if ! echo "${remote_branches}" | grep -E "^[[:blank:]] arkify/${branch}$" &> /dev/null; then
-		git remote set-branches --add arkify ${branch}
+	# check required packages
+	local missing_pkgs=''
+	# following list taken from https://cki-project.gitlab.io/kernel-ark/
+	for pkg in git make gcc flex bison bzip2 rpm-build python3-pyyaml; do
+		if ! rpm -q "${pkg}" &> /dev/null; then
+			missing_pkgs+=" ${pkg}"
+		fi
+	done
+	if [[ "${missing_pkgs}" ]]; then
+		echo "Aborting, please install the following packages${missing_pkgs}"
+		exit
 	fi
-done
+}
 
-echo "* Fetching remote 'arkify'".
-git fetch --quiet arkify
 
-#
-# create a branch the ark-infra requires to separate upstream from downstream.
-# FIXME: Would a remote work? IIRC it does not, but I might be # mistaken (Thorsten).
-#
-merge_base="$(git merge-base "${target_branch}" arkify/arkify-upstream-mainline)"
-if ! git branch -l | grep "^[[:blank:]]*arkify-upstream-${target_branch}" &> /dev/null; then
-	echo "* Creating branch 'arkify-upstream-${target_branch}' based on ${merge_base:0:14}."
-	git branch --quiet "arkify-upstream-${target_branch}" "${merge_base}"
-elif  ! [[ "$(git rev-parse arkify-upstream-master)" == "${merge_base}" ]]; then
-	echo "* Force updating branch 'arkify-upstream-${target_branch}' to ${merge_base}."
-	git branch --force --quiet "arkify-upstream-${target_branch}" "${merge_base}"
-fi
+_afy_ensure_remote_present()
+{
+	if ! git remote -v | grep -e '^arkify[[:blank:]]*https://gitlab.com/knurd42/linux.git/' &> /dev/null; then
+		echo "* Adding remote 'arkify'".
+		git remote add -t arkify-arkify arkify https://gitlab.com/knurd42/linux.git/
+	fi
+	local remote_branches
+	remote_branches="$(git branch --list -r 'arkify*')"
+	for branch in arkify-infra-mainline arkify-upstream-mainline; do
+		if ! echo "${remote_branches}" | grep -E "^[[:blank:]] arkify/${branch}$" &> /dev/null; then
+			git remote set-branches --add arkify ${branch}
+		fi
+	done
+}
 
-#
-# create a branch with the ark-infra to allow local changes
-#
-if ! git branch -l | grep "^[[:blank:]]*arkify-infra-mainline" &> /dev/null; then
-	echo "* Creating and checking out branch 'arkify-infra-mainline'."
-	git branch --quiet --track arkify-infra-mainline arkify/arkify-infra-mainline
-	git checkout --quiet arkify-infra-mainline
 
-	echo "* Adjusting ark-infra configuration in redhat/Makefile.variables."
-	echo $'\n'"DISTLOCALVERSION ?= .$(whoami)" >> redhat/Makefile.variables
-	# FIXME: this hardcodes a few things:
-	#  BUMP_RELEASE (might not be a good idea for this usecase)
-	#  DISTRO=fedora (breaks RHEL support)
-	#  VERSION_ON_UPSTREAM=1 (wrong for stable)
-	sed -i '
-		s!^\(BUMP_RELEASE \?.\?=\)\(.*\)!\1no! ;
-		s!^\(DIST \?.\?=\)\(.*\)!\1 .fc40! ;
-		s!^\(DIST_BRANCH \?.\?=\)\(.*\)!\1 '"${target_branch}"'! ;
-		s!^\(DISTRO \?.\?=\)\(.*\)!\1 fedora! ;
-		s!^\(PATCHLIST_URL \?.\?=\)\(.*\)!\1 none! ;
-		s!^\(RELEASED_KERNEL \?.\?=\)\(.*\)!\11! ;
-		s!^\(UPSTREAM_BRANCH \?.\?=\)\(.*\)!\1 '"arkify-upstream-${target_branch}"'! ;
-		s!\(VERSION_ON_UPSTREAM \?.\?=\)\(.*\)!\1 1! ;
-	       ' redhat/Makefile.variables
-	git commit --quiet -s -m 'local ark-infra configuration' redhat/Makefile.variables
-else
-	merge_base="$(git merge-base "arkify-infra-mainline" "arkify/arkify-infra-mainline")"
-	if [[ "$(git rev-parse arkify/arkify-infra-mainline)" != "${merge_base}" ]]; then
-		echo "* Merging ark-infra changes from arkify/arkify-infra-mainline."
+_afy_fetch_arkify()
+{
+	echo "* Fetching remote 'arkify'".
+	git fetch --quiet arkify
+}
+
+
+_afy_handle_arkify-upstream-branch()
+{
+	# create a branch the ark-infra requires to separate upstream from downstream.
+	# FIXME: Would a remote work? IIRC it does not, but I might be # mistaken (Thorsten).
+	local merge_base
+	merge_base="$(git merge-base "${target_branch}" arkify/arkify-upstream-mainline)"
+	if ! git branch -l | grep "^[[:blank:]]*arkify-upstream-${target_branch}" &> /dev/null; then
+		echo "* Creating branch 'arkify-upstream-${target_branch}' based on ${merge_base:0:14}."
+		git branch --quiet "arkify-upstream-${target_branch}" "${merge_base}"
+		return
+	fi
+
+	local current_head
+	current_head="$(git rev-parse arkify-upstream-master)"
+	if  ! [[ "${current_head}" == "${merge_base}" ]]; then
+		echo "* Force updating branch 'arkify-upstream-${target_branch}' to ${merge_base} (was: ${current_head:0:14}."
+		git branch --force --quiet "arkify-upstream-${target_branch}" "${merge_base}"
+	fi
+}
+
+
+_afy_handle_arkify-infra-branch()
+{
+	# create a branch with the ark-infra to allow local changes
+	if ! git branch -l | grep "^[[:blank:]]*arkify-infra-mainline" &> /dev/null; then
+		echo "* Creating and checking out branch 'arkify-infra-mainline'."
+		git branch --quiet --track arkify-infra-mainline arkify/arkify-infra-mainline
 		git checkout --quiet arkify-infra-mainline
-		git merge arkify/arkify-infra-mainline
-	fi
-fi
 
-#
-# import ark-infra
-#
-git checkout --quiet "${target_branch}"
-rm -rf makefile Makefile.rhelver redhat/
-# note: omitting Kconfig.redhat here and in related commands on purpose:
-git archive --format=tar arkify-infra-mainline makefile Makefile.rhelver redhat/ .copr | tar -x
-# FIXME: is this actually needed?
-if ! grep -E '^include Makefile.rhelver$' Makefile &>/dev/null; then
-	sed -i '/# We are using a recursive / i include Makefile.rhelver\n' Makefile
-fi
-git add makefile Makefile.rhelver Makefile redhat
-git add -f .copr
-if ! git diff --cached --exit-code &> /dev/null; then
-	echo "* Bulk importing ark infrastructure from arkify-infra-mainline to branch ${target_branch}."
-	git commit --quiet -s -m "bulk import ark-infra"
-fi
-echo
-echo "Done; now run 'make dist-srpm' and then use something like"
+		echo "* Adjusting ark-infra configuration in 'redhat/Makefile.variables'."
+		echo $'\n'"DISTLOCALVERSION ?= .$(whoami)" >> redhat/Makefile.variables
+		# FIXME: this hardcodes a few things:
+		#  BUMP_RELEASE (might not be a good idea for this usecase)
+		#  DISTRO=fedora (breaks RHEL support)
+		#  VERSION_ON_UPSTREAM=1 (wrong for stable)
+		sed -i '
+			s!^\(BUMP_RELEASE \?.\?=\)\(.*\)!\1no! ;
+			s!^\(DIST \?.\?=\)\(.*\)!\1 .fc40! ;
+			s!^\(DIST_BRANCH \?.\?=\)\(.*\)!\1 '"${target_branch}"'! ;
+			s!^\(DISTRO \?.\?=\)\(.*\)!\1 fedora! ;
+			s!^\(PATCHLIST_URL \?.\?=\)\(.*\)!\1 none! ;
+			s!^\(RELEASED_KERNEL \?.\?=\)\(.*\)!\11! ;
+			s!^\(UPSTREAM_BRANCH \?.\?=\)\(.*\)!\1 '"arkify-upstream-${target_branch}"'! ;
+			s!\(VERSION_ON_UPSTREAM \?.\?=\)\(.*\)!\1 1! ;
+		       ' redhat/Makefile.variables
+		git commit --quiet -s -m 'local ark-infra configuration' redhat/Makefile.variables
+	else
+		local merge_base
+		merge_base="$(git merge-base "arkify-infra-mainline" "arkify/arkify-infra-mainline")"
+		if [[ "$(git rev-parse arkify/arkify-infra-mainline)" != "${merge_base}" ]]; then
+			echo "* Merging ark-infra changes from arkify/arkify-infra-mainline."
+			git checkout --quiet arkify-infra-mainline
+			git merge arkify/arkify-infra-mainline
+		fi
+	fi
+}
+
+
+_afy_import_arkify-infra()
+{
+	git checkout --quiet "${1}"
+	rm -rf makefile Makefile.rhelver redhat/
+	# note: omitting Kconfig.redhat here and in related commands on purpose:
+	git archive --format=tar arkify-infra-mainline makefile Makefile.rhelver redhat/ .copr | tar -x
+	# FIXME: is this actually needed?
+	if ! grep -E '^include Makefile.rhelver$' Makefile &>/dev/null; then
+		sed -i '/# We are using a recursive / i include Makefile.rhelver\n' Makefile
+	fi
+	git add makefile Makefile.rhelver Makefile redhat
+	git add -f .copr
+	if ! git diff --cached --exit-code &> /dev/null; then
+		echo "* Checking out '${target_branch}' and importing ark infrastructure from 'arkify-infra-mainline'."
+		git commit --quiet -s -m "bulk import ark-infra"
+	fi
+}
+
+
+target_branch=$(git rev-parse --abbrev-ref HEAD)
+_afy_perform_startup
+_afy_ensure_remote_present
+_afy_fetch_arkify
+_afy_handle_arkify-upstream-branch "${target_branch}"
+_afy_handle_arkify-infra-branch
+_afy_import_arkify-infra "${target_branch}"
+echo $'\n'"Done; now run 'make dist-srpm' and then use something like"
 echo "'mock redhat/rpm/SRPMS/kernel-*.src.rpm' to build the SRPM."
