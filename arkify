@@ -126,7 +126,6 @@ _afy_handle_arkify-infra-branch()
 		#  DISTRO=fedora (breaks RHEL support)
 		#  VERSION_ON_UPSTREAM=1 (wrong for stable)
 		sed -i '
-			s!^\(DIST_BRANCH \?.\?=\)\(.*\)!\1 '"${_afy_target_branch}"'! ;
 			s!^\(DISTRO \?.\?=\)\(.*\)!\1 fedora! ;
 			s!^\(PATCHLIST_URL \?.\?=\)\(.*\)!\1 none! ;
 			s!^\(RELEASED_KERNEL \?.\?=\)\(.*\)!\11! ;
