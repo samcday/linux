@@ -79,6 +79,9 @@ _afy_fetch_arkify()
 
 _afy_handle_arkify-upstream-branch()
 {
+	local target_branch
+	target_branch="${1}"
+
 	# create a branch the ark-infra requires to separate upstream from downstream.
 	# FIXME: Would a remote work? IIRC it does not, but I might be # mistaken (Thorsten).
 	local merge_base
@@ -100,6 +103,9 @@ _afy_handle_arkify-upstream-branch()
 
 _afy_handle_arkify-infra-branch()
 {
+	local target_branch
+	target_branch="${1}"
+
 	# create a branch with the ark-infra to allow local changes
 	if ! git branch -l | grep "^[[:blank:]]*arkify-infra-mainline" &> /dev/null; then
 		echo "* Creating and checking out branch 'arkify-infra-mainline'."
@@ -137,7 +143,10 @@ _afy_handle_arkify-infra-branch()
 
 _afy_import_arkify-infra()
 {
-	git checkout --quiet "${1}"
+	local target_branch
+	target_branch="${1}"
+
+	git checkout --quiet "${target_branch}"
 	rm -rf makefile Makefile.rhelver redhat/
 	# note: omitting Kconfig.redhat here and in related commands on purpose:
 	git archive --format=tar arkify-infra-mainline makefile Makefile.rhelver redhat/ .copr | tar -x
@@ -154,12 +163,12 @@ _afy_import_arkify-infra()
 }
 
 
-target_branch=$(git rev-parse --abbrev-ref HEAD)
+_target_branch=$(git rev-parse --abbrev-ref HEAD)
 _afy_perform_startup
 _afy_ensure_remote_present
 _afy_fetch_arkify
-_afy_handle_arkify-upstream-branch "${target_branch}"
-_afy_handle_arkify-infra-branch
-_afy_import_arkify-infra "${target_branch}"
+_afy_handle_arkify-upstream-branch "${_target_branch}"
+_afy_handle_arkify-infra-branch "${_target_branch}"
+_afy_import_arkify-infra "${_target_branch}"
 echo $'\n'"Done; now run 'make dist-srpm' and then use something like"
 echo "'mock redhat/rpm/SRPMS/kernel-*.src.rpm' to build the SRPM."
