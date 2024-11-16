@@ -56,6 +56,8 @@ _afy_perform_startup()
 		echo "Aborting, please install the following packages${missing_pkgs}"
 		exit
 	fi
+
+	_afy_target_branch=$(git rev-parse --abbrev-ref HEAD)
 }
 
 
@@ -84,33 +86,27 @@ _afy_fetch_arkify()
 
 _afy_handle_arkify-upstream-branch()
 {
-	local target_branch
-	target_branch="${1}"
-
 	# create a branch the ark-infra requires to separate upstream from downstream.
 	# FIXME: Would a remote work? IIRC it does not, but I might be # mistaken (Thorsten).
 	local merge_base
-	merge_base="$(git merge-base "${target_branch}" arkify/arkify-upstream-mainline)"
-	if ! git branch -l | grep "^[[:blank:]]*arkify-upstream-${target_branch}" &> /dev/null; then
-		echo "* Creating branch 'arkify-upstream-${target_branch}' based on ${merge_base:0:14}."
-		git branch --quiet "arkify-upstream-${target_branch}" "${merge_base}"
+	merge_base="$(git merge-base "${_afy_target_branch}" arkify/arkify-upstream-mainline)"
+	if ! git branch -l | grep "^[[:blank:]]*arkify-upstream-${_afy_target_branch}" &> /dev/null; then
+		echo "* Creating branch 'arkify-upstream-${_afy_target_branch}' based on ${merge_base:0:14}."
+		git branch --quiet "arkify-upstream-${_afy_target_branch}" "${merge_base}"
 		return
 	fi
 
 	local current_head
 	current_head="$(git rev-parse arkify-upstream-master)"
 	if  ! [[ "${current_head}" == "${merge_base}" ]]; then
-		echo "* Force updating branch 'arkify-upstream-${target_branch}' to ${merge_base} (was: ${current_head:0:14}."
-		git branch --force --quiet "arkify-upstream-${target_branch}" "${merge_base}"
+		echo "* Force updating branch 'arkify-upstream-${_afy_target_branch}' to ${merge_base} (was: ${current_head:0:14}."
+		git branch --force --quiet "arkify-upstream-${_afy_target_branch}" "${merge_base}"
 	fi
 }
 
 
 _afy_handle_arkify-infra-branch()
 {
-	local target_branch
-	target_branch="${1}"
-
 	# create a branch with the ark-infra to allow local changes
 	if ! git branch -l | grep "^[[:blank:]]*arkify-infra-mainline" &> /dev/null; then
 		echo "* Creating and checking out branch 'arkify-infra-mainline'."
@@ -126,11 +122,11 @@ _afy_handle_arkify-infra-branch()
 		sed -i '
 			s!^\(BUMP_RELEASE \?.\?=\)\(.*\)!\1no! ;
 			s!^\(DIST \?.\?=\)\(.*\)!\1 .fc40! ;
-			s!^\(DIST_BRANCH \?.\?=\)\(.*\)!\1 '"${target_branch}"'! ;
+			s!^\(DIST_BRANCH \?.\?=\)\(.*\)!\1 '"${_afy_target_branch}"'! ;
 			s!^\(DISTRO \?.\?=\)\(.*\)!\1 fedora! ;
 			s!^\(PATCHLIST_URL \?.\?=\)\(.*\)!\1 none! ;
 			s!^\(RELEASED_KERNEL \?.\?=\)\(.*\)!\11! ;
-			s!^\(UPSTREAM_BRANCH \?.\?=\)\(.*\)!\1 '"arkify-upstream-${target_branch}"'! ;
+			s!^\(UPSTREAM_BRANCH \?.\?=\)\(.*\)!\1 '"arkify-upstream-${_afy_target_branch}"'! ;
 			s!\(VERSION_ON_UPSTREAM \?.\?=\)\(.*\)!\1 1! ;
 		       ' redhat/Makefile.variables
 		git commit --quiet -s -m 'local ark-infra configuration' redhat/Makefile.variables
@@ -148,12 +144,9 @@ _afy_handle_arkify-infra-branch()
 
 _afy_import_arkify-infra()
 {
-	local target_branch
-	target_branch="${1}"
-
-	if [[ "$(git rev-parse --abbrev-ref HEAD)" != "${target_branch}" ]]; then
-		echo "* Checking out '${target_branch}'."
-		git checkout --quiet "${target_branch}"
+	if [[ "$(git rev-parse --abbrev-ref HEAD)" != "${_afy_target_branch}" ]]; then
+		echo "* Checking out '${_afy_target_branch}'."
+		git checkout --quiet "${_afy_target_branch}"
 	fi
 
 	rm -rf makefile Makefile.rhelver redhat/
@@ -174,12 +167,17 @@ _afy_import_arkify-infra()
 }
 
 
-_target_branch=$(git rev-parse --abbrev-ref HEAD)
+# define two vairables that _afy_perform_startup will set
+_afy_target_branch=''
 _afy_perform_startup
+
+# go
 _afy_ensure_remote_present
 _afy_fetch_arkify
-_afy_handle_arkify-upstream-branch "${_target_branch}"
-_afy_handle_arkify-infra-branch "${_target_branch}"
-_afy_import_arkify-infra "${_target_branch}"
+_afy_handle_arkify-upstream-branch
+_afy_handle_arkify-infra-branch
+_afy_import_arkify-infra
+
+# finish
 echo $'\n'"Done; now run 'make dist-srpm' and then use something like"
 echo "'mock redhat/rpm/SRPMS/kernel-*.src.rpm' to build the SRPM."
