@@ -151,7 +151,11 @@ _afy_import_arkify-infra()
 	local target_branch
 	target_branch="${1}"
 
-	git checkout --quiet "${target_branch}"
+	if [[ "$(git rev-parse --abbrev-ref HEAD)" != "${target_branch}" ]]; then
+		echo "* Checking out '${target_branch}'."
+		git checkout --quiet "${target_branch}"
+	fi
+
 	rm -rf makefile Makefile.rhelver redhat/
 	# note: omitting Kconfig.redhat here and in related commands on purpose:
 	git archive --format=tar arkify-infra-mainline makefile Makefile.rhelver redhat/ .copr | tar -x
@@ -162,8 +166,10 @@ _afy_import_arkify-infra()
 	git add makefile Makefile.rhelver Makefile redhat
 	git add -f .copr
 	if ! git diff --cached --exit-code &> /dev/null; then
-		echo "* Checking out '${target_branch}' and importing ark infrastructure from 'arkify-infra-mainline'."
+		echo "* Importing ark infrastructure from 'arkify-infra-mainline'."
 		git commit --quiet -s -m "bulk import ark-infra"
+	else
+		echo "* Nothing to import, ark infrastructure is up to date with 'arkify-infra-mainline'."
 	fi
 }
 
