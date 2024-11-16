@@ -23,7 +23,8 @@ again.
 
 ## How arkify works
 
-When you execute arkify for the first time, it will do the following things:
+When you execute arkify for the first time, it will do the following things if
+you branch is based on Linux mainline:
 
 * Add [gitlab.com/knurd42/linux.git](https://gitlab.com/knurd42/linux.git) as a
   new remote 'arkify'.
@@ -56,6 +57,11 @@ that, perform them in the arkify-infra-mainline branch instead; afterwards
 checkout the target branch and run arkify again to import your changes. That
 way arkify then can later cleanly merge your changes with the upstream changes
 to the ark infrastructure using the normal Git merge mechanisms.
+
+Note, arkify might create multiple arkify-infra- branches if you if you use it
+with branches based on different Linux tree's (e.g. mainline, next,
+linux-x.x.y); if you have local changes you thus might need to cherry-pick from
+one branch to the other.
 
 ## Why not use kernel-ark/os-build or kernel-ark/ark-infra directly
 
