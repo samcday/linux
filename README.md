@@ -31,7 +31,9 @@ your current branch is called 'master' based on Linux 'mainline':
 * Fetch required branches from 'arkify'.
 * Create a 'arkify-upstream-master' branch containing mainline at the point
   where your local 'master' branch forked off.
-* Create a 'arkify-infra-master' branch from 'arkify/arkify-infra-mainline'.
+* Create a 'arkify-infra-master' branch from a tag in the
+  'arkify/arkify-infra-mainline' branch that is close to the date of the HEAD
+  commit in the master branch, as anything newer might be too new and thus fail.
 * Switch to 'arkify-infra-master'.
 * Adjust the configuration in 'redhat/Makefile.variables' to local needs.
 * Checkout the 'master'.

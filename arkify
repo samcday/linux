@@ -12,8 +12,6 @@
 # - arkify-infra-mainline-latest is ignored for now.
 # - Error handling, including collision detection for the names chosen for the
 #   remotes and branches we create.
-# - Import the ark-infra from the day where the target branch branched of from
-#   mainline, as newer ones might not be a good fit.
 # - Suggest to apply fixes from the right arkify-fixes tag that might be needed
 #   to make the SRPM work at that point.
 # - Fix all FIXME in the code.
@@ -97,15 +95,15 @@ _afy_handle_arkify-upstream-branch()
 	local merge_base
 	merge_base="$(git merge-base "${_afy_target_branch}" arkify/arkify-upstream-"${_afy_target_kind}")"
 	if ! git branch -l | grep "^[[:blank:]]*arkify-upstream-${_afy_target_branch}" &> /dev/null; then
-		echo "* Creating branch 'arkify-upstream-${_afy_target_branch}' based on ${merge_base:0:14}."
+		echo "* Creating branch 'arkify-upstream-${_afy_target_branch}' based on '$(git describe "${merge_base}")'."
 		git branch --quiet "arkify-upstream-${_afy_target_branch}" "${merge_base}"
 		return
 	fi
 
 	local current_head
-	current_head="$(git rev-parse arkify-upstream-master)"
+	current_head="$(git rev-parse arkify-upstream-"${_afy_target_branch}")"
 	if  ! [[ "${current_head}" == "${merge_base}" ]]; then
-		echo "* Force updating branch 'arkify-upstream-${_afy_target_branch}' to ${merge_base} (was: ${current_head:0:14}."
+		echo "* Force updating 'arkify-upstream-${_afy_target_branch}' to '$(git describe "${merge_base}")' (was: '${current_head:0:14}'."
 		git branch --force --quiet "arkify-upstream-${_afy_target_branch}" "${merge_base}"
 	fi
 }
@@ -113,10 +111,29 @@ _afy_handle_arkify-upstream-branch()
 
 _afy_handle_arkify-infra-branch()
 {
+	local date_upstream_branch
+	date_upstream="$(git show -s --format=%ct arkify-upstream-"${_afy_target_branch}")"
+
+	while read arkify_tagname tagdate; do
+		if (( tagdate > date_upstream )); then
+			break;
+		fi
+	done < <(git tag --sort=creatordate --format '%(refname:strip=2) %(creatordate:unix)' -l arkify-infra-"${_afy_target_kind}"-2*)
+	# fallback
+	if [[ ! "${arkify_tagname}" ]]; then
+		arkify_tagname=arkify-infra-"${_afy_target_kind}"
+		# another fallback
+		if ! git rev-parse arkify-infra-"${arkify_tagname}" &> /dev/null; then
+			arkify_tagname=arkify-infra-mainline
+		fi
+	fi
+
 	# create a branch with the ark-infra to allow local changes
 	if ! git branch -l | grep "^[[:blank:]]*arkify-infra-${_afy_target_branch}" &> /dev/null; then
-		echo "* Creating and checking out branch 'arkify-infra-${_afy_target_branch}'."
-		git branch --quiet arkify-infra-"${_afy_target_branch}" arkify/arkify-infra-"${_afy_target_kind}"
+		echo "* Creating branch 'arkify-infra-${_afy_target_branch}' based on '${arkify_tagname}'."
+		git branch --quiet arkify-infra-"${_afy_target_branch}" ${arkify_tagname}
+
+		echo "* Checking out branch 'arkify-infra-${_afy_target_branch}'."
 		git checkout --quiet arkify-infra-"${_afy_target_branch}"
 
 		echo "* Adjusting ark-infra configuration in 'redhat/Makefile.variables'."
