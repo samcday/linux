@@ -114,10 +114,10 @@ _afy_handle_arkify-upstream-branch()
 _afy_handle_arkify-infra-branch()
 {
 	# create a branch with the ark-infra to allow local changes
-	if ! git branch -l | grep "^[[:blank:]]*arkify-infra-${_afy_target_kind}" &> /dev/null; then
-		echo "* Creating and checking out branch 'arkify-infra-${_afy_target_kind}'."
-		git branch --quiet --track arkify-infra-"${_afy_target_kind}" arkify/arkify-infra-"${_afy_target_kind}"
-		git checkout --quiet arkify-infra-"${_afy_target_kind}"
+	if ! git branch -l | grep "^[[:blank:]]*arkify-infra-${_afy_target_branch}" &> /dev/null; then
+		echo "* Creating and checking out branch 'arkify-infra-${_afy_target_branch}'."
+		git branch --quiet arkify-infra-"${_afy_target_branch}" arkify/arkify-infra-"${_afy_target_kind}"
+		git checkout --quiet arkify-infra-"${_afy_target_branch}"
 
 		echo "* Adjusting ark-infra configuration in 'redhat/Makefile.variables'."
 		echo $'\n'"DISTLOCALVERSION ?= .$(whoami)" >> redhat/Makefile.variables
@@ -134,10 +134,10 @@ _afy_handle_arkify-infra-branch()
 		git commit --quiet -s -m 'local ark-infra configuration' redhat/Makefile.variables
 	else
 		local merge_base
-		merge_base="$(git merge-base "arkify-infra-${_afy_target_kind}" "arkify/arkify-infra-${_afy_target_kind}")"
+		merge_base="$(git merge-base arkify-infra-"${_afy_target_branch}" "arkify/arkify-infra-${_afy_target_kind}")"
 		if [[ "$(git rev-parse arkify/arkify-infra-"${_afy_target_kind}")" != "${merge_base}" ]]; then
 			echo "* Merging ark-infra changes from arkify/arkify-infra-${_afy_target_kind}."
-			git checkout --quiet arkify-infra-"${_afy_target_kind}"
+			git checkout --quiet arkify-infra-"${_afy_target_branch}"
 			git merge arkify/arkify-infra-"${_afy_target_kind}"
 		fi
 	fi
@@ -153,7 +153,7 @@ _afy_import_arkify-infra()
 
 	rm -rf makefile Makefile.rhelver redhat/
 	# note: omitting Kconfig.redhat here and in related commands on purpose:
-	git archive --format=tar arkify-infra-"${_afy_target_kind}" makefile Makefile.rhelver redhat/ .copr | tar -x
+	git archive --format=tar arkify-infra-"${_afy_target_branch}" makefile Makefile.rhelver redhat/ .copr | tar -x
 	sed -i '
 		s!^\(UPSTREAM_BRANCH \?.\?=\)\(.*\)!\1 '"arkify-upstream-${_afy_target_branch}"'! ;
 	       ' redhat/Makefile.variables
@@ -164,10 +164,10 @@ _afy_import_arkify-infra()
 	git add makefile Makefile.rhelver Makefile redhat
 	git add -f .copr
 	if ! git diff --cached --exit-code &> /dev/null; then
-		echo "* Importing ark infrastructure from 'arkify-infra-${_afy_target_kind}'."
+		echo "* Importing ark infrastructure from 'arkify-infra-${_afy_target_branch}'."
 		git commit --quiet -s -m "bulk import ark-infra"
 	else
-		echo "* Nothing to import, ark infrastructure is up to date with 'arkify-infra-${_afy_target_kind}'."
+		echo "* Nothing to import, ark infrastructure is up to date with 'arkify-infra-${_afy_target_branch}'."
 	fi
 }
 

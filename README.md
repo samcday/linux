@@ -24,24 +24,24 @@ again.
 ## How arkify works
 
 When you execute arkify for the first time, it will do the following things if
-you branch is based on Linux mainline:
+your current branch is called 'master' based on Linux 'mainline':
 
 * Add [gitlab.com/knurd42/linux.git](https://gitlab.com/knurd42/linux.git) as a
   new remote 'arkify'.
 * Fetch required branches from 'arkify'.
-* Create a arkify-upstream-<target_branchname> branch containing mainline at
-  the point where your current branch forked off.
-* Create a arkify-infra-mainline branch from arkify/arkify-infra-mainline.
-* Switch to arkify-infra-mainline.
-* Adjust the configuration in redhat/Makefile.variables to local needs.
-* Checkout the target branch (e.g. the one checked out before calling arkify).
-* Bulk-import the ark infrastructure from arkify-infra-mainline using
-  'git archive --format=tar arkify-infra-mainline redhat/ [...] | tar -x';
+* Create a 'arkify-upstream-master' branch containing mainline at the point
+  where your local 'master' branch forked off.
+* Create a 'arkify-infra-master' branch from 'arkify/arkify-infra-mainline'.
+* Switch to 'arkify-infra-master'.
+* Adjust the configuration in 'redhat/Makefile.variables' to local needs.
+* Checkout the 'master'.
+* Bulk-import the ark infrastructure from 'arkify-infra-master' using
+  'git archive --format=tar arkify-infra-master redhat/ [...] | tar -x';
   this will steer clear of any patches that Red Hat added to the
   [os-build branch of kernel-ark](https://gitlab.com/cki-project/kernel-ark),
-  which is the upstream of arkify/arkify-infra-mainline branch.
-* Add a hook to the Makefile to enable the ark infrastructure.
-* Commit the imported ark infrastructure to the target branch.
+  which is the upstream of 'arkify/arkify-infra-mainline branch'.
+* Add a hook to 'Makefile' which enables the ark infrastructure.
+* Commit the imported ark infrastructure to the 'master' branch.
 
 That ark infrastructure contains everything needed to build the SRPM, among it
 a spec file template (redhat/kernel.spec.template) and the bits to create
@@ -49,23 +49,24 @@ configuration files for various archs and kernel variants; see the
 [kernel-ark documentation](https://cki-project.gitlab.io/kernel-ark/) and its
 [repository](https://gitlab.com/cki-project/kernel-ark) for details.
 
-Running arify again later will update arkify-upstream-<target_branchname> and
-arkify-infra-mainline, to then bulk-import the code from the latter to the
-target branch. This will overwrite any modifications you performed to the ark
-infrastructure in the target branch (e.g. the redhat/ directory). To prevent
-that, perform them in the arkify-infra-mainline branch instead; afterwards
-checkout the target branch and run arkify again to import your changes. That
+Running arify again later will update 'arkify-upstream-master' and
+'arkify-infra-master', to then bulk-import the code from the latter to the
+'master' branch. This will overwrite any modifications you performed to the ark
+infrastructure in the 'master' branch (e.g. the redhat/ directory). To prevent
+that, perform them in the 'arkify-infra-mainline' branch instead; afterwards
+checkout the 'master' branch and run arkify again to import your changes. That
 way arkify then can later cleanly merge your changes with the upstream changes
 to the ark infrastructure using the normal Git merge mechanisms.
 
-Note, arkify might create multiple arkify-infra- branches if you if you use it
-with branches based on different Linux tree's (e.g. mainline, next,
-linux-x.x.y); if you have local changes you thus might need to cherry-pick from
-one branch to the other.
+Note, arkify will create 'arkify-infra-…' branches for each local branch you use
+arkify on. If you add local changes to one 'arkify-infra-…' branch, you thus
+might need to cherry-pick then into another; this sadly is required, as the 
+state of the ark infrastructure to build mainline from ten weeks ago might be
+unsuitable to build current mainline or vice versa.
 
 ## Why not use kernel-ark/os-build or kernel-ark/ark-infra directly
 
-Using arkify-infra-* branches from [gitlab.com/knurd42/linux.git](https://gitlab.com/knurd42/linux.git)
+Using 'arkify-infra-…' branches from [gitlab.com/knurd42/linux.git](https://gitlab.com/knurd42/linux.git)
 as base has the following advantages.
 
 * They focus on just the basic kernel and avoid building these things:
