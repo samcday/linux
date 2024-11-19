@@ -198,7 +198,7 @@ Summary: The Linux kernel
 # build the base variants
 %define with_base      %{?_without_base:      0} %{?!_without_base:      1}
 # build also debug variants
-%define with_debug     %{?_without_debug:     0} %{?!_without_debug:     1}
+%define with_debug     %{?_with_debug:        1} %{?!_with_debug:        0}
 # kernel-zfcpdump (s390 specific kernel for zfcpdump)
 %define with_zfcpdump  %{?_without_zfcpdump:  0} %{?!_without_zfcpdump:  1}
 # kernel-16k (aarch64 kernel with 16K page_size)
@@ -206,7 +206,11 @@ Summary: The Linux kernel
 # kernel-64k (aarch64 kernel with 64K page_size)
 %define with_arm64_64k %{?_without_arm64_64k: 0} %{?!_without_arm64_64k: 1}
 # kernel-rt (x86_64 and aarch64 only PREEMPT_RT enabled kernel)
+%if 0%{?fedora}
+%define with_realtime  %{?_with_realtime:     1} %{?!_with_realtime:     0}
+%else
 %define with_realtime  %{?_without_realtime:  0} %{?!_without_realtime:  1}
+%endif
 # kernel-automotive (x86_64 and aarch64 with PREEMPT_RT enabled - currently off by default)
 %define with_automotive %{?_with_automotive:  1} %{?!_with_automotive:   0}
 
@@ -225,19 +229,19 @@ Summary: The Linux kernel
 %define with_headers   %{?_without_headers:   0} %{?!_without_headers:   1}
 %define with_cross_headers   %{?_without_cross_headers:   0} %{?!_without_cross_headers:   1}
 # perf
-%define with_perf      %{?_without_perf:      0} %{?!_without_perf:      1}
+%define with_perf      %{?_with_perf:         1} %{?!_with_perf:         0}
 # libperf
-%define with_libperf   %{?_without_libperf:   0} %{?!_without_libperf:   1}
+%define with_libperf   %{?_with_libperf:      1} %{?!_with_libperf:      0}
 # tools
-%define with_tools     %{?_without_tools:     0} %{?!_without_tools:     1}
+%define with_tools     %{?_with_tools:        1} %{?!_with_tools:        0}
 # ynl
-%define with_ynl      %{?_without_ynl:      0} %{?!_without_ynl:      1}
+%define with_ynl       %{?_with_ynl:          1} %{?!_with_ynl:          0}
 # kernel-debuginfo
 %define with_debuginfo %{?_without_debuginfo: 0} %{?!_without_debuginfo: 1}
 # kernel-abi-stablelists
 %define with_kernel_abi_stablelists %{?_without_kernel_abi_stablelists: 0} %{?!_without_kernel_abi_stablelists: 1}
 # internal samples and selftests
-%define with_selftests %{?_without_selftests: 0} %{?!_without_selftests: 1}
+%define with_selftests %{?_with_selftests:    1} %{?!_with_selftests:    0}
 #
 # Additional options for user-friendly one-off kernel building:
 #
@@ -271,7 +275,7 @@ Summary: The Linux kernel
 %define with_cross    %{?_with_cross:         1} %{?!_with_cross:        0}
 #
 # build a release kernel on rawhide
-%define with_release   %{?_with_release:      1} %{?!_with_release:      0}
+%define with_release   %{?_without_release:   0} %{?!_without_release:   1}
 
 # verbose build, i.e. no silent rules and V=1
 %define with_verbose %{?_with_verbose:        1} %{?!_with_verbose:      0}
@@ -297,6 +301,9 @@ Summary: The Linux kernel
 %define with_efiuki 0
 %endif
 
+# Disable for vanilla builds
+%define with_efiuki 0
+
 %if 0%{?fedora}
 # Kernel headers are being split out into a separate package
 %define with_headers 0
@@ -306,7 +313,6 @@ Summary: The Linux kernel
 # no stablelist
 %define with_kernel_abi_stablelists 0
 %define with_arm64_64k 0
-%define with_realtime 0
 %define with_automotive 0
 %endif
 
@@ -770,6 +776,9 @@ BuildRequires: python3-pyyaml python3-jsonschema python3-pip python3-setuptools 
 
 %if %{with_tools} || %{signmodules} || %{signkernel}
 BuildRequires: openssl-devel
+%if 0%{?fedora} > 40
+BuildRequires: openssl-devel-engine
+%endif
 %endif
 %if %{with_selftests}
 BuildRequires: clang llvm-devel fuse-devel zlib-devel binutils-devel
@@ -1918,10 +1927,27 @@ ApplyOptionalPatch linux-kernel-test.patch
 %{log_msg "End of patch applications"}
 # END OF PATCH APPLICATIONS
 
+echo $'\n'$'\n'"#### kernel-vanilla-infodump: begin"$'\n'
+
+# print version from upstream sources for later examination in the logs
+grep -e '^\(VERSION\|PATCHLEVEL\|SUBLEVEL\|EXTRAVERSION\)' Makefile
+if [[ -e localversion-next ]]; then
+	cat localversion-next
+fi
+if [[ -s "$RPM_SOURCE_DIR/patch-%{patchversion}-redhat.patch" ]] && [[ -s "$RPM_SOURCE_DIR/Patchlist.changelog" ]]; then
+	echo $'\n'"## patch list and patches"$'\n'$'\n'
+	cat "$RPM_SOURCE_DIR/Patchlist.changelog"
+	cat "$RPM_SOURCE_DIR/patch-%{patchversion}-redhat.patch"
+fi
+
+echo $'\n'"#### kernel-vanilla-infodump: end"$'\n'$'\n'
+
 # Any further pre-build tree manipulations happen here.
 %{log_msg "Pre-build tree manipulations"}
 chmod +x scripts/checkpatch.pl
 mv COPYING COPYING-%{specrpmversion}-%{release}
+# This Prevents scripts/setlocalversion from mucking with our version numbers:
+rm -f localversion-next
 
 # on linux-next prevent scripts/setlocalversion from mucking with our version numbers
 rm -f localversion-next localversion-rt
@@ -3045,8 +3071,14 @@ fi
 %ifarch aarch64
 %global perf_build_extra_opts CORESIGHT=1
 %endif
+%if 0%{?fedora} < 41
+# LIBBPF_DYNAMIC=1 temporarily removed from the next command, it breaks the build on f39 and 38
+%global perf_make \
+  %{__make} %{?make_opts} EXTRA_CFLAGS="${RPM_OPT_FLAGS}" EXTRA_CXXFLAGS="${RPM_OPT_FLAGS}" LDFLAGS="%{__global_ldflags} -Wl,-E" %{?cross_opts} -C tools/perf V=1 NO_PERF_READ_VDSO32=1 NO_PERF_READ_VDSOX32=1 WERROR=0 NO_LIBUNWIND=1 HAVE_CPLUS_DEMANGLE=1 NO_GTK2=1 NO_STRLCPY=1 NO_BIONIC=1 LIBTRACEEVENT_DYNAMIC=1 %{?perf_build_extra_opts} prefix=%{_prefix} PYTHON=%{__python3}
+%else
 %global perf_make \
   %{__make} %{?make_opts} EXTRA_CFLAGS="${RPM_OPT_FLAGS}" EXTRA_CXXFLAGS="${RPM_OPT_FLAGS}" LDFLAGS="%{__global_ldflags} -Wl,-E" %{?cross_opts} -C tools/perf V=1 NO_PERF_READ_VDSO32=1 NO_PERF_READ_VDSOX32=1 WERROR=0 NO_LIBUNWIND=1 HAVE_CPLUS_DEMANGLE=1 NO_GTK2=1 NO_STRLCPY=1 NO_BIONIC=1 LIBBPF_DYNAMIC=1 LIBTRACEEVENT_DYNAMIC=1 %{?perf_build_extra_opts} prefix=%{_prefix} PYTHON=%{__python3}
+%endif
 %if %{with_perf}
 %{log_msg "Build perf"}
 # perf
