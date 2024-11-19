@@ -18,6 +18,7 @@ EXCLUDE_FILES=":(exclude,top).get_maintainer.conf \
 		:(exclude,top).gitattributes \
 		:(exclude,top).gitignore \
 		:(exclude,top).gitlab-ci.yml \
+		:(exclude,top).copr \
 		:(exclude,top)makefile \
 		:(exclude,top)Makefile.rhelver \
 		:(exclude,top)redhat \
