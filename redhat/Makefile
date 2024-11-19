@@ -185,7 +185,9 @@ endif
 UPSTREAM:=$(shell $(GIT) rev-parse -q --verify origin/$(UPSTREAM_BRANCH) || \
             $(GIT) rev-parse -q --verify $(UPSTREAM_BRANCH))
 
-ifneq ("$(wildcard $(TOPDIR)/localversion-next)", "")
+ifdef STABLERC_MARKER
+  # nothing to do
+else ifneq ("$(wildcard $(TOPDIR)/localversion-next)", "")
   # we are building linux-next
   MARKER:=$(shell $(GIT) describe $(UPSTREAM))
   # The merge window is weird because the actual versioning hasn't
