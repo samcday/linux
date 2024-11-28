@@ -86,7 +86,7 @@ _afy_ensure_remote_present()
 	fi
 	for branch in "${branches_interested_in[@]}"; do
 		if ! echo "${remote_branches}" | grep -E "^[[:blank:]] arkify/${branch}$" &> /dev/null; then
-			echo adding ${branch}
+			echo "* Adding remote branch 'arkify/${branch}'"
 			git remote set-branches --add arkify "${branch}"
 		fi
 	done
