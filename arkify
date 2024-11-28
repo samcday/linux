@@ -9,7 +9,8 @@
 #
 # Poor man's TODO list:
 #
-# - arkify-infra-mainline-latest is ignored for now.
+# - Add a hook to the ark-infra to check if ark-infra needs to be updated in case
+#   the user updated or rebased the branch?
 # - Error handling, including collision detection for the names chosen for the
 #   remotes and branches we create.
 # - Suggest to apply fixes from the right arkify-fixes tag that might be needed
@@ -73,8 +74,13 @@ _afy_ensure_remote_present()
 	fi
 	local remote_branches
 	remote_branches="$(git branch --list -r 'arkify*')"
-	for branch in arkify-infra-"${_afy_target_kind}" arkify-upstream-"${_afy_target_kind}"; do
+	local branches_interested_in=(arkify-infra-"${_afy_target_kind}" arkify-upstream-"${_afy_target_kind}")
+	if [[ "${_afy_target_kind}" =~ (mainline|next) ]]; then
+		branches_interested_in+=(arkify-infra-"${_afy_target_kind}"-latest)
+	fi
+	for branch in "${branches_interested_in[@]}"; do
 		if ! echo "${remote_branches}" | grep -E "^[[:blank:]] arkify/${branch}$" &> /dev/null; then
+			echo adding ${branch}
 			git remote set-branches --add arkify "${branch}"
 		fi
 	done
@@ -114,24 +120,25 @@ _afy_handle_arkify-infra-branch()
 	local date_upstream_branch
 	date_upstream="$(git show -s --format=%ct arkify-upstream-"${_afy_target_branch}")"
 
+	local _arkify_tagnames_tolookfor="arkify-infra-${_afy_target_kind}"
+	if [[ "${_afy_target_kind}" =~ (mainline|next) ]]; then
+		_arkify_tagnames_tolookfor+="-latest"
+	fi
 	while read arkify_tagname tagdate; do
 		if (( tagdate > date_upstream )); then
 			break;
 		fi
-	done < <(git tag --sort=creatordate --format '%(refname:strip=2) %(creatordate:unix)' -l arkify-infra-"${_afy_target_kind}"-2*)
-	# fallback
+	done < <(git tag --sort=creatordate --format '%(refname:strip=2) %(creatordate:unix)' -l "${_arkify_tagnames_tolookfor}"-2*)
+
+	# fallback: try latest in case no tag was found
 	if [[ ! "${arkify_tagname}" ]]; then
 		arkify_tagname=arkify-infra-"${_afy_target_kind}"
-		# another fallback
-		if ! git rev-parse arkify-infra-"${arkify_tagname}" &> /dev/null; then
-			arkify_tagname=arkify-infra-mainline
-		fi
 	fi
 
-	# create a branch with the ark-infra to allow local changes
+	# create or update a branch with the ark-infra to allow local changes
 	if ! git branch -l | grep "^[[:blank:]]*arkify-infra-${_afy_target_branch}" &> /dev/null; then
 		echo "* Creating branch 'arkify-infra-${_afy_target_branch}' based on '${arkify_tagname}'."
-		git branch --quiet arkify-infra-"${_afy_target_branch}" ${arkify_tagname}
+		git branch --quiet arkify-infra-"${_afy_target_branch}" "${arkify_tagname}"
 
 		echo "* Checking out branch 'arkify-infra-${_afy_target_branch}'."
 		git checkout --quiet arkify-infra-"${_afy_target_branch}"
@@ -149,14 +156,16 @@ _afy_handle_arkify-infra-branch()
 			s!\(VERSION_ON_UPSTREAM \?.\?=\)\(.*\)!\1 1! ;
 		       ' redhat/Makefile.variables
 		git commit --quiet -s -m 'local ark-infra configuration' redhat/Makefile.variables
+	elif git merge-base --is-ancestor "${arkify_tagname}" arkify-infra-"${_afy_target_branch}"; then
+		echo "* Branch 'arkify-infra-${_afy_target_branch}' is up to date with '${arkify_tagname}'."
 	else
-		local merge_base
-		merge_base="$(git merge-base arkify-infra-"${_afy_target_branch}" "arkify/arkify-infra-${_afy_target_kind}")"
-		if [[ "$(git rev-parse arkify/arkify-infra-"${_afy_target_kind}")" != "${merge_base}" ]]; then
-			echo "* Merging ark-infra changes from arkify/arkify-infra-${_afy_target_kind}."
+		if [[ "$(git rev-parse --abbrev-ref HEAD)" != arkify-infra-"${_afy_target_branch}" ]]; then
+			echo "* Checking out 'arkify-infra-${_afy_target_branch}'."
 			git checkout --quiet arkify-infra-"${_afy_target_branch}"
-			git merge arkify/arkify-infra-"${_afy_target_kind}"
 		fi
+		echo "* Rebasing arkify-infra-${_afy_target_branch} ontop of ${arkify_tagname}."
+		local _previous_base="$(git tag --sort=-creatordate --merged arkify-infra-"${_afy_target_branch}" arkify-infra-* | head -n 1)"
+		git rebase --onto "${arkify_tagname}" "${_previous_base}"
 	fi
 }
 
@@ -184,7 +193,7 @@ _afy_import_arkify-infra()
 		echo "* Importing ark infrastructure from 'arkify-infra-${_afy_target_branch}'."
 		git commit --quiet -s -m "bulk import ark-infra"
 	else
-		echo "* Nothing to import, ark infrastructure is up to date with 'arkify-infra-${_afy_target_branch}'."
+		echo "* Ark infrastructure in '${_afy_target_branch}' up to date with 'arkify-infra-${_afy_target_branch}'."
 	fi
 }
 
