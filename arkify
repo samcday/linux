@@ -124,14 +124,14 @@ _afy_handle_arkify-upstream-branch()
 _afy_handle_arkify-infra-branch()
 {
 	local date_upstream_branch
-	date_upstream="$(git show -s --format=%ct arkify-local-upstream-"${_afy_target_branch}")"
+	date_upstream_branch="$(git show -s --format=%ct arkify-local-upstream-"${_afy_target_branch}")"
 
 	local _arkify_tagnames_tolookfor="arkify-infra-${_afy_target_kind}"
 	if [[ "${_afy_target_kind}" =~ (mainline|next) ]]; then
 		_arkify_tagnames_tolookfor+="-latest"
 	fi
 	while read arkify_tagname tagdate; do
-		if (( tagdate > date_upstream )); then
+		if (( tagdate > date_upstream_branch )); then
 			break;
 		fi
 	done < <(git tag --sort=creatordate --format '%(refname:strip=2) %(creatordate:unix)' -l "${_arkify_tagnames_tolookfor}"-2*)
