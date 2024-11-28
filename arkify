@@ -55,6 +55,12 @@ _afy_perform_startup()
 	fi
 
 	_afy_target_branch=$(git rev-parse --abbrev-ref HEAD)
+
+	if [[ "${_afy_target_branch}" != "${_afy_target_branch#arkify-}" ]]; then
+		echo "Aborting, looks like you are in a arkify-* branch, this is unlikely what you want."
+		exit 1
+	fi
+
 	if [[ -e "$(git rev-parse --show-toplevel)/Next/SHA1s" ]]; then
 		_afy_target_kind=next
 	elif grep -e '^SUBLEVEL = [1-9]' "$(git rev-parse --show-toplevel)"/Makefile &> /dev/null; then
@@ -198,7 +204,7 @@ _afy_import_arkify-infra()
 }
 
 
-# define two vairables that _afy_perform_startup will set
+# define two variables that _afy_perform_startup will set
 _afy_target_branch=''
 _afy_target_kind=''
 _afy_perform_startup
