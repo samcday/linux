@@ -28,17 +28,18 @@ your current branch is called 'master' based on Linux 'mainline':
 
 * Add [gitlab.com/knurd42/linux.git](https://gitlab.com/knurd42/linux.git) as a
   new remote 'arkify'.
-* Fetch required branches from 'arkify'.
-* Create a 'arkify-upstream-master' branch containing mainline at the point
+* Fetch required remote branches from 'arkify'.
+* Create a 'arkify-local-upstream-master' branch containing mainline at the point
   where your local 'master' branch forked off.
-* Create a 'arkify-infra-master' branch from a tag in the
-  'arkify/arkify-infra-mainline' branch that is close to the date of the HEAD
-  commit in the master branch, as anything newer might be too new and thus fail.
-* Switch to 'arkify-infra-master'.
+* Create a 'arkify-local-infra-master' branch from a tag in the
+  'arkify/arkify-infra-mainline-latest' branch that is close to the date of the
+  HEAD commit in your 'master' branch, as anything newer might be too new and
+  thus fail.
+* Switch to 'arkify-local-infra-master'.
 * Adjust the configuration in 'redhat/Makefile.variables' to local needs.
 * Checkout the 'master'.
-* Bulk-import the ark infrastructure from 'arkify-infra-master' using
-  'git archive --format=tar arkify-infra-master redhat/ [...] | tar -x';
+* Bulk-import the ark infrastructure from 'arkify-local-infra-master' using
+  'git archive --format=tar arkify-local-infra-master redhat/ [...] | tar -x';
   this will steer clear of any patches that Red Hat added to the
   [os-build branch of kernel-ark](https://gitlab.com/cki-project/kernel-ark),
   which is the upstream of 'arkify/arkify-infra-mainline branch'.
@@ -51,8 +52,8 @@ configuration files for various archs and kernel variants; see the
 [kernel-ark documentation](https://cki-project.gitlab.io/kernel-ark/) and its
 [repository](https://gitlab.com/cki-project/kernel-ark) for details.
 
-Running arify again later will update 'arkify-upstream-master' and
-'arkify-infra-master', to then bulk-import the code from the latter to the
+Running arify again later will update 'arkify-local-upstream-master' and
+'arkify-local-infra-master', to then bulk-import the code from the latter to the
 'master' branch. This will overwrite any modifications you performed to the ark
 infrastructure in the 'master' branch (e.g. the redhat/ directory). To prevent
 that, perform them in the 'arkify-infra-mainline' branch instead; afterwards
