@@ -100,17 +100,17 @@ _afy_handle_arkify-upstream-branch()
 	# FIXME: Would a remote work? IIRC it does not, but I might be # mistaken (Thorsten).
 	local merge_base
 	merge_base="$(git merge-base "${_afy_target_branch}" arkify/arkify-upstream-"${_afy_target_kind}")"
-	if ! git branch -l | grep "^[[:blank:]]*arkify-upstream-${_afy_target_branch}" &> /dev/null; then
-		echo "* Creating branch 'arkify-upstream-${_afy_target_branch}' based on '$(git describe "${merge_base}")'."
-		git branch --quiet "arkify-upstream-${_afy_target_branch}" "${merge_base}"
+	if ! git branch -l | grep "^[[:blank:]]*arkify-local-upstream-${_afy_target_branch}" &> /dev/null; then
+		echo "* Creating branch 'arkify-local-upstream-${_afy_target_branch}' based on '$(git describe "${merge_base}")'."
+		git branch --quiet "arkify-local-upstream-${_afy_target_branch}" "${merge_base}"
 		return
 	fi
 
 	local current_head
-	current_head="$(git rev-parse arkify-upstream-"${_afy_target_branch}")"
+	current_head="$(git rev-parse arkify-local-upstream-"${_afy_target_branch}")"
 	if  ! [[ "${current_head}" == "${merge_base}" ]]; then
-		echo "* Force updating 'arkify-upstream-${_afy_target_branch}' to '$(git describe "${merge_base}")' (was: '${current_head:0:14}'."
-		git branch --force --quiet "arkify-upstream-${_afy_target_branch}" "${merge_base}"
+		echo "* Force updating 'arkify-local-upstream-${_afy_target_branch}' to '$(git describe "${merge_base}")' (was: '${current_head:0:14}'."
+		git branch --force --quiet "arkify-local-upstream-${_afy_target_branch}" "${merge_base}"
 	fi
 }
 
@@ -118,7 +118,7 @@ _afy_handle_arkify-upstream-branch()
 _afy_handle_arkify-infra-branch()
 {
 	local date_upstream_branch
-	date_upstream="$(git show -s --format=%ct arkify-upstream-"${_afy_target_branch}")"
+	date_upstream="$(git show -s --format=%ct arkify-local-upstream-"${_afy_target_branch}")"
 
 	local _arkify_tagnames_tolookfor="arkify-infra-${_afy_target_kind}"
 	if [[ "${_afy_target_kind}" =~ (mainline|next) ]]; then
@@ -136,12 +136,12 @@ _afy_handle_arkify-infra-branch()
 	fi
 
 	# create or update a branch with the ark-infra to allow local changes
-	if ! git branch -l | grep "^[[:blank:]]*arkify-infra-${_afy_target_branch}" &> /dev/null; then
-		echo "* Creating branch 'arkify-infra-${_afy_target_branch}' based on '${arkify_tagname}'."
-		git branch --quiet arkify-infra-"${_afy_target_branch}" "${arkify_tagname}"
+	if ! git branch -l | grep "^[[:blank:]]*arkify-local-infra-${_afy_target_branch}" &> /dev/null; then
+		echo "* Creating branch 'arkify-local-infra-${_afy_target_branch}' based on '${arkify_tagname}'."
+		git branch --quiet arkify-local-infra-"${_afy_target_branch}" "${arkify_tagname}"
 
-		echo "* Checking out branch 'arkify-infra-${_afy_target_branch}'."
-		git checkout --quiet arkify-infra-"${_afy_target_branch}"
+		echo "* Checking out branch 'arkify-local-infra-${_afy_target_branch}'."
+		git checkout --quiet arkify-local-infra-"${_afy_target_branch}"
 
 		echo "* Adjusting ark-infra configuration in 'redhat/Makefile.variables'."
 		echo $'\n'"DISTLOCALVERSION ?= .$(whoami)" >> redhat/Makefile.variables
@@ -156,15 +156,15 @@ _afy_handle_arkify-infra-branch()
 			s!\(VERSION_ON_UPSTREAM \?.\?=\)\(.*\)!\1 1! ;
 		       ' redhat/Makefile.variables
 		git commit --quiet -s -m 'local ark-infra configuration' redhat/Makefile.variables
-	elif git merge-base --is-ancestor "${arkify_tagname}" arkify-infra-"${_afy_target_branch}"; then
-		echo "* Branch 'arkify-infra-${_afy_target_branch}' is up to date with '${arkify_tagname}'."
+	elif git merge-base --is-ancestor "${arkify_tagname}" arkify-local-infra-"${_afy_target_branch}"; then
+		echo "* Branch 'arkify-local-infra-${_afy_target_branch}' is up to date with '${arkify_tagname}'."
 	else
-		if [[ "$(git rev-parse --abbrev-ref HEAD)" != arkify-infra-"${_afy_target_branch}" ]]; then
-			echo "* Checking out 'arkify-infra-${_afy_target_branch}'."
-			git checkout --quiet arkify-infra-"${_afy_target_branch}"
+		if [[ "$(git rev-parse --abbrev-ref HEAD)" != arkify-local-infra-"${_afy_target_branch}" ]]; then
+			echo "* Checking out 'arkify-local-infra-${_afy_target_branch}'."
+			git checkout --quiet arkify-local-infra-"${_afy_target_branch}"
 		fi
-		echo "* Rebasing arkify-infra-${_afy_target_branch} ontop of ${arkify_tagname}."
-		local _previous_base="$(git tag --sort=-creatordate --merged arkify-infra-"${_afy_target_branch}" arkify-infra-* | head -n 1)"
+		echo "* Rebasing arkify-local-infra-${_afy_target_branch} ontop of ${arkify_tagname}."
+		local _previous_base="$(git tag --sort=-creatordate --merged arkify-local-infra-"${_afy_target_branch}" arkify-infra-* | head -n 1)"
 		git rebase --onto "${arkify_tagname}" "${_previous_base}"
 	fi
 }
@@ -179,9 +179,9 @@ _afy_import_arkify-infra()
 
 	rm -rf makefile Makefile.rhelver redhat/
 	# note: omitting Kconfig.redhat here and in related commands on purpose:
-	git archive --format=tar arkify-infra-"${_afy_target_branch}" makefile Makefile.rhelver redhat/ .copr | tar -x
+	git archive --format=tar arkify-local-infra-"${_afy_target_branch}" makefile Makefile.rhelver redhat/ .copr | tar -x
 	sed -i '
-		s!^\(UPSTREAM_BRANCH \?.\?=\)\(.*\)!\1 '"arkify-upstream-${_afy_target_branch}"'! ;
+		s!^\(UPSTREAM_BRANCH \?.\?=\)\(.*\)!\1 '"arkify-local-upstream-${_afy_target_branch}"'! ;
 	       ' redhat/Makefile.variables
 	# FIXME: is this actually needed?
 	if ! grep -E '^include Makefile.rhelver$' Makefile &>/dev/null; then
@@ -190,10 +190,10 @@ _afy_import_arkify-infra()
 	git add makefile Makefile.rhelver Makefile redhat
 	git add -f .copr
 	if ! git diff --cached --exit-code &> /dev/null; then
-		echo "* Importing ark infrastructure from 'arkify-infra-${_afy_target_branch}'."
+		echo "* Importing ark infrastructure from 'arkify-local-infra-${_afy_target_branch}'."
 		git commit --quiet -s -m "bulk import ark-infra"
 	else
-		echo "* Ark infrastructure in '${_afy_target_branch}' up to date with 'arkify-infra-${_afy_target_branch}'."
+		echo "* Ark infrastructure in '${_afy_target_branch}' up to date with 'arkify-local-infra-${_afy_target_branch}'."
 	fi
 }
 
