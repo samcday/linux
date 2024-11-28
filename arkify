@@ -130,11 +130,11 @@ _afy_handle_arkify-infra-branch()
 	if [[ "${_afy_target_kind}" =~ (mainline|next) ]]; then
 		_arkify_tagnames_tolookfor+="-latest"
 	fi
-	while read arkify_tagname tagdate; do
+	while read -r arkify_tagname tagdate; do
 		if (( tagdate > date_upstream_branch )); then
 			break;
 		fi
-	done < <(git tag --sort=creatordate --format '%(refname:strip=2) %(creatordate:unix)' -l "${_arkify_tagnames_tolookfor}"-2*)
+	done < <(git tag --sort=creatordate --format '%(refname:strip=2) %(creatordate:unix)' -l "${_arkify_tagnames_tolookfor}"-2\*)
 
 	# fallback: try latest in case no tag was found
 	if [[ ! "${arkify_tagname}" ]]; then
@@ -169,9 +169,10 @@ _afy_handle_arkify-infra-branch()
 			echo "* Checking out 'arkify-local-infra-${_afy_target_branch}'."
 			git checkout --quiet arkify-local-infra-"${_afy_target_branch}"
 		fi
-		echo "* Rebasing arkify-local-infra-${_afy_target_branch} ontop of ${arkify_tagname}."
-		local _previous_base="$(git tag --sort=-creatordate --merged arkify-local-infra-"${_afy_target_branch}" arkify-infra-* | head -n 1)"
-		git rebase --onto "${arkify_tagname}" "${_previous_base}"
+		echo "* Rebasing 'arkify-local-infra-${_afy_target_branch}' ontop of ${arkify_tagname}."
+		local _previous_base 
+		_previous_base="$(git tag --sort=-creatordate --merged arkify-local-infra-"${_afy_target_branch}" arkify-infra-\* | head -n 1)"
+		git rebase --quiet --onto "${arkify_tagname}" "${_previous_base}"
 	fi
 }
 
