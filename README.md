@@ -29,12 +29,13 @@ your current branch is called 'master' and based on Linux 'mainline':
 * Add [gitlab.com/knurd42/linux.git](https://gitlab.com/knurd42/linux.git) as a
   new remote 'arkify'.
 * Fetch required remote branches from 'arkify'.
-* Create a 'arkify-local-upstream-master' branch containing mainline at the point
-  where your local 'master' branch forked off.
+* Create a 'arkify-local-upstream-master' branch containing mainline at the
+  point where your local 'master' branch forked off.
 * Create a 'arkify-local-infra-master' branch from a tag in the
   'arkify/arkify-infra-mainline-latest' branch that is close to the date of the
   HEAD commit in your 'master' branch, as anything newer might be too new and
-  thus fail.
+  thus fail; if you nevertheless want the code the current rawhide kernel is
+  build from, star arkify with '--latest'.
 * Switch to 'arkify-local-infra-master'.
 * Adjust the configuration in 'redhat/Makefile.variables' to local needs.
 * Checkout 'master'.

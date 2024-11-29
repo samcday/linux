@@ -9,7 +9,6 @@
 #
 # Poor man's TODO list:
 #
-# - Add a option to let users request usage of the latest ark-infra.
 # - Add a hook to the ark-infra to check if ark-infra needs to be updated in case
 #   the user updated or rebased the branch?
 # - Better error handling, including collision detection for the names chosen for
@@ -27,14 +26,23 @@ _afy_perform_startup()
 {
 	set -e
 
+	_afy_target_branch=$(git rev-parse --abbrev-ref HEAD)
+
 	# check Fedora
 	if ! [[ -e /etc/os-release ]] || ! grep 'NAME="Fedora Linux"' /etc/os-release &> /dev/null; then
 		echo "Aborting: arkify currently only supports Fedora Linux."
 		exit
 	fi
 
+	# check repo for uncommitted changes
 	if ! LC_ALL=C git status 2>/dev/null | grep '^nothing to commit, working tree clean' &> /dev/null; then
 		echo "Aborting: uncommitted changes or untracked files present." >&2
+		exit 1
+	fi
+
+	# check if we are in a branch that makes no sense to arkify
+	if [[ "${_afy_target_branch}" != "${_afy_target_branch#arkify-}" ]]; then
+		echo "Aborting, looks like you are in a arkify-* branch, this is unlikely what you want."
 		exit 1
 	fi
 
@@ -57,25 +65,34 @@ _afy_perform_startup()
 		exit
 	fi
 
-	_afy_target_branch=$(git rev-parse --abbrev-ref HEAD)
 
-	if [[ "${_afy_target_branch}" != "${_afy_target_branch#arkify-}" ]]; then
-		echo "Aborting, looks like you are in a arkify-* branch, this is unlikely what you want."
-		exit 1
-	fi
+	# parse parameters
+	for parameter in $@; do
+		case "${parameter}" in
+		--latest|--rawhide) _afy_arkinfra_rawhide="True" ;;
+		*)
+			echo "Aborting, parameter '${parameter}' unkown."
+			exit 1
+			;;
+		esac
+	done
 
-	if [[ -e "$(git rev-parse --show-toplevel)/Next/SHA1s" ]]; then
-		_afy_target_kind=next
-	elif grep -e '^SUBLEVEL = [1-9]' "$(git rev-parse --show-toplevel)"/Makefile &> /dev/null; then
-		_afy_target_kind="$(make -s kernelversion)"
-		_afy_target_kind="stable-${_afy_target_kind%.*}"
+	if [[ "${_afy_arkinfra_rawhide}" ]]; then
+		_afy_target_kind=mainline
 	else
-		_afy_target_kind=mainline
-	fi
+		if [[ -e "$(git rev-parse --show-toplevel)/Next/SHA1s" ]]; then
+			_afy_target_kind=next
+		elif grep -e '^SUBLEVEL = [1-9]' "$(git rev-parse --show-toplevel)"/Makefile &> /dev/null; then
+			_afy_target_kind="$(make -s kernelversion)"
+			_afy_target_kind="stable-${_afy_target_kind%.*}"
+		else
+			_afy_target_kind=mainline
+		fi
 
-	if ! [[ "$(git ls-remote --heads https://gitlab.com/knurd42/linux.git/ refs/heads/arkify-infra-"${_afy_target_kind}")" ]]; then
-		echo "WARNING: suitable remote not found; using mainline"
-		_afy_target_kind=mainline
+		if ! [[ "$(git ls-remote --heads https://gitlab.com/knurd42/linux.git/ refs/heads/arkify-infra-"${_afy_target_kind}")" ]]; then
+			echo "WARNING: suitable remote not found; using mainline"
+			_afy_target_kind=mainline
+		fi
 	fi
 }
 
@@ -137,15 +154,20 @@ _afy_handle_arkify-infra-branch()
 	if [[ "${_afy_target_kind}" =~ (mainline|next) ]]; then
 		_arkify_tagnames_tolookfor+="-latest"
 	fi
-	while read -r arkify_tagname tagdate; do
-		if (( tagdate > date_upstream_branch )); then
-			break;
-		fi
-	done < <(git tag --sort=creatordate --format '%(refname:strip=2) %(creatordate:unix)' -l "${_arkify_tagnames_tolookfor}"-2\*)
+	if [[ ! "${_afy_arkinfra_rawhide}" ]]; then
+		while read -r arkify_tagname tagdate; do
+			if (( tagdate > date_upstream_branch )); then
+				break;
+			fi
+		done < <(git tag --sort=creatordate --format '%(refname:strip=2) %(creatordate:unix)' -l "${_arkify_tagnames_tolookfor}"-2\*)
+	fi
 
-	# fallback: try latest in case no tag was found
+	# fallback: try latest in case no tag was found or if _afy_arkinfra_rawhide is set
 	if [[ ! "${arkify_tagname}" ]]; then
-		arkify_tagname=arkify-infra-"${_afy_target_kind}"
+		arkify_tagname=arkify/arkify-infra-"${_afy_target_kind}"
+		if [[ "${_afy_target_kind}" =~ (mainline|next) ]]; then
+			arkify_tagname+="-latest"
+		fi
 	fi
 
 	# create or update a branch with the ark-infra to allow local changes
@@ -217,6 +239,11 @@ _afy_check_fixes()
 	local date_upstream_branch
 	date_upstream_branch="$(git show -s --format=%ct arkify-local-upstream-"${_afy_target_branch}")"
 
+	if [[ "${_afy_arkinfra_rawhide}" ]]; then
+		# you are own your own here
+		return 0
+	fi
+
 	while read -r arkify_fixes_tagname tagdate; do
 		if (( tagdate >= date_upstream_branch )); then
 			break;
@@ -248,10 +275,11 @@ _afy_check_fixes()
 }
 
 
-# define two variables that _afy_perform_startup will set
+# define three variables that _afy_perform_startup will set
 _afy_target_branch=''
 _afy_target_kind=''
-_afy_perform_startup
+_afy_arkinfra_rawhide=''
+_afy_perform_startup "$@"
 
 # go
 _afy_ensure_remote_present
