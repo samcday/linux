@@ -218,7 +218,12 @@ _afy_check_fixes()
 	done < <(git tag --sort=creatordate --format '%(refname:strip=2) %(creatordate:unix)' -l "arkify-fixes-${_afy_target_kind}"-2\*)
 	# fallback: try latest in case no tag was found
 	if [[ ! "${arkify_fixes_tagname}" ]]; then
-		arkify_fixes_tagname=arkify/arkify-fixes-"${_afy_target_kind}"
+		if [[ "$(git branch -rl arkify/arkify-fixes-"${_afy_target_kind}")" ]]; then
+			arkify_fixes_tagname=arkify/arkify-fixes-"${_afy_target_kind}"
+		else
+			echo $'\n'"[ Note, was unable to check if fixes might be required. ]"
+			return 0
+		fi
 	fi
 
 	local fixes_merge_base
