@@ -9,11 +9,15 @@
 #
 # Poor man's TODO list:
 #
+# - Add a option to let users request usage of the latest ark-infra.
 # - Add a hook to the ark-infra to check if ark-infra needs to be updated in case
 #   the user updated or rebased the branch?
-# - Error handling, including collision detection for the names chosen for the
-#   remotes and branches we create.
-# - Fix all FIXME in the code.
+# - Better error handling, including collision detection for the names chosen for
+#   the remotes and branches we create.
+# - Fix all FIXME in the code; this includes:
+#   * When updating afk-infra-local-* branches, whenever possible use a merge
+#     instead of rebase.
+#   * Check if any patches in ark-fixes- branches already have been applied.
 #
 # #######################################
 
@@ -101,7 +105,6 @@ _afy_fetch_arkify()
 _afy_handle_arkify-upstream-branch()
 {
 	# create a branch the ark-infra requires to separate upstream from downstream.
-	# FIXME: Would a remote work? IIRC it does not, but I might be # mistaken (Thorsten).
 	local merge_base
 	merge_base="$(git merge-base "${_afy_target_branch}" arkify/arkify-upstream-"${_afy_target_kind}")"
 	if ! git branch -l | grep "^[[:blank:]]*arkify-local-upstream-${_afy_target_branch}" &> /dev/null; then
@@ -149,7 +152,7 @@ _afy_handle_arkify-infra-branch()
 
 		echo "* Adjusting ark-infra configuration in 'redhat/Makefile.variables'."
 		echo $'\n'"DISTLOCALVERSION ?= .$(whoami)" >> redhat/Makefile.variables
-		# FIXME: this hardcodes a few things:
+		# FIXME: this hardcodes a few things which might be a bad idea:
 		#  BUMP_RELEASE (might not be a good idea for this usecase)
 		#  DISTRO=fedora (breaks RHEL support)
 		#  VERSION_ON_UPSTREAM=1 (wrong for stable)
@@ -163,12 +166,13 @@ _afy_handle_arkify-infra-branch()
 	elif git merge-base --is-ancestor "${arkify_tagname}" arkify-local-infra-"${_afy_target_branch}"; then
 		echo "* Branch 'arkify-local-infra-${_afy_target_branch}' is up to date with '${arkify_tagname}'."
 	else
+		# FIXME: whenever possible, use a merge instead of rebase here:
 		if [[ "$(git rev-parse --abbrev-ref HEAD)" != arkify-local-infra-"${_afy_target_branch}" ]]; then
 			echo "* Checking out 'arkify-local-infra-${_afy_target_branch}'."
 			git checkout --quiet arkify-local-infra-"${_afy_target_branch}"
 		fi
 		echo "* Rebasing 'arkify-local-infra-${_afy_target_branch}' ontop of ${arkify_tagname}."
-		local _previous_base 
+		local _previous_base
 		_previous_base="$(git tag --sort=-creatordate --merged arkify-local-infra-"${_afy_target_branch}" arkify-infra-\* | head -n 1)"
 		git rebase --quiet --onto "${arkify_tagname}" "${_previous_base}"
 	fi
@@ -218,6 +222,7 @@ _afy_check_fixes()
 
 	local _fixes
 	_fixes="$(git log --oneline --no-merges "${merge_base}".."${arkify_fixes_tagname}")"
+	# FIXME: do not warn if the patches have been applied already.
 	if [[ "${_fixes}" ]]; then
 		echo
 		echo "$(tput setab 1) WARNING: $(tput sgr0)You depending on your kernel and spec file configuration might need to cherry-pick the following fixes into you '${_afy_target_branch}' branch for the build to succeed:"
