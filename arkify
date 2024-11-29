@@ -212,10 +212,14 @@ _afy_check_fixes()
 	date_upstream_branch="$(git show -s --format=%ct arkify-local-upstream-"${_afy_target_branch}")"
 
 	while read -r arkify_fixes_tagname tagdate; do
-		if (( tagdate > date_upstream_branch )); then
+		if (( tagdate >= date_upstream_branch )); then
 			break;
 		fi
 	done < <(git tag --sort=creatordate --format '%(refname:strip=2) %(creatordate:unix)' -l "arkify-fixes-${_afy_target_kind}"-2\*)
+	# fallback: try latest in case no tag was found
+	if [[ ! "${arkify_fixes_tagname}" ]]; then
+		arkify_fixes_tagname=arkify/arkify-fixes-"${_afy_target_kind}"
+	fi
 
 	local fixes_merge_base
 	merge_base="$(git merge-base arkify/arkify-upstream-"${_afy_target_kind}" "${arkify_fixes_tagname}")"
