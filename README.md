@@ -45,6 +45,7 @@ your current branch is called 'master' based on Linux 'mainline':
   which is the upstream of 'arkify/arkify-infra-mainline branch'.
 * Add a hook to 'Makefile' which enables the ark infrastructure.
 * Commit the imported ark infrastructure to the 'master' branch.
+* Check and warn if any fixes might be required for the build to succeed.
 
 That ark infrastructure contains everything needed to build the SRPM, among it
 a spec file template (redhat/kernel.spec.template) and the bits to create

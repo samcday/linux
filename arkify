@@ -13,8 +13,6 @@
 #   the user updated or rebased the branch?
 # - Error handling, including collision detection for the names chosen for the
 #   remotes and branches we create.
-# - Suggest to apply fixes from the right arkify-fixes tag that might be needed
-#   to make the SRPM work at that point.
 # - Fix all FIXME in the code.
 #
 # #######################################
@@ -80,7 +78,7 @@ _afy_ensure_remote_present()
 	fi
 	local remote_branches
 	remote_branches="$(git branch --list -r 'arkify*')"
-	local branches_interested_in=(arkify-infra-"${_afy_target_kind}" arkify-upstream-"${_afy_target_kind}")
+	local branches_interested_in=(arkify-fixes-"${_afy_target_kind}" arkify-infra-"${_afy_target_kind}" arkify-upstream-"${_afy_target_kind}")
 	if [[ "${_afy_target_kind}" =~ (mainline|next) ]]; then
 		branches_interested_in+=(arkify-infra-"${_afy_target_kind}"-latest)
 	fi
@@ -204,6 +202,31 @@ _afy_import_arkify-infra()
 	fi
 }
 
+_afy_check_fixes()
+{
+	local date_upstream_branch
+	date_upstream_branch="$(git show -s --format=%ct arkify-local-upstream-"${_afy_target_branch}")"
+
+	while read -r arkify_fixes_tagname tagdate; do
+		if (( tagdate > date_upstream_branch )); then
+			break;
+		fi
+	done < <(git tag --sort=creatordate --format '%(refname:strip=2) %(creatordate:unix)' -l "arkify-fixes-${_afy_target_kind}"-2\*)
+
+	local fixes_merge_base
+	merge_base="$(git merge-base arkify/arkify-upstream-"${_afy_target_kind}" "${arkify_fixes_tagname}")"
+
+	local _fixes
+	_fixes="$(git log --oneline --no-merges "${merge_base}".."${arkify_fixes_tagname}")"
+	if [[ "${_fixes}" ]]; then
+		echo
+		echo "$(tput setab 1) WARNING: $(tput sgr0)You depending on your kernel and spec file configuration might need to cherry-pick the following fixes into you '${_afy_target_branch}' branch for the build to succeed:"
+		echo "${_fixes}"
+		echo
+		sleep 2
+	fi
+}
+
 
 # define two variables that _afy_perform_startup will set
 _afy_target_branch=''
@@ -220,3 +243,4 @@ _afy_import_arkify-infra
 # finish
 echo $'\n'"Done; now run 'make dist-srpm' and then use something like"
 echo "'mock redhat/rpm/SRPMS/kernel-*.src.rpm' to build the SRPM."
+_afy_check_fixes
