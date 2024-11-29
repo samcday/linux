@@ -24,7 +24,7 @@ again.
 ## How arkify works
 
 When you execute arkify for the first time, it will do the following things if
-your current branch is called 'master' based on Linux 'mainline':
+your current branch is called 'master' and based on Linux 'mainline':
 
 * Add [gitlab.com/knurd42/linux.git](https://gitlab.com/knurd42/linux.git) as a
   new remote 'arkify'.
@@ -37,14 +37,14 @@ your current branch is called 'master' based on Linux 'mainline':
   thus fail.
 * Switch to 'arkify-local-infra-master'.
 * Adjust the configuration in 'redhat/Makefile.variables' to local needs.
-* Checkout the 'master'.
+* Checkout 'master'.
 * Bulk-import the ark infrastructure from 'arkify-local-infra-master' using
   'git archive --format=tar arkify-local-infra-master redhat/ [...] | tar -x';
   this will steer clear of any patches that Red Hat added to the
   [os-build branch of kernel-ark](https://gitlab.com/cki-project/kernel-ark),
-  which is the upstream of 'arkify/arkify-infra-mainline branch'.
-* Add a hook to 'Makefile' which enables the ark infrastructure.
-* Commit the imported ark infrastructure to the 'master' branch.
+  which 'arkify/arkify-infra-mainline' is based on.
+* Add a hook to 'Makefile' enabling the ark infrastructure.
+* Commit the imported ark infrastructure to 'master'.
 * Check and warn if any fixes might be required for the build to succeed.
 
 That ark infrastructure contains everything needed to build the SRPM, among it
@@ -53,14 +53,15 @@ configuration files for various archs and kernel variants; see the
 [kernel-ark documentation](https://cki-project.gitlab.io/kernel-ark/) and its
 [repository](https://gitlab.com/cki-project/kernel-ark) for details.
 
-Running arify again later will update 'arkify-local-upstream-master' and
-'arkify-local-infra-master', to then bulk-import the code from the latter to the
-'master' branch. This will overwrite any modifications you performed to the ark
-infrastructure in the 'master' branch (e.g. the redhat/ directory). To prevent
-that, perform them in the 'arkify-infra-mainline' branch instead; afterwards
-checkout the 'master' branch and run arkify again to import your changes. That
-way arkify then can later cleanly merge your changes with the upstream changes
-to the ark infrastructure using the normal Git merge mechanisms.
+Running arkify again later will when needed update 'arkify-local-upstream-master'
+and rebased 'arkify-local-infra-master' to a suitable upstream point; afterwards
+it will bulk-import the code from the latter to 'master'. This will overwrite
+any modifications you performed to the ark infrastructure in 'master' (e.g.
+the redhat/ directory). To prevent that, perform them in 'arkify-infra-mainline'
+branch instead; afterwards checkout 'master' and run arkify again to import your
+changes. That way arkify then can later cleanly rebase your changes on-top of
+the upstream changes to the ark infrastructure using the normal Git merge
+mechanisms.
 
 Note, arkify will create 'arkify-infra-…' branches for each local branch you use
 arkify on. If you add local changes to one 'arkify-infra-…' branch, you thus
@@ -73,10 +74,10 @@ unsuitable to build current mainline or vice versa.
 Using 'arkify-infra-…' branches from [gitlab.com/knurd42/linux.git](https://gitlab.com/knurd42/linux.git)
 as base has the following advantages.
 
-* They focus on just the basic kernel and avoid building these things:
-  - The sub-package with a second kernel with various debug options.
+* They focus on just the basic kernel thus and avoid building these things:
+  - The sub-package with a second kernel with various debug options enabled.
   - The efiuki sub-package.
-  - Other subpackages like -tools, -perf, -selftests, or bpftool.
+  - Other subpackages like -tools, -perf, or -selftests.
   If you need any of this, re-enable them in redhat/kernel.spec.template.
 * Speed up SRPM generation by using multiple threads by default for compressing
   and config generation; also try less hard compressing the kernel sources
