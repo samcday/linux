@@ -71,6 +71,11 @@ _afy_perform_startup()
 	else
 		_afy_target_kind=mainline
 	fi
+
+	if ! [[ "$(git ls-remote --heads https://gitlab.com/knurd42/linux.git/ refs/heads/arkify-infra-"${_afy_target_kind}")" ]]; then
+		echo "WARNING: suitable remote not found; using mainline"
+		_afy_target_kind=mainline
+	fi
 }
 
 
