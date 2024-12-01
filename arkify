@@ -180,9 +180,6 @@ _afy_handle_arkify-infra-branch()
 
 		echo "* Adjusting ark-infra configuration in 'redhat/Makefile.variables'."
 		echo $'\n'"DISTLOCALVERSION ?= .$(whoami)" >> redhat/Makefile.variables
-		# FIXME: this hardcodes a few things which might be a bad idea:
-		# - BUMP_RELEASE (might not be a good idea for this usecase)
-		# - VERSION_ON_UPSTREAM=1 (wrong for stable)
 		sed -i '
 			s!^\(PATCHLIST_URL \?.\?=\)\(.*\)!\1 none! ;
 			s!^\(RELEASED_KERNEL \?.\?=\)\(.*\)!\11! ;
