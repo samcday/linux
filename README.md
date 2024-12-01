@@ -83,11 +83,7 @@ as base has the following advantages.
 * Speed up SRPM generation by using multiple threads by default for compressing
   and config generation; also try less hard compressing the kernel sources
   during tarball generation.
-* Improved support for older Fedora releases.
-
-Downsides:
-
-* No support for RHEL.
+* Improved support for proper releases Fedora Linux (e.g. anything not rawhide).
 
 ## TODO list
 

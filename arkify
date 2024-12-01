@@ -29,9 +29,9 @@ _afy_perform_startup()
 	_afy_target_branch=$(git rev-parse --abbrev-ref HEAD)
 
 	# check Fedora
-	if ! [[ -e /etc/os-release ]] || ! grep 'NAME="Fedora Linux"' /etc/os-release &> /dev/null; then
-		echo "Aborting: arkify currently only supports Fedora Linux."
-		exit
+	if ! [[ -e /etc/os-release ]] || ! grep -i 'ID.*fedora' /etc/os-release &> /dev/null; then
+		echo "Aborting, arkify only supports Fedora Linux and its derivatives, including RHEL and CentOS." >&2
+		exit 1
 	fi
 
 	# check repo for uncommitted changes
@@ -61,7 +61,7 @@ _afy_perform_startup()
 		fi
 	done
 	if [[ "${missing_pkgs}" ]]; then
-		echo "Aborting, please install the following packages${missing_pkgs}"
+		echo "Aborting, please install the following packages'${missing_pkgs}'."
 		exit
 	fi
 
@@ -181,11 +181,9 @@ _afy_handle_arkify-infra-branch()
 		echo "* Adjusting ark-infra configuration in 'redhat/Makefile.variables'."
 		echo $'\n'"DISTLOCALVERSION ?= .$(whoami)" >> redhat/Makefile.variables
 		# FIXME: this hardcodes a few things which might be a bad idea:
-		#  BUMP_RELEASE (might not be a good idea for this usecase)
-		#  DISTRO=fedora (breaks RHEL support)
-		#  VERSION_ON_UPSTREAM=1 (wrong for stable)
+		# - BUMP_RELEASE (might not be a good idea for this usecase)
+		# - VERSION_ON_UPSTREAM=1 (wrong for stable)
 		sed -i '
-			s!^\(DISTRO \?.\?=\)\(.*\)!\1 fedora! ;
 			s!^\(PATCHLIST_URL \?.\?=\)\(.*\)!\1 none! ;
 			s!^\(RELEASED_KERNEL \?.\?=\)\(.*\)!\11! ;
 			s!\(VERSION_ON_UPSTREAM \?.\?=\)\(.*\)!\1 1! ;
