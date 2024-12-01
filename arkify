@@ -13,7 +13,6 @@
 #   the user updated or rebased the branch?
 # - Better error handling, including collision detection for the names chosen for
 #   the remotes and branches we create.
-# - Support RHEL/CentOS et. al.
 # - Fix all FIXME in the code; this includes:
 #   * When updating afk-infra-local-* branches, whenever possible use a merge
 #     instead of rebase.
