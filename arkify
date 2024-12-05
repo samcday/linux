@@ -216,7 +216,7 @@ _afy_import_arkify-infra()
 	       ' redhat/Makefile.variables
 	# FIXME: is this actually needed?
 	if ! grep -E '^include Makefile.rhelver$' Makefile &>/dev/null; then
-		sed -i '/# We are using a recursive / i include Makefile.rhelver\n' Makefile
+		sed -i '/# We are using a recursive / i ifneq ($(realpath source),)\ninclude $(realpath source)/Makefile.rhelver\nelse\nifneq ($(realpath Makefile.rhelver),)\ninclude Makefile.rhelver\nendif\nendif\n' Makefile
 	fi
 	git add makefile Makefile.rhelver Makefile redhat
 	git add -f .copr
