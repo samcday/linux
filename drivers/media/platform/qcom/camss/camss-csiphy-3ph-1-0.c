@@ -568,8 +568,10 @@ static void csiphy_gen1_config_lanes(struct csiphy_device *csiphy,
 }
 
 static void csiphy_gen2_config_lanes(struct csiphy_device *csiphy,
+				     struct csiphy_config *cfg,
 				     u8 settle_cnt)
 {
+	struct csiphy_lanes_cfg *c = &cfg->csi2->lane_cfg;
 	const struct csiphy_reg_t *r;
 	int i, l, array_size;
 	u32 val;
@@ -588,8 +590,13 @@ static void csiphy_gen2_config_lanes(struct csiphy_device *csiphy,
 		array_size = ARRAY_SIZE(lane_regs_sc8280xp[0]);
 		break;
 	case CAMSS_845:
-		r = &lane_regs_sdm845[0][0];
-		array_size = ARRAY_SIZE(lane_regs_sdm845[0]);
+		if (c->cphy) {
+			r = &lane_regs_sdm845_3ph[0][0];
+			array_size = ARRAY_SIZE(lane_regs_sdm845_3ph[0]);
+		} else {
+			r = &lane_regs_sdm845[0][0];
+			array_size = ARRAY_SIZE(lane_regs_sdm845[0]);
+		}
 		break;
 	default:
 		WARN(1, "unknown cspi version\n");
@@ -669,7 +676,7 @@ static void csiphy_lanes_enable(struct csiphy_device *csiphy,
 	writel_relaxed(val, csiphy->base + CSIPHY_3PH_CMN_CSI_COMMON_CTRLn(0));
 
 	if (csiphy_is_gen2(csiphy->camss->res->version))
-		csiphy_gen2_config_lanes(csiphy, settle_cnt);
+		csiphy_gen2_config_lanes(csiphy, cfg, settle_cnt);
 	else
 		csiphy_gen1_config_lanes(csiphy, cfg, settle_cnt);
 
