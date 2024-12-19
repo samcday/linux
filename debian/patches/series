@@ -124,3 +124,5 @@ sdm670/0123-ASoC-qdsp6-q6cvp-add-topology-ID-parameters-to-session-functions.pat
 sdm670/0124-ASoC-qdsp6-q6voice-pass-new-topology-property-to-q6cvp.patch
 sdm670/0125-ASoC-qdsp6-q6voice-dai-add-ALSA-controls-for-the-topology-ID.patch
 sdm670/0126-media-i2c-imx363-move-asm-unaligned.h-to-linux-unaligned.h.patch
+debian/0127-wireless-Add-Debian-wireless-regdb-certificates.patch
+mobian/0128-arm64-configs-add-sdm670_defconfig.patch
