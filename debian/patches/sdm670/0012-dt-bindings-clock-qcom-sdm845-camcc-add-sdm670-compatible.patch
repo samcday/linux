@@ -1,0 +1,38 @@
+From: Richard Acayan <mailingradian@gmail.com>
+Date: Mon, 26 Aug 2024 19:12:28 -0400
+Subject: [PATCH] dt-bindings: clock: qcom,sdm845-camcc: add sdm670 compatible
+
+The camera clocks on SDM670 and SDM845 have no significant differences
+that would require a change in the clock controller driver. The only
+difference is the clock frequency at each level of the power domains,
+which is not specified in the clock driver. There should still be a
+compatible specific to the SoC, so add the compatible for SDM670 with
+the SDM845 compatible as fallback.
+
+Link: https://android.googlesource.com/kernel/msm/+/d4dc50c0a9291bd99895d4844f973421c047d267/drivers/clk/qcom/camcc-sdm845.c#2048
+Suggested-by: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
+Suggested-by: Konrad Dybcio <konradybcio@kernel.org>
+Link: https://lore.kernel.org/linux-arm-msm/7d26a62b-b898-4737-bd53-f49821e3b471@linaro.org
+Signed-off-by: Richard Acayan <mailingradian@gmail.com>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+---
+ Documentation/devicetree/bindings/clock/qcom,sdm845-camcc.yaml | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/Documentation/devicetree/bindings/clock/qcom,sdm845-camcc.yaml b/Documentation/devicetree/bindings/clock/qcom,sdm845-camcc.yaml
+index 810b852..fa95c3a 100644
+--- a/Documentation/devicetree/bindings/clock/qcom,sdm845-camcc.yaml
++++ b/Documentation/devicetree/bindings/clock/qcom,sdm845-camcc.yaml
+@@ -20,7 +20,11 @@ allOf:
+ 
+ properties:
+   compatible:
+-    const: qcom,sdm845-camcc
++    oneOf:
++      - items:
++          - const: qcom,sdm670-camcc
++          - const: qcom,sdm845-camcc
++      - const: qcom,sdm845-camcc
+ 
+   clocks:
+     items:

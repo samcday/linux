@@ -1,0 +1,33 @@
+From: Caleb Connolly <caleb@postmarketos.org>
+Date: Sat, 3 Aug 2024 23:00:21 +0200
+Subject: [PATCH] sdm845.config: enable fw compression + kconfig fix
+
+Signed-off-by: Caleb Connolly <caleb@postmarketos.org>
+(cherry picked from commit e9c8d3e5ea3dafd579dda324e876c356b18e7aa2)
+Link: https://gitlab.com/sdm845-mainline/linux
+Signed-off-by: Richard Acayan <mailingradian@gmail.com>
+---
+ arch/arm64/configs/sdm845.config | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/arch/arm64/configs/sdm845.config b/arch/arm64/configs/sdm845.config
+index 21ef30d..f5edca6 100644
+--- a/arch/arm64/configs/sdm845.config
++++ b/arch/arm64/configs/sdm845.config
+@@ -266,6 +266,8 @@ CONFIG_CRYPTO_XTS=y
+ CONFIG_TMPFS_XATTR=y
+ CONFIG_BLK_DEV_DM=y
+ CONFIG_DM_CRYPT=y
++CONFIG_FW_LOADER_COMPRESS=y
++CONFIG_FW_LOADER_COMPRESS_ZSTD=y
+ CONFIG_BINFMT_MISC=m
+ CONFIG_NLS_ASCII=y
+ # CONFIG_USB_MASS_STORAGE is not set
+@@ -297,7 +299,6 @@ CONFIG_NETFILTER_XT_MATCH_STATISTIC=m
+ CONFIG_DUMMY=m
+ CONFIG_BLK_DEV_THROTTLING=y
+ CONFIG_NET_CLS_CGROUP=m
+-CONFIG_RT_GROUP_SCHED=y
+ CONFIG_IP_NF_TARGET_REDIRECT=m
+ CONFIG_IP_VS=m
+ CONFIG_IP_VS_NFCT=y

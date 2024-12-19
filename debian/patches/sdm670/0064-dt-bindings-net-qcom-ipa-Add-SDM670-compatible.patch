@@ -1,0 +1,23 @@
+From: Richard Acayan <mailingradian@gmail.com>
+Date: Wed, 19 Apr 2023 19:52:38 -0400
+Subject: [PATCH] dt-bindings: net: qcom,ipa: Add SDM670 compatible
+
+Add support for SDM670, which uses IPA v3.5.1.
+
+Signed-off-by: Richard Acayan <mailingradian@gmail.com>
+---
+ Documentation/devicetree/bindings/net/qcom,ipa.yaml | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/Documentation/devicetree/bindings/net/qcom,ipa.yaml b/Documentation/devicetree/bindings/net/qcom,ipa.yaml
+index 53cae71..590fb3b 100644
+--- a/Documentation/devicetree/bindings/net/qcom,ipa.yaml
++++ b/Documentation/devicetree/bindings/net/qcom,ipa.yaml
+@@ -48,6 +48,7 @@ properties:
+           - qcom,msm8998-ipa
+           - qcom,sc7180-ipa
+           - qcom,sc7280-ipa
++          - qcom,sdm670-ipa
+           - qcom,sdm845-ipa
+           - qcom,sdx55-ipa
+           - qcom,sdx65-ipa

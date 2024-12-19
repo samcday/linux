@@ -1,0 +1,26 @@
+From: Richard Acayan <mailingradian@gmail.com>
+Date: Mon, 8 Jan 2024 17:38:31 -0500
+Subject: [PATCH] dt-bindings: mfd: qcom,spmi-pmic: Allow PMIC4 thermal
+ monitor on pm660
+
+While newer PMICs are compatible with PMIC5 drivers, the PM8998 and
+PM660 are both PMIC4. The PM8998 is allowed to use the PMIC4 thermal
+monitor. Allow it for PM660 as well.
+
+Signed-off-by: Richard Acayan <mailingradian@gmail.com>
+---
+ Documentation/devicetree/bindings/mfd/qcom,spmi-pmic.yaml | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/Documentation/devicetree/bindings/mfd/qcom,spmi-pmic.yaml b/Documentation/devicetree/bindings/mfd/qcom,spmi-pmic.yaml
+index a2b2fbf..2682137 100644
+--- a/Documentation/devicetree/bindings/mfd/qcom,spmi-pmic.yaml
++++ b/Documentation/devicetree/bindings/mfd/qcom,spmi-pmic.yaml
+@@ -217,6 +217,7 @@ allOf:
+         compatible:
+           contains:
+             enum:
++              - qcom,pm660
+               - qcom,pm8998
+     then:
+       patternProperties:

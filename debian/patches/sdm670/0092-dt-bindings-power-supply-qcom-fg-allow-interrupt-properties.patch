@@ -1,0 +1,33 @@
+From: Richard Acayan <mailingradian@gmail.com>
+Date: Mon, 8 Jan 2024 17:41:54 -0500
+Subject: [PATCH] dt-bindings: power: supply: qcom,fg: allow interrupt
+ properties
+
+The interrupts are required properties, but they are not listed as
+allowed properties in the schema. Add them to fix warnings when running
+`make CHECK_DTBS=y`.
+
+Signed-off-by: Richard Acayan <mailingradian@gmail.com>
+---
+ Documentation/devicetree/bindings/power/supply/qcom,fg.yaml | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/Documentation/devicetree/bindings/power/supply/qcom,fg.yaml b/Documentation/devicetree/bindings/power/supply/qcom,fg.yaml
+index 1e34256..9c154e8 100644
+--- a/Documentation/devicetree/bindings/power/supply/qcom,fg.yaml
++++ b/Documentation/devicetree/bindings/power/supply/qcom,fg.yaml
+@@ -21,6 +21,14 @@ properties:
+   reg:
+     maxItems: 1
+ 
++  interrupts:
++    minItems: 1
++    maxItems: 2
++
++  interrupt-names:
++    minItems: 1
++    maxItems: 2
++
+   monitored-battery:
+     description: |
+        phandle of battery characteristics node.

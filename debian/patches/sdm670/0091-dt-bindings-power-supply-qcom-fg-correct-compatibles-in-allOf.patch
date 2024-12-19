@@ -1,0 +1,32 @@
+From: Richard Acayan <mailingradian@gmail.com>
+Date: Sun, 10 Sep 2023 16:26:13 -0400
+Subject: [PATCH] dt-bindings: power: supply: qcom,fg: correct compatibles in
+ allOf
+
+Signed-off-by: Richard Acayan <mailingradian@gmail.com>
+---
+ Documentation/devicetree/bindings/power/supply/qcom,fg.yaml | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/Documentation/devicetree/bindings/power/supply/qcom,fg.yaml b/Documentation/devicetree/bindings/power/supply/qcom,fg.yaml
+index 5ab8eb1..1e34256 100644
+--- a/Documentation/devicetree/bindings/power/supply/qcom,fg.yaml
++++ b/Documentation/devicetree/bindings/power/supply/qcom,fg.yaml
+@@ -35,7 +35,7 @@ allOf:
+       properties:
+         compatible:
+           enum:
+-            - qcom,pm8994-fg
++            - qcom,pmi8994-fg
+ 
+     then:
+       properties:
+@@ -53,7 +53,7 @@ allOf:
+       properties:
+         compatible:
+           enum:
+-            - qcom,pm8998-fg
++            - qcom,pmi8998-fg
+ 
+     then:
+       properties:

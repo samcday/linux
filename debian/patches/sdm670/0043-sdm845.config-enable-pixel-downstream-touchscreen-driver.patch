@@ -1,0 +1,23 @@
+From: Joel Selvaraj <foss@joelselvaraj.com>
+Date: Thu, 15 Aug 2024 20:44:20 -0500
+Subject: [PATCH] sdm845.config: enable pixel downstream touchscreen driver
+
+(cherry picked from commit 0e883317014d91cc4af7c9e0434dba4869298093)
+Link: https://gitlab.com/sdm845-mainline/linux
+Signed-off-by: Richard Acayan <mailingradian@gmail.com>
+---
+ arch/arm64/configs/sdm845.config | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/arch/arm64/configs/sdm845.config b/arch/arm64/configs/sdm845.config
+index 4b58274..b770968 100644
+--- a/arch/arm64/configs/sdm845.config
++++ b/arch/arm64/configs/sdm845.config
+@@ -31,6 +31,7 @@ CONFIG_SND_SOC_TFA989X=m
+ 
+ # Pixel 3
+ CONFIG_DRM_PANEL_LG_SW43408=y
++CONFIG_TOUCHSCREEN_STM_FTS_DOWNSTREAM=m
+ 
+ # Odin
+ # Driver has been dropped

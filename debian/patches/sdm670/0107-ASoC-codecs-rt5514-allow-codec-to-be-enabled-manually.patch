@@ -1,0 +1,39 @@
+From: Richard Acayan <mailingradian@gmail.com>
+Date: Tue, 25 Jun 2024 18:57:32 -0400
+Subject: [PATCH] ASoC: codecs: rt5514: allow codec to be enabled manually
+
+The RT5514 microphone codec is automatically enabled when enabling some
+sound cards, but the Pixel 3a/3a XL also has the RT5514. It uses the
+SDM660 internal sound card which could support devices other than the
+Pixel 3a/3a XL. Add the Kconfig one-line description and help text to
+allow manually enabling the codec.
+
+Signed-off-by: Richard Acayan <mailingradian@gmail.com>
+---
+ sound/soc/codecs/Kconfig | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
+
+diff --git a/sound/soc/codecs/Kconfig b/sound/soc/codecs/Kconfig
+index 7092842..2e01480 100644
+--- a/sound/soc/codecs/Kconfig
++++ b/sound/soc/codecs/Kconfig
+@@ -1624,12 +1624,17 @@ config SND_SOC_RT1320_SDW
+ 	select REGMAP_SOUNDWIRE_MBQ
+ 
+ config SND_SOC_RT5514
+-	tristate
++	tristate "Realtek ALC5514 Codec"
+ 	depends on I2C
++	help
++	  Enable support for the Realtek ALC5514 microphone codec.
+ 
+ config SND_SOC_RT5514_SPI
+-	tristate
++	tristate "Realtek RT5514 Codec - SPI"
+ 	depends on SPI_MASTER
++	help
++	  Enable support for loading firmware and audio capture over SPI for
++	  the Realtek ALC5514 microphone codec.
+ 
+ config SND_SOC_RT5514_SPI_BUILTIN
+ 	bool # force RT5514_SPI to be built-in to avoid link errors

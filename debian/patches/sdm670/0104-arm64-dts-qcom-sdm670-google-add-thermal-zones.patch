@@ -1,0 +1,94 @@
+From: Richard Acayan <mailingradian@gmail.com>
+Date: Wed, 15 Nov 2023 23:01:55 -0500
+Subject: [PATCH] arm64: dts: qcom: sdm670-google: add thermal zones
+
+These thermal zones are specified in the downstream kernel. The trips
+are based on the downstream kernel and set at a few degrees higher than
+Android userspace. It is still better than letting the device generate
+unlimited heat.
+
+Link: https://android.googlesource.com/kernel/msm/+/1e3d0da6fcd81a8d36e6d3bb5955aa7a913030e2/arch/arm64/boot/dts/qcom/sdm670-thermal.dtsi#583
+Signed-off-by: Richard Acayan <mailingradian@gmail.com>
+---
+ arch/arm64/boot/dts/qcom/sdm670-google-common.dtsi | 61 ++++++++++++++++++++++
+ 1 file changed, 61 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/qcom/sdm670-google-common.dtsi b/arch/arm64/boot/dts/qcom/sdm670-google-common.dtsi
+index 4839a7fd..38beaa1 100644
+--- a/arch/arm64/boot/dts/qcom/sdm670-google-common.dtsi
++++ b/arch/arm64/boot/dts/qcom/sdm670-google-common.dtsi
+@@ -287,6 +287,55 @@ codec {
+ 		};
+ 	};
+ 
++	thermal-zones {
++		xo-thermal {
++			polling-delay-passive = <250>;
++			polling-delay = <1000>;
++
++			thermal-sensors = <&pm660_adc_tm 0>;
++
++			cooling-maps {
++				map0 {
++					trip = <&xo_alert0>;
++					cooling-device = <&CPU6 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>,
++							 <&CPU7 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>;
++
++				};
++
++				map1 {
++					trip = <&xo_alert1>;
++					cooling-device = <&CPU0 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>,
++							 <&CPU1 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>,
++							 <&CPU2 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>,
++							 <&CPU3 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>,
++							 <&CPU4 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>,
++							 <&CPU5 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>;
++
++				};
++			};
++
++			trips {
++				xo_alert0: trip-point0 {
++					temperature = <47000>;
++					hysteresis = <1000>;
++					type = "passive";
++				};
++
++				xo_alert1: trip-point1 {
++					temperature = <52000>;
++					hysteresis = <1000>;
++					type = "passive";
++				};
++
++				xo_crit: trip-point2 {
++					temperature = <59000>;
++					hysteresis = <1000>;
++					type = "critical";
++				};
++			};
++		};
++	};
++
+ 	/*
+ 	 * The touchscreen regulator seems to be controlled somehow by a gpio.
+ 	 * Model it as a fixed regulator and keep it on. Without schematics we
+@@ -884,6 +933,18 @@ &mss_pil {
+ 	status = "okay";
+ };
+ 
++&pm660_adc_tm {
++	status = "okay";
++
++	xo-therm@0 {
++		reg = <0>;
++		io-channels = <&pm660_adc ADC5_XO_THERM_100K_PU>;
++		qcom,hw-settle-time-us = <200>;
++		qcom,pre-scaling = <1 20>;
++		qcom,ratiometric;
++	};
++};
++
+ &pm660_charger {
+ 	monitored-battery = <&battery>;
+ 	status = "okay";

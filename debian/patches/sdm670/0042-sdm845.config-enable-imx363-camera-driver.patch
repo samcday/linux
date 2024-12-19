@@ -1,0 +1,23 @@
+From: Joel Selvaraj <foss@joelselvaraj.com>
+Date: Thu, 15 Aug 2024 03:14:39 -0500
+Subject: [PATCH] sdm845.config: enable imx363 camera driver
+
+(cherry picked from commit deb66c5c71a8cf6cd8bf67403795004b08081cd8)
+Link: https://gitlab.com/sdm845-mainline/linux
+Signed-off-by: Richard Acayan <mailingradian@gmail.com>
+---
+ arch/arm64/configs/sdm845.config | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/arch/arm64/configs/sdm845.config b/arch/arm64/configs/sdm845.config
+index cdb9e4d..4b58274 100644
+--- a/arch/arm64/configs/sdm845.config
++++ b/arch/arm64/configs/sdm845.config
+@@ -19,6 +19,7 @@ CONFIG_DRM_PANEL_EBBG_FT8719=y
+ CONFIG_TOUCHSCREEN_NOVATEK_NVT_TS=m
+ CONFIG_QCOM_GPI_DMA=m
+ CONFIG_SND_SOC_TAS2559=m
++CONFIG_VIDEO_IMX363=m
+ 
+ # Samsung S9 SM-G9600(starqltechn)
+ CONFIG_TOUCHSCREEN_S6SY761=m

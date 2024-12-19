@@ -1,0 +1,29 @@
+From: Dylan Van Assche <dylan.vanassche@ugent.be>
+Date: Thu, 13 Jun 2024 10:18:21 +0200
+Subject: [PATCH] configs: sdm845: BT_BNEP and BT_RFCOMM must be module
+
+Builtin is not supported by these kernel drivers
+
+(cherry picked from commit 945f6c39f41fdc547ca58d99f596df3922f7c9db)
+Link: https://gitlab.com/sdm845-mainline/linux
+Signed-off-by: Richard Acayan <mailingradian@gmail.com>
+---
+ arch/arm64/configs/sdm845.config | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/arch/arm64/configs/sdm845.config b/arch/arm64/configs/sdm845.config
+index 3bc05eb..cdb9e4d 100644
+--- a/arch/arm64/configs/sdm845.config
++++ b/arch/arm64/configs/sdm845.config
+@@ -175,9 +175,9 @@ CONFIG_PHY_QCOM_QMP_USB=y
+ # Qcom stuff
+ CONFIG_RPMSG_CHAR=y
+ CONFIG_QCOM_Q6V5_ADSP=m
+-CONFIG_BT_RFCOMM=y
++CONFIG_BT_RFCOMM=m
+ CONFIG_BT_RFCOMM_TTY=y
+-CONFIG_BT_BNEP=y
++CONFIG_BT_BNEP=m
+ CONFIG_BT_BNEP_MC_FILTER=y
+ CONFIG_BT_BNEP_PROTO_FILTER=y
+ CONFIG_BT_HS=y

@@ -1,0 +1,29 @@
+From: Richard Acayan <mailingradian@gmail.com>
+Date: Thu, 29 Sep 2022 19:52:35 -0400
+Subject: [PATCH] arm64: dts: qcom: sdm670-google: enable fuel gauge
+
+The PM660 fuel gauge determines the battery charge. Enable it for full
+battery support.
+
+Signed-off-by: Richard Acayan <mailingradian@gmail.com>
+---
+ arch/arm64/boot/dts/qcom/sdm670-google-common.dtsi | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/qcom/sdm670-google-common.dtsi b/arch/arm64/boot/dts/qcom/sdm670-google-common.dtsi
+index 5aa0dd15..22ff470 100644
+--- a/arch/arm64/boot/dts/qcom/sdm670-google-common.dtsi
++++ b/arch/arm64/boot/dts/qcom/sdm670-google-common.dtsi
+@@ -578,6 +578,12 @@ &pm660_charger {
+ 	status = "okay";
+ };
+ 
++&pm660_fg {
++	monitored-battery = <&battery>;
++	power-supplies = <&pm660_charger>;
++	status = "okay";
++};
++
+ &pm660_gpios {
+ 	cam_vio_pin: cam-vio-state {
+ 		pins = "gpio13";

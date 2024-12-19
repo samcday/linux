@@ -1,0 +1,33 @@
+From: Richard Acayan <mailingradian@gmail.com>
+Date: Tue, 30 Jul 2024 22:48:18 -0400
+Subject: [PATCH] arm64: dts: qcom: sdm670: add llcc
+
+Add the Last Level Cache Controller (LLCC) for the SDM670.
+
+Signed-off-by: Richard Acayan <mailingradian@gmail.com>
+---
+ arch/arm64/boot/dts/qcom/sdm670.dtsi | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/qcom/sdm670.dtsi b/arch/arm64/boot/dts/qcom/sdm670.dtsi
+index 950b097..be18226 100644
+--- a/arch/arm64/boot/dts/qcom/sdm670.dtsi
++++ b/arch/arm64/boot/dts/qcom/sdm670.dtsi
+@@ -1557,6 +1557,17 @@ spi15: spi@a9c000 {
+ 			};
+ 		};
+ 
++		llcc: system-cache-controller@1100000 {
++			compatible = "qcom,sdm670-llcc";
++			reg = <0 0x01100000 0 0x50000>,
++			      <0 0x01180000 0 0x50000>,
++			      <0 0x01300000 0 0x50000>;
++			reg-names = "llcc0_base",
++				    "llcc1_base",
++				    "llcc_broadcast_base";
++			interrupts = <GIC_SPI 582 IRQ_TYPE_LEVEL_HIGH>;
++		};
++
+ 		mem_noc: interconnect@1380000 {
+ 			compatible = "qcom,sdm670-mem-noc";
+ 			reg = <0 0x01380000 0 0x27200>;

@@ -1,0 +1,60 @@
+From: Richard Acayan <mailingradian@gmail.com>
+Date: Fri, 18 Aug 2023 18:46:43 -0400
+Subject: [PATCH] ASoC: dt-bindings: qcom: q6dsp: add internal mi2s support
+
+The internal MI2S ports are found on devices with the internal sound
+card for Snapdragon 660. Add support for them.
+
+Signed-off-by: Richard Acayan <mailingradian@gmail.com>
+---
+ .../devicetree/bindings/sound/qcom,q6dsp-lpass-ports.yaml  |  5 ++++-
+ include/dt-bindings/sound/qcom,q6dsp-lpass-ports.h         | 14 ++++++++++++++
+ 2 files changed, 18 insertions(+), 1 deletion(-)
+
+diff --git a/Documentation/devicetree/bindings/sound/qcom,q6dsp-lpass-ports.yaml b/Documentation/devicetree/bindings/sound/qcom,q6dsp-lpass-ports.yaml
+index 08c618e..ebed3c4 100644
+--- a/Documentation/devicetree/bindings/sound/qcom,q6dsp-lpass-ports.yaml
++++ b/Documentation/devicetree/bindings/sound/qcom,q6dsp-lpass-ports.yaml
+@@ -126,13 +126,16 @@ patternProperties:
+             reg:
+               contains:
+                 # MI2S DAI ID range PRIMARY_MI2S_RX - QUATERNARY_MI2S_TX and
+-                # QUINARY_MI2S_RX - QUINARY_MI2S_TX
++                # QUINARY_MI2S_RX - QUINARY_MI2S_TX and
++                # INT0_MI2S_RX - INT6_MI2S_TX
+                 items:
+                   oneOf:
+                     - minimum: 16
+                       maximum: 23
+                     - minimum: 127
+                       maximum: 128
++                    - minimum: 136
++                      maximum: 149
+         then:
+           required:
+             - qcom,sd-lines
+diff --git a/include/dt-bindings/sound/qcom,q6dsp-lpass-ports.h b/include/dt-bindings/sound/qcom,q6dsp-lpass-ports.h
+index 39f2032..8138b2e 100644
+--- a/include/dt-bindings/sound/qcom,q6dsp-lpass-ports.h
++++ b/include/dt-bindings/sound/qcom,q6dsp-lpass-ports.h
+@@ -139,6 +139,20 @@
+ #define DISPLAY_PORT_RX_5	133
+ #define DISPLAY_PORT_RX_6	134
+ #define DISPLAY_PORT_RX_7	135
++#define INT0_MI2S_RX		136
++#define INT0_MI2S_TX		137
++#define INT1_MI2S_RX		138
++#define INT1_MI2S_TX		139
++#define INT2_MI2S_RX		140
++#define INT2_MI2S_TX		141
++#define INT3_MI2S_RX		142
++#define INT3_MI2S_TX		143
++#define INT4_MI2S_RX		144
++#define INT4_MI2S_TX		145
++#define INT5_MI2S_RX		146
++#define INT5_MI2S_TX		147
++#define INT6_MI2S_RX		148
++#define INT6_MI2S_TX		149
+ 
+ #define LPASS_CLK_ID_PRI_MI2S_IBIT	1
+ #define LPASS_CLK_ID_PRI_MI2S_EBIT	2

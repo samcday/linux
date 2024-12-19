@@ -1,0 +1,23 @@
+From: Richard Acayan <mailingradian@gmail.com>
+Date: Wed, 19 Apr 2023 18:20:48 -0400
+Subject: [PATCH] dt-bindings: mailbox: qcom: Add SDM670 APCS compatible
+
+Add the compatible for the APCS in the SDM670 SoC.
+
+Signed-off-by: Richard Acayan <mailingradian@gmail.com>
+---
+ Documentation/devicetree/bindings/mailbox/qcom,apcs-kpss-global.yaml | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/Documentation/devicetree/bindings/mailbox/qcom,apcs-kpss-global.yaml b/Documentation/devicetree/bindings/mailbox/qcom,apcs-kpss-global.yaml
+index 982c741..fae5043 100644
+--- a/Documentation/devicetree/bindings/mailbox/qcom,apcs-kpss-global.yaml
++++ b/Documentation/devicetree/bindings/mailbox/qcom,apcs-kpss-global.yaml
+@@ -46,6 +46,7 @@ properties:
+           - enum:
+               - qcom,sc7180-apss-shared
+               - qcom,sc8180x-apss-shared
++              - qcom,sdm670-apss-shared
+               - qcom,sm8150-apss-shared
+           - const: qcom,sdm845-apss-shared
+       - items:

@@ -1,0 +1,70 @@
+From: Richard Acayan <mailingradian@gmail.com>
+Date: Tue, 30 Jul 2024 22:42:55 -0400
+Subject: [PATCH] soc: qcom: llcc: Add configuration data for SDM670
+
+No-submit: add description
+Signed-off-by: Richard Acayan <mailingradian@gmail.com>
+---
+ drivers/soc/qcom/llcc-qcom.c | 28 ++++++++++++++++++++++++++++
+ 1 file changed, 28 insertions(+)
+
+diff --git a/drivers/soc/qcom/llcc-qcom.c b/drivers/soc/qcom/llcc-qcom.c
+index 28bcc65..4ae0caa 100644
+--- a/drivers/soc/qcom/llcc-qcom.c
++++ b/drivers/soc/qcom/llcc-qcom.c
+@@ -769,6 +769,17 @@ static const struct llcc_slice_config sc8280xp_data[] = {
+ 	},
+ };
+ 
++static const struct llcc_slice_config sdm670_data[] = {
++	{ LLCC_CPUSS,   1,  512, 1, 0, 0xf, 0x0, 0, 0, 1, 1, 1 },
++	{ LLCC_ROTATOR, 4,  384, 2, 1, 0x0, 0xe, 2, 0, 1, 1, 0 },
++	{ LLCC_VOICE,   5,  512, 1, 0, 0xf, 0x0, 0, 0, 1, 1, 0 },
++	{ LLCC_AUDIO,   6,  512, 1, 0, 0xf, 0x0, 0, 0, 1, 1, 0 },
++	{ LLCC_MDM,     8,  512, 1, 0, 0xf, 0x0, 0, 0, 1, 1, 0 },
++	{ LLCC_GPU,     12, 384, 1, 1, 0x0, 0x0, 0, 0, 1, 1, 1 },
++	{ LLCC_MMUHWT,  13, 512, 1, 0, 0xf, 0x0, 0, 0, 1, 0, 0 },
++	{ LLCC_AUDHW,   22, 512, 1, 1, 0xf, 0x0, 0, 0, 1, 1, 1 },
++};
++
+ static const struct llcc_slice_config sdm845_data[] =  {{
+ 		.usecase_id = LLCC_CPUSS,
+ 		.slice_id = 1,
+@@ -2727,6 +2738,17 @@ static const struct qcom_llcc_config sc8280xp_cfg[] = {
+ 	},
+ };
+ 
++static const struct qcom_llcc_config sdm670_cfg[] = {
++	{
++		.sct_data	= sdm670_data,
++		.size		= ARRAY_SIZE(sdm670_data),
++		.need_llcc_cfg	= false,
++		.reg_offset	= llcc_v1_reg_offset,
++		.edac_reg_offset = &llcc_v1_edac_reg_offset,
++		.no_edac	= true,
++	},
++};
++
+ static const struct qcom_llcc_config sdm845_cfg[] = {
+ 	{
+ 		.sct_data	= sdm845_data,
+@@ -2859,6 +2881,11 @@ static const struct qcom_sct_config sc8280xp_cfgs = {
+ 	.num_config	= ARRAY_SIZE(sc8280xp_cfg),
+ };
+ 
++static const struct qcom_sct_config sdm670_cfgs = {
++	.llcc_config	= sdm670_cfg,
++	.num_config	= ARRAY_SIZE(sdm670_cfg),
++};
++
+ static const struct qcom_sct_config sdm845_cfgs = {
+ 	.llcc_config	= sdm845_cfg,
+ 	.num_config	= ARRAY_SIZE(sdm845_cfg),
+@@ -3490,6 +3517,7 @@ static const struct of_device_id qcom_llcc_of_match[] = {
+ 	{ .compatible = "qcom,sc7280-llcc", .data = &sc7280_cfgs },
+ 	{ .compatible = "qcom,sc8180x-llcc", .data = &sc8180x_cfgs },
+ 	{ .compatible = "qcom,sc8280xp-llcc", .data = &sc8280xp_cfgs },
++	{ .compatible = "qcom,sdm670-llcc", .data = &sdm670_cfgs },
+ 	{ .compatible = "qcom,sdm845-llcc", .data = &sdm845_cfgs },
+ 	{ .compatible = "qcom,sm6350-llcc", .data = &sm6350_cfgs },
+ 	{ .compatible = "qcom,sm7150-llcc", .data = &sm7150_cfgs },

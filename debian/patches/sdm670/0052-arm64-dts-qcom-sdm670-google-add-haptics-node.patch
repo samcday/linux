@@ -1,0 +1,84 @@
+From: Richard Acayan <mailingradian@gmail.com>
+Date: Fri, 14 Oct 2022 21:22:08 -0400
+Subject: [PATCH] arm64: dts: qcom: sdm670-google: add haptics node
+
+The Google Pixel 3a has DRV2624 haptics. Add a device tree node for it.
+
+No-submit: add dt schema
+Signed-off-by: Richard Acayan <mailingradian@gmail.com>
+---
+ arch/arm64/boot/dts/qcom/sdm670-google-common.dtsi | 38 ++++++++++++++++++++++
+ arch/arm64/boot/dts/qcom/sdm670-google-sargo.dts   |  4 +++
+ 2 files changed, 42 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/qcom/sdm670-google-common.dtsi b/arch/arm64/boot/dts/qcom/sdm670-google-common.dtsi
+index 22ff470..6c2762e 100644
+--- a/arch/arm64/boot/dts/qcom/sdm670-google-common.dtsi
++++ b/arch/arm64/boot/dts/qcom/sdm670-google-common.dtsi
+@@ -530,6 +530,36 @@ rmi4_f12: rmi4-f12@12 {
+ 	};
+ };
+ 
++&i2c10 {
++	clock-frequency = <400000>;
++	status = "okay";
++
++	drv2624: haptics@5a {
++		compatible = "ti,drv2624";
++		reg = <0x5a>;
++
++		ti,smart-loop = <1>; /* 0-closeloop, 1-openloop */
++		ti,actuator = <1>; /* 0-ERM, 1-LRA */
++		ti,rated-voltage = <75>;
++		ti,lra-frequency = <172>; /* f0 = 172Hz */
++		ti,ol-lra-frequency = <155>; /* off-f0 in OL */
++		ti,bemf-factor = <150>;
++		ti,bemf-gain = <0>;
++		ti,voltage-comp = <18>;
++		ti,blanking-time = <2>; /* 50 us */
++		ti,idiss-time = <2>; /* 50 us */
++		ti,zc-det-time = <0>; /* 100 us*/
++		ti,lra-wave-shape = <0>; /* Square wave */
++		ti,waveform-interval = <1>; /* 1 ms */
++		ti,fb-brake-factor = <0>; /* braking factor 1 */
++
++		reset-gpios = <&tlmm 24 GPIO_ACTIVE_HIGH>;
++
++		pinctrl-0 = <&drv2624_default_state>;
++		pinctrl-names = "default";
++	};
++};
++
+ &mdss {
+ 	status = "okay";
+ };
+@@ -720,6 +750,14 @@ ts-switch-pins {
+ 			output-low;
+ 		};
+ 	};
++
++	drv2624_default_state: drv2624-default-state {
++		pins = "gpio24";
++		function = "gpio";
++		drive-strength = <2>;
++		bias-disable;
++		output-low;
++	};
+ };
+ 
+ &usb_1_hsphy {
+diff --git a/arch/arm64/boot/dts/qcom/sdm670-google-sargo.dts b/arch/arm64/boot/dts/qcom/sdm670-google-sargo.dts
+index 7a3e2499..a902b054 100644
+--- a/arch/arm64/boot/dts/qcom/sdm670-google-sargo.dts
++++ b/arch/arm64/boot/dts/qcom/sdm670-google-sargo.dts
+@@ -18,6 +18,10 @@ &battery {
+ 	charge-full-design-microamp-hours = <3000000>;
+ };
+ 
++&drv2624 {
++	ti,odclamp-voltage = <93>; /* 1.8 Vrms */
++};
++
+ &framebuffer {
+ 	reg = <0 0x9c000000 0 (1080 * 2220 * 4)>;
+ 	width = <1080>;

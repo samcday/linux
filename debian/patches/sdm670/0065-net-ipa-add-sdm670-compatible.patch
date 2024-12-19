@@ -1,0 +1,26 @@
+From: Richard Acayan <mailingradian@gmail.com>
+Date: Wed, 19 Apr 2023 19:54:04 -0400
+Subject: [PATCH] net: ipa: add sdm670 compatible
+
+Add the compatible for SDM670, which uses IPA v3.5.1, similar to SDM845.
+
+Signed-off-by: Richard Acayan <mailingradian@gmail.com>
+---
+ drivers/net/ipa/ipa_main.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/drivers/net/ipa/ipa_main.c b/drivers/net/ipa/ipa_main.c
+index 5f3dd5a..076e9f4 100644
+--- a/drivers/net/ipa/ipa_main.c
++++ b/drivers/net/ipa/ipa_main.c
+@@ -649,6 +649,10 @@ static const struct of_device_id ipa_match[] = {
+ 		.compatible	= "qcom,msm8998-ipa",
+ 		.data		= &ipa_data_v3_1,
+ 	},
++	{
++		.compatible	= "qcom,sdm670-ipa",
++		.data		= &ipa_data_v3_5_1,
++	},
+ 	{
+ 		.compatible	= "qcom,sdm845-ipa",
+ 		.data		= &ipa_data_v3_5_1,

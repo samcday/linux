@@ -1,0 +1,55 @@
+From: =?utf-8?q?Pablo_Correa_G=C3=B3mez?= <ablocorrea@hotmail.com>
+Date: Wed, 24 Jul 2024 11:16:46 +0200
+Subject: [PATCH] configs: smd845: group libcamera requirements and add
+ missing ones
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+
+The new configs are CONFIG_CMA=y and CONFIG_CMA_SIZE_MBYTES=256
+
+See
+https://gitlab.com/postmarketOS/pmbootstrap/-/issues/2174#note_1884069175
+for background. The 32MB default size is not enough for the front
+camera in the Pixel 3a, and I assume neither is for the cameras in the
+Pocophone F1
+
+Signed-off-by: Pablo Correa Gómez <ablocorrea@hotmail.com>
+(cherry picked from commit 01e6be168d58ad647fe243fa343947d992d646a0)
+Link: https://gitlab.com/sdm845-mainline/linux
+Signed-off-by: Richard Acayan <mailingradian@gmail.com>
+---
+ arch/arm64/configs/sdm845.config | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
+
+diff --git a/arch/arm64/configs/sdm845.config b/arch/arm64/configs/sdm845.config
+index f5edca6..3bc05eb 100644
+--- a/arch/arm64/configs/sdm845.config
++++ b/arch/arm64/configs/sdm845.config
+@@ -113,11 +113,16 @@ CONFIG_PM_WAKELOCKS=y
+ CONFIG_LRU_GEN=y
+ CONFIG_LRU_GEN_ENABLED=y
+ 
++# libcamera
++CONFIG_DMABUF_HEAPS_CMA=y
++CONFIG_DMABUF_HEAPS=y
++CONFIG_DMA_CMA=y
++CONFIG_CMA=y
++CONFIG_CMA_SIZE_MBYTES=256
++
+ # Misc useful things
+ CONFIG_SCSI_SCAN_ASYNC=y
+-CONFIG_DMABUF_HEAPS=y
+ CONFIG_UDMABUF=y
+-CONFIG_DMABUF_HEAPS_CMA=y
+ CONFIG_DMABUF_HEAPS_SYSTEM=y
+ CONFIG_HZ_1000=y
+ CONFIG_MODULE_COMPRESS_ZSTD=y
+@@ -225,7 +230,6 @@ CONFIG_FS_ENCRYPTION=y
+ CONFIG_FS_ENCRYPTION_INLINE_CRYPT=y
+ CONFIG_CRYPTO_USER_API_AEAD=y
+ CONFIG_CRYPTO_DEV_QCE=y
+-CONFIG_DMA_CMA=y
+ CONFIG_SM_GPUCC_6115=y
+ CONFIG_USB_ONBOARD_HUB=n # Breaks USB on rb2
+ CONFIG_INTERCONNECT_QCOM_QCM2290=y

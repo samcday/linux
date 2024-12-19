@@ -1,0 +1,26 @@
+From: Robert Mader <robert.mader@collabora.com>
+Date: Tue, 23 Jul 2024 19:20:04 +0200
+Subject: [PATCH] arm64: dts: qcom: sdm670-google: Add front camera
+ rotation/orientation
+
+So it gets properly reported to clients like libcamera.
+
+Signed-off-by: Robert Mader <robert.mader@collabora.com>
+---
+ arch/arm64/boot/dts/qcom/sdm670-google-common.dtsi | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/qcom/sdm670-google-common.dtsi b/arch/arm64/boot/dts/qcom/sdm670-google-common.dtsi
+index c699009..e71ea9a 100644
+--- a/arch/arm64/boot/dts/qcom/sdm670-google-common.dtsi
++++ b/arch/arm64/boot/dts/qcom/sdm670-google-common.dtsi
+@@ -697,6 +697,9 @@ camera@1a {
+ 		pinctrl-names = "default";
+ 		pinctrl-0 = <&cam_front_default>;
+ 
++		rotation = <270>;
++		orientation = <0>;
++
+ 		port {
+ 			cam_front_endpoint: endpoint {
+ 				data-lanes = <0 1 2 3>;

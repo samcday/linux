@@ -1,0 +1,29 @@
+From: Richard Acayan <mailingradian@gmail.com>
+Date: Sun, 29 Sep 2024 19:47:07 -0400
+Subject: [PATCH] pmdomain: core: Defer probe again when power domain is not
+ found
+
+Deferring probe is needed if kernel modules are loaded late in the boot
+process. This may hide DTS errors in /sys/kernel/debug/devices_deferred
+but these errors are usually not present here. Change the behaviour when
+a power domain isn't found to match the behaviour from assigned clocks.
+
+Fixes: e01afc325025 ("PM / Domains: Stop deferring probe at the end of initcall")
+Signed-off-by: Richard Acayan <mailingradian@gmail.com>
+---
+ drivers/pmdomain/core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/pmdomain/core.c b/drivers/pmdomain/core.c
+index 29ad510..5ffc879 100644
+--- a/drivers/pmdomain/core.c
++++ b/drivers/pmdomain/core.c
+@@ -2923,7 +2923,7 @@ static int __genpd_dev_pm_attach(struct device *dev, struct device *base_dev,
+ 		mutex_unlock(&gpd_list_lock);
+ 		dev_dbg(dev, "%s() failed to find PM domain: %ld\n",
+ 			__func__, PTR_ERR(pd));
+-		return driver_deferred_probe_check_state(base_dev);
++		return -EPROBE_DEFER;
+ 	}
+ 
+ 	dev_dbg(dev, "adding to PM domain %s\n", pd->name);

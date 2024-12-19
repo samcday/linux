@@ -1,0 +1,23 @@
+From: Richard Acayan <mailingradian@gmail.com>
+Date: Wed, 19 Apr 2023 19:11:32 -0400
+Subject: [PATCH] dt-bindings: soc: qcom: aoss: Add compatible for SDM670
+
+Document the compatible for SDM670.
+
+Signed-off-by: Richard Acayan <mailingradian@gmail.com>
+---
+ Documentation/devicetree/bindings/soc/qcom/qcom,aoss-qmp.yaml | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/Documentation/devicetree/bindings/soc/qcom/qcom,aoss-qmp.yaml b/Documentation/devicetree/bindings/soc/qcom/qcom,aoss-qmp.yaml
+index 7afdb60..9bbb679 100644
+--- a/Documentation/devicetree/bindings/soc/qcom/qcom,aoss-qmp.yaml
++++ b/Documentation/devicetree/bindings/soc/qcom/qcom,aoss-qmp.yaml
+@@ -32,6 +32,7 @@ properties:
+           - qcom,sc8180x-aoss-qmp
+           - qcom,sc8280xp-aoss-qmp
+           - qcom,sdx75-aoss-qmp
++          - qcom,sdm670-aoss-qmp
+           - qcom,sdm845-aoss-qmp
+           - qcom,sm6350-aoss-qmp
+           - qcom,sm8150-aoss-qmp

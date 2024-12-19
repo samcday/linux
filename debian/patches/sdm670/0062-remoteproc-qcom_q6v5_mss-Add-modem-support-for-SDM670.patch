@@ -1,0 +1,24 @@
+From: Richard Acayan <mailingradian@gmail.com>
+Date: Wed, 19 Apr 2023 20:46:15 -0400
+Subject: [PATCH] remoteproc: qcom_q6v5_mss: Add modem support for SDM670
+
+The SDM670 modem is similar to the modem on SDM845 and has the same
+version (QDSP6 v5 1.0). Add the compatible for it with the same data.
+
+Signed-off-by: Richard Acayan <mailingradian@gmail.com>
+---
+ drivers/remoteproc/qcom_q6v5_mss.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/remoteproc/qcom_q6v5_mss.c b/drivers/remoteproc/qcom_q6v5_mss.c
+index 32c3531..ab222eb 100644
+--- a/drivers/remoteproc/qcom_q6v5_mss.c
++++ b/drivers/remoteproc/qcom_q6v5_mss.c
+@@ -2526,6 +2526,7 @@ static const struct of_device_id q6v5_of_match[] = {
+ 	{ .compatible = "qcom,sc7180-mss-pil", .data = &sc7180_mss},
+ 	{ .compatible = "qcom,sc7280-mss-pil", .data = &sc7280_mss},
+ 	{ .compatible = "qcom,sdm660-mss-pil", .data = &sdm660_mss},
++	{ .compatible = "qcom,sdm670-mss-pil", .data = &sdm845_mss},
+ 	{ .compatible = "qcom,sdm845-mss-pil", .data = &sdm845_mss},
+ 	{ },
+ };

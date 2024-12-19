@@ -1,0 +1,44 @@
+From: Richard Acayan <mailingradian@gmail.com>
+Date: Thu, 20 Jul 2023 21:34:19 -0400
+Subject: [PATCH] arm64: dts: qcom: sdm670-google-sargo: add flash leds
+
+The Pixel 3a has two identical flash LEDs. Add them together.
+
+Signed-off-by: Richard Acayan <mailingradian@gmail.com>
+Reviewed-by: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
+---
+ arch/arm64/boot/dts/qcom/sdm670-google-sargo.dts | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/qcom/sdm670-google-sargo.dts b/arch/arm64/boot/dts/qcom/sdm670-google-sargo.dts
+index 465aedf..6b14750 100644
+--- a/arch/arm64/boot/dts/qcom/sdm670-google-sargo.dts
++++ b/arch/arm64/boot/dts/qcom/sdm670-google-sargo.dts
+@@ -10,6 +10,7 @@
+ 
+ #include <dt-bindings/gpio/gpio.h>
+ #include <dt-bindings/input/input.h>
++#include <dt-bindings/leds/common.h>
+ #include <dt-bindings/pinctrl/qcom,pmic-gpio.h>
+ #include <dt-bindings/power/qcom-rpmpd.h>
+ #include "sdm670.dtsi"
+@@ -491,6 +492,19 @@ &mdss_mdp {
+ 	status = "okay";
+ };
+ 
++&pm660l_flash {
++	status = "okay";
++
++	led-0 {
++		function = LED_FUNCTION_FLASH;
++		color = <LED_COLOR_ID_WHITE>;
++		led-sources = <1>, <2>;
++		led-max-microamp = <500000>;
++		flash-max-microamp = <1500000>;
++		flash-max-timeout-us = <1280000>;
++	};
++};
++
+ &pm660l_gpios {
+ 	vol_up_pin: vol-up-state {
+ 		pins = "gpio7";

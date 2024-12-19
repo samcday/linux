@@ -1,0 +1,35 @@
+From: Richard Acayan <mailingradian@gmail.com>
+Date: Fri, 9 Aug 2024 17:13:15 -0400
+Subject: [PATCH] arm64: dts: qcom: sdm670: add camcc
+
+The camera clock controller on SDM670 controls the clocks that drive the
+camera subsystem. The clocks are the same as on SDM845. Add the camera
+clock controller for SDM670.
+
+Reviewed-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+Signed-off-by: Richard Acayan <mailingradian@gmail.com>
+---
+ arch/arm64/boot/dts/qcom/sdm670.dtsi | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/qcom/sdm670.dtsi b/arch/arm64/boot/dts/qcom/sdm670.dtsi
+index 5c274a3..0b31abb 100644
+--- a/arch/arm64/boot/dts/qcom/sdm670.dtsi
++++ b/arch/arm64/boot/dts/qcom/sdm670.dtsi
+@@ -1580,6 +1580,16 @@ spmi_bus: spmi@c440000 {
+ 			#interrupt-cells = <4>;
+ 		};
+ 
++		camcc: clock-controller@ad00000 {
++			compatible = "qcom,sdm670-camcc", "qcom,sdm845-camcc";
++			reg = <0 0x0ad00000 0 0x10000>;
++			clocks = <&rpmhcc RPMH_CXO_CLK>;
++			clock-names = "bi_tcxo";
++			#clock-cells = <1>;
++			#reset-cells = <1>;
++			#power-domain-cells = <1>;
++		};
++
+ 		mdss: display-subsystem@ae00000 {
+ 			compatible = "qcom,sdm670-mdss";
+ 			reg = <0 0x0ae00000 0 0x1000>;

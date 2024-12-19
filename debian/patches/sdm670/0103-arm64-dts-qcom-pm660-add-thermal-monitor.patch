@@ -1,0 +1,34 @@
+From: Richard Acayan <mailingradian@gmail.com>
+Date: Wed, 15 Nov 2023 22:59:30 -0500
+Subject: [PATCH] arm64: dts: qcom: pm660: add thermal monitor
+
+The thermal monitor is used to monitor arbitrary ADC-based thermal
+sensors. It is suitable for use in thermal zones. Add support for it in
+PM660.
+
+Signed-off-by: Richard Acayan <mailingradian@gmail.com>
+---
+ arch/arm64/boot/dts/qcom/pm660.dtsi | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/qcom/pm660.dtsi b/arch/arm64/boot/dts/qcom/pm660.dtsi
+index 8d96776..54a27cc 100644
+--- a/arch/arm64/boot/dts/qcom/pm660.dtsi
++++ b/arch/arm64/boot/dts/qcom/pm660.dtsi
+@@ -197,6 +197,16 @@ channel@85 {
+ 			};
+ 		};
+ 
++		pm660_adc_tm: adc-tm@3400 {
++			compatible = "qcom,spmi-adc-tm-hc";
++			reg = <0x3400>;
++			interrupts = <0x0 0x34 0x0 IRQ_TYPE_EDGE_RISING>;
++			#thermal-sensor-cells = <1>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++			status = "disabled";
++		};
++
+ 		pm660_fg: fuel-gauge@4000 {
+ 		        compatible = "qcom,pmi8998-fg";
+ 		        reg = <0x4000>;

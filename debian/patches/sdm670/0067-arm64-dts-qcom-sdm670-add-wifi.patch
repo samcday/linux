@@ -1,0 +1,66 @@
+From: Richard Acayan <mailingradian@gmail.com>
+Date: Mon, 5 Dec 2022 18:12:11 -0500
+Subject: [PATCH] arm64: dts: qcom: sdm670: add wifi
+
+The Snapdragon 670 has the WCN3990 WiFi chip, with no ch1 supply. Add
+the device tree node for it.
+
+Signed-off-by: Richard Acayan <mailingradian@gmail.com>
+---
+ arch/arm64/boot/dts/qcom/sdm670-google-common.dtsi | 11 ++++++++++
+ arch/arm64/boot/dts/qcom/sdm670.dtsi               | 24 ++++++++++++++++++++++
+ 2 files changed, 35 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/qcom/sdm670-google-common.dtsi b/arch/arm64/boot/dts/qcom/sdm670-google-common.dtsi
+index 4d25ca8..0784bc7 100644
+--- a/arch/arm64/boot/dts/qcom/sdm670-google-common.dtsi
++++ b/arch/arm64/boot/dts/qcom/sdm670-google-common.dtsi
+@@ -894,3 +894,14 @@ &venus {
+ 	firmware-name = "qcom/sdm670/sargo/venus.mbn";
+ 	status = "okay";
+ };
++
++&wifi {
++	vdd-0.8-cx-mx-supply = <&vreg_l5a_0p848>;
++	vdd-1.8-xo-supply = <&vreg_l9a_1p8>;
++	vdd-1.3-rfa-supply = <&vreg_l6a_1p3>;
++	vdd-3.3-ch0-supply = <&vreg_l19a_3p3>;
++
++	qcom,snoc-host-cap-8bit-quirk;
++
++	status = "okay";
++};
+diff --git a/arch/arm64/boot/dts/qcom/sdm670.dtsi b/arch/arm64/boot/dts/qcom/sdm670.dtsi
+index bccc190..fa47488 100644
+--- a/arch/arm64/boot/dts/qcom/sdm670.dtsi
++++ b/arch/arm64/boot/dts/qcom/sdm670.dtsi
+@@ -2561,5 +2561,29 @@ cpufreq_hw: cpufreq@17d43000 {
+ 
+ 			#freq-domain-cells = <1>;
+ 		};
++
++		wifi: wifi@18800000 {
++			compatible = "qcom,wcn3990-wifi";
++			status = "disabled";
++			reg = <0 0x18800000 0 0x800000>;
++			reg-names = "membase";
++			memory-region = <&wlan_msa_mem>;
++			clock-names = "cxo_ref_clk_pin";
++			clocks = <&rpmhcc RPMH_RF_CLK2>;
++			interrupts =
++				<GIC_SPI 414 IRQ_TYPE_LEVEL_HIGH>,
++				<GIC_SPI 415 IRQ_TYPE_LEVEL_HIGH>,
++				<GIC_SPI 416 IRQ_TYPE_LEVEL_HIGH>,
++				<GIC_SPI 417 IRQ_TYPE_LEVEL_HIGH>,
++				<GIC_SPI 418 IRQ_TYPE_LEVEL_HIGH>,
++				<GIC_SPI 419 IRQ_TYPE_LEVEL_HIGH>,
++				<GIC_SPI 420 IRQ_TYPE_LEVEL_HIGH>,
++				<GIC_SPI 421 IRQ_TYPE_LEVEL_HIGH>,
++				<GIC_SPI 422 IRQ_TYPE_LEVEL_HIGH>,
++				<GIC_SPI 423 IRQ_TYPE_LEVEL_HIGH>,
++				<GIC_SPI 424 IRQ_TYPE_LEVEL_HIGH>,
++				<GIC_SPI 425 IRQ_TYPE_LEVEL_HIGH>;
++			iommus = <&apps_smmu 0x40 0x1>;
++		};
+ 	};
+ };

@@ -1,0 +1,28 @@
+From: Richard Acayan <mailingradian@gmail.com>
+Date: Mon, 5 Dec 2022 18:11:34 -0500
+Subject: [PATCH] arm64: dts: qcom: sdm670-google: add modemsmem
+
+The Pixel 3a modem needs the modemsmem client. Add it in the device
+tree so the modem can properly boot.
+
+Signed-off-by: Richard Acayan <mailingradian@gmail.com>
+---
+ arch/arm64/boot/dts/qcom/sdm670-google-common.dtsi | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/qcom/sdm670-google-common.dtsi b/arch/arm64/boot/dts/qcom/sdm670-google-common.dtsi
+index f970da8..2eabe48 100644
+--- a/arch/arm64/boot/dts/qcom/sdm670-google-common.dtsi
++++ b/arch/arm64/boot/dts/qcom/sdm670-google-common.dtsi
+@@ -80,6 +80,11 @@ key-vol-up {
+ 		};
+ 	};
+ 
++	modemsmem {
++		compatible = "google,modemsmem";
++		qcom,smem = <134>;
++	};
++
+ 	reserved-memory {
+ 		#address-cells = <2>;
+ 		#size-cells = <2>;

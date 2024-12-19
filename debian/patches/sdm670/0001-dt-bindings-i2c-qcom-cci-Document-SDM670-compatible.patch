@@ -1,0 +1,56 @@
+From: Richard Acayan <mailingradian@gmail.com>
+Date: Mon, 30 Sep 2024 22:35:23 -0400
+Subject: [PATCH] dt-bindings: i2c: qcom-cci: Document SDM670 compatible
+
+The CCI on the Snapdragon 670 is the interface for controlling camera
+hardware over I2C. Add the compatible so it can be added to the SDM670
+device tree.
+
+Signed-off-by: Richard Acayan <mailingradian@gmail.com>
+Reviewed-by: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Signed-off-by: Andi Shyti <andi.shyti@kernel.org>
+(cherry picked from commit 7f58b336f3e0f1764c2f32bd633c14bf517aa70a)
+Link: https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git
+Signed-off-by: Richard Acayan <mailingradian@gmail.com>
+---
+ .../devicetree/bindings/i2c/qcom,i2c-cci.yaml         | 19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
+
+diff --git a/Documentation/devicetree/bindings/i2c/qcom,i2c-cci.yaml b/Documentation/devicetree/bindings/i2c/qcom,i2c-cci.yaml
+index 7dab385..ef26ba6 100644
+--- a/Documentation/devicetree/bindings/i2c/qcom,i2c-cci.yaml
++++ b/Documentation/devicetree/bindings/i2c/qcom,i2c-cci.yaml
+@@ -27,6 +27,7 @@ properties:
+           - enum:
+               - qcom,sc7280-cci
+               - qcom,sc8280xp-cci
++              - qcom,sdm670-cci
+               - qcom,sdm845-cci
+               - qcom,sm6350-cci
+               - qcom,sm8250-cci
+@@ -139,6 +140,24 @@ allOf:
+             - const: cci
+             - const: camss_ahb
+ 
++  - if:
++      properties:
++        compatible:
++          contains:
++            enum:
++              - qcom,sdm670-cci
++    then:
++      properties:
++        clocks:
++          minItems: 4
++          maxItems: 4
++        clock-names:
++          items:
++            - const: camnoc_axi
++            - const: soc_ahb
++            - const: cpas_ahb
++            - const: cci
++
+   - if:
+       properties:
+         compatible:

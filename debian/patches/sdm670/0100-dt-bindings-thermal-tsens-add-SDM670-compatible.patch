@@ -1,0 +1,23 @@
+From: Richard Acayan <mailingradian@gmail.com>
+Date: Tue, 14 Nov 2023 21:16:13 -0500
+Subject: [PATCH] dt-bindings: thermal: tsens: add SDM670 compatible
+
+Add the compatible for the thermal sensors on the SDM670.
+
+Signed-off-by: Richard Acayan <mailingradian@gmail.com>
+---
+ Documentation/devicetree/bindings/thermal/qcom-tsens.yaml | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/Documentation/devicetree/bindings/thermal/qcom-tsens.yaml b/Documentation/devicetree/bindings/thermal/qcom-tsens.yaml
+index a12fddc..9bc65bd 100644
+--- a/Documentation/devicetree/bindings/thermal/qcom-tsens.yaml
++++ b/Documentation/devicetree/bindings/thermal/qcom-tsens.yaml
+@@ -58,6 +58,7 @@ properties:
+               - qcom,sc8180x-tsens
+               - qcom,sc8280xp-tsens
+               - qcom,sdm630-tsens
++              - qcom,sdm670-tsens
+               - qcom,sdm845-tsens
+               - qcom,sm6115-tsens
+               - qcom,sm6350-tsens

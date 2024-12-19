@@ -1,0 +1,30 @@
+From: Richard Acayan <mailingradian@gmail.com>
+Date: Tue, 30 Jul 2024 22:42:03 -0400
+Subject: [PATCH] dt-bindings: cache: qcom,llcc: Add SDM670 compatible
+
+No-submit: add description
+Signed-off-by: Richard Acayan <mailingradian@gmail.com>
+---
+ Documentation/devicetree/bindings/cache/qcom,llcc.yaml | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/Documentation/devicetree/bindings/cache/qcom,llcc.yaml b/Documentation/devicetree/bindings/cache/qcom,llcc.yaml
+index ee7edc6..28df1c6 100644
+--- a/Documentation/devicetree/bindings/cache/qcom,llcc.yaml
++++ b/Documentation/devicetree/bindings/cache/qcom,llcc.yaml
+@@ -26,6 +26,7 @@ properties:
+       - qcom,sc7280-llcc
+       - qcom,sc8180x-llcc
+       - qcom,sc8280xp-llcc
++      - qcom,sdm670-llcc
+       - qcom,sdm845-llcc
+       - qcom,sm6350-llcc
+       - qcom,sm7150-llcc
+@@ -113,6 +114,7 @@ allOf:
+           contains:
+             enum:
+               - qcom,sc7280-llcc
++              - qcom,sdm670-llcc
+     then:
+       properties:
+         reg:

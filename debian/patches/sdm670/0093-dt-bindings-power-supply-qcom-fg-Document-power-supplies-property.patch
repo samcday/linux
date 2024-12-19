@@ -1,0 +1,28 @@
+From: Richard Acayan <mailingradian@gmail.com>
+Date: Mon, 8 Jan 2024 17:42:21 -0500
+Subject: [PATCH] dt-bindings: power: supply: qcom,fg: Document power-supplies
+ property
+
+The power-supplies property is used to specify the charger to provide
+status reporting. Document the property and allow it.
+
+Signed-off-by: Richard Acayan <mailingradian@gmail.com>
+---
+ Documentation/devicetree/bindings/power/supply/qcom,fg.yaml | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/Documentation/devicetree/bindings/power/supply/qcom,fg.yaml b/Documentation/devicetree/bindings/power/supply/qcom,fg.yaml
+index 9c154e8..e7fd00e 100644
+--- a/Documentation/devicetree/bindings/power/supply/qcom,fg.yaml
++++ b/Documentation/devicetree/bindings/power/supply/qcom,fg.yaml
+@@ -38,6 +38,10 @@ properties:
+        - voltage-max-design-microvolt
+        See Documentation/devicetree/bindings/power/supply/battery.yaml
+ 
++  power-supplies:
++    items:
++      - description: Power supply for status reporting.
++
+ allOf:
+   - if:
+       properties:

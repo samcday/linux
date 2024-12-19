@@ -1,0 +1,44 @@
+From: Richard Acayan <mailingradian@gmail.com>
+Date: Fri, 18 Aug 2023 19:39:23 -0400
+Subject: [PATCH] arm64: dts: qcom: sdm670: add digital audio codec
+
+Add the SDM660 digital audio codec to the SDM670 device tree, as both
+platforms have the same internal sound card.
+
+Signed-off-by: Richard Acayan <mailingradian@gmail.com>
+---
+ arch/arm64/boot/dts/qcom/sdm670.dtsi | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/qcom/sdm670.dtsi b/arch/arm64/boot/dts/qcom/sdm670.dtsi
+index 9c7738b..3a75c5c 100644
+--- a/arch/arm64/boot/dts/qcom/sdm670.dtsi
++++ b/arch/arm64/boot/dts/qcom/sdm670.dtsi
+@@ -24,6 +24,7 @@
+ #include <dt-bindings/reset/qcom,sdm845-pdc.h>
+ #include <dt-bindings/soc/qcom,apr.h>
+ #include <dt-bindings/soc/qcom,rpmh-rsc.h>
++#include <dt-bindings/sound/qcom,q6dsp-lpass-ports.h>
+ 
+ / {
+ 	interrupt-parent = <&intc>;
+@@ -2801,5 +2802,19 @@ cdc_dmic_default: cdc-dmic-default-state {
+ 				};
+ 			};
+ 		};
++
++		lpass_codec: audio-codec@62ec0000 {
++			compatible = "qcom,sdm660-wcd-digital-codec",
++				     "qcom,msm8916-wcd-digital-codec";
++			reg = <0 0x62ec0000 0 0x400>;
++
++			clocks = <&q6afecc LPASS_CLK_ID_INT_MCLK_0 LPASS_CLK_ATTRIBUTE_COUPLE_NO>;
++			clock-names = "mclk";
++
++			sound-name-prefix = "Digital";
++			#sound-dai-cells = <1>;
++
++			status = "disabled";
++		};
+ 	};
+ };

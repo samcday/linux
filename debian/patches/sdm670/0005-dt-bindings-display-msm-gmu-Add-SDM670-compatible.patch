@@ -1,0 +1,24 @@
+From: Richard Acayan <mailingradian@gmail.com>
+Date: Wed, 20 Sep 2023 19:42:16 -0400
+Subject: [PATCH] dt-bindings: display/msm/gmu: Add SDM670 compatible
+
+The Snapdragon 670 has a GMU. Add its compatible.
+
+Signed-off-by: Richard Acayan <mailingradian@gmail.com>
+Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+---
+ Documentation/devicetree/bindings/display/msm/gmu.yaml | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/Documentation/devicetree/bindings/display/msm/gmu.yaml b/Documentation/devicetree/bindings/display/msm/gmu.yaml
+index b1bd372..1c055ba 100644
+--- a/Documentation/devicetree/bindings/display/msm/gmu.yaml
++++ b/Documentation/devicetree/bindings/display/msm/gmu.yaml
+@@ -91,6 +91,7 @@ allOf:
+         compatible:
+           contains:
+             enum:
++              - qcom,adreno-gmu-615.0
+               - qcom,adreno-gmu-618.0
+               - qcom,adreno-gmu-630.2
+     then:

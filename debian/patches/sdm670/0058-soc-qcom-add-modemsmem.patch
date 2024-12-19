@@ -1,0 +1,216 @@
+From: Richard Acayan <mailingradian@gmail.com>
+Date: Fri, 2 Dec 2022 17:45:12 -0500
+Subject: [PATCH] soc: qcom: add modemsmem
+
+Modems on some Google Pixel devices require extra information about the
+SoC to be passed through a vendor-controlled Shared Memory (SMEM)
+channel. This driver provides this information.
+
+Without this driver, the modem might crash with the following message:
+
+    [   17.262410] qcom-q6v5-mss 4080000.remoteproc: fatal error received: :0:[rf]EX:kernel:0:rf:171:PC=d949b6d4
+    [   17.262454] remoteproc remoteproc0: crash detected in 4080000.remoteproc: type fatal error
+
+Skimming through the device tree overlays, modemsmem seems to be used by
+every Pixel chronologically between the Pixel 3 and Pixel 5a, inclusive.
+
+The modem_flag field is not being initialized yet because the bootloader
+doesn't always add the property in dtb (so it might not be necessary)
+and because there are problems with how the proper value is being
+retrieved in the original downstream driver.
+
+Link: https://android.googlesource.com/kernel/msm/+/6bfa1545e98673df7399a58bfe9a0859b838b715/drivers/soc/qcom/modemsmem/modemsmem.c
+Signed-off-by: Richard Acayan <mailingradian@gmail.com>
+--
+Discussion:
+
+Where do these types of drivers go? This driver is probably providing
+info to vendor code in the modem firmware, so it might not belong in
+drivers/soc/qcom/.
+
+Maybe it should go in another directory, like:
+
+drivers/misc/
+drivers/firmware/
+
+I'm not too familiar with the kernel directory structure, so there might
+be somewhere I missed.
+--
+Original commit:
+
+[WIP] soc: qcom: MODEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEM (add modemsmem)
+
+ok so
+
+the modem normally just needs the firmware, as seen in the OnePlus 6,
+SHIFT6mq, and Xiaomi Poco F1
+
+but the Google Pixel 3a and Google Pixel 3 device tree overlays define
+another smem client, called "modemsmem"
+(https://github.com/LineageOS/android_kernel_google_msm-4.9/blob/lineage-19.1/arch/arm64/boot/dts/google/sdm670-b4s4-common.dtsi#L215
+and
+https://github.com/LineageOS/android_kernel_google_msm-4.9/blob/lineage-19.1/arch/arm64/boot/dts/google/sdm845-b1c1-common.dtsi#L95)
+
+and even though it does not appear in Caleb's and Amit's Pixel 3 bringup
+(https://gitlab.com/sdm845-mainline/linux/-/tree/caleb/pixel3-bringup-next-2022-10-13),
+it is still needed to prevent a crash on my Pixel 3a
+
+so the modem can be fed values over smem by the main processor, from the
+socinfo driver on the main processor, which fetches values over smem
+
+How silly is that? A modem that doesn't know what hardware is around it,
+and needs the software running on the CPU to indirectly fetch values
+from what is likely a different part of the device.
+
+Anyway, there are a lot of issues with releasing this:
+ - Is the driver in the right subdirectory?
+ - Does the driver work on other devices?
+---
+ drivers/soc/qcom/Kconfig     |  11 +++++
+ drivers/soc/qcom/Makefile    |   1 +
+ drivers/soc/qcom/modemsmem.c | 107 +++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 119 insertions(+)
+ create mode 100644 drivers/soc/qcom/modemsmem.c
+
+diff --git a/drivers/soc/qcom/Kconfig b/drivers/soc/qcom/Kconfig
+index 74b9121..fe09b04 100644
+--- a/drivers/soc/qcom/Kconfig
++++ b/drivers/soc/qcom/Kconfig
+@@ -295,4 +295,15 @@ config QCOM_PBS
+ 	  This module provides the APIs to the client drivers that wants to send the
+ 	  PBS trigger event to the PBS RAM.
+ 
++config QCOM_MODEMSMEM
++	tristate "Modem Shared Memory"
++	depends on ARCH_QCOM || COMPILE_TEST
++	depends on OF
++	depends on QCOM_SMEM
++	help
++	  This binds to the modem's vendor interface and provides information
++	  about the SoC. Some devices' modems expect this.
++
++	  If unsure, say N (unless you want modem on a Google Pixel 3a).
++
+ endmenu
+diff --git a/drivers/soc/qcom/Makefile b/drivers/soc/qcom/Makefile
+index acbca2a..15d1a59 100644
+--- a/drivers/soc/qcom/Makefile
++++ b/drivers/soc/qcom/Makefile
+@@ -39,3 +39,4 @@ obj-$(CONFIG_QCOM_ICC_BWMON)	+= icc-bwmon.o
+ qcom_ice-objs			+= ice.o
+ obj-$(CONFIG_QCOM_INLINE_CRYPTO_ENGINE)	+= qcom_ice.o
+ obj-$(CONFIG_QCOM_PBS) +=	qcom-pbs.o
++obj-$(CONFIG_QCOM_MODEMSMEM)	+= modemsmem.o
+diff --git a/drivers/soc/qcom/modemsmem.c b/drivers/soc/qcom/modemsmem.c
+new file mode 100644
+index 0000000..892ab56
+--- /dev/null
++++ b/drivers/soc/qcom/modemsmem.c
+@@ -0,0 +1,107 @@
++// SPDX-License-Identifier: GPL-2.0-only
++/*
++ * SoC Information over Shared Memory.
++ *
++ * Copyright (c) 2022-2024, Richard Acayan. All rights reserved.
++ */
++
++#include <asm/byteorder.h>
++#include <asm/io.h>
++#include <linux/err.h>
++#include <linux/module.h>
++#include <linux/of.h>
++#include <linux/platform_device.h>
++#include <linux/soc/qcom/smem.h>
++#include <linux/soc/qcom/socinfo.h>
++
++#define MODEM_SMEM_VERSION 0
++
++#define PLAT_VER_TO_MAJOR_ID(v) (((v) >> 16) & 0xff)
++#define PLAT_VER_TO_MINOR_ID(v) ((v) & 0xff)
++
++struct modem_smem_info {
++	u32 version;
++	u32 modem_flag;
++	u32 major_id;
++	u32 minor_id;
++	u32 subtype;
++	u32 platform;
++	u32 efs_magic;
++	u32 ftm_magic;
++};
++
++static int write_socinfo(struct modem_smem_info *target) {
++	u32 plat_ver, hw_plat, hw_plat_subtype;
++	struct socinfo *socinfo;
++
++	socinfo = qcom_smem_get(QCOM_SMEM_HOST_ANY, SMEM_HW_SW_BUILD_ID, NULL);
++	if (IS_ERR(socinfo))
++		return PTR_ERR(socinfo);
++
++	// The socinfo struct must not be prior to version 0.6
++	if (socinfo->ver < 0x00000006)
++		return -ENOTSUPP;
++
++	plat_ver = __le32_to_cpu(socinfo->plat_ver);
++	hw_plat = __le32_to_cpu(socinfo->hw_plat);
++	hw_plat_subtype = __le32_to_cpu(socinfo->hw_plat_subtype);
++
++	writel_relaxed(MODEM_SMEM_VERSION, &target->version);
++	writel_relaxed(PLAT_VER_TO_MAJOR_ID(plat_ver), &target->major_id);
++	writel_relaxed(PLAT_VER_TO_MINOR_ID(plat_ver), &target->minor_id);
++	writel_relaxed(hw_plat, &target->platform);
++	writel_relaxed(hw_plat_subtype, &target->subtype);
++
++	return 0;
++}
++
++static int modemsmem_probe(struct platform_device *pdev) {
++	int smem_id;
++	int ret;
++	size_t len;
++	struct modem_smem_info *info;
++
++	ret = of_property_read_u32(pdev->dev.of_node, "qcom,smem", &smem_id);
++	if (ret) {
++		dev_err(&pdev->dev, "Could not read smem id: %d\n", ret);
++		return ret;
++	}
++
++	ret = qcom_smem_alloc(QCOM_SMEM_HOST_ANY, smem_id, sizeof(struct modem_smem_info));
++	if (ret) {
++		dev_err_probe(&pdev->dev, ret, "Could not allocate modem smem\n");
++		return ret;
++	}
++
++	info = qcom_smem_get(QCOM_SMEM_HOST_ANY, smem_id, &len);
++
++	ret = write_socinfo(info);
++	if (ret) {
++		dev_err(&pdev->dev, "Could not submit info to modemsmem\n");
++		return ret;
++	}
++
++	return 0;
++}
++
++static void modemsmem_remove(struct platform_device *pdev)
++{
++}
++
++static struct of_device_id modemsmem_of_match[] = {
++	{ .compatible = "google,modemsmem" },
++};
++
++static struct platform_driver modemsmem_driver = {
++	.probe = modemsmem_probe,
++	.remove = modemsmem_remove,
++	.driver = {
++		.name = "modemsmem",
++		.of_match_table = modemsmem_of_match,
++	},
++};
++module_platform_driver(modemsmem_driver);
++
++MODULE_AUTHOR("Richard Acayan <mailingradian@gmail.com>");
++MODULE_DESCRIPTION("SoC Information over SMEM driver");
++MODULE_LICENSE("GPL");
