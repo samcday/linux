@@ -3,7 +3,7 @@ Date: Fri, 12 Jan 2024 12:32:52 +0100
 Subject: arm64: configs: add sdm670_defconfig
 
 ---
- arch/arm64/configs/sdm670_defconfig | 1004 +++++++++++++++++++++++++++++++++++++
+ arch/arm64/configs/sdm670_defconfig | 1004 +++++++++++++++++++++++++++++++++++
  1 file changed, 1004 insertions(+)
  create mode 100644 arch/arm64/configs/sdm670_defconfig
 
