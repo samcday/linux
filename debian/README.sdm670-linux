@@ -1,0 +1,9 @@
+Patches origin
+--------------
+
+For out-of-tree device support, patches were imported from the following
+community-maintained kernel forks:
+  * sdm670: https://gitlab.com/sdm670-mainline/linux-patches
+
+Those patchsets were last synced on the following dates:
+  * sdm670: 2025-01-31
