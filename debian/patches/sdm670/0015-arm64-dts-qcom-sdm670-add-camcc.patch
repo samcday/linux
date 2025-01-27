@@ -6,8 +6,9 @@ The camera clock controller on SDM670 controls the clocks that drive the
 camera subsystem. The clocks are the same as on SDM845. Add the camera
 clock controller for SDM670.
 
-Reviewed-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
 Signed-off-by: Richard Acayan <mailingradian@gmail.com>
+Reviewed-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+Reviewed-by: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
 ---
  arch/arm64/boot/dts/qcom/sdm670.dtsi | 10 ++++++++++
  1 file changed, 10 insertions(+)

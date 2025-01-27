@@ -1,0 +1,30 @@
+From: Richard Acayan <mailingradian@gmail.com>
+Date: Mon, 11 Nov 2024 21:40:52 -0500
+Subject: [PATCH] dt-bindings: leds: qcom,spmi-flash-led: Add pm660l
+ compatible
+
+Add the compatible for the flash LED controller on the PM660L PMIC.
+
+Signed-off-by: Richard Acayan <mailingradian@gmail.com>
+Acked-by: Rob Herring (Arm) <robh@kernel.org>
+Link: https://lore.kernel.org/r/20241112024050.669578-7-mailingradian@gmail.com
+Signed-off-by: Lee Jones <lee@kernel.org>
+(cherry picked from commit a1234b215538279c8520481f6d539f1582bd17d8)
+Link: https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git
+Signed-off-by: Richard Acayan <mailingradian@gmail.com>
+---
+ Documentation/devicetree/bindings/leds/qcom,spmi-flash-led.yaml | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/Documentation/devicetree/bindings/leds/qcom,spmi-flash-led.yaml b/Documentation/devicetree/bindings/leds/qcom,spmi-flash-led.yaml
+index 1ba6076..bcf0ad4 100644
+--- a/Documentation/devicetree/bindings/leds/qcom,spmi-flash-led.yaml
++++ b/Documentation/devicetree/bindings/leds/qcom,spmi-flash-led.yaml
+@@ -23,6 +23,7 @@ properties:
+     items:
+       - enum:
+           - qcom,pm6150l-flash-led
++          - qcom,pm660l-flash-led
+           - qcom,pm8150c-flash-led
+           - qcom,pm8150l-flash-led
+           - qcom,pm8350c-flash-led

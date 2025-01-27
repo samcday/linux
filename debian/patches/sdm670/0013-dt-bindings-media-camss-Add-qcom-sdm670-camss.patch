@@ -9,6 +9,8 @@ the bindings.
 Adapted from SC8280XP camera subsystem.
 
 Signed-off-by: Richard Acayan <mailingradian@gmail.com>
+Reviewed-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 ---
  .../bindings/media/qcom,sdm670-camss.yaml          | 318 +++++++++++++++++++++
  1 file changed, 318 insertions(+)
@@ -16,7 +18,7 @@ Signed-off-by: Richard Acayan <mailingradian@gmail.com>
 
 diff --git a/Documentation/devicetree/bindings/media/qcom,sdm670-camss.yaml b/Documentation/devicetree/bindings/media/qcom,sdm670-camss.yaml
 new file mode 100644
-index 0000000..f8701a8
+index 0000000..35c40fe
 --- /dev/null
 +++ b/Documentation/devicetree/bindings/media/qcom,sdm670-camss.yaml
 @@ -0,0 +1,318 @@
@@ -221,7 +223,7 @@ index 0000000..f8701a8
 +        #address-cells = <2>;
 +        #size-cells = <2>;
 +
-+        camera-controller@acb3000 {
++        isp@acb3000 {
 +            compatible = "qcom,sdm670-camss";
 +
 +            reg = <0 0x0acb3000 0 0x1000>,

@@ -1,0 +1,31 @@
+From: Richard Acayan <mailingradian@gmail.com>
+Date: Wed, 13 Nov 2024 19:47:15 -0500
+Subject: [PATCH] dt-bindings: iommu: arm,smmu: add sdm670 adreno iommu
+ compatible
+
+SDM670 has a separate IOMMU for the GPU, like SDM845. Add the compatible
+for it.
+
+Signed-off-by: Richard Acayan <mailingradian@gmail.com>
+Acked-by: Rob Herring (Arm) <robh@kernel.org>
+Link: https://lore.kernel.org/r/20241114004713.42404-5-mailingradian@gmail.com
+Signed-off-by: Will Deacon <will@kernel.org>
+(cherry picked from commit 87cafa082ce395ff8a28ab23ff97dfe108604bf2)
+Link: https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git
+Signed-off-by: Richard Acayan <mailingradian@gmail.com>
+---
+ Documentation/devicetree/bindings/iommu/arm,smmu.yaml | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/Documentation/devicetree/bindings/iommu/arm,smmu.yaml b/Documentation/devicetree/bindings/iommu/arm,smmu.yaml
+index 92d350b..6d1b92a 100644
+--- a/Documentation/devicetree/bindings/iommu/arm,smmu.yaml
++++ b/Documentation/devicetree/bindings/iommu/arm,smmu.yaml
+@@ -119,6 +119,7 @@ properties:
+               - qcom,msm8996-smmu-v2
+               - qcom,sc7180-smmu-v2
+               - qcom,sdm630-smmu-v2
++              - qcom,sdm670-smmu-v2
+               - qcom,sdm845-smmu-v2
+               - qcom,sm6350-smmu-v2
+               - qcom,sm7150-smmu-v2

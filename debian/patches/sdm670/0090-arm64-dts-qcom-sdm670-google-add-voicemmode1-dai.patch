@@ -1,0 +1,52 @@
+From: Richard Acayan <mailingradian@gmail.com>
+Date: Mon, 11 Sep 2023 21:54:19 -0400
+Subject: [PATCH] arm64: dts: qcom: sdm670-google: add voicemmode1 dai
+
+The VoiceMMode1 digital audio interface is used to stream call audio to
+the audio backends. Add it.
+
+Signed-off-by: Richard Acayan <mailingradian@gmail.com>
+---
+ arch/arm64/boot/dts/qcom/sdm670-google-common.dtsi | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/qcom/sdm670-google-common.dtsi b/arch/arm64/boot/dts/qcom/sdm670-google-common.dtsi
+index 3dc4d33e..cf9b0ea 100644
+--- a/arch/arm64/boot/dts/qcom/sdm670-google-common.dtsi
++++ b/arch/arm64/boot/dts/qcom/sdm670-google-common.dtsi
+@@ -14,6 +14,7 @@
+ #include <dt-bindings/power/qcom-rpmpd.h>
+ #include <dt-bindings/sound/qcom,q6afe.h>
+ #include <dt-bindings/sound/qcom,q6asm.h>
++#include <dt-bindings/sound/qcom,q6voice.h>
+ #include "sdm670.dtsi"
+ #include "pm660.dtsi"
+ #include "pm660l.dtsi"
+@@ -226,6 +227,14 @@ cpu {
+ 			};
+ 		};
+ 
++		voicemmode1-dai-link {
++			link-name = "VoiceMMode1";
++
++			cpu {
++				sound-dai = <&q6voicedai VOICEMMODE1>;
++			};
++		};
++
+ 		sec-tdm-rx-link {
+ 			link-name = "Secondary TDM0 Playback";
+ 
+@@ -998,6 +1007,12 @@ dai@2 {
+ 	};
+ };
+ 
++&q6voicedai {
++	dai@1 {
++		reg = <VOICEMMODE1>;
++	};
++};
++
+ &sdhc_1 {
+ 	supports-cqe;
+ 	mmc-hs200-1_8v;

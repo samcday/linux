@@ -1,0 +1,25 @@
+From: Richard Acayan <mailingradian@gmail.com>
+Date: Tue, 28 Jan 2025 22:57:38 -0500
+Subject: [PATCH] arm64: dts: qcom: pm660: add cooling for charger
+
+The charger now has cooling support. Add the cooling cells so it can be
+used in thermal zones.
+
+Signed-off-by: Richard Acayan <mailingradian@gmail.com>
+---
+ arch/arm64/boot/dts/qcom/pm660.dtsi | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/qcom/pm660.dtsi b/arch/arm64/boot/dts/qcom/pm660.dtsi
+index 54a27cc..2f5d2be 100644
+--- a/arch/arm64/boot/dts/qcom/pm660.dtsi
++++ b/arch/arm64/boot/dts/qcom/pm660.dtsi
+@@ -87,6 +87,8 @@ pm660_charger: charger@1000 {
+ 				      <&pm660_rradc 4>;
+ 			io-channel-names = "usbin_i", "usbin_v";
+ 
++			#cooling-cells = <2>;
++
+ 			status = "disabled";
+ 		};
+ 

@@ -8,128 +8,12 @@ subsystem.
 
 Signed-off-by: Richard Acayan <mailingradian@gmail.com>
 Reviewed-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
-Acked-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
-Reviewed-by: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
 ---
- .../bindings/media/qcom,sdm670-camss.yaml          |  72 ++++----
- drivers/media/platform/qcom/camss/camss.c          | 191 +++++++++++++++++++++
- 2 files changed, 227 insertions(+), 36 deletions(-)
+ drivers/media/platform/qcom/camss/camss.c | 191 ++++++++++++++++++++++++++++++
+ 1 file changed, 191 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/media/qcom,sdm670-camss.yaml b/Documentation/devicetree/bindings/media/qcom,sdm670-camss.yaml
-index f8701a8..892412f 100644
---- a/Documentation/devicetree/bindings/media/qcom,sdm670-camss.yaml
-+++ b/Documentation/devicetree/bindings/media/qcom,sdm670-camss.yaml
-@@ -31,21 +31,6 @@ properties:
-       - const: vfe1
-       - const: vfe_lite
- 
--  interrupts:
--    maxItems: 9
--
--  interrupt-names:
--    items:
--      - const: csid0
--      - const: csid1
--      - const: csid2
--      - const: csiphy0
--      - const: csiphy1
--      - const: csiphy2
--      - const: vfe0
--      - const: vfe1
--      - const: vfe_lite
--
-   clocks:
-     maxItems: 22
- 
-@@ -74,6 +59,21 @@ properties:
-       - const: vfe_lite
-       - const: vfe_lite_cphy_rx
- 
-+  interrupts:
-+    maxItems: 9
-+
-+  interrupt-names:
-+    items:
-+      - const: csid0
-+      - const: csid1
-+      - const: csid2
-+      - const: csiphy0
-+      - const: csiphy1
-+      - const: csiphy2
-+      - const: vfe0
-+      - const: vfe1
-+      - const: vfe_lite
-+
-   iommus:
-     maxItems: 4
- 
-@@ -177,10 +177,10 @@ required:
-   - compatible
-   - reg
-   - reg-names
--  - interrupts
--  - interrupt-names
-   - clocks
-   - clock-names
-+  - interrupts
-+  - interrupt-names
-   - iommus
-   - power-domains
-   - power-domain-names
-@@ -221,25 +221,6 @@ examples:
-                         "vfe1",
-                         "vfe_lite";
- 
--            interrupts = <GIC_SPI 464 IRQ_TYPE_EDGE_RISING>,
--                         <GIC_SPI 466 IRQ_TYPE_EDGE_RISING>,
--                         <GIC_SPI 468 IRQ_TYPE_EDGE_RISING>,
--                         <GIC_SPI 477 IRQ_TYPE_EDGE_RISING>,
--                         <GIC_SPI 478 IRQ_TYPE_EDGE_RISING>,
--                         <GIC_SPI 479 IRQ_TYPE_EDGE_RISING>,
--                         <GIC_SPI 465 IRQ_TYPE_EDGE_RISING>,
--                         <GIC_SPI 467 IRQ_TYPE_EDGE_RISING>,
--                         <GIC_SPI 469 IRQ_TYPE_EDGE_RISING>;
--            interrupt-names = "csid0",
--                              "csid1",
--                              "csid2",
--                              "csiphy0",
--                              "csiphy1",
--                              "csiphy2",
--                              "vfe0",
--                              "vfe1",
--                              "vfe_lite";
--
-             clocks = <&camcc CAM_CC_CAMNOC_AXI_CLK>,
-                      <&camcc CAM_CC_CPAS_AHB_CLK>,
-                      <&camcc CAM_CC_IFE_0_CSID_CLK>,
-@@ -285,6 +266,25 @@ examples:
-                           "vfe_lite",
-                           "vfe_lite_cphy_rx";
- 
-+            interrupts = <GIC_SPI 464 IRQ_TYPE_EDGE_RISING>,
-+                         <GIC_SPI 466 IRQ_TYPE_EDGE_RISING>,
-+                         <GIC_SPI 468 IRQ_TYPE_EDGE_RISING>,
-+                         <GIC_SPI 477 IRQ_TYPE_EDGE_RISING>,
-+                         <GIC_SPI 478 IRQ_TYPE_EDGE_RISING>,
-+                         <GIC_SPI 479 IRQ_TYPE_EDGE_RISING>,
-+                         <GIC_SPI 465 IRQ_TYPE_EDGE_RISING>,
-+                         <GIC_SPI 467 IRQ_TYPE_EDGE_RISING>,
-+                         <GIC_SPI 469 IRQ_TYPE_EDGE_RISING>;
-+            interrupt-names = "csid0",
-+                              "csid1",
-+                              "csid2",
-+                              "csiphy0",
-+                              "csiphy1",
-+                              "csiphy2",
-+                              "vfe0",
-+                              "vfe1",
-+                              "vfe_lite";
-+
-             iommus = <&apps_smmu 0x808 0x0>,
-                      <&apps_smmu 0x810 0x8>,
-                      <&apps_smmu 0xc08 0x0>,
 diff --git a/drivers/media/platform/qcom/camss/camss.c b/drivers/media/platform/qcom/camss/camss.c
-index 8c3bce7..4a9cd5b 100644
+index 8c3bce7..ed54db2 100644
 --- a/drivers/media/platform/qcom/camss/camss.c
 +++ b/drivers/media/platform/qcom/camss/camss.c
 @@ -584,6 +584,185 @@ static const struct camss_subdev_resources vfe_res_660[] = {
@@ -141,7 +25,7 @@ index 8c3bce7..4a9cd5b 100644
 +	{
 +		.regulators = { "vdda-phy", "vdda-pll" },
 +		.clock = { "soc_ahb", "cpas_ahb",
-+				"csiphy0", "csiphy0_timer" },
++			   "csiphy0", "csiphy0_timer" },
 +		.clock_rate = { { 0 },
 +				{ 0 },
 +				{ 0 },
@@ -158,7 +42,7 @@ index 8c3bce7..4a9cd5b 100644
 +	{
 +		.regulators = { "vdda-phy", "vdda-pll" },
 +		.clock = { "soc_ahb", "cpas_ahb",
-+				"csiphy1", "csiphy1_timer" },
++			   "csiphy1", "csiphy1_timer" },
 +		.clock_rate = { { 0 },
 +				{ 0 },
 +				{ 0 },
@@ -175,7 +59,7 @@ index 8c3bce7..4a9cd5b 100644
 +	{
 +		.regulators = { "vdda-phy", "vdda-pll" },
 +		.clock = { "soc_ahb", "cpas_ahb",
-+				"csiphy2", "csiphy2_timer" },
++			   "csiphy2", "csiphy2_timer" },
 +		.clock_rate = { { 0 },
 +				{ 0 },
 +				{ 0 },
@@ -194,7 +78,7 @@ index 8c3bce7..4a9cd5b 100644
 +	{
 +		.regulators = {},
 +		.clock = { "cpas_ahb", "soc_ahb", "vfe0",
-+				"vfe0_cphy_rx", "csi0" },
++			   "vfe0_cphy_rx", "csi0" },
 +		.clock_rate = { { 0 },
 +				{ 0 },
 +				{ 100000000, 320000000, 404000000, 480000000, 600000000 },
@@ -213,7 +97,7 @@ index 8c3bce7..4a9cd5b 100644
 +	{
 +		.regulators = {},
 +		.clock = { "cpas_ahb", "soc_ahb", "vfe1",
-+				"vfe1_cphy_rx", "csi1" },
++			   "vfe1_cphy_rx", "csi1" },
 +		.clock_rate = { { 0 },
 +				{ 0 },
 +				{ 100000000, 320000000, 404000000, 480000000, 600000000 },
@@ -232,7 +116,7 @@ index 8c3bce7..4a9cd5b 100644
 +	{
 +		.regulators = {},
 +		.clock = { "cpas_ahb", "soc_ahb", "vfe_lite",
-+				"vfe_lite_cphy_rx", "csi2" },
++			   "vfe_lite_cphy_rx", "csi2" },
 +		.clock_rate = { { 0 },
 +				{ 0 },
 +				{ 100000000, 320000000, 404000000, 480000000, 600000000 },
@@ -254,7 +138,7 @@ index 8c3bce7..4a9cd5b 100644
 +	{
 +		.regulators = {},
 +		.clock = { "camnoc_axi", "cpas_ahb", "soc_ahb",
-+				"vfe0", "vfe0_axi" },
++			   "vfe0", "vfe0_axi" },
 +		.clock_rate = { { 0 },
 +				{ 0 },
 +				{ 0 },
@@ -276,7 +160,7 @@ index 8c3bce7..4a9cd5b 100644
 +	{
 +		.regulators = {},
 +		.clock = { "camnoc_axi", "cpas_ahb", "soc_ahb",
-+				"vfe1", "vfe1_axi" },
++			   "vfe1", "vfe1_axi" },
 +		.clock_rate = { { 0 },
 +				{ 0 },
 +				{ 0 },
@@ -298,7 +182,7 @@ index 8c3bce7..4a9cd5b 100644
 +	{
 +		.regulators = {},
 +		.clock = { "camnoc_axi", "cpas_ahb", "soc_ahb",
-+				"vfe_lite" },
++			   "vfe_lite" },
 +		.clock_rate = { { 0 },
 +				{ 0 },
 +				{ 0 },

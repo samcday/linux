@@ -27,7 +27,7 @@ Present property is required for battery drivers from UPower>=1.90.0
 onwards to work properly.
 
 Signed-off-by: Alexander Martinz <amartinz@shiftphones.com>
-(cherry picked from commit fbcc76b92b6da6af8dfb0193ebf03dd2dcddd1a2)
+(cherry picked from commit d502df46edd0f318cdc42dcd5e0194197d455198)
 Link: https://gitlab.com/sdm845-mainline/linux
 Signed-off-by: Richard Acayan <mailingradian@gmail.com>
 ---

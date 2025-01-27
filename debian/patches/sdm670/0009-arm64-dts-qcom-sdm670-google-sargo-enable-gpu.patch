@@ -1,0 +1,37 @@
+From: Richard Acayan <mailingradian@gmail.com>
+Date: Tue, 6 Aug 2024 17:44:58 -0400
+Subject: [PATCH] arm64: dts: qcom: sdm670-google-sargo: enable gpu
+
+Enable the A615 GPU and GMU for the Pixel 3a. It has zap firmware, so
+add that in as well.
+
+Signed-off-by: Richard Acayan <mailingradian@gmail.com>
+Link: https://lore.kernel.org/r/20240806214452.16406-11-mailingradian@gmail.com
+Signed-off-by: Bjorn Andersson <andersson@kernel.org>
+(cherry picked from commit fbf7cfa3ea986e5bf426748aa8afa386df61456f)
+Link: https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git
+Signed-off-by: Richard Acayan <mailingradian@gmail.com>
+---
+ arch/arm64/boot/dts/qcom/sdm670-google-sargo.dts | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/qcom/sdm670-google-sargo.dts b/arch/arm64/boot/dts/qcom/sdm670-google-sargo.dts
+index 800773a..6b14750 100644
+--- a/arch/arm64/boot/dts/qcom/sdm670-google-sargo.dts
++++ b/arch/arm64/boot/dts/qcom/sdm670-google-sargo.dts
+@@ -408,6 +408,15 @@ &gpi_dma1 {
+ 	status = "okay";
+ };
+ 
++&gpu {
++	status = "okay";
++
++	zap-shader {
++		memory-region = <&gpu_mem>;
++		firmware-name = "qcom/sdm670/sargo/a615_zap.mbn";
++	};
++};
++
+ &i2c9 {
+ 	clock-frequency = <100000>;
+ 	status = "okay";

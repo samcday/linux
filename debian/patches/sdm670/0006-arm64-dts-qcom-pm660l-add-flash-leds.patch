@@ -1,0 +1,33 @@
+From: Richard Acayan <mailingradian@gmail.com>
+Date: Mon, 11 Nov 2024 21:40:53 -0500
+Subject: [PATCH] arm64: dts: qcom: pm660l: add flash leds
+
+The PM660L has support for QPNP flash LEDs. Add them to the device tree.
+
+Signed-off-by: Richard Acayan <mailingradian@gmail.com>
+Link: https://lore.kernel.org/r/20241112024050.669578-8-mailingradian@gmail.com
+Signed-off-by: Bjorn Andersson <andersson@kernel.org>
+(cherry picked from commit 9b2955bae7025190c8d15983b37554da96e43e21)
+Link: https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git
+Signed-off-by: Richard Acayan <mailingradian@gmail.com>
+---
+ arch/arm64/boot/dts/qcom/pm660l.dtsi | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/qcom/pm660l.dtsi b/arch/arm64/boot/dts/qcom/pm660l.dtsi
+index 0094e0e..3f8b9ea 100644
+--- a/arch/arm64/boot/dts/qcom/pm660l.dtsi
++++ b/arch/arm64/boot/dts/qcom/pm660l.dtsi
+@@ -70,6 +70,12 @@ pm660l_lpg: pwm {
+ 			status = "disabled";
+ 		};
+ 
++		pm660l_flash: led-controller@d300 {
++			compatible = "qcom,pm660l-flash-led", "qcom,spmi-flash-led";
++			reg = <0xd300>;
++			status = "disabled";
++		};
++
+ 		pm660l_wled: leds@d800 {
+ 			compatible = "qcom,pm660l-wled";
+ 			reg = <0xd800>, <0xd900>;

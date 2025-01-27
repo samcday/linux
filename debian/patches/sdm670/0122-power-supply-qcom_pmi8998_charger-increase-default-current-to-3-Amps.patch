@@ -1,0 +1,28 @@
+From: Richard Acayan <mailingradian@gmail.com>
+Date: Tue, 28 Jan 2025 23:05:09 -0500
+Subject: [PATCH] power: supply: qcom_pmi8998_charger: increase default
+ current to 3 Amps
+
+This was originally set to 1 Amp to mitigate overheating, but thermal
+zones are now added. Increase the maximum fast charging current to
+3 Amps.
+
+In practice, the current is limited to 1.5 A by the USB input current
+limit until there's support for negotiating the input current.
+---
+ drivers/power/supply/qcom_pmi8998_charger.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/power/supply/qcom_pmi8998_charger.c b/drivers/power/supply/qcom_pmi8998_charger.c
+index 84da472..a99962a 100644
+--- a/drivers/power/supply/qcom_pmi8998_charger.c
++++ b/drivers/power/supply/qcom_pmi8998_charger.c
+@@ -916,7 +916,7 @@ static const struct smb2_register smb2_init_seq[] = {
+ 	 */
+ 	{ .addr = FAST_CHARGE_CURRENT_CFG,
+ 	  .mask = FAST_CHARGE_CURRENT_SETTING_MASK,
+-	  .val = 1000000 / CURRENT_SCALE_FACTOR },
++	  .val = THERMAL_FCC_MAX / CURRENT_SCALE_FACTOR },
+ };
+ 
+ static int smb2_thermal_get_max_state(struct thermal_cooling_device *cdev, unsigned long *max_state)

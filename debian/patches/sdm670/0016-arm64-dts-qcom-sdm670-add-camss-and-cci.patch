@@ -7,12 +7,13 @@ Snapdragon 670.
 
 Signed-off-by: Richard Acayan <mailingradian@gmail.com>
 Reviewed-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+Reviewed-by: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
 ---
- arch/arm64/boot/dts/qcom/sdm670.dtsi | 185 +++++++++++++++++++++++++++++++++++
- 1 file changed, 185 insertions(+)
+ arch/arm64/boot/dts/qcom/sdm670.dtsi | 197 +++++++++++++++++++++++++++++++++++
+ 1 file changed, 197 insertions(+)
 
 diff --git a/arch/arm64/boot/dts/qcom/sdm670.dtsi b/arch/arm64/boot/dts/qcom/sdm670.dtsi
-index 0b31abb..fe7076a 100644
+index 0b31abb..a285d90 100644
 --- a/arch/arm64/boot/dts/qcom/sdm670.dtsi
 +++ b/arch/arm64/boot/dts/qcom/sdm670.dtsi
 @@ -6,6 +6,7 @@
@@ -58,7 +59,7 @@ index 0b31abb..fe7076a 100644
  			qup_i2c0_default: qup-i2c0-default-state {
  				pins = "gpio0", "gpio1";
  				function = "qup0";
-@@ -1580,6 +1609,162 @@ spmi_bus: spmi@c440000 {
+@@ -1580,6 +1609,174 @@ spmi_bus: spmi@c440000 {
  			#interrupt-cells = <4>;
  		};
  
@@ -101,7 +102,7 @@ index 0b31abb..fe7076a 100644
 +			};
 +		};
 +
-+		camss: camera-controller@acb3000 {
++		camss: isp@acb3000 {
 +			compatible = "qcom,sdm670-camss";
 +			reg = <0 0x0acb3000 0 0x1000>,
 +			      <0 0x0acba000 0 0x1000>,
@@ -121,6 +122,25 @@ index 0b31abb..fe7076a 100644
 +				    "vfe0",
 +				    "vfe1",
 +				    "vfe_lite";
++
++			interrupts = <GIC_SPI 464 IRQ_TYPE_EDGE_RISING>,
++				     <GIC_SPI 466 IRQ_TYPE_EDGE_RISING>,
++				     <GIC_SPI 468 IRQ_TYPE_EDGE_RISING>,
++				     <GIC_SPI 477 IRQ_TYPE_EDGE_RISING>,
++				     <GIC_SPI 478 IRQ_TYPE_EDGE_RISING>,
++				     <GIC_SPI 479 IRQ_TYPE_EDGE_RISING>,
++				     <GIC_SPI 465 IRQ_TYPE_EDGE_RISING>,
++				     <GIC_SPI 467 IRQ_TYPE_EDGE_RISING>,
++				     <GIC_SPI 469 IRQ_TYPE_EDGE_RISING>;
++			interrupt-names = "csid0",
++					  "csid1",
++					  "csid2",
++					  "csiphy0",
++					  "csiphy1",
++					  "csiphy2",
++					  "vfe0",
++					  "vfe1",
++					  "vfe_lite";
 +
 +			clocks = <&camcc CAM_CC_CAMNOC_AXI_CLK>,
 +				 <&camcc CAM_CC_CPAS_AHB_CLK>,
@@ -167,25 +187,6 @@ index 0b31abb..fe7076a 100644
 +				      "vfe_lite",
 +				      "vfe_lite_cphy_rx";
 +
-+			interrupts = <GIC_SPI 464 IRQ_TYPE_EDGE_RISING>,
-+				     <GIC_SPI 466 IRQ_TYPE_EDGE_RISING>,
-+				     <GIC_SPI 468 IRQ_TYPE_EDGE_RISING>,
-+				     <GIC_SPI 477 IRQ_TYPE_EDGE_RISING>,
-+				     <GIC_SPI 478 IRQ_TYPE_EDGE_RISING>,
-+				     <GIC_SPI 479 IRQ_TYPE_EDGE_RISING>,
-+				     <GIC_SPI 465 IRQ_TYPE_EDGE_RISING>,
-+				     <GIC_SPI 467 IRQ_TYPE_EDGE_RISING>,
-+				     <GIC_SPI 469 IRQ_TYPE_EDGE_RISING>;
-+			interrupt-names = "csid0",
-+					  "csid1",
-+					  "csid2",
-+					  "csiphy0",
-+					  "csiphy1",
-+					  "csiphy2",
-+					  "vfe0",
-+					  "vfe1",
-+					  "vfe_lite";
-+
 +			iommus = <&apps_smmu 0x808 0x0>,
 +				 <&apps_smmu 0x810 0x8>,
 +				 <&apps_smmu 0xc08 0x0>,
@@ -204,16 +205,28 @@ index 0b31abb..fe7076a 100644
 +				#address-cells = <1>;
 +				#size-cells = <0>;
 +
-+				camss_port0: port@0 {
++				port@0 {
 +					reg = <0>;
++
++					camss_endpoint0: endpoint {
++						status = "disabled";
++					};
 +				};
 +
-+				camss_port1: port@1 {
++				port@1 {
 +					reg = <1>;
++
++					camss_endpoint1: endpoint {
++						status = "disabled";
++					};
 +				};
 +
-+				camss_port2: port@2 {
++				port@2 {
 +					reg = <2>;
++
++					camss_endpoint2: endpoint {
++						status = "disabled";
++					};
 +				};
 +			};
 +		};
