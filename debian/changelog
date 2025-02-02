@@ -1,3 +1,14 @@
+linux-6.12-sdm670 (6.12.12-1) unstable; urgency=medium
+
+  [ Marco Mattiolo ]
+  * d/patches: sync patches from sdm670-mainline
+  * debian: add README indicating "upstream" tree and sync date
+
+  [ Mobot ]
+  * Rebase on 6.12.12
+
+ -- Mobot <group_9279_bot_322d6e899378048e14b6d1f9dce111eb@noreply.salsa.debian.org>  Sun, 02 Feb 2025 09:36:42 +0000
+
 linux-6.12-sdm670 (6.12.11-1) unstable; urgency=medium
 
   * Rebase on 6.12.11
