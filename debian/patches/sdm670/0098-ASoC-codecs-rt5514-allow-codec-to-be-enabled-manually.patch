@@ -14,7 +14,7 @@ Signed-off-by: Richard Acayan <mailingradian@gmail.com>
  1 file changed, 7 insertions(+), 2 deletions(-)
 
 diff --git a/sound/soc/codecs/Kconfig b/sound/soc/codecs/Kconfig
-index 7092842..2e01480 100644
+index 0d9d1d2..c2b4847 100644
 --- a/sound/soc/codecs/Kconfig
 +++ b/sound/soc/codecs/Kconfig
 @@ -1624,12 +1624,17 @@ config SND_SOC_RT1320_SDW
