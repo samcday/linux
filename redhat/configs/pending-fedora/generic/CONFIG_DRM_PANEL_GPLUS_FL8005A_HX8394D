@@ -1,0 +1,17 @@
+# Symbol: DRM_PANEL_GPLUS_FL8005A_HX8394D [=n]
+# Type  : tristate
+# Defined at drivers/gpu/drm/panel/msm8916-generated/Kconfig:32
+#   Prompt: Gplus FL8005A HX8394D
+#   Depends on: HAS_IOMEM [=y] && DRM [=y] && DRM_PANEL [=y] && GPIOLIB [=y] && OF [=y] && REGULATOR [=y] && DRM_MIPI_DSI [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Graphics support
+#         -> Direct Rendering Manager (XFree86 4.1.0 and higher DRI support) (DRM [=y])
+#           -> Display Panels
+#             -> MSM8916 panel drivers generated with linux-mdss-dsi-panel-driver-generator
+#               -> Gplus FL8005A HX8394D (DRM_PANEL_GPLUS_FL8005A_HX8394D [=n])
+# 
+# 
+# 
+# Commit: 1d46ebaee7ea8 (MSM8916: drm/panel: Generate using linux-mdss-dsi-panel-driver-generator)
+# CONFIG_DRM_PANEL_GPLUS_FL8005A_HX8394D is not set
