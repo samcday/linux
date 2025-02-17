@@ -9,7 +9,7 @@ Signed-off-by: Richard Acayan <mailingradian@gmail.com>
  1 file changed, 28 insertions(+)
 
 diff --git a/drivers/soc/qcom/llcc-qcom.c b/drivers/soc/qcom/llcc-qcom.c
-index a470285..4454010 100644
+index 133dc48..be3196d 100644
 --- a/drivers/soc/qcom/llcc-qcom.c
 +++ b/drivers/soc/qcom/llcc-qcom.c
 @@ -769,6 +769,17 @@ static const struct llcc_slice_config sc8280xp_data[] = {
@@ -30,7 +30,7 @@ index a470285..4454010 100644
  static const struct llcc_slice_config sdm845_data[] =  {{
  		.usecase_id = LLCC_CPUSS,
  		.slice_id = 1,
-@@ -2727,6 +2738,17 @@ static const struct qcom_llcc_config sc8280xp_cfg[] = {
+@@ -2728,6 +2739,17 @@ static const struct qcom_llcc_config sc8280xp_cfg[] = {
  	},
  };
  
@@ -48,7 +48,7 @@ index a470285..4454010 100644
  static const struct qcom_llcc_config sdm845_cfg[] = {
  	{
  		.sct_data	= sdm845_data,
-@@ -2859,6 +2881,11 @@ static const struct qcom_sct_config sc8280xp_cfgs = {
+@@ -2860,6 +2882,11 @@ static const struct qcom_sct_config sc8280xp_cfgs = {
  	.num_config	= ARRAY_SIZE(sc8280xp_cfg),
  };
  
@@ -60,7 +60,7 @@ index a470285..4454010 100644
  static const struct qcom_sct_config sdm845_cfgs = {
  	.llcc_config	= sdm845_cfg,
  	.num_config	= ARRAY_SIZE(sdm845_cfg),
-@@ -3490,6 +3517,7 @@ static const struct of_device_id qcom_llcc_of_match[] = {
+@@ -3491,6 +3518,7 @@ static const struct of_device_id qcom_llcc_of_match[] = {
  	{ .compatible = "qcom,sc7280-llcc", .data = &sc7280_cfgs },
  	{ .compatible = "qcom,sc8180x-llcc", .data = &sc8180x_cfgs },
  	{ .compatible = "qcom,sc8280xp-llcc", .data = &sc8280xp_cfgs },
