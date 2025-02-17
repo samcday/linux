@@ -1,3 +1,9 @@
+linux-6.12-sdm670 (6.12.14-1) unstable; urgency=medium
+
+  * Rebase on 6.12.14
+
+ -- Mobot <group_9279_bot_322d6e899378048e14b6d1f9dce111eb@noreply.salsa.debian.org>  Mon, 17 Feb 2025 09:37:24 +0000
+
 linux-6.12-sdm670 (6.12.13-1) unstable; urgency=medium
 
   * Rebase on 6.12.13
