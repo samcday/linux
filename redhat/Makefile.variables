@@ -88,7 +88,7 @@ NO_CONFIGCHECKS ?=
 # the kernel src.rpm, which will contain shas and commits not upstream. The
 # value of PATCHLIST_URL in this case should point to the git repository where
 # the commits are located, and will be added as a prefix to the shas listed.
-PATCHLIST_URL ?= https://gitlab.com/cki-project/kernel-ark/-/commit
+PATCHLIST_URL ?= none
 
 # RELEASED_KERNEL swaps between the pre-release secureboot keys and
 # the release one, for vmlinux signing. It also controls whether Fedora
@@ -98,7 +98,7 @@ PATCHLIST_URL ?= https://gitlab.com/cki-project/kernel-ark/-/commit
 #  kernel release. (This includes prepatch or "rc" releases.)
 # Set RELEASED_KERNEL to 0 when the upstream source tarball contains an
 #  unreleased kernel development snapshot.
-RELEASED_KERNEL:=0
+RELEASED_KERNEL:=1
 
 # This variable is used by the redhat/self-tests.  It should not be
 # considered stable and my be changed or removed without warning.
@@ -155,7 +155,7 @@ UPSTREAM_BRANCH ?= master
 ifeq ($(SPECGEMINI),0)
   VERSION_ON_UPSTREAM ?= 1
 else
-  VERSION_ON_UPSTREAM ?= 0
+  VERSION_ON_UPSTREAM ?= 1
 endif
 
 # Builds may include a s390x+zfcpdump arch build, which results in the build
@@ -163,3 +163,5 @@ endif
 # be set to 1 to decrease the kernel UTS_RELEASE and SPECBUILD by 11 characters
 # (YYYYMMDDgit).
 UPSTREAMBUILD_GIT_ONLY ?=
+
+DISTLOCALVERSION ?= .sam
