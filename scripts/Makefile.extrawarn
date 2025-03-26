@@ -24,6 +24,9 @@ KBUILD_CFLAGS += -Wmissing-prototypes
 # Jakub Jelinek in https://bugzilla.redhat.com/show_bug.cgi?id=2338533#c7
 KBUILD_CFLAGS += $(call cc-option,-Wno-error=unterminated-string-initialization)
 
+# disable error=unused-variable as panel-samsung-s6e3ha8.c has a few
+KBUILD_CFLAGS += $(call cc-option,-Wno-error=unused-variable)
+
 ifneq ($(CONFIG_FRAME_WARN),0)
 KBUILD_CFLAGS += -Wframe-larger-than=$(CONFIG_FRAME_WARN)
 endif
