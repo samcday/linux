@@ -1,0 +1,17 @@
+# Symbol: VIDEO_IMX371 [=n]
+# Type  : tristate
+# Defined at drivers/media/i2c/Kconfig:256
+#   Prompt: Sony IMX371 sensor support
+#   Depends on: MEDIA_SUPPORT [=m] && VIDEO_DEV [=m] && VIDEO_CAMERA_SENSOR [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Multimedia support (MEDIA_SUPPORT [=m])
+#         -> Media ancillary drivers
+#           -> Camera sensor devices (VIDEO_CAMERA_SENSOR [=y])
+#             -> Sony IMX371 sensor support (VIDEO_IMX371 [=n])
+# Selects: V4L2_CCI_I2C [=m]
+# 
+# 
+# 
+# Commit: 108f1a7d3678b (media: i2c: Add imx371 image sensor driver)
+# CONFIG_VIDEO_IMX371 is not set

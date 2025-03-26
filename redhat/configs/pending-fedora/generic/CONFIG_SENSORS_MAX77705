@@ -1,0 +1,15 @@
+# Symbol: SENSORS_MAX77705 [=n]
+# Type  : tristate
+# Defined at drivers/hwmon/Kconfig:1290
+#   Prompt: MAX77705 current and voltage sensor
+#   Depends on: HWMON [=y] && I2C [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Hardware Monitoring support (HWMON [=y])
+#         -> MAX77705 current and voltage sensor (SENSORS_MAX77705 [=n])
+# Selects: REGMAP_I2C [=y]
+# 
+# 
+# 
+# Commit: 79b95d80f37b5 (hwmon: (max77705) add initial support)
+# CONFIG_SENSORS_MAX77705 is not set

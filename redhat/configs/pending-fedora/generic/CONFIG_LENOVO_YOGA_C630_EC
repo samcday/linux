@@ -1,0 +1,14 @@
+# Symbol: LENOVO_YOGA_C630_EC [=n]
+# Type  : tristate
+# Defined at drivers/power/supply/Kconfig:1054
+#   Prompt: Lenovo Yoga C630 EC battery driver
+#   Depends on: POWER_SUPPLY [=y] && I2C [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Power supply class support (POWER_SUPPLY [=y])
+#         -> Lenovo Yoga C630 EC battery driver (LENOVO_YOGA_C630_EC [=n])
+# 
+# 
+# 
+# Commit: 333797f7274c2 (power: supply: Add Lenovo Yoga C630 EC driver)
+# CONFIG_LENOVO_YOGA_C630_EC is not set

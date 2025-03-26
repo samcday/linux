@@ -1,0 +1,16 @@
+# Symbol: DRM_PANEL_VISIONOX_RM69299_SHIFT [=n]
+# Type  : tristate
+# Defined at drivers/gpu/drm/panel/Kconfig:1021
+#   Prompt: Visionox RM69299 SHIFT6mq
+#   Depends on: HAS_IOMEM [=y] && DRM [=y] && DRM_PANEL [=y] && OF [=y] && DRM_MIPI_DSI [=y] && BACKLIGHT_CLASS_DEVICE [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Graphics support
+#         -> Direct Rendering Manager (XFree86 4.1.0 and higher DRI support) (DRM [=y])
+#           -> Display Panels
+#             -> Visionox RM69299 SHIFT6mq (DRM_PANEL_VISIONOX_RM69299_SHIFT [=n])
+# 
+# 
+# 
+# Commit: 563fd53706db7 (drm/panel: add support for the SHIFT6mq variant of rm69299)
+# CONFIG_DRM_PANEL_VISIONOX_RM69299_SHIFT is not set

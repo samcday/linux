@@ -1,0 +1,16 @@
+# Symbol: DRM_PANEL_NOVATEK_NT35596S [=n]
+# Type  : tristate
+# Defined at drivers/gpu/drm/panel/Kconfig:459
+#   Prompt: Novatek NT35596S DSI panel
+#   Depends on: HAS_IOMEM [=y] && DRM [=y] && DRM_PANEL [=y] && OF [=y] && DRM_MIPI_DSI [=y] && BACKLIGHT_CLASS_DEVICE [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Graphics support
+#         -> Direct Rendering Manager (XFree86 4.1.0 and higher DRI support) (DRM [=y])
+#           -> Display Panels
+#             -> Novatek NT35596S DSI panel (DRM_PANEL_NOVATEK_NT35596S [=n])
+# 
+# 
+# 
+# Commit: f5d64bd4a8c31 (drm: panel: add Novatek NT35596S panel driver)
+# CONFIG_DRM_PANEL_NOVATEK_NT35596S is not set

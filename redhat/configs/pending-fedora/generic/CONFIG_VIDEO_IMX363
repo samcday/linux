@@ -1,0 +1,17 @@
+# Symbol: VIDEO_IMX363 [=n]
+# Type  : tristate
+# Defined at drivers/media/i2c/Kconfig:246
+#   Prompt: Sony IMX363 sensor support
+#   Depends on: MEDIA_SUPPORT [=m] && VIDEO_DEV [=m] && VIDEO_CAMERA_SENSOR [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Multimedia support (MEDIA_SUPPORT [=m])
+#         -> Media ancillary drivers
+#           -> Camera sensor devices (VIDEO_CAMERA_SENSOR [=y])
+#             -> Sony IMX363 sensor support (VIDEO_IMX363 [=n])
+# Selects: V4L2_CCI_I2C [=m]
+# 
+# 
+# 
+# Commit: fad38a026530e (media: i2c: Add imx363 image sensor driver)
+# CONFIG_VIDEO_IMX363 is not set

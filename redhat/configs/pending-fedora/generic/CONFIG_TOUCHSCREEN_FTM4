@@ -1,0 +1,74 @@
+# Symbol: TOUCHSCREEN_FTM4 [=n]
+# Type  : tristate
+# Defined at drivers/input/touchscreen/stm/Kconfig:16
+#   Prompt: STMicroelectronics i2c multitouch touchscreen - FTM4 with FingerTipS
+#   Depends on: INPUT [=y] && INPUT_TOUCHSCREEN [=y] && I2C [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Input device support
+#         -> Generic input layer (needed for keyboard, mouse, ...) (INPUT [=y])
+#           -> Touchscreens (INPUT_TOUCHSCREEN [=y])
+#             -> STMicroelectronics i2c multitouch touchscreen - FTM4 with FingerTipS (TOUCHSCREEN_FTM4 [=n])
+# Defined at drivers/input/touchscreen/stm/Kconfig:16
+#   Prompt: STMicroelectronics i2c multitouch touchscreen - FTM4 with FingerTipS
+#   Depends on: INPUT [=y] && INPUT_TOUCHSCREEN [=y] && I2C [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Input device support
+#         -> Generic input layer (needed for keyboard, mouse, ...) (INPUT [=y])
+#           -> Touchscreens (INPUT_TOUCHSCREEN [=y])
+#             -> STMicroelectronics i2c multitouch touchscreen - FTM4 with FingerTipS (TOUCHSCREEN_FTM4 [=n])
+# 
+# 
+# 
+# Commit: 47c1ac1c7fe9b (Input - touchscreen: stm-fts)
+# Symbol: TOUCHSCREEN_FTM4 [=n]
+# Type  : tristate
+# Defined at drivers/input/touchscreen/stm/Kconfig:16
+#   Prompt: STMicroelectronics i2c multitouch touchscreen - FTM4 with FingerTipS
+#   Depends on: INPUT [=y] && INPUT_TOUCHSCREEN [=y] && I2C [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Input device support
+#         -> Generic input layer (needed for keyboard, mouse, ...) (INPUT [=y])
+#           -> Touchscreens (INPUT_TOUCHSCREEN [=y])
+#             -> STMicroelectronics i2c multitouch touchscreen - FTM4 with FingerTipS (TOUCHSCREEN_FTM4 [=n])
+# Defined at drivers/input/touchscreen/stm/Kconfig:16
+#   Prompt: STMicroelectronics i2c multitouch touchscreen - FTM4 with FingerTipS
+#   Depends on: INPUT [=y] && INPUT_TOUCHSCREEN [=y] && I2C [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Input device support
+#         -> Generic input layer (needed for keyboard, mouse, ...) (INPUT [=y])
+#           -> Touchscreens (INPUT_TOUCHSCREEN [=y])
+#             -> STMicroelectronics i2c multitouch touchscreen - FTM4 with FingerTipS (TOUCHSCREEN_FTM4 [=n])
+# 
+# 
+# 
+# Commit: 
+# Symbol: TOUCHSCREEN_FTM4 [=n]
+# Type  : tristate
+# Defined at drivers/input/touchscreen/stm/Kconfig:16
+#   Prompt: STMicroelectronics i2c multitouch touchscreen - FTM4 with FingerTipS
+#   Depends on: INPUT [=y] && INPUT_TOUCHSCREEN [=y] && I2C [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Input device support
+#         -> Generic input layer (needed for keyboard, mouse, ...) (INPUT [=y])
+#           -> Touchscreens (INPUT_TOUCHSCREEN [=y])
+#             -> STMicroelectronics i2c multitouch touchscreen - FTM4 with FingerTipS (TOUCHSCREEN_FTM4 [=n])
+# Defined at drivers/input/touchscreen/stm/Kconfig:16
+#   Prompt: STMicroelectronics i2c multitouch touchscreen - FTM4 with FingerTipS
+#   Depends on: INPUT [=y] && INPUT_TOUCHSCREEN [=y] && I2C [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Input device support
+#         -> Generic input layer (needed for keyboard, mouse, ...) (INPUT [=y])
+#           -> Touchscreens (INPUT_TOUCHSCREEN [=y])
+#             -> STMicroelectronics i2c multitouch touchscreen - FTM4 with FingerTipS (TOUCHSCREEN_FTM4 [=n])
+# 
+# 
+# 
+# Commit: 47c1ac1c7fe9b (Input - touchscreen: stm-fts)
+# CONFIG_TOUCHSCREEN_FTM4 is not set
+# CONFIG_TOUCHSCREEN_FTM4 is not set

@@ -1,0 +1,17 @@
+# Symbol: VIDEO_IMX519 [=n]
+# Type  : tristate
+# Defined at drivers/media/i2c/Kconfig:297
+#   Prompt: Sony IMX519 sensor support
+#   Depends on: MEDIA_SUPPORT [=m] && VIDEO_CAMERA_SENSOR [=y] && I2C [=y] && VIDEO_DEV [=m]
+#   Location:
+#     -> Device Drivers
+#       -> Multimedia support (MEDIA_SUPPORT [=m])
+#         -> Media ancillary drivers
+#           -> Camera sensor devices (VIDEO_CAMERA_SENSOR [=y])
+#             -> Sony IMX519 sensor support (VIDEO_IMX519 [=n])
+# Selects: MEDIA_CONTROLLER [=y] && VIDEO_V4L2_SUBDEV_API [=y] && V4L2_CCI_I2C [=m] && V4L2_FWNODE [=m]
+# 
+# 
+# 
+# Commit: 317259d37b574 (media: i2c: Add imx519 image sensor driver)
+# CONFIG_VIDEO_IMX519 is not set

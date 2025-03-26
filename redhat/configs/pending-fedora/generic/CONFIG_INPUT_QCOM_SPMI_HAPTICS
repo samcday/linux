@@ -1,0 +1,17 @@
+# Symbol: INPUT_QCOM_SPMI_HAPTICS [=n]
+# Type  : tristate
+# Defined at drivers/input/misc/Kconfig:217
+#   Prompt: Qualcomm SPMI HAPTICS
+#   Depends on: INPUT [=y] && INPUT_MISC [=y] && ARCH_QCOM [=y] && SPMI [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Input device support
+#         -> Generic input layer (needed for keyboard, mouse, ...) (INPUT [=y])
+#           -> Miscellaneous devices (INPUT_MISC [=y])
+#             -> Qualcomm SPMI HAPTICS (INPUT_QCOM_SPMI_HAPTICS [=n])
+# Selects: INPUT_FF_MEMLESS [=m]
+# 
+# 
+# 
+# Commit: 12df96fa392b5 (input: add Qualcomm SPMI haptics driver)
+# CONFIG_INPUT_QCOM_SPMI_HAPTICS is not set

@@ -1,0 +1,77 @@
+# Symbol: TOUCHSCREEN_STM_FTS_DOWNSTREAM [=n]
+# Type  : tristate
+# Defined at drivers/input/touchscreen/stm/Kconfig:5
+#   Prompt: STMicroelectronics i2c multitouch touchscreen - FingerTipS (FTM5)
+#   Depends on: INPUT [=y] && INPUT_TOUCHSCREEN [=y] && I2C [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Input device support
+#         -> Generic input layer (needed for keyboard, mouse, ...) (INPUT [=y])
+#           -> Touchscreens (INPUT_TOUCHSCREEN [=y])
+#             -> STMicroelectronics i2c multitouch touchscreen - FingerTipS (FTM5) (TOUCHSCREEN_STM_FTS_DOWNSTREAM [=n])
+# Defined at drivers/input/touchscreen/stm/Kconfig:5
+#   Prompt: STMicroelectronics i2c multitouch touchscreen - FingerTipS (FTM5)
+#   Depends on: INPUT [=y] && INPUT_TOUCHSCREEN [=y] && I2C [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Input device support
+#         -> Generic input layer (needed for keyboard, mouse, ...) (INPUT [=y])
+#           -> Touchscreens (INPUT_TOUCHSCREEN [=y])
+#             -> STMicroelectronics i2c multitouch touchscreen - FingerTipS (FTM5) (TOUCHSCREEN_STM_FTS_DOWNSTREAM [=n])
+# Selects: TOUCHSCREEN_HEATMAP && TOUCHSCREEN_HEATMAP
+# 
+# 
+# 
+# Commit: 47c1ac1c7fe9b (Input - touchscreen: stm-fts)
+# Symbol: TOUCHSCREEN_STM_FTS_DOWNSTREAM [=n]
+# Type  : tristate
+# Defined at drivers/input/touchscreen/stm/Kconfig:5
+#   Prompt: STMicroelectronics i2c multitouch touchscreen - FingerTipS (FTM5)
+#   Depends on: INPUT [=y] && INPUT_TOUCHSCREEN [=y] && I2C [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Input device support
+#         -> Generic input layer (needed for keyboard, mouse, ...) (INPUT [=y])
+#           -> Touchscreens (INPUT_TOUCHSCREEN [=y])
+#             -> STMicroelectronics i2c multitouch touchscreen - FingerTipS (FTM5) (TOUCHSCREEN_STM_FTS_DOWNSTREAM [=n])
+# Defined at drivers/input/touchscreen/stm/Kconfig:5
+#   Prompt: STMicroelectronics i2c multitouch touchscreen - FingerTipS (FTM5)
+#   Depends on: INPUT [=y] && INPUT_TOUCHSCREEN [=y] && I2C [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Input device support
+#         -> Generic input layer (needed for keyboard, mouse, ...) (INPUT [=y])
+#           -> Touchscreens (INPUT_TOUCHSCREEN [=y])
+#             -> STMicroelectronics i2c multitouch touchscreen - FingerTipS (FTM5) (TOUCHSCREEN_STM_FTS_DOWNSTREAM [=n])
+# Selects: TOUCHSCREEN_HEATMAP && TOUCHSCREEN_HEATMAP
+# 
+# 
+# 
+# Commit: 
+# Symbol: TOUCHSCREEN_STM_FTS_DOWNSTREAM [=n]
+# Type  : tristate
+# Defined at drivers/input/touchscreen/stm/Kconfig:5
+#   Prompt: STMicroelectronics i2c multitouch touchscreen - FingerTipS (FTM5)
+#   Depends on: INPUT [=y] && INPUT_TOUCHSCREEN [=y] && I2C [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Input device support
+#         -> Generic input layer (needed for keyboard, mouse, ...) (INPUT [=y])
+#           -> Touchscreens (INPUT_TOUCHSCREEN [=y])
+#             -> STMicroelectronics i2c multitouch touchscreen - FingerTipS (FTM5) (TOUCHSCREEN_STM_FTS_DOWNSTREAM [=n])
+# Defined at drivers/input/touchscreen/stm/Kconfig:5
+#   Prompt: STMicroelectronics i2c multitouch touchscreen - FingerTipS (FTM5)
+#   Depends on: INPUT [=y] && INPUT_TOUCHSCREEN [=y] && I2C [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Input device support
+#         -> Generic input layer (needed for keyboard, mouse, ...) (INPUT [=y])
+#           -> Touchscreens (INPUT_TOUCHSCREEN [=y])
+#             -> STMicroelectronics i2c multitouch touchscreen - FingerTipS (FTM5) (TOUCHSCREEN_STM_FTS_DOWNSTREAM [=n])
+# Selects: TOUCHSCREEN_HEATMAP && TOUCHSCREEN_HEATMAP
+# 
+# 
+# 
+# Commit: 47c1ac1c7fe9b (Input - touchscreen: stm-fts)
+# CONFIG_TOUCHSCREEN_STM_FTS_DOWNSTREAM is not set
+# CONFIG_TOUCHSCREEN_STM_FTS_DOWNSTREAM is not set
