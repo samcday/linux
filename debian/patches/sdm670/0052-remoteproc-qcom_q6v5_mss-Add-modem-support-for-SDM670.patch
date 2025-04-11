@@ -11,10 +11,10 @@ Signed-off-by: Richard Acayan <mailingradian@gmail.com>
  1 file changed, 1 insertion(+)
 
 diff --git a/drivers/remoteproc/qcom_q6v5_mss.c b/drivers/remoteproc/qcom_q6v5_mss.c
-index 32c3531..ab222eb 100644
+index e19081d..6263781 100644
 --- a/drivers/remoteproc/qcom_q6v5_mss.c
 +++ b/drivers/remoteproc/qcom_q6v5_mss.c
-@@ -2526,6 +2526,7 @@ static const struct of_device_id q6v5_of_match[] = {
+@@ -2539,6 +2539,7 @@ static const struct of_device_id q6v5_of_match[] = {
  	{ .compatible = "qcom,sc7180-mss-pil", .data = &sc7180_mss},
  	{ .compatible = "qcom,sc7280-mss-pil", .data = &sc7280_mss},
  	{ .compatible = "qcom,sdm660-mss-pil", .data = &sdm660_mss},

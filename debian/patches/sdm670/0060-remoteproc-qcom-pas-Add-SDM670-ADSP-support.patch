@@ -12,10 +12,10 @@ Signed-off-by: Richard Acayan <mailingradian@gmail.com>
  1 file changed, 1 insertion(+)
 
 diff --git a/drivers/remoteproc/qcom_q6v5_pas.c b/drivers/remoteproc/qcom_q6v5_pas.c
-index 1a2d08e..938626f 100644
+index ea4a91f..fd89aa6 100644
 --- a/drivers/remoteproc/qcom_q6v5_pas.c
 +++ b/drivers/remoteproc/qcom_q6v5_pas.c
-@@ -1447,6 +1447,7 @@ static const struct of_device_id adsp_of_match[] = {
+@@ -1448,6 +1448,7 @@ static const struct of_device_id adsp_of_match[] = {
  	{ .compatible = "qcom,sc8280xp-nsp0-pas", .data = &sc8280xp_nsp0_resource},
  	{ .compatible = "qcom,sc8280xp-nsp1-pas", .data = &sc8280xp_nsp1_resource},
  	{ .compatible = "qcom,sdm660-adsp-pas", .data = &adsp_resource_init},
