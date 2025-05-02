@@ -16,10 +16,10 @@ Signed-off-by: Richard Acayan <mailingradian@gmail.com>
  create mode 100644 drivers/media/i2c/imx363.c
 
 diff --git a/drivers/media/i2c/Kconfig b/drivers/media/i2c/Kconfig
-index 8ba096b..28740b3 100644
+index 85ecb2a..bf9559d 100644
 --- a/drivers/media/i2c/Kconfig
 +++ b/drivers/media/i2c/Kconfig
-@@ -243,6 +243,16 @@ config VIDEO_IMX355
+@@ -244,6 +244,16 @@ config VIDEO_IMX355
  	  To compile this driver as a module, choose M here: the
  	  module will be called imx355.
  
