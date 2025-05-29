@@ -15,7 +15,7 @@ Signed-off-by: Richard Acayan <mailingradian@gmail.com>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/pmdomain/core.c b/drivers/pmdomain/core.c
-index 8881965..435d5b6 100644
+index 05913e9..79ca6eb 100644
 --- a/drivers/pmdomain/core.c
 +++ b/drivers/pmdomain/core.c
 @@ -2932,7 +2932,7 @@ static int __genpd_dev_pm_attach(struct device *dev, struct device *base_dev,
