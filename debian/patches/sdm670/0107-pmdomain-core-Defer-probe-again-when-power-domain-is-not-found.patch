@@ -15,10 +15,10 @@ Signed-off-by: Richard Acayan <mailingradian@gmail.com>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/pmdomain/core.c b/drivers/pmdomain/core.c
-index 8b1f894..6c265d8 100644
+index 2643525..f47547c 100644
 --- a/drivers/pmdomain/core.c
 +++ b/drivers/pmdomain/core.c
-@@ -2967,7 +2967,7 @@ static int __genpd_dev_pm_attach(struct device *dev, struct device *base_dev,
+@@ -2969,7 +2969,7 @@ static int __genpd_dev_pm_attach(struct device *dev, struct device *base_dev,
  		mutex_unlock(&gpd_list_lock);
  		dev_dbg(dev, "%s() failed to find PM domain: %ld\n",
  			__func__, PTR_ERR(pd));
