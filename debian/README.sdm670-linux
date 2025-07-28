@@ -7,3 +7,8 @@ community-maintained kernel forks:
 
 Those patchsets were last synced on the following dates:
   * sdm670: 2025-01-31
+
+Following patch was backported from the sdm670-mainline/linux-patches
+repository when it was based on top of 6.15:
+
+  * debian/patches/sdm670/0122-power-supply-qcom_fg-invert-charging-current.patch

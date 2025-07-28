@@ -1,0 +1,32 @@
+From: Casey Connolly <casey.connolly@linaro.org>
+Date: Fri, 20 Jun 2025 14:38:01 +0200
+Subject: [PATCH] power: supply: qcom_fg: invert charging current
+
+battery current should be negative for charging batteries, inevrt it so
+it's correct. Fixes upower charging status reporting.
+
+Signed-off-by: Casey Connolly <casey.connolly@linaro.org>
+(cherry picked from commit 80f32ed88cbe42f8cc2c1829428d46b52b96afd3)
+Link: https://gitlab.com/sdm845-mainline/linux
+Signed-off-by: Richard Acayan <mailingradian@gmail.com>
+---
+ drivers/power/supply/qcom_fg.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/drivers/power/supply/qcom_fg.c b/drivers/power/supply/qcom_fg.c
+index d3635ab90dc0..5e887701d4bb 100644
+--- a/drivers/power/supply/qcom_fg.c
++++ b/drivers/power/supply/qcom_fg.c
+@@ -713,6 +713,12 @@ static int qcom_fg_gen3_get_current(struct qcom_fg_chip *chip, int *val)
+ 	temp = (s16)(readval[1] << 8 | readval[0]);
+ 	*val = div_s64((s64)temp * 488281, 1000);
+ 
++	/*
++	 * PSY API expects charging batteries to report a positive current, which is inverted
++	 * to what the PMIC reports.
++	 */
++	*val = -*val;
++
+ 	return 0;
+ }
+ 
