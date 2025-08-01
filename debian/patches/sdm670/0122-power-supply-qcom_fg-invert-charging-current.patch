@@ -14,7 +14,7 @@ Signed-off-by: Richard Acayan <mailingradian@gmail.com>
  1 file changed, 6 insertions(+)
 
 diff --git a/drivers/power/supply/qcom_fg.c b/drivers/power/supply/qcom_fg.c
-index d3635ab90dc0..5e887701d4bb 100644
+index 271a0fc..c360316 100644
 --- a/drivers/power/supply/qcom_fg.c
 +++ b/drivers/power/supply/qcom_fg.c
 @@ -713,6 +713,12 @@ static int qcom_fg_gen3_get_current(struct qcom_fg_chip *chip, int *val)
