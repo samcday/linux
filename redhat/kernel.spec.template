@@ -831,6 +831,7 @@ BuildRequires: lld
 %endif
 BuildRequires: libcap-devel libcap-ng-devel rsync libmnl-devel libxml2-devel
 BuildRequires: numactl-devel
+BuildRequires: xxd
 %endif
 BuildConflicts: rhbuildsys(DiskFree) < 500Mb
 %if %{with_debuginfo}
