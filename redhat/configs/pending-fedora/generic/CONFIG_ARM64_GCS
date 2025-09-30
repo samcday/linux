@@ -1,0 +1,16 @@
+# ~~~
+# Symbol: ARM64_GCS [=y]
+# Type  : bool
+# Defined at arch/arm64/Kconfig:2211
+#   Prompt: Enable support for Guarded Control Stack (GCS)
+#   Location:
+#     -> Kernel Features
+#       -> ARMv9.4 architectural features
+#         -> Enable support for Guarded Control Stack (GCS) (ARM64_GCS [=y])
+# Selects: ARCH_HAS_USER_SHADOW_STACK [=y] && ARCH_USES_HIGH_VMA_FLAGS [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: 5d8b172e7005 (arm64: Add Kconfig for Guarded Control Stack (GCS))
+CONFIG_ARM64_GCS=y

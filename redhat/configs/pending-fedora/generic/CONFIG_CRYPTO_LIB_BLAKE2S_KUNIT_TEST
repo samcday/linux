@@ -1,0 +1,18 @@
+# ~~~
+# Symbol: CRYPTO_LIB_BLAKE2S_KUNIT_TEST [=m]
+# Type  : tristate
+# Defined at lib/crypto/tests/Kconfig:3
+#   Prompt: KUnit tests for BLAKE2s
+#   Depends on: KUNIT [=m]
+#   Visible if: KUNIT [=m] && !KUNIT_ALL_TESTS [=m]
+#   Location:
+#     -> Library routines
+#       -> Crypto library routines
+#         -> KUnit tests for BLAKE2s (CRYPTO_LIB_BLAKE2S_KUNIT_TEST [=m])
+# Selects: CRYPTO_LIB_BENCHMARK_VISIBLE [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: 362f92286065 (lib/crypto: tests: Add KUnit tests for BLAKE2s)
+CONFIG_CRYPTO_LIB_BLAKE2S_KUNIT_TEST=m
