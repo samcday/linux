@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: RISCV_ISA_VENDOR_EXT_MIPS [=y]
+# Type  : bool
+# Defined at arch/riscv/Kconfig.vendor:20
+#   Prompt: MIPS vendor extension support
+#   Location:
+#     -> Platform type
+#       -> Vendor extensions
+#         -> MIPS
+#           -> MIPS vendor extension support (RISCV_ISA_VENDOR_EXT_MIPS [=y])
+# Selects: RISCV_ISA_VENDOR_EXT [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: a8fed1bc03ac (riscv: Add xmipsexectl as a vendor extension)
+CONFIG_RISCV_ISA_VENDOR_EXT_MIPS=y
