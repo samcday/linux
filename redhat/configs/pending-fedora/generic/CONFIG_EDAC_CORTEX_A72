@@ -1,0 +1,16 @@
+# ~~~
+# Symbol: EDAC_CORTEX_A72 [=n]
+# Type  : tristate
+# Defined at drivers/edac/Kconfig:579
+#   Prompt: ARM Cortex A72
+#   Depends on: EDAC [=y] && ARM64 [=y]
+#   Location:
+#     -> Device Drivers
+#       -> EDAC (Error Detection And Correction) reporting (EDAC [=y])
+#         -> ARM Cortex A72 (EDAC_CORTEX_A72 [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: fb13ae067ad7 (EDAC: Add EDAC driver for ARM Cortex A72 cores)
+# CONFIG_EDAC_CORTEX_A72 is not set

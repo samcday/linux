@@ -1,0 +1,15 @@
+# ~~~
+# Symbol: MICROCODE_DBG [=n]
+# Type  : bool
+# Defined at arch/x86/Kconfig:1364
+#   Prompt: Enable microcode loader debugging
+#   Depends on: MICROCODE [=y]
+#   Location:
+#     -> Processor type and features
+#       -> Enable microcode loader debugging (MICROCODE_DBG [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: 43181a47263d (x86/microcode: Add microcode loader debugging functionality)
+# CONFIG_MICROCODE_DBG is not set

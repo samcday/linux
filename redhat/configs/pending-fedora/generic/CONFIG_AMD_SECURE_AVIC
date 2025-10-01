@@ -1,0 +1,16 @@
+# ~~~
+# Symbol: AMD_SECURE_AVIC [=n]
+# Type  : bool
+# Defined at arch/x86/Kconfig:488
+#   Prompt: AMD Secure AVIC
+#   Depends on: AMD_MEM_ENCRYPT [=y] && X86_X2APIC [=y]
+#   Location:
+#     -> Processor type and features
+#       -> x2APIC interrupt controller architecture support (X86_X2APIC [=y])
+#         -> AMD Secure AVIC (AMD_SECURE_AVIC [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: 30c2b98aa84c (x86/apic: Add new driver for Secure AVIC)
+# CONFIG_AMD_SECURE_AVIC is not set
