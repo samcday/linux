@@ -1,3 +1,8 @@
+* Wed Oct 01 2025 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.18.0-0.rc0.50c19e20ed2e.3]
+- Flip SCHED_MC for RHEL ppc to avoid a mismatch (Justin M. Forbes)
+- Linux v6.18.0-0.rc0.50c19e20ed2e
+Resolves: 
+
 * Wed Oct 01 2025 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.18.0-0.rc0.755fa5b4fb36.2]
 - Revert "Merge branch 'add_next_sched_job' into 'os-build'" (Justin M. Forbes)
 - Fix up a merge window mismatch for riscv RHEL (Justin M. Forbes)
