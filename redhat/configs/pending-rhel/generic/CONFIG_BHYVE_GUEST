@@ -1,0 +1,16 @@
+# ~~~
+# Symbol: BHYVE_GUEST [=n]
+# Type  : bool
+# Defined at arch/x86/Kconfig:897
+#   Prompt: Bhyve (BSD Hypervisor) Guest support
+#   Depends on: HYPERVISOR_GUEST [=y] && X86_64 [=y]
+#   Location:
+#     -> Processor type and features
+#       -> Linux guest support (HYPERVISOR_GUEST [=y])
+#         -> Bhyve (BSD Hypervisor) Guest support (BHYVE_GUEST [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: fa1d117162aa (x86/cpu: Detect FreeBSD Bhyve hypervisor)
+# CONFIG_BHYVE_GUEST is not set
