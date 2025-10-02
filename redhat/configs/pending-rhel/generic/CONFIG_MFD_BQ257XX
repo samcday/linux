@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: MFD_BQ257XX [=n]
+# Type  : tristate
+# Defined at drivers/mfd/Kconfig:1674
+#   Prompt: TI BQ257XX Buck/Boost Charge Controller
+#   Depends on: HAS_IOMEM [=y] && I2C [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Multifunction device drivers
+#         -> TI BQ257XX Buck/Boost Charge Controller (MFD_BQ257XX [=n])
+# Selects: MFD_CORE [=y] && REGMAP_I2C [=m]
+# 
+# 
+# 
+# ~~~
+# Commit: 3b1bbfb5fce3 (mfd: bq257xx: Add support for BQ25703A core driver)
+# CONFIG_MFD_BQ257XX is not set
