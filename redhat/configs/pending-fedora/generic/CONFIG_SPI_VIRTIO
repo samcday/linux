@@ -1,0 +1,16 @@
+# ~~~
+# Symbol: SPI_VIRTIO [=n]
+# Type  : tristate
+# Defined at drivers/spi/Kconfig:1238
+#   Prompt: Virtio SPI Controller
+#   Depends on: SPI [=y] && SPI_MASTER [=y] && VIRTIO [=y]
+#   Location:
+#     -> Device Drivers
+#       -> SPI support (SPI [=y])
+#         -> Virtio SPI Controller (SPI_VIRTIO [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: f98cabe3f6cf (SPI: Add virtio SPI driver)
+# CONFIG_SPI_VIRTIO is not set

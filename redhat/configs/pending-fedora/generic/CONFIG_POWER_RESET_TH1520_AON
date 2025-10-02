@@ -1,0 +1,16 @@
+# ~~~
+# Symbol: POWER_RESET_TH1520_AON [=n]
+# Type  : tristate
+# Defined at drivers/power/reset/Kconfig:228
+#   Prompt: T-Head TH1520 AON firmware poweroff and reset driver
+#   Depends on: POWER_RESET [=y] && TH1520_PM_DOMAINS [=m]
+#   Location:
+#     -> Device Drivers
+#       -> Board level reset or power off (POWER_RESET [=y])
+#         -> T-Head TH1520 AON firmware poweroff and reset driver (POWER_RESET_TH1520_AON [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: 2d81a24a74e5 (driver: reset: th1520-aon: add driver for poweroff/reboot via AON FW)
+# CONFIG_POWER_RESET_TH1520_AON is not set

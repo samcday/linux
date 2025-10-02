@@ -1,0 +1,16 @@
+# ~~~
+# Symbol: SPI_ATMEL [=n]
+# Type  : tristate
+# Defined at drivers/spi/Kconfig:165
+#   Prompt: Atmel SPI Controller
+#   Depends on: SPI [=y] && SPI_MASTER [=y] && (ARCH_MICROCHIP [=y] || COMPILE_TEST [=n]) && OF [=y]
+#   Location:
+#     -> Device Drivers
+#       -> SPI support (SPI [=y])
+#         -> Atmel SPI Controller (SPI_ATMEL [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: 754ce4f29937 ([PATCH] SPI: atmel_spi driver)
+# CONFIG_SPI_ATMEL is not set

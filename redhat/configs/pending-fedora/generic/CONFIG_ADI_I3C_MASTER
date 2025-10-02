@@ -1,0 +1,16 @@
+# ~~~
+# Symbol: ADI_I3C_MASTER [=n]
+# Type  : tristate
+# Defined at drivers/i3c/master/Kconfig:2
+#   Prompt: Analog Devices I3C master driver
+#   Depends on: I3C [=m] && HAS_IOMEM [=y]
+#   Location:
+#     -> Device Drivers
+#       -> I3C support (I3C [=m])
+#         -> Analog Devices I3C master driver (ADI_I3C_MASTER [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: a79ac2cdc91d (i3c: master: Add driver for Analog Devices I3C Controller IP)
+# CONFIG_ADI_I3C_MASTER is not set
