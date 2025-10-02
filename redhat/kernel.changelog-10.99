@@ -1,3 +1,11 @@
+* Thu Oct 02 2025 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.18.0-0.rc0.7f7072574127.4]
+- redhat: ark-linux-next.sh: initial commit (Scott Weaver)
+- redhat: prepare-commit-msg: initial commit (Scott Weaver)
+- redhat: ark-merge-driver: initial commit (Scott Weaver)
+- redhat/Makefile: add dist-configs-commit-mismatches (Scott Weaver)
+- Linux v6.18.0-0.rc0.7f7072574127
+Resolves: 
+
 * Wed Oct 01 2025 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.18.0-0.rc0.50c19e20ed2e.3]
 - Flip SCHED_MC for RHEL ppc to avoid a mismatch (Justin M. Forbes)
 - Linux v6.18.0-0.rc0.50c19e20ed2e
