@@ -1,0 +1,18 @@
+# ~~~
+# Symbol: ARCH_R8A78000 [=y]
+# Type  : bool
+# Defined at drivers/soc/renesas/Kconfig:355
+#   Prompt: ARM64 Platform support for R8A78000 (R-Car X5H)
+#   Depends on: SOC_RENESAS [=y] && ARM64 [=y]
+#   Location:
+#     -> Device Drivers
+#       -> SOC (System On Chip) specific Drivers
+#         -> Renesas SoC driver support (SOC_RENESAS [=y])
+#           -> ARM64 Platform support for R8A78000 (R-Car X5H) (ARCH_R8A78000 [=y])
+# Selects: ARCH_RCAR_GEN5 [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: 5284d0b09d1b (soc: renesas: Identify R-Car X5H)
+CONFIG_ARCH_R8A78000=y

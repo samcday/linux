@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: PINCTRL_GLYMUR [=n]
+# Type  : tristate
+# Defined at drivers/pinctrl/qcom/Kconfig.msm:18
+#   Prompt: Qualcomm Technologies Inc Glymur pin controller driver
+#   Depends on: PINCTRL [=y] && (ARCH_QCOM [=y] || COMPILE_TEST [=n]) && PINCTRL_MSM [=y] && (ARM64 [=y] || COMPILE_TEST [=n])
+#   Location:
+#     -> Device Drivers
+#       -> Pin controllers (PINCTRL [=y])
+#         -> Qualcomm core pin controller driver (PINCTRL_MSM [=y])
+#           -> Qualcomm Technologies Inc Glymur pin controller driver (PINCTRL_GLYMUR [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: 87ebcd8baebf (pinctrl: qcom: Add glymur pinctrl driver)
+# CONFIG_PINCTRL_GLYMUR is not set

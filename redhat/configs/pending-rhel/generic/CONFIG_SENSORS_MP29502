@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: SENSORS_MP29502 [=n]
+# Type  : tristate
+# Defined at drivers/hwmon/pmbus/Kconfig:404
+#   Prompt: MPS MP29502
+#   Depends on: HWMON [=y] && PMBUS [=m]
+#   Location:
+#     -> Device Drivers
+#       -> Hardware Monitoring support (HWMON [=y])
+#         -> PMBus support (PMBUS [=m])
+#           -> MPS MP29502 (SENSORS_MP29502 [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: 90bad684e9ac (hwmon: add MP29502 driver)
+# CONFIG_SENSORS_MP29502 is not set
