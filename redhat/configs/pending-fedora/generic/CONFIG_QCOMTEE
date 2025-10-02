@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: QCOMTEE [=n]
+# Type  : tristate
+# Defined at drivers/tee/qcomtee/Kconfig:3
+#   Prompt: Qualcomm TEE Support
+#   Depends on: TEE [=m] && !CPU_BIG_ENDIAN
+#   Location:
+#     -> Device Drivers
+#       -> Trusted Execution Environment support (TEE [=m])
+#         -> Qualcomm TEE Support (QCOMTEE [=n])
+# Selects: QCOM_SCM [=n] && QCOM_TZMEM_MODE_SHMBRIDGE [=n]
+# 
+# 
+# 
+# ~~~
+# Commit: d6e290837e50 (tee: add Qualcomm TEE driver)
+# CONFIG_QCOMTEE is not set

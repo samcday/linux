@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: SENSORS_MP2869 [=n]
+# Type  : tristate
+# Defined at drivers/hwmon/pmbus/Kconfig:377
+#   Prompt: MPS MP2869
+#   Depends on: HWMON [=y] && PMBUS [=m]
+#   Location:
+#     -> Device Drivers
+#       -> Hardware Monitoring support (HWMON [=y])
+#         -> PMBus support (PMBUS [=m])
+#           -> MPS MP2869 (SENSORS_MP2869 [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: a3a2923aaf7f (hwmon: add MP2869,MP29608,MP29612 and MP29816 series driver)
+# CONFIG_SENSORS_MP2869 is not set

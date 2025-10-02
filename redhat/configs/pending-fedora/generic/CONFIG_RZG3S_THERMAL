@@ -1,0 +1,16 @@
+# ~~~
+# Symbol: RZG3S_THERMAL [=n]
+# Type  : tristate
+# Defined at drivers/thermal/renesas/Kconfig:30
+#   Prompt: Renesas RZ/G3S thermal driver
+#   Depends on: THERMAL [=y] && (ARCH_R9A08G045 [=y] || COMPILE_TEST [=n]) && OF [=y] && IIO [=m] && RZG2L_ADC [=m]
+#   Location:
+#     -> Device Drivers
+#       -> Thermal drivers (THERMAL [=y])
+#         -> Renesas RZ/G3S thermal driver (RZG3S_THERMAL [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: dc095b37b09e (thermal/drivers/renesas/rzg3s: Add thermal driver for the Renesas RZ/G3S SoC)
+# CONFIG_RZG3S_THERMAL is not set

@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: HW_RANDOM_ATMEL [=y]
+# Type  : tristate
+# Defined at drivers/char/hw_random/Kconfig:78
+#   Prompt: Atmel Random Number Generator support
+#   Depends on: HW_RANDOM [=y] && (ARCH_MICROCHIP [=y] || COMPILE_TEST [=n])
+#   Location:
+#     -> Device Drivers
+#       -> Character devices
+#         -> Hardware Random Number Generator Core support (HW_RANDOM [=y])
+#           -> Atmel Random Number Generator support (HW_RANDOM_ATMEL [=y])
+# 
+# 
+# 
+# ~~~
+# Commit: 677d3e2f07d1 (hw_random: add driver for atmel true hardware random number generator)
+CONFIG_HW_RANDOM_ATMEL=y

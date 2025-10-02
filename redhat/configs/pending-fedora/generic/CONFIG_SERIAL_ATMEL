@@ -1,0 +1,19 @@
+# ~~~
+# Symbol: SERIAL_ATMEL [=n]
+# Type  : bool
+# Defined at drivers/tty/serial/Kconfig:128
+#   Prompt: AT91 on-chip serial port support
+#   Depends on: TTY [=y] && HAS_IOMEM [=y] && COMMON_CLK [=y] && (ARCH_MICROCHIP [=y] || COMPILE_TEST [=n])
+#   Location:
+#     -> Device Drivers
+#       -> Character devices
+#         -> Enable TTY (TTY [=y])
+#           -> Serial drivers
+#             -> AT91 on-chip serial port support (SERIAL_ATMEL [=n])
+# Selects: SERIAL_CORE [=y] && SERIAL_MCTRL_GPIO [=y] && MFD_AT91_USART [=n]
+# 
+# 
+# 
+# ~~~
+# Commit: 749c4e603345 ([PATCH] at91_serial -> atmel_serial: Kconfig symbols)
+# CONFIG_SERIAL_ATMEL is not set
