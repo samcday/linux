@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: INTEL_MEI_LB [=n]
+# Type  : tristate
+# Defined at drivers/misc/mei/Kconfig:84
+#   Prompt: Intel Late Binding (LB) support on ME Interface
+#   Depends on: INTEL_MEI [=m] && INTEL_MEI_ME [=m] && DRM_XE [=m]
+#   Location:
+#     -> Device Drivers
+#       -> Misc devices
+#         -> Intel Management Engine Interface (INTEL_MEI [=m])
+#           -> Intel Late Binding (LB) support on ME Interface (INTEL_MEI_LB [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: 741eeabb7c78 (mei: late_bind: add late binding component driver)
+# CONFIG_INTEL_MEI_LB is not set

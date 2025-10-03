@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: DRM_ACCEL_ROCKET [=n]
+# Type  : tristate
+# Defined at drivers/accel/rocket/Kconfig:3
+#   Prompt: Rocket (support for Rockchip NPUs)
+#   Depends on: DRM [=y] && DRM_ACCEL [=y] && (ARCH_ROCKCHIP [=y] && ARM64 [=y] || COMPILE_TEST [=n]) && (ROCKCHIP_IOMMU [=y] || COMPILE_TEST [=n]) && MMU [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Compute Acceleration Framework (DRM_ACCEL [=y])
+#         -> Rocket (support for Rockchip NPUs) (DRM_ACCEL_ROCKET [=n])
+# Selects: DRM_SCHED [=m] && DRM_GEM_SHMEM_HELPER [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: ed98261b4168 (accel/rocket: Add a new driver for Rockchip's NPU)
+# CONFIG_DRM_ACCEL_ROCKET is not set

@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: INET_PSP [=n]
+# Type  : bool
+# Defined at net/psp/Kconfig:5
+#   Prompt: PSP Security Protocol support
+#   Depends on: NET [=y] && INET [=y]
+#   Location:
+#     -> Networking support (NET [=y])
+#       -> Networking options
+#         -> PSP Security Protocol support (INET_PSP [=n])
+# Selects: SKB_DECRYPTED [=y] && SOCK_VALIDATE_XMIT [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: 00c94ca2b99e (psp: base PSP device support)
+# CONFIG_INET_PSP is not set

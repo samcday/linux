@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: DRM_TYR [=n]
+# Type  : tristate
+# Defined at drivers/gpu/drm/tyr/Kconfig:3
+#   Prompt: Tyr (Rust DRM support for ARM Mali CSF-based GPUs)
+#   Depends on: HAS_IOMEM [=y] && DRM [=y]=y [=y] && RUST [=y] && (ARM || ARM64 [=y] || COMPILE_TEST [=n]) && !GENERIC_ATOMIC64 [=n]
+#   Location:
+#     -> Device Drivers
+#       -> Graphics support
+#         -> Direct Rendering Manager (XFree86 4.1.0 and higher DRI support) (DRM [=y])
+#           -> Tyr (Rust DRM support for ARM Mali CSF-based GPUs) (DRM_TYR [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: cf4fd52e3236 (rust: drm: Introduce the Tyr driver for Arm Mali GPUs)
+# CONFIG_DRM_TYR is not set
