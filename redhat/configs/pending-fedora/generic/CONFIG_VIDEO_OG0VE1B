@@ -1,0 +1,19 @@
+# ~~~
+# Symbol: VIDEO_OG0VE1B [=n]
+# Type  : tristate
+# Defined at drivers/media/i2c/Kconfig:354
+#   Prompt: OmniVision OG0VE1B sensor support
+#   Depends on: MEDIA_SUPPORT [=m] && VIDEO_DEV [=m] && VIDEO_CAMERA_SENSOR [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Multimedia support (MEDIA_SUPPORT [=m])
+#         -> Media ancillary drivers
+#           -> Camera sensor devices (VIDEO_CAMERA_SENSOR [=y])
+#             -> OmniVision OG0VE1B sensor support (VIDEO_OG0VE1B [=n])
+# Selects: V4L2_CCI_I2C [=m]
+# 
+# 
+# 
+# ~~~
+# Commit: 25bf2e1925c9 (media: i2c: Add OmniVision OG0VE1B camera sensor)
+# CONFIG_VIDEO_OG0VE1B is not set

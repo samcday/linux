@@ -1,0 +1,21 @@
+# ~~~
+# Symbol: DWMAC_SUN55I [=m]
+# Type  : tristate
+# Defined at drivers/net/ethernet/stmicro/stmmac/Kconfig:268
+#   Prompt: Allwinner sun55i GMAC200 support
+#   Depends on: NETDEVICES [=y] && ETHERNET [=y] && NET_VENDOR_STMICRO [=y] && STMMAC_ETH [=m] && STMMAC_PLATFORM [=m] && OF [=y] && (ARCH_SUNXI [=y] || COMPILE_TEST [=n])
+#   Location:
+#     -> Device Drivers
+#       -> Network device support (NETDEVICES [=y])
+#         -> Ethernet driver support (ETHERNET [=y])
+#           -> STMicroelectronics devices (NET_VENDOR_STMICRO [=y])
+#             -> STMicroelectronics Multi-Gigabit Ethernet driver (STMMAC_ETH [=m])
+#               -> STMMAC Platform bus support (STMMAC_PLATFORM [=m])
+#                 -> Allwinner sun55i GMAC200 support (DWMAC_SUN55I [=m])
+# Selects: MDIO_BUS_MUX [=m]
+# 
+# 
+# 
+# ~~~
+# Commit: f603808a98af (net: stmmac: Add support for Allwinner A523 GMAC200)
+CONFIG_DWMAC_SUN55I=m

@@ -1,0 +1,18 @@
+# ~~~
+# Symbol: ROCKCHIP_DW_DP [=n]
+# Type  : bool
+# Defined at drivers/gpu/drm/rockchip/Kconfig:65
+#   Prompt: Rockchip specific extensions for Synopsys DW DP
+#   Depends on: HAS_IOMEM [=y] && DRM [=y] && DRM_ROCKCHIP [=m]
+#   Location:
+#     -> Device Drivers
+#       -> Graphics support
+#         -> Direct Rendering Manager (XFree86 4.1.0 and higher DRI support) (DRM [=y])
+#           -> DRM Support for Rockchip (DRM_ROCKCHIP [=m])
+#             -> Rockchip specific extensions for Synopsys DW DP (ROCKCHIP_DW_DP [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: d68ba7bac955 (drm/rockchip: Add RK3588 DPTX output support)
+# CONFIG_ROCKCHIP_DW_DP is not set

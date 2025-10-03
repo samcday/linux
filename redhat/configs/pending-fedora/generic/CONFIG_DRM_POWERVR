@@ -1,0 +1,18 @@
+# ~~~
+# Symbol: DRM_POWERVR [=n]
+# Type  : tristate
+# Defined at drivers/gpu/drm/imagination/Kconfig:4
+#   Prompt: Imagination Technologies PowerVR (Series 6 and later) & IMG Graphics
+#   Depends on: HAS_IOMEM [=y] && (ARM64 || RISCV [=y] && 64BIT [=y]) && DRM [=y] && MMU [=y] && PM [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Graphics support
+#         -> Direct Rendering Manager (XFree86 4.1.0 and higher DRI support) (DRM [=y])
+#           -> Imagination Technologies PowerVR (Series 6 and later) & IMG Graphics (DRM_POWERVR [=n])
+# Selects: DRM_EXEC [=m] && DRM_GEM_SHMEM_HELPER [=y] && DRM_SCHED [=m] && DRM_GPUVM [=m] && FW_LOADER [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: 4babef070865 (drm/imagination: Add skeleton PowerVR driver)
+# CONFIG_DRM_POWERVR is not set
