@@ -1,0 +1,16 @@
+# ~~~
+# Symbol: DIBS [=n]
+# Type  : tristate
+# Defined at drivers/dibs/Kconfig:2
+#   Prompt: DIBS support
+#   Depends on: NET [=y]
+#   Location:
+#     -> Networking support (NET [=y])
+#       -> Networking options
+#         -> DIBS support (DIBS [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: 35758b0032c0 (dibs: Create drivers/dibs)
+# CONFIG_DIBS is not set

@@ -1,0 +1,18 @@
+# ~~~
+# Symbol: SCTP_DEFAULT_COOKIE_HMAC_SHA256 [=y]
+# Type  : bool
+# Defined at net/sctp/Kconfig:63
+#   Prompt: HMAC-SHA256
+#   Depends on: NET [=y] && IP_SCTP [=m]
+#   Location:
+#     -> Networking support (NET [=y])
+#       -> Networking options
+#         -> The SCTP Protocol (IP_SCTP [=m])
+#           -> Default SCTP cookie authentication method (<choice> [=n])
+#             -> HMAC-SHA256 (SCTP_DEFAULT_COOKIE_HMAC_SHA256 [=y])
+# 
+# 
+# 
+# ~~~
+# Commit: 2f3dd6ec901f (sctp: Convert cookie authentication to use HMAC-SHA256)
+CONFIG_SCTP_DEFAULT_COOKIE_HMAC_SHA256=y
