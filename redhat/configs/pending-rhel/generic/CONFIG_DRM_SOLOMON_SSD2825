@@ -1,0 +1,19 @@
+# ~~~
+# Symbol: DRM_SOLOMON_SSD2825 [=n]
+# Type  : tristate
+# Defined at drivers/gpu/drm/bridge/Kconfig:319
+#   Prompt: SSD2825 RGB/DSI bridge
+#   Depends on: HAS_IOMEM [=y] && DRM [=y] && DRM_BRIDGE [=y] && SPI_MASTER [=y] && OF [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Graphics support
+#         -> Direct Rendering Manager (XFree86 4.1.0 and higher DRI support) (DRM [=y])
+#           -> Display Interface Bridges
+#             -> SSD2825 RGB/DSI bridge (DRM_SOLOMON_SSD2825 [=n])
+# Selects: DRM_MIPI_DSI [=y] && DRM_KMS_HELPER [=y] && DRM_PANEL [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: 55023abe6a29 (drm: bridge: Add support for Solomon SSD2825 RGB/DSI bridge)
+# CONFIG_DRM_SOLOMON_SSD2825 is not set

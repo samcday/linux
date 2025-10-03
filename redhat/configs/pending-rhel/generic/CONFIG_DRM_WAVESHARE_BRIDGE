@@ -1,0 +1,19 @@
+# ~~~
+# Symbol: DRM_WAVESHARE_BRIDGE [=n]
+# Type  : tristate
+# Defined at drivers/gpu/drm/bridge/Kconfig:454
+#   Prompt: Waveshare DSI bridge
+#   Depends on: HAS_IOMEM [=y] && DRM [=y] && DRM_BRIDGE [=y] && OF [=y] && BACKLIGHT_CLASS_DEVICE [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Graphics support
+#         -> Direct Rendering Manager (XFree86 4.1.0 and higher DRI support) (DRM [=y])
+#           -> Display Interface Bridges
+#             -> Waveshare DSI bridge (DRM_WAVESHARE_BRIDGE [=n])
+# Selects: DRM_PANEL_BRIDGE [=y] && DRM_KMS_HELPER [=y] && DRM_MIPI_DSI [=n] && REGMAP_I2C [=m]
+# 
+# 
+# 
+# ~~~
+# Commit: dbdea37add13 (drm: bridge: Add waveshare DSI2DPI unit driver)
+# CONFIG_DRM_WAVESHARE_BRIDGE is not set

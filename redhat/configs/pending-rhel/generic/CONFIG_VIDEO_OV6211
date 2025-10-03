@@ -1,0 +1,19 @@
+# ~~~
+# Symbol: VIDEO_OV6211 [=n]
+# Type  : tristate
+# Defined at drivers/media/i2c/Kconfig:576
+#   Prompt: OmniVision OV6211 sensor support
+#   Depends on: MEDIA_SUPPORT [=m] && VIDEO_DEV [=m] && VIDEO_CAMERA_SENSOR [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Multimedia support (MEDIA_SUPPORT [=m])
+#         -> Media ancillary drivers
+#           -> Camera sensor devices (VIDEO_CAMERA_SENSOR [=y])
+#             -> OmniVision OV6211 sensor support (VIDEO_OV6211 [=n])
+# Selects: V4L2_CCI_I2C [=n]
+# 
+# 
+# 
+# ~~~
+# Commit: fd7cb868e309 (media: i2c: Add OmniVision OV6211 image sensor driver)
+# CONFIG_VIDEO_OV6211 is not set
