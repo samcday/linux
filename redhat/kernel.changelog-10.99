@@ -1,3 +1,7 @@
+* Fri Oct 03 2025 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.18.0-0.rc0.e406d57be7bd.5]
+- Linux v6.18.0-0.rc0.e406d57be7bd
+Resolves: 
+
 * Thu Oct 02 2025 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.18.0-0.rc0.7f7072574127.4]
 - redhat: ark-linux-next.sh: initial commit (Scott Weaver)
 - redhat: prepare-commit-msg: initial commit (Scott Weaver)
