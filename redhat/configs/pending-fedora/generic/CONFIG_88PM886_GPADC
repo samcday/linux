@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: 88PM886_GPADC [=m]
+# Type  : tristate
+# Defined at drivers/iio/adc/Kconfig:12
+#   Prompt: Marvell 88PM886 GPADC driver
+#   Depends on: IIO [=m] && MFD_88PM886_PMIC [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Industrial I/O support (IIO [=m])
+#         -> Analog to digital converters
+#           -> Marvell 88PM886 GPADC driver (88PM886_GPADC [=m])
+# 
+# 
+# 
+# ~~~
+# Commit: 3422b4bc606e (iio: adc: Add driver for Marvell 88PM886 PMIC ADC)
+CONFIG_88PM886_GPADC=m

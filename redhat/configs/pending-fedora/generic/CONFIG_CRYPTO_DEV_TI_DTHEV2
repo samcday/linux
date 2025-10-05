@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: CRYPTO_DEV_TI_DTHEV2 [=n]
+# Type  : tristate
+# Defined at drivers/crypto/ti/Kconfig:2
+#   Prompt: Support for TI DTHE V2 cryptography engine
+#   Depends on: CRYPTO [=y] && CRYPTO_HW [=y] && (ARCH_K3 [=y] || COMPILE_TEST [=n])
+#   Location:
+#     -> Cryptographic API (CRYPTO [=y])
+#       -> Hardware crypto devices (CRYPTO_HW [=y])
+#         -> Support for TI DTHE V2 cryptography engine (CRYPTO_DEV_TI_DTHEV2 [=n])
+# Selects: CRYPTO_ENGINE [=y] && CRYPTO_SKCIPHER [=y] && CRYPTO_ECB [=y] && CRYPTO_CBC [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: 52f641bc63a4 (crypto: ti - Add driver for DTHE V2 AES Engine (ECB, CBC))
+# CONFIG_CRYPTO_DEV_TI_DTHEV2 is not set

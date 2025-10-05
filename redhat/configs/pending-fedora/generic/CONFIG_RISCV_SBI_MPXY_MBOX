@@ -1,0 +1,16 @@
+# ~~~
+# Symbol: RISCV_SBI_MPXY_MBOX [=y]
+# Type  : tristate
+# Defined at drivers/mailbox/Kconfig:372
+#   Prompt: RISC-V SBI Message Proxy (MPXY) Mailbox
+#   Depends on: MAILBOX [=y] && RISCV_SBI [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Mailbox Hardware Support (MAILBOX [=y])
+#         -> RISC-V SBI Message Proxy (MPXY) Mailbox (RISCV_SBI_MPXY_MBOX [=y])
+# 
+# 
+# 
+# ~~~
+# Commit: bf3022a4eb11 (mailbox: Add RISC-V SBI message proxy (MPXY) based mailbox driver)
+CONFIG_RISCV_SBI_MPXY_MBOX=y
