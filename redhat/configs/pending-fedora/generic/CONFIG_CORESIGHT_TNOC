@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: CORESIGHT_TNOC [=n]
+# Type  : tristate
+# Defined at drivers/hwtracing/coresight/Kconfig:271
+#   Prompt: Coresight Trace Network On Chip driver
+#   Depends on: CORESIGHT [=m]
+#   Location:
+#     -> Kernel hacking
+#       -> arm64 Debugging
+#         -> CoreSight Tracing Support (CORESIGHT [=m])
+#           -> Coresight Trace Network On Chip driver (CORESIGHT_TNOC [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: e54a52a28a36 (coresight: add coresight Trace Network On Chip driver)
+# CONFIG_CORESIGHT_TNOC is not set

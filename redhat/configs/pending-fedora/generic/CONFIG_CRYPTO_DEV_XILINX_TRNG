@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: CRYPTO_DEV_XILINX_TRNG [=n]
+# Type  : tristate
+# Defined at drivers/crypto/Kconfig:728
+#   Prompt: Support for Xilinx True Random Generator
+#   Depends on: CRYPTO [=y] && CRYPTO_HW [=y] && (ZYNQMP_FIRMWARE [=y] || COMPILE_TEST [=n])
+#   Location:
+#     -> Cryptographic API (CRYPTO [=y])
+#       -> Hardware crypto devices (CRYPTO_HW [=y])
+#         -> Support for Xilinx True Random Generator (CRYPTO_DEV_XILINX_TRNG [=n])
+# Selects: CRYPTO_RNG [=y] && HW_RANDOM [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: 8979744aca80 (crypto: xilinx - Add TRNG driver for Versal)
+# CONFIG_CRYPTO_DEV_XILINX_TRNG is not set

@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: INTEL_DC_TI_ADC [=n]
+# Type  : tristate
+# Defined at drivers/iio/adc/Kconfig:802
+#   Prompt: Intel Bay Trail / Cherry Trail Dollar Cove TI ADC driver
+#   Depends on: IIO [=m] && INTEL_SOC_PMIC_CHTDC_TI [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Industrial I/O support (IIO [=m])
+#         -> Analog to digital converters
+#           -> Intel Bay Trail / Cherry Trail Dollar Cove TI ADC driver (INTEL_DC_TI_ADC [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: 28e4b85984ef (iio: adc: Add Intel Dollar Cove TI PMIC ADC driver)
+# CONFIG_INTEL_DC_TI_ADC is not set
