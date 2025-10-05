@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: INTERCONNECT_QCOM_GLYMUR [=n]
+# Type  : tristate
+# Defined at drivers/interconnect/qcom/Kconfig:11
+#   Prompt: Qualcomm GLYMUR interconnect driver
+#   Depends on: INTERCONNECT [=y] && INTERCONNECT_QCOM_RPMH_POSSIBLE [=y]
+#   Location:
+#     -> Device Drivers
+#       -> On-Chip Interconnect management support (INTERCONNECT [=y])
+#         -> Qualcomm GLYMUR interconnect driver (INTERCONNECT_QCOM_GLYMUR [=n])
+# Selects: INTERCONNECT_QCOM_RPMH [=y] && INTERCONNECT_QCOM_BCM_VOTER [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: 5c5f2221821a (interconnect: qcom: add glymur interconnect provider driver)
+# CONFIG_INTERCONNECT_QCOM_GLYMUR is not set
