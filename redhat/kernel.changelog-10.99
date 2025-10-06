@@ -1,3 +1,7 @@
+* Mon Oct 06 2025 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.18.0-0.rc0.fd94619c4336.7]
+- Linux v6.18.0-0.rc0.fd94619c4336
+Resolves: 
+
 * Sat Oct 04 2025 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.18.0-0.rc0.cbf33b8e0b36.6]
 - redhat: rpminspect: update emptyrpm list for kernel variants (Patrick Talbert)
 - Linux v6.18.0-0.rc0.cbf33b8e0b36
