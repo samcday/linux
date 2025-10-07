@@ -1,0 +1,19 @@
+# ~~~
+# Symbol: PCIE_SG2042_HOST [=n]
+# Type  : tristate
+# Defined at drivers/pci/controller/cadence/Kconfig:45
+#   Prompt: Sophgo SG2042 PCIe controller (host mode)
+#   Depends on: PCI [=y] && OF [=y] && (ARCH_SOPHGO [=y] || COMPILE_TEST [=n])
+#   Location:
+#     -> Device Drivers
+#       -> PCI support (PCI [=y])
+#         -> PCI controller drivers
+#           -> Cadence-based PCIe controllers
+#             -> Sophgo SG2042 PCIe controller (host mode) (PCIE_SG2042_HOST [=n])
+# Selects: PCIE_CADENCE_HOST [=n]
+# 
+# 
+# 
+# ~~~
+# Commit: 1c72774df028 (PCI: sg2042: Add Sophgo SG2042 PCIe driver)
+# CONFIG_PCIE_SG2042_HOST is not set
