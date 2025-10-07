@@ -770,6 +770,7 @@ merge-rt-automotive:
     - when: never
 
 merge-linux-next:
+  image: quay.io/cki/builder-stream10:production
   extends: .maintenance
   script:
     - redhat/scripts/ci/ark-linux-next.sh
