@@ -1,0 +1,20 @@
+# ~~~
+# Symbol: CLK_GLYMUR_GCC [=n]
+# Type  : tristate
+# Defined at drivers/clk/qcom/Kconfig:32
+#   Prompt: GLYMUR Global Clock Controller
+#   Depends on: COMMON_CLK [=y] && COMMON_CLK_QCOM [=y] && (ARM64 [=y] || COMPILE_TEST [=n])
+#   Location:
+#     -> Device Drivers
+#       -> Common Clock Framework (COMMON_CLK [=y])
+#         -> Support for Qualcomm's clock controllers (COMMON_CLK_QCOM [=y])
+#           -> GLYMUR Global Clock Controller (CLK_GLYMUR_GCC [=n])
+# Selects: QCOM_GDSC [=y]
+# Selected by [n]:
+#   - CLK_GLYMUR_DISPCC [=n] && COMMON_CLK [=y] && COMMON_CLK_QCOM [=y] && (ARM64 [=y] || COMPILE_TEST [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: efe504300a17 (clk: qcom: gcc: Add support for Global Clock Controller)
+# CONFIG_CLK_GLYMUR_GCC is not set
