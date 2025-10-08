@@ -1,0 +1,18 @@
+# ~~~
+# Symbol: IPQ_APSS_5424 [=n]
+# Type  : tristate
+# Defined at drivers/clk/qcom/Kconfig:217
+#   Prompt: IPQ APSS Clock Controller
+#   Depends on: COMMON_CLK [=y] && COMMON_CLK_QCOM [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Common Clock Framework (COMMON_CLK [=y])
+#         -> Support for Qualcomm's clock controllers (COMMON_CLK_QCOM [=y])
+#           -> IPQ APSS Clock Controller (IPQ_APSS_5424 [=n])
+# Selects: IPQ_APSS_PLL [=n]
+# 
+# 
+# 
+# ~~~
+# Commit: 5bf83c54bab5 (clk: qcom: apss-ipq5424: Add ipq5424 apss clock controller)
+# CONFIG_IPQ_APSS_5424 is not set
