@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: HYPERV [=n]
+# Type  : bool
+# Defined at drivers/hv/Kconfig:5
+#   Prompt: Microsoft Hyper-V core hypervisor support
+#   Depends on: X86 [=y] && X86_LOCAL_APIC [=y] && HYPERVISOR_GUEST [=y] || ARM64 && !CPU_BIG_ENDIAN
+#   Location:
+#     -> Device Drivers
+#       -> Microsoft Hyper-V guest support
+#         -> Microsoft Hyper-V core hypervisor support (HYPERV [=n])
+# Selects: PARAVIRT [=y] && X86_HV_CALLBACK_VECTOR [=y] && OF_EARLY_FLATTREE [=n] && SYSFB [=y] && IRQ_MSI_LIB [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: 46a971913611 (Staging: hv: move hyperv code out of staging directory)
+# CONFIG_HYPERV is not set
