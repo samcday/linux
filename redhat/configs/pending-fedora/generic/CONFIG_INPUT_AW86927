@@ -1,0 +1,19 @@
+# ~~~
+# Symbol: INPUT_AW86927 [=n]
+# Type  : tristate
+# Defined at drivers/input/misc/Kconfig:129
+#   Prompt: Awinic AW86927 Haptic Driver Support
+#   Depends on: INPUT_MISC [=y] && I2C [=y] && INPUT [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Input device support
+#         -> Generic input layer (needed for keyboard, mouse, ...) (INPUT [=y])
+#           -> Miscellaneous devices (INPUT_MISC [=y])
+#             -> Awinic AW86927 Haptic Driver Support (INPUT_AW86927 [=n])
+# Selects: INPUT_FF_MEMLESS [=m] && REGMAP_I2C [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: 52e06d564ce6 (Input: aw86927 - add driver for Awinic AW86927)
+# CONFIG_INPUT_AW86927 is not set
