@@ -1,3 +1,8 @@
+* Thu Oct 09 2025 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.18.0-0.rc0.ec714e371f22.11]
+- fedora: updates for 6.18 (Peter Robinson)
+- Linux v6.18.0-0.rc0.ec714e371f22
+Resolves: 
+
 * Wed Oct 08 2025 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.18.0-0.rc0.0d97f2067c16.10]
 - redhat/configs: automotive: enable SPI_OMAP24XX as a module (Jared Kangas)
 - Linux v6.18.0-0.rc0.0d97f2067c16
