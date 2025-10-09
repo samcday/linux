@@ -1,0 +1,18 @@
+# ~~~
+# Symbol: TOUCHSCREEN_HYNITRON_CST816X [=n]
+# Type  : tristate
+# Defined at drivers/input/touchscreen/Kconfig:478
+#   Prompt: Hynitron CST816x touchscreen
+#   Depends on: INPUT [=y] && INPUT_TOUCHSCREEN [=y] && I2C [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Input device support
+#         -> Generic input layer (needed for keyboard, mouse, ...) (INPUT [=y])
+#           -> Touchscreens (INPUT_TOUCHSCREEN [=y])
+#             -> Hynitron CST816x touchscreen (TOUCHSCREEN_HYNITRON_CST816X [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: c87a819bec86 (Input: add driver for Hynitron CST816x series)
+# CONFIG_TOUCHSCREEN_HYNITRON_CST816X is not set
