@@ -1,3 +1,8 @@
+* Fri Oct 10 2025 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.18.0-0.rc0.5472d60c129f.12]
+- Flip HID_HAPTIC to inline for Fedora due to symbol errors (Justin M. Forbes)
+- Linux v6.18.0-0.rc0.5472d60c129f
+Resolves: 
+
 * Thu Oct 09 2025 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.18.0-0.rc0.ec714e371f22.11]
 - fedora: updates for 6.18 (Peter Robinson)
 - Linux v6.18.0-0.rc0.ec714e371f22
