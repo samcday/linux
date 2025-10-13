@@ -1,3 +1,8 @@
+* Mon Oct 13 2025 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.18.0-0.rc1.15]
+- Turn on X86_FRED for Fedora (Justin M. Forbes)
+- Linux v6.18.0-0.rc1
+Resolves: 
+
 * Sun Oct 12 2025 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.18.0-0.rc0.0739473694c4.14]
 - Fix up HYPERV configs for 6.18 (Justin M. Forbes)
 - add xxd to as BuildRequire for bpf selftests (Thorsten Leemhuis)
