@@ -1,3 +1,9 @@
+linux-6.12-sdm670 (6.12.52-1) trixie; urgency=medium
+
+  * Rebase on 6.12.52
+
+ -- Mobot <group_9279_bot_3d620cd42b5548cd487aa9eaff458c11@noreply.salsa.debian.org>  Mon, 13 Oct 2025 10:37:07 +0000
+
 linux-6.12-sdm670 (6.12.51-1) trixie; urgency=medium
 
   * Rebase on 6.12.51
