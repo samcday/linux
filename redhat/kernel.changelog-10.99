@@ -1,3 +1,15 @@
+* Tue Oct 14 2025 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.18.0-0.rc1.16]
+- fedora: aarch64: Enable arm MHUv2 driver (Peter Robinson)
+- redhat/configs: automotive: enable RTC_DRV_S32G (Jared Kangas)
+- redhat/configs: automotive: switch ufs-qcom to module (Eric Chanudet)
+- redhat/configs: automotive: switch geni-se and serial-qcom-geni to modules (Eric Chanudet)
+- redhat/configs: automotive: switch pinctrl_msm and pinctrl_sa8775p to modules (Eric Chanudet)
+- redhat: add all namespace-dependent selftests to kernel-selftests-internal (Joel Savitz)
+- fedora: Minor QCom configs cleanup (Peter Robinson)
+- fedora: cleanup now removed BCACHEFS options (Peter Robinson)
+- fedora: Last updates for 6.18 (Peter Robinson)
+Resolves: 
+
 * Mon Oct 13 2025 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.18.0-0.rc1.15]
 - Turn on X86_FRED for Fedora (Justin M. Forbes)
 - Linux v6.18.0-0.rc1
