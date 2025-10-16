@@ -1,3 +1,8 @@
+* Thu Oct 16 2025 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.18.0-0.rc1.7ea30958b305.18]
+- redhat/configs: Re-enable Raspberry Pi support in automotive (Radu Rendec)
+- Linux v6.18.0-0.rc1.7ea30958b305
+Resolves: 
+
 * Wed Oct 15 2025 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.18.0-0.rc1.9b332cece987.17]
 - redhat/configs: automotive: enable FSL_EDMA (Jared Kangas)
 - Trim changelog of dupes for the 6.18 reset (Justin M. Forbes)
