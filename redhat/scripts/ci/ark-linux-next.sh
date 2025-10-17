@@ -77,6 +77,9 @@ git config --local mergetool.ark-md.guiDefault false
 git config --local mergetool.ark-md.prompt false
 
 # add the prepare-commit-msg git hook (which will add a list of files resolved by the merge driver)
+if [ ! -e .git/hooks ]; then
+	mkdir -p .git/hooks
+fi
 cp "$DIRPATH/ark-merge-driver-prepare-commit-msg.sh" .git/hooks/prepare-commit-msg
 
 # merge linux-next to kernel-ark's next branch
