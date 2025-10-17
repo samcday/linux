@@ -1,3 +1,8 @@
+* Fri Oct 17 2025 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.18.0-0.rc1.98ac9cc4b445.19]
+- fedora: arm64: Updates for AMD Xilinx devices (Peter Robinson)
+- Linux v6.18.0-0.rc1.98ac9cc4b445
+Resolves: 
+
 * Thu Oct 16 2025 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.18.0-0.rc1.7ea30958b305.18]
 - redhat/configs: Re-enable Raspberry Pi support in automotive (Radu Rendec)
 - Linux v6.18.0-0.rc1.7ea30958b305
