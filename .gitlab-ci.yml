@@ -772,6 +772,8 @@ merge-rt-automotive:
 merge-linux-next:
   image: quay.io/cki/builder-stream10:production
   extends: .maintenance
+  before_script:
+    - !reference [.scripts, git_setup]
   script:
     - redhat/scripts/ci/ark-linux-next.sh
 
