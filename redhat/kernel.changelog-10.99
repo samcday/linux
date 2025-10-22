@@ -1,3 +1,7 @@
+* Wed Oct 22 2025 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.18.0-0.rc2.552c50713f27.24]
+- Linux v6.18.0-0.rc2.552c50713f27
+Resolves: 
+
 * Tue Oct 21 2025 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.18.0-0.rc2.6548d364a3e8.23]
 - redhat/kernel.spec: make python3-perf glob more specific (Jan Stancek)
 - Linux v6.18.0-0.rc2.6548d364a3e8
