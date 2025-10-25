@@ -1,3 +1,16 @@
+* Sat Oct 25 2025 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.18.0-0.rc2.566771afc7a8.27]
+- uki-virt: add systemd-repart module (Emanuele Giuseppe Esposito)
+- fedora: cleanup/de-dupe the USB configfs options (Peter Robinson)
+- fedora: cleanup/de-dupe the USB Device/Gadget config (Peter Robinson)
+- fedora: Disable the remanents of legacy USB gadget (Peter Robinson)
+- fedora: i3c: enable more i3c (Peter Robinson)
+- Configs: Mark SCHED_MC as enabled for powerpc (Phil Auld)
+- redhat: update self-test-data for RELEASE_LOCALVERSION (Jan Stancek)
+- redhat: introduce RELEASE_LOCALVERSION variable (Jan Stancek)
+- Turn on CONFIG_DEBUG_INFO_COMPRESSED_ZLIB (Lianbo Jiang)
+- Linux v6.18.0-0.rc2.566771afc7a8
+Resolves: 
+
 * Fri Oct 24 2025 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.18.0-0.rc2.6fab32bb6508.26]
 - Linux v6.18.0-0.rc2.6fab32bb6508
 Resolves: 
