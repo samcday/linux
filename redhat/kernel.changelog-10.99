@@ -1,3 +1,7 @@
+* Sun Oct 26 2025 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.18.0-0.rc2.72761a7e3122.28]
+- Linux v6.18.0-0.rc2.72761a7e3122
+Resolves: 
+
 * Sat Oct 25 2025 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.18.0-0.rc2.566771afc7a8.27]
 - uki-virt: add systemd-repart module (Emanuele Giuseppe Esposito)
 - fedora: cleanup/de-dupe the USB configfs options (Peter Robinson)
