@@ -1,3 +1,10 @@
+* Thu Oct 30 2025 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.18.0-0.rc3.e53642b87a4f.32]
+- redhat/configs: Enable additional RV monitors on debug kernels (Gabriele Monaco)
+- redhat/configs: Enable sched and rtapp RV monitors (Gabriele Monaco)
+- redhat/configs: Move CONFIG_RV_PER_TASK_MONITORS to common/generic (Gabriele Monaco)
+- properly reset CONFIG_EFI_SBAT_FILE value (Thorsten Leemhuis)
+Resolves: 
+
 * Wed Oct 29 2025 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.18.0-0.rc3.e53642b87a4f.31]
 - kernel: extend rh_waived to cope better with the CVE mitigations case (Ricardo Robaina) [RHEL-122979]
 - Linux v6.18.0-0.rc3.e53642b87a4f
