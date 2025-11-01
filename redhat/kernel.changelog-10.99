@@ -1,3 +1,8 @@
+* Sat Nov 01 2025 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.18.0-0.rc3.ba36dd5ee6fd.34]
+- redhat: remove EARLY ystream bits (Jan Stancek)
+- Linux v6.18.0-0.rc3.ba36dd5ee6fd
+Resolves: 
+
 * Fri Oct 31 2025 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.18.0-0.rc3.d127176862a9.33]
 - redhat/configs:  configure CONFIG_ATH12K_AHB for rhel (Jose Ignacio Tornos Martinez)
 - Final configs for Fedora 6.18 (Justin M. Forbes)
