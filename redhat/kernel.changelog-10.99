@@ -1,3 +1,7 @@
+* Sun Nov 02 2025 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.18.0-0.rc3.691d401c7e0e.35]
+- Linux v6.18.0-0.rc3.691d401c7e0e
+Resolves: 
+
 * Sat Nov 01 2025 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.18.0-0.rc3.ba36dd5ee6fd.34]
 - redhat: remove EARLY ystream bits (Jan Stancek)
 - Linux v6.18.0-0.rc3.ba36dd5ee6fd
