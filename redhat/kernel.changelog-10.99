@@ -1,3 +1,9 @@
+* Tue Nov 04 2025 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.18.0-0.rc4.c9cfc122f037.37]
+- redhat: configs: rhel: Enable OV08X40 sensor to support Intel MIPI camera (Kate Hsuan)
+- redhat: configs: rhel: Enable usbio-drivers to supower Intel MIPI camera (Kate Hsuan)
+- Linux v6.18.0-0.rc4.c9cfc122f037
+Resolves: 
+
 * Mon Nov 03 2025 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.18.0-0.rc4.36]
 - redhat: configs: Enable DWC3 Generic Platform Driver on RHEL automotive (Desnes Nunes) [RHEL-119326]
 - redhat: configs: Enable OV08X40 sensor driver on RHEL (Desnes Nunes) [RHEL-119326]
