@@ -1,3 +1,7 @@
+* Fri Nov 07 2025 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.18.0-0.rc4.4a0c9b339199.40]
+- Linux v6.18.0-0.rc4.4a0c9b339199
+Resolves: 
+
 * Thu Nov 06 2025 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.18.0-0.rc4.dc77806cf3b4.39]
 - merge-linux-next: use gitlab remote (Scott Weaver)
 - Linux v6.18.0-0.rc4.dc77806cf3b4
