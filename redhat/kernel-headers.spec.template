@@ -57,7 +57,7 @@ cross-glibc package.
 
 %install
 # List of architectures we support and want to copy their headers
-ARCH_LIST="arm arm64 powerpc riscv s390 x86"
+ARCH_LIST="arm arm64 loongarch powerpc riscv s390 x86"
 
 ARCH=%_target_cpu
 case $ARCH in
@@ -66,6 +66,9 @@ case $ARCH in
 		;;
 	aarch64)
 		ARCH=arm64
+		;;
+	loongarch64*)
+		ARCH=loongarch
 		;;
 	ppc64*)
 		ARCH=powerpc
