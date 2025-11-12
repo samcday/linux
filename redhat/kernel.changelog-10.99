@@ -1,3 +1,8 @@
+* Wed Nov 12 2025 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.18.0-0.rc5.24172e0d7990.45]
+- Add loongarch to kernel-headers for Fedora (Justin M. Forbes)
+- Linux v6.18.0-0.rc5.24172e0d7990
+Resolves: 
+
 * Tue Nov 11 2025 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.18.0-0.rc5.4427259cc7f7.44]
 - Turn on SYNTH_EVENTS for RISCV RHEL to avoid a mismatch (Justin M. Forbes)
 - Turn on PCI_PWRCTRL_SLOT for aarch64 in RHEL (Justin M. Forbes)
