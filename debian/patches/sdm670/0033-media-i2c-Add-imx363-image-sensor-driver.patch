@@ -16,7 +16,7 @@ Signed-off-by: Richard Acayan <mailingradian@gmail.com>
  create mode 100644 drivers/media/i2c/imx363.c
 
 diff --git a/drivers/media/i2c/Kconfig b/drivers/media/i2c/Kconfig
-index 85ecb2a..bf9559d 100644
+index 5cb596f..0a58cea 100644
 --- a/drivers/media/i2c/Kconfig
 +++ b/drivers/media/i2c/Kconfig
 @@ -244,6 +244,16 @@ config VIDEO_IMX355
