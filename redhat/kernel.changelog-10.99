@@ -1,3 +1,7 @@
+* Fri Nov 14 2025 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.18.0-0.rc5.6da43bbeb691.47]
+- Linux v6.18.0-0.rc5.6da43bbeb691
+Resolves: 
+
 * Thu Nov 13 2025 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.18.0-0.rc5.6fa9041b7177.46]
 - redhat/configs: Move CONFIG_MICROCODE_DBG to common/generic/x86 (Waiman Long)
 - redhat/configs: Set CONFIG_SCHED_PROXY_EXEC=n (Waiman Long)
