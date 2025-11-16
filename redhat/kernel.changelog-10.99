@@ -1,3 +1,9 @@
+* Sun Nov 16 2025 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.18.0-0.rc5.f824272b6e3f.49]
+- redhat/configs: enable Micel PHY for NXP Automotive SoCs S32G2xx/S32G3xx/S32R45 (Alessandro Carminati)
+- redhat/configs: enable Synopsis DWMAC IP on NXP Automotive SoCs S32G2xx/S32G3xx/S32R45 (Alessandro Carminati)
+- Linux v6.18.0-0.rc5.f824272b6e3f
+Resolves: 
+
 * Sat Nov 15 2025 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.18.0-0.rc5.7a0892d2836e.48]
 - Linux v6.18.0-0.rc5.7a0892d2836e
 Resolves: 
