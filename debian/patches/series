@@ -1,3 +1,4 @@
+9001-smoo-ffs-dmabuf.patch
 sdm670/0001-dt-bindings-i2c-qcom-cci-Document-SDM670-compatible.patch
 sdm670/0002-i2c-qcom-cci-Stop-complaining-about-DT-set-clock-rate.patch
 sdm670/0003-dt-bindings-leds-qcom-spmi-flash-led-Add-pm660l-compatible.patch
