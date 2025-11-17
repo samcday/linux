@@ -1,3 +1,11 @@
+linux-6.12-sdm670 (6.12.58-1.1+sam1) UNRELEASED; urgency=medium
+
+  * add WIP patches to fix FFS+DMA-BUF issues
+  * enable UBLK
+  * make sure g_ether is =m
+
+ -- Sam <me@samcday.com>  Mon, 17 Nov 2025 19:28:24 +1000
+
 linux-6.12-sdm670 (6.12.58-1) trixie; urgency=medium
 
   * Rebase on 6.12.58
