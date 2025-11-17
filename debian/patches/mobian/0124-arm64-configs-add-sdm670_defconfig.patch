@@ -7,12 +7,11 @@ Subject: arm64: configs: add sdm670_defconfig
  1 file changed, 1004 insertions(+)
  create mode 100644 arch/arm64/configs/sdm670_defconfig
 
-diff --git a/arch/arm64/configs/sdm670_defconfig b/arch/arm64/configs/sdm670_defconfig
-new file mode 100644
-index 0000000..27518b1
+Index: linux/arch/arm64/configs/sdm670_defconfig
+===================================================================
 --- /dev/null
-+++ b/arch/arm64/configs/sdm670_defconfig
-@@ -0,0 +1,1004 @@
++++ linux/arch/arm64/configs/sdm670_defconfig
+@@ -0,0 +1,1006 @@
 +CONFIG_SYSVIPC=y
 +CONFIG_POSIX_MQUEUE=y
 +CONFIG_AUDIT=y
@@ -694,7 +693,7 @@ index 0000000..27518b1
 +CONFIG_USB_CONFIGFS_F_UAC1=y
 +CONFIG_USB_CONFIGFS_F_UAC2=y
 +CONFIG_USB_CONFIGFS_F_HID=y
-+CONFIG_USB_ETH=y
+++CONFIG_USB_ETH=m
 +CONFIG_USB_ETH_EEM=y
 +CONFIG_USB_FUNCTIONFS=m
 +CONFIG_USB_FUNCTIONFS_ETH=y
@@ -705,7 +704,7 @@ index 0000000..27518b1
 +CONFIG_USB_CDC_COMPOSITE=m
 +CONFIG_USB_G_ACM_MS=m
 +CONFIG_USB_G_MULTI=m
-+CONFIG_USB_G_MULTI_CDC=y
++CONFIG_USB_G_MULTI_CDC=m
 +CONFIG_USB_G_HID=m
 +CONFIG_USB_G_DBGP=m
 +CONFIG_TYPEC=y
@@ -1017,3 +1016,5 @@ index 0000000..27518b1
 +CONFIG_MAGIC_SYSRQ=y
 +CONFIG_PANIC_TIMEOUT=-1
 +CONFIG_MEMTEST=y
++
++CONFIG_BLK_DEV_UBLK=m
