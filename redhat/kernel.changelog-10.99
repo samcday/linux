@@ -1,3 +1,8 @@
+* Wed Nov 19 2025 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.18.0-0.rc6.8b690556d8fe.52]
+- Set some late arrival config options for Fedora 6.18 (Justin M. Forbes)
+- Linux v6.18.0-0.rc6.8b690556d8fe
+Resolves: 
+
 * Tue Nov 18 2025 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.18.0-0.rc6.e7c375b18160.51]
 - Linux v6.18.0-0.rc6.e7c375b18160
 Resolves: 
