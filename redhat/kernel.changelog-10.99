@@ -1,3 +1,14 @@
+* Thu Nov 20 2025 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.18.0-0.rc6.23cb64fb7625.53]
+- Revert "Removing Obsolete hba pci-ids from rhel8" (Scott Weaver)
+- rh_messages.h: add missing lpfc devices (Scott Weaver)
+- redhat/configs: Enable CONFIG_NFSD_V4_2_INTER_SSC in RHEL (Scott Mayhew)
+- redhat: Package net/hsr selftests (Felix Maurer)
+- Remove redundant Fedora VFIO overrides (Daniel P. Berrangé)
+- Enable CONFIG_VFIO_DEVICE_CDEV on Fedora (Daniel P. Berrangé)
+- redhat/configs: automotive: enable I2C_IMX and dependencies (Jared Kangas)
+- Linux v6.18.0-0.rc6.23cb64fb7625
+Resolves: 
+
 * Wed Nov 19 2025 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.18.0-0.rc6.8b690556d8fe.52]
 - Set some late arrival config options for Fedora 6.18 (Justin M. Forbes)
 - Linux v6.18.0-0.rc6.8b690556d8fe
