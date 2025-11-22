@@ -1,3 +1,7 @@
+* Sat Nov 22 2025 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.18.0-0.rc6.2eba5e05d9bc.55]
+- Linux v6.18.0-0.rc6.2eba5e05d9bc
+Resolves: 
+
 * Fri Nov 21 2025 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.18.0-0.rc6.fd95357fd8c6.54]
 - Change RZ_DMAC from m to y for Fedora (Justin M. Forbes)
 - redhat/configs: automotive: enable CAN_FLEXCAN (Jared Kangas)
