@@ -1,3 +1,7 @@
+* Tue Nov 25 2025 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.18.0-0.rc7.58]
+- fedora: arm: minor config updates (Peter Robinson)
+Resolves: 
+
 * Mon Nov 24 2025 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.18.0-0.rc7.57]
 - Linux v6.18.0-0.rc7
 Resolves: 
