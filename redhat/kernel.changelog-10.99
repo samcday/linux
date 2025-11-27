@@ -1,3 +1,8 @@
+* Thu Nov 27 2025 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.18.0-0.rc7.765e56e41a5a.60]
+- redhat/configs: make CONFIG_DRM_CLIENT_LIB=y (Jocelyn Falempe)
+- Linux v6.18.0-0.rc7.765e56e41a5a
+Resolves: 
+
 * Wed Nov 26 2025 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.18.0-0.rc7.30f09200cc4a.59]
 - Linux v6.18.0-0.rc7.30f09200cc4a
 Resolves: 
