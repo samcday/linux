@@ -1,3 +1,8 @@
+* Sun Nov 30 2025 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.18.0-0.rc7.6bda50f4333f.63]
+- Consolidate configs into common for 6.18 (Justin M. Forbes)
+- Linux v6.18.0-0.rc7.6bda50f4333f
+Resolves: 
+
 * Sat Nov 29 2025 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.18.0-0.rc7.19eef1d98eed.62]
 - Linux v6.18.0-0.rc7.19eef1d98eed
 Resolves: 
