@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: DEBUG_BUGVERBOSE_DETAILED [=n]
+# Type  : bool
+# Defined at lib/Kconfig.debug:209
+#   Prompt: Verbose WARN_ON_ONCE() reporting (adds 100K)
+#   Visible if: DEBUG_BUGVERBOSE [=y]
+#   Location:
+#     -> Kernel hacking
+#       -> printk and dmesg options
+#         -> Verbose BUG() reporting (adds 70K) (DEBUG_BUGVERBOSE [=y])
+#           -> Verbose WARN_ON_ONCE() reporting (adds 100K) (DEBUG_BUGVERBOSE_DETAILED [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: 687fac9d1b00 (bugs/core: Introduce the CONFIG_DEBUG_BUGVERBOSE_DETAILED Kconfig switch)
+# CONFIG_DEBUG_BUGVERBOSE_DETAILED is not set
