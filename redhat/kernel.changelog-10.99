@@ -1,3 +1,10 @@
+* Tue Dec 02 2025 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.18.0-1]
+- Reset RHEL_RELEASE for the 6.19 cycle (Justin M. Forbes)
+- add libasan-static and libubsan as BR for selftests (Thorsten Leemhuis)
+- add liburing-devel as BR for selftests (Thorsten Leemhuis)
+- add a few optional BRs for perf (Thorsten Leemhuis)
+Resolves: 
+
 * Mon Dec 01 2025 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.18.0-64]
 - Linux v6.18.0
 Resolves: 
