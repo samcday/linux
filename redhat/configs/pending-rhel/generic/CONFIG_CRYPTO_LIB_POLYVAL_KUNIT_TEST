@@ -1,0 +1,18 @@
+# ~~~
+# Symbol: CRYPTO_LIB_POLYVAL_KUNIT_TEST [=m]
+# Type  : tristate
+# Defined at lib/crypto/tests/Kconfig:50
+#   Prompt: KUnit tests for POLYVAL
+#   Depends on: KUNIT [=m]
+#   Visible if: KUNIT [=m] && !KUNIT_ALL_TESTS [=m]
+#   Location:
+#     -> Library routines
+#       -> Crypto library routines
+#         -> KUnit tests for POLYVAL (CRYPTO_LIB_POLYVAL_KUNIT_TEST [=m])
+# Selects: CRYPTO_LIB_BENCHMARK_VISIBLE [=y] && CRYPTO_LIB_POLYVAL [=m]
+# 
+# 
+# 
+# ~~~
+# Commit: b3aed551b3fc (lib/crypto: tests: Add KUnit tests for POLYVAL)
+CONFIG_CRYPTO_LIB_POLYVAL_KUNIT_TEST=m
