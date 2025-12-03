@@ -1,3 +1,7 @@
+* Wed Dec 03 2025 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.19.0-0.rc0.3f9f0252130e.3]
+- Linux v6.19.0-0.rc0.3f9f0252130e
+Resolves: 
+
 * Tue Dec 02 2025 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.19.0-0.rc0.4a26e7032d7d.2]
 - Reset RHEL_RELEASE for the 6.19 cycle (Justin M. Forbes)
 - add libasan-static and libubsan as BR for selftests (Thorsten Leemhuis)
