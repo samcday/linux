@@ -1,0 +1,16 @@
+# ~~~
+# Symbol: IMX91_THERMAL [=n]
+# Type  : tristate
+# Defined at drivers/thermal/Kconfig:299
+#   Prompt: Temperature sensor driver for NXP i.MX91 SoC
+#   Depends on: THERMAL [=y] && (ARCH_MXC [=y] || COMPILE_TEST [=n]) && OF [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Thermal drivers (THERMAL [=y])
+#         -> Temperature sensor driver for NXP i.MX91 SoC (IMX91_THERMAL [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: c411d8bf0699 (thermal/drivers/imx91: Add support for i.MX91 thermal monitoring unit)
+# CONFIG_IMX91_THERMAL is not set
