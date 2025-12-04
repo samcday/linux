@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: NET_VENDOR_MUCSE [=y]
+# Type  : bool
+# Defined at drivers/net/ethernet/mucse/Kconfig:6
+#   Prompt: Mucse devices
+#   Depends on: NETDEVICES [=y] && ETHERNET [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Network device support (NETDEVICES [=y])
+#         -> Ethernet driver support (ETHERNET [=y])
+#           -> Mucse devices (NET_VENDOR_MUCSE [=y])
+# 
+# 
+# 
+# ~~~
+# Commit: ee61c10cd482 (net: rnpgbe: Add build support for rnpgbe)
+CONFIG_NET_VENDOR_MUCSE=y
