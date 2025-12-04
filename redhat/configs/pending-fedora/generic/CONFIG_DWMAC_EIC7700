@@ -1,0 +1,20 @@
+# ~~~
+# Symbol: DWMAC_EIC7700 [=n]
+# Type  : tristate
+# Defined at drivers/net/ethernet/stmicro/stmmac/Kconfig:71
+#   Prompt: Support for Eswin eic7700 ethernet driver
+#   Depends on: NETDEVICES [=y] && ETHERNET [=y] && NET_VENDOR_STMICRO [=y] && STMMAC_ETH [=m] && STMMAC_PLATFORM [=m] && (OF [=y] && HAS_DMA [=y] && ARCH_ESWIN [=y] || COMPILE_TEST [=n])
+#   Location:
+#     -> Device Drivers
+#       -> Network device support (NETDEVICES [=y])
+#         -> Ethernet driver support (ETHERNET [=y])
+#           -> STMicroelectronics devices (NET_VENDOR_STMICRO [=y])
+#             -> STMicroelectronics Multi-Gigabit Ethernet driver (STMMAC_ETH [=m])
+#               -> STMMAC Platform bus support (STMMAC_PLATFORM [=m])
+#                 -> Support for Eswin eic7700 ethernet driver (DWMAC_EIC7700 [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: ea77dbbdbc4e (net: stmmac: add Eswin EIC7700 glue driver)
+# CONFIG_DWMAC_EIC7700 is not set

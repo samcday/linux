@@ -1,0 +1,18 @@
+# ~~~
+# Symbol: NET_DSA_YT921X [=n]
+# Type  : tristate
+# Defined at drivers/net/dsa/Kconfig:158
+#   Prompt: Motorcomm YT9215 ethernet switch chip support
+#   Depends on: NETDEVICES [=y] && NET_DSA [=m]
+#   Location:
+#     -> Device Drivers
+#       -> Network device support (NETDEVICES [=y])
+#         -> Distributed Switch Architecture drivers
+#           -> Motorcomm YT9215 ethernet switch chip support (NET_DSA_YT921X [=n])
+# Selects: NET_DSA_TAG_YT921X [=n]
+# 
+# 
+# 
+# ~~~
+# Commit: 186623f4aa72 (net: dsa: yt921x: Add support for Motorcomm YT921x)
+# CONFIG_NET_DSA_YT921X is not set

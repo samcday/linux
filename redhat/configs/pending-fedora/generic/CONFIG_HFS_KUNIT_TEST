@@ -1,0 +1,18 @@
+# ~~~
+# Symbol: HFS_KUNIT_TEST [=m]
+# Type  : tristate
+# Defined at fs/hfs/Kconfig:17
+#   Prompt: KUnit tests for HFS filesystem
+#   Depends on: MISC_FILESYSTEMS [=y] && HFS_FS [=m] && KUNIT [=m]
+#   Visible if: MISC_FILESYSTEMS [=y] && HFS_FS [=m] && KUNIT [=m] && !KUNIT_ALL_TESTS [=m]
+#   Location:
+#     -> File systems
+#       -> Miscellaneous filesystems (MISC_FILESYSTEMS [=y])
+#         -> Apple Macintosh file system support (HFS_FS [=m])
+#           -> KUnit tests for HFS filesystem (HFS_KUNIT_TEST [=m])
+# 
+# 
+# 
+# ~~~
+# Commit: 150ec68fa799 (hfs: introduce KUnit tests for HFS string operations)
+CONFIG_HFS_KUNIT_TEST=m

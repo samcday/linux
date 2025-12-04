@@ -1,0 +1,18 @@
+# ~~~
+# Symbol: CAN_DUMMY [=n]
+# Type  : tristate
+# Defined at drivers/net/can/Kconfig:127
+#   Prompt: Dummy CAN
+#   Depends on: NETDEVICES [=y] && CAN_DEV [=m] && CAN_NETLINK [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Network device support (NETDEVICES [=y])
+#         -> CAN Device Drivers (CAN_DEV [=m])
+#           -> CAN device drivers with Netlink support (CAN_NETLINK [=y])
+#             -> Dummy CAN (CAN_DUMMY [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: 816cf430e84b (can: add dummy_can driver)
+# CONFIG_CAN_DUMMY is not set
