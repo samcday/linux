@@ -1,0 +1,18 @@
+# ~~~
+# Symbol: HFSPLUS_KUNIT_TEST [=m]
+# Type  : tristate
+# Defined at fs/hfsplus/Kconfig:18
+#   Prompt: KUnit tests for HFS+ filesystem
+#   Depends on: MISC_FILESYSTEMS [=y] && HFSPLUS_FS [=m] && KUNIT [=m]
+#   Visible if: MISC_FILESYSTEMS [=y] && HFSPLUS_FS [=m] && KUNIT [=m] && !KUNIT_ALL_TESTS [=m]
+#   Location:
+#     -> File systems
+#       -> Miscellaneous filesystems (MISC_FILESYSTEMS [=y])
+#         -> Apple Extended HFS file system support (HFSPLUS_FS [=m])
+#           -> KUnit tests for HFS+ filesystem (HFSPLUS_KUNIT_TEST [=m])
+# 
+# 
+# 
+# ~~~
+# Commit: 6f84ceb98538 (hfsplus: introduce KUnit tests for HFS+ string operations)
+CONFIG_HFSPLUS_KUNIT_TEST=m
