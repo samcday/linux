@@ -1,0 +1,19 @@
+# ~~~
+# Symbol: PCIE_NXP_S32G [=n]
+# Type  : bool
+# Defined at drivers/pci/controller/dwc/Kconfig:259
+#   Prompt: NXP S32G PCIe controller (host mode)
+#   Depends on: PCI [=y] && (ARCH_S32 [=y] || COMPILE_TEST [=n])
+#   Location:
+#     -> Device Drivers
+#       -> PCI support (PCI [=y])
+#         -> PCI controller drivers
+#           -> DesignWare-based PCIe controllers
+#             -> NXP S32G PCIe controller (host mode) (PCIE_NXP_S32G [=n])
+# Selects: PCIE_DW_HOST [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: 5cbc7d3e316e (PCI: s32g: Add NXP S32G PCIe controller driver (RC))
+# CONFIG_PCIE_NXP_S32G is not set

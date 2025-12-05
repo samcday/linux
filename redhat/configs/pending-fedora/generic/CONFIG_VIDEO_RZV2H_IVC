@@ -1,0 +1,19 @@
+# ~~~
+# Symbol: VIDEO_RZV2H_IVC [=n]
+# Type  : tristate
+# Defined at drivers/media/platform/renesas/rzv2h-ivc/Kconfig:3
+#   Prompt: Renesas RZ/V2H(P) Input Video Control block driver
+#   Depends on: MEDIA_SUPPORT [=m] && MEDIA_PLATFORM_SUPPORT [=y] && MEDIA_PLATFORM_DRIVERS [=y] && V4L_PLATFORM_DRIVERS [=y] && VIDEO_DEV [=m] && (ARCH_RENESAS [=y] || COMPILE_TEST [=n]) && OF [=y] && PM [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Multimedia support (MEDIA_SUPPORT [=m])
+#         -> Media drivers
+#           -> Media platform devices (MEDIA_PLATFORM_DRIVERS [=y])
+#             -> Renesas RZ/V2H(P) Input Video Control block driver (VIDEO_RZV2H_IVC [=n])
+# Selects: VIDEOBUF2_DMA_CONTIG [=m] && MEDIA_CONTROLLER [=y] && VIDEO_V4L2_SUBDEV_API [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: f0b3984d821b (media: platform: Add Renesas Input Video Control block driver)
+# CONFIG_VIDEO_RZV2H_IVC is not set

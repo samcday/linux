@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: DRM_ACCEL_ARM_ETHOSU [=n]
+# Type  : tristate
+# Defined at drivers/accel/ethosu/Kconfig:3
+#   Prompt: Arm Ethos-U65/U85 NPU
+#   Depends on: DRM [=y] && HAS_IOMEM [=y] && DRM_ACCEL [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Compute Acceleration Framework (DRM_ACCEL [=y])
+#         -> Arm Ethos-U65/U85 NPU (DRM_ACCEL_ARM_ETHOSU [=n])
+# Selects: DRM_GEM_DMA_HELPER [=m] && DRM_SCHED [=m] && GENERIC_ALLOCATOR [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: 5a5e9c0228e6 (accel: Add Arm Ethos-U NPU driver)
+# CONFIG_DRM_ACCEL_ARM_ETHOSU is not set

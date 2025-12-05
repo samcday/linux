@@ -1,0 +1,16 @@
+# ~~~
+# Symbol: SPI_MICROCHIP_CORE_SPI [=n]
+# Type  : tristate
+# Defined at drivers/spi/Kconfig:719
+#   Prompt: Microchip FPGA CoreSPI controller
+#   Depends on: SPI [=y] && SPI_MASTER [=y]
+#   Location:
+#     -> Device Drivers
+#       -> SPI support (SPI [=y])
+#         -> Microchip FPGA CoreSPI controller (SPI_MICROCHIP_CORE_SPI [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: 059f545832be (spi: add support for microchip "soft" spi controller)
+# CONFIG_SPI_MICROCHIP_CORE_SPI is not set
