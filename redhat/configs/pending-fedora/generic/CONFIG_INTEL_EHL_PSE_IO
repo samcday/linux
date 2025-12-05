@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: INTEL_EHL_PSE_IO [=n]
+# Type  : tristate
+# Defined at drivers/platform/x86/intel/Kconfig:44
+#   Prompt: Intel Elkhart Lake PSE I/O driver
+#   Depends on: X86_PLATFORM_DEVICES [=y] && PCI [=y]
+#   Location:
+#     -> Device Drivers
+#       -> X86 Platform Specific Device Drivers (X86_PLATFORM_DEVICES [=y])
+#         -> Intel Elkhart Lake PSE I/O driver (INTEL_EHL_PSE_IO [=n])
+# Selects: AUXILIARY_BUS [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: a0c83150eea5 (platform/x86/intel: Introduce Intel Elkhart Lake PSE I/O)
+# CONFIG_INTEL_EHL_PSE_IO is not set

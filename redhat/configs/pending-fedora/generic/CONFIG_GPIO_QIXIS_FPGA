@@ -1,0 +1,18 @@
+# ~~~
+# Symbol: GPIO_QIXIS_FPGA [=n]
+# Type  : tristate
+# Defined at drivers/gpio/Kconfig:1567
+#   Prompt: NXP QIXIS FPGA GPIO support
+#   Depends on: GPIOLIB [=y] && (MFD_SIMPLE_MFD_I2C [=m] || COMPILE_TEST [=n])
+#   Location:
+#     -> Device Drivers
+#       -> GPIO Support (GPIOLIB [=y])
+#         -> MFD GPIO expanders
+#           -> NXP QIXIS FPGA GPIO support (GPIO_QIXIS_FPGA [=n])
+# Selects: GPIO_REGMAP [=m]
+# 
+# 
+# 
+# ~~~
+# Commit: e88500247dc3 (gpio: add QIXIS FPGA GPIO controller)
+# CONFIG_GPIO_QIXIS_FPGA is not set

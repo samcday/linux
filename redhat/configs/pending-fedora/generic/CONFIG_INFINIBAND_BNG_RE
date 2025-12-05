@@ -1,0 +1,16 @@
+# ~~~
+# Symbol: INFINIBAND_BNG_RE [=n]
+# Type  : tristate
+# Defined at drivers/infiniband/hw/bng_re/Kconfig:2
+#   Prompt: Broadcom Next generation RoCE HCA support
+#   Depends on: INFINIBAND [=m] && (INFINIBAND_USER_ACCESS [=m] || !INFINIBAND_USER_ACCESS [=m]) && !UML && 64BIT [=y] && INET [=y] && DCB [=y] && BNGE [=m]
+#   Location:
+#     -> Device Drivers
+#       -> InfiniBand support (INFINIBAND [=m])
+#         -> Broadcom Next generation RoCE HCA support (INFINIBAND_BNG_RE [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: d0da769c19d0 (RDMA/bng_re: Add Auxiliary interface)
+# CONFIG_INFINIBAND_BNG_RE is not set

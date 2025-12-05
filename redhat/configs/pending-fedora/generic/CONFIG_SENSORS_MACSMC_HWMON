@@ -1,0 +1,16 @@
+# ~~~
+# Symbol: SENSORS_MACSMC_HWMON [=n]
+# Type  : tristate
+# Defined at drivers/hwmon/Kconfig:1177
+#   Prompt: Apple SMC (Apple Silicon)
+#   Depends on: HWMON [=y] && MFD_MACSMC [=m] && OF [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Hardware Monitoring support (HWMON [=y])
+#         -> Apple SMC (Apple Silicon) (SENSORS_MACSMC_HWMON [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: 785205fd8139 (hwmon: Add Apple Silicon SMC hwmon driver)
+# CONFIG_SENSORS_MACSMC_HWMON is not set

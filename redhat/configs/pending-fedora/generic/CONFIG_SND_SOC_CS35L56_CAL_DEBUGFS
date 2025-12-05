@@ -1,0 +1,21 @@
+# ~~~
+# Symbol: SND_SOC_CS35L56_CAL_DEBUGFS [=n]
+# Type  : bool
+# Defined at sound/soc/codecs/Kconfig:907
+#   Prompt: CS35L56 create debugfs for factory calibration
+#   Depends on: SOUND [=m] && SND [=m] && SND_SOC [=m] && SND_SOC_CS35L56 [=m] && DEBUG_FS [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Sound card support (SOUND [=m])
+#         -> Advanced Linux Sound Architecture (SND [=m])
+#           -> ALSA for SoC audio support (SND_SOC [=m])
+#             -> CODEC drivers
+#               -> CS35L56 driver options
+#                 -> CS35L56 create debugfs for factory calibration (SND_SOC_CS35L56_CAL_DEBUGFS [=n])
+# Selects: SND_SOC_CS35L56_CAL_DEBUGFS_COMMON [=n]
+# 
+# 
+# 
+# ~~~
+# Commit: 191a27faf53e (ASoC: cs35l56: Create debugfs files for factory calibration)
+# CONFIG_SND_SOC_CS35L56_CAL_DEBUGFS is not set

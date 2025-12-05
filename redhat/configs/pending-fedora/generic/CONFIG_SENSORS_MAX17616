@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: SENSORS_MAX17616 [=n]
+# Type  : tristate
+# Defined at drivers/hwmon/pmbus/Kconfig:323
+#   Prompt: Analog Devices MAX17616/MAX17616A
+#   Depends on: HWMON [=y] && PMBUS [=m]
+#   Location:
+#     -> Device Drivers
+#       -> Hardware Monitoring support (HWMON [=y])
+#         -> PMBus support (PMBUS [=m])
+#           -> Analog Devices MAX17616/MAX17616A (SENSORS_MAX17616 [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: 77ed12d163c7 (hwmon: (pmbus/max17616) add driver for max17616)
+# CONFIG_SENSORS_MAX17616 is not set
