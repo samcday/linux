@@ -1,0 +1,19 @@
+# ~~~
+# Symbol: PM_DEVFREQ_EVENT [=n]
+# Type  : bool
+# Defined at drivers/devfreq/event/Kconfig:2
+#   Prompt: DEVFREQ-Event device Support
+#   Depends on: PM_DEVFREQ [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Generic Dynamic Voltage and Frequency Scaling (DVFS) support (PM_DEVFREQ [=y])
+#         -> DEVFREQ-Event device Support (PM_DEVFREQ_EVENT [=n])
+# Selected by [n]:
+#   - ARM_EXYNOS_BUS_DEVFREQ [=n] && PM_DEVFREQ [=y] && (ARCH_EXYNOS [=n] || COMPILE_TEST [=n])
+#   - ARM_RK3399_DMC_DEVFREQ [=n] && PM_DEVFREQ [=y] && (ARCH_ROCKCHIP [=n] && HAVE_ARM_SMCCC [=y] || COMPILE_TEST [=n] && HAVE_ARM_SMCCC [=y])
+# 
+# 
+# 
+# ~~~
+# Commit: f262f28c1470 (PM / devfreq: event: Add devfreq_event class)
+# CONFIG_PM_DEVFREQ_EVENT is not set

@@ -1,0 +1,21 @@
+# ~~~
+# Symbol: SND_SOC_SOF_NOVALAKE [=m]
+# Type  : tristate
+# Defined at sound/soc/sof/intel/Kconfig:310
+#   Prompt: SOF support for Novalake
+#   Depends on: SOUND [=m] && SND [=m] && SND_SOC [=m] && SND_SOC_SOF_TOPLEVEL [=y] && SND_SOC_SOF_INTEL_TOPLEVEL [=y] && SND_SOC_SOF_PCI [=m]
+#   Location:
+#     -> Device Drivers
+#       -> Sound card support (SOUND [=m])
+#         -> Advanced Linux Sound Architecture (SND [=m])
+#           -> ALSA for SoC audio support (SND_SOC [=m])
+#             -> Sound Open Firmware (SOF) platforms (SND_SOC_SOF_TOPLEVEL [=y])
+#               -> SOF support for Intel audio DSPs (SND_SOC_SOF_INTEL_TOPLEVEL [=y])
+#                 -> SOF support for Novalake (SND_SOC_SOF_NOVALAKE [=m])
+# Selects: SND_SOC_SOF_INTEL_NVL [=m]
+# 
+# 
+# 
+# ~~~
+# Commit: d3df422f66e8 (ASoC: SOF: Intel: add initial support for NVL-S)
+CONFIG_SND_SOC_SOF_NOVALAKE=m

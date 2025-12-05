@@ -1,0 +1,18 @@
+# ~~~
+# Symbol: GPIO_SHARED_PROXY [=m]
+# Type  : tristate
+# Defined at drivers/gpio/Kconfig:2028
+#   Prompt: Proxy driver for non-exclusive GPIOs
+#   Depends on: GPIOLIB [=y] && (GPIO_SHARED [=y] || COMPILE_TEST [=n])
+#   Location:
+#     -> Device Drivers
+#       -> GPIO Support (GPIOLIB [=y])
+#         -> Virtual GPIO drivers
+#           -> Proxy driver for non-exclusive GPIOs (GPIO_SHARED_PROXY [=m])
+# Selects: AUXILIARY_BUS [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: e992d54c6f97 (gpio: shared-proxy: implement the shared GPIO proxy driver)
+CONFIG_GPIO_SHARED_PROXY=m

@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: MFD_PF1550 [=n]
+# Type  : tristate
+# Defined at drivers/mfd/Kconfig:609
+#   Prompt: NXP PF1550 PMIC Support
+#   Depends on: HAS_IOMEM [=y] && I2C [=y]=y [=y] && OF [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Multifunction device drivers
+#         -> NXP PF1550 PMIC Support (MFD_PF1550 [=n])
+# Selects: MFD_CORE [=m] && REGMAP_I2C [=m] && REGMAP_IRQ [=n]
+# 
+# 
+# 
+# ~~~
+# Commit: ebaec90ec0b5 (mfd: pf1550: Add core driver for the PF1550 PMIC)
+# CONFIG_MFD_PF1550 is not set

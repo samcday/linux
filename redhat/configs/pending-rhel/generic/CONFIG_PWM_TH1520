@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: PWM_TH1520 [=n]
+# Type  : tristate
+# Defined at drivers/pwm/Kconfig:761
+#   Prompt: TH1520 PWM support
+#   Depends on: PWM [=y] && RUST [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Pulse-Width Modulation (PWM) Support (PWM [=y])
+#         -> TH1520 PWM support (PWM_TH1520 [=n])
+# Selects: RUST_PWM_ABSTRACTIONS [=n]
+# 
+# 
+# 
+# ~~~
+# Commit: e03724aac758 (pwm: Add Rust driver for T-HEAD TH1520 SoC)
+# CONFIG_PWM_TH1520 is not set

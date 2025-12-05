@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: REGULATOR_MT6316 [=n]
+# Type  : tristate
+# Defined at drivers/regulator/Kconfig:894
+#   Prompt: MT6316 SPMI PMIC regulator driver
+#   Depends on: REGULATOR [=y] && SPMI [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Voltage and Current Regulator Support (REGULATOR [=y])
+#         -> MT6316 SPMI PMIC regulator driver (REGULATOR_MT6316 [=n])
+# Selects: REGMAP_SPMI [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: a87a7b353072 (regulator: Add support for MediaTek MT6316 SPMI PMIC Regulators)
+# CONFIG_REGULATOR_MT6316 is not set

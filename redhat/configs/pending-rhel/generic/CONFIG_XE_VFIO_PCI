@@ -1,0 +1,18 @@
+# ~~~
+# Symbol: XE_VFIO_PCI [=n]
+# Type  : tristate
+# Defined at drivers/vfio/pci/xe/Kconfig:2
+#   Prompt: VFIO support for Intel Graphics
+#   Depends on: VFIO [=m] && PCI [=y] && DRM_XE [=m] && PCI_IOV [=y]
+#   Location:
+#     -> Device Drivers
+#       -> VFIO Non-Privileged userspace driver framework (VFIO [=m])
+#         -> VFIO support for PCI devices
+#           -> VFIO support for Intel Graphics (XE_VFIO_PCI [=n])
+# Selects: VFIO_PCI_CORE [=m]
+# 
+# 
+# 
+# ~~~
+# Commit: 1f5556ec8b9e (vfio/xe: Add device specific vfio_pci driver variant for Intel graphics)
+# CONFIG_XE_VFIO_PCI is not set
