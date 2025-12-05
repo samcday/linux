@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: REGULATOR_MT6363 [=n]
+# Type  : tristate
+# Defined at drivers/regulator/Kconfig:967
+#   Prompt: MT6363 SPMI PMIC regulator driver
+#   Depends on: REGULATOR [=y] && SPMI [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Voltage and Current Regulator Support (REGULATOR [=y])
+#         -> MT6363 SPMI PMIC regulator driver (REGULATOR_MT6363 [=n])
+# Selects: REGMAP_SPMI [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: 3c36965df808 (regulator: Add support for MediaTek MT6363 SPMI PMIC Regulators)
+# CONFIG_REGULATOR_MT6363 is not set

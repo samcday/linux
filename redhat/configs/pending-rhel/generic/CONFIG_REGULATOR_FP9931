@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: REGULATOR_FP9931 [=n]
+# Type  : tristate
+# Defined at drivers/regulator/Kconfig:503
+#   Prompt: FitiPower FP9931/JD9930 EPD regulator
+#   Depends on: REGULATOR [=y] && I2C [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Voltage and Current Regulator Support (REGULATOR [=y])
+#         -> FitiPower FP9931/JD9930 EPD regulator (REGULATOR_FP9931 [=n])
+# Selects: REGMAP_I2C [=m]
+# 
+# 
+# 
+# ~~~
+# Commit: 12d821bd13d4 (regulator: Add FP9931/JD9930 driver)
+# CONFIG_REGULATOR_FP9931 is not set

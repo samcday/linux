@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: SENSORS_TSC1641 [=n]
+# Type  : tristate
+# Defined at drivers/hwmon/Kconfig:2449
+#   Prompt: ST Microelectronics TSC1641 Power Monitor
+#   Depends on: HWMON [=y] && I2C [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Hardware Monitoring support (HWMON [=y])
+#         -> ST Microelectronics TSC1641 Power Monitor (SENSORS_TSC1641 [=n])
+# Selects: REGMAP_I2C [=m]
+# 
+# 
+# 
+# ~~~
+# Commit: 0c7d530a04b4 (hwmon: Add TSC1641 I2C power monitor driver)
+# CONFIG_SENSORS_TSC1641 is not set

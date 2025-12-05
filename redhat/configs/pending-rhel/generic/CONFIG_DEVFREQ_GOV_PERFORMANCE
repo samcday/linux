@@ -1,0 +1,18 @@
+# ~~~
+# Symbol: DEVFREQ_GOV_PERFORMANCE [=n]
+# Type  : tristate
+# Defined at drivers/devfreq/Kconfig:43
+#   Prompt: Performance
+#   Depends on: PM_DEVFREQ [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Generic Dynamic Voltage and Frequency Scaling (DVFS) support (PM_DEVFREQ [=y])
+#         -> Performance (DEVFREQ_GOV_PERFORMANCE [=n])
+# Selected by [n]:
+#   - ARM_HISI_UNCORE_DEVFREQ [=n] && PM_DEVFREQ [=y] && ACPI [=y] && ACPI_PPTT [=y] && PCC [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: ce26c5bb9569 (PM / devfreq: Add basic governors)
+# CONFIG_DEVFREQ_GOV_PERFORMANCE is not set

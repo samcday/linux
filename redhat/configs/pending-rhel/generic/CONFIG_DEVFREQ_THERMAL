@@ -1,0 +1,16 @@
+# ~~~
+# Symbol: DEVFREQ_THERMAL [=n]
+# Type  : bool
+# Defined at drivers/thermal/Kconfig:207
+#   Prompt: Generic device cooling support
+#   Depends on: THERMAL [=y] && PM_DEVFREQ [=y] && PM_OPP [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Thermal drivers (THERMAL [=y])
+#         -> Generic device cooling support (DEVFREQ_THERMAL [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: a76caf55e5b3 (thermal: Add devfreq cooling)
+# CONFIG_DEVFREQ_THERMAL is not set
