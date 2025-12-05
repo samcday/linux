@@ -1,3 +1,7 @@
+* Fri Dec 05 2025 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.19.0-0.rc0.2061f18ad76e.6]
+- Linux v6.19.0-0.rc0.2061f18ad76e
+Resolves: 
+
 * Fri Dec 05 2025 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.19.0-0.rc0.559e608c4655.5]
 - redhat/configs: enable NXP S32 on aarch64 autmotive (Alessandro Carminati)
 Resolves: 
