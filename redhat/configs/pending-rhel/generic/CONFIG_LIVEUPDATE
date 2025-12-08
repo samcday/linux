@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: LIVEUPDATE [=n]
+# Type  : bool
+# Defined at kernel/liveupdate/Kconfig:54
+#   Prompt: Live Update Orchestrator
+#   Depends on: !DEFERRED_STRUCT_PAGE_INIT [=n] && KEXEC_HANDOVER [=y]
+#   Location:
+#     -> General setup
+#       -> Live Update and Kexec HandOver
+#         -> kexec handover (KEXEC_HANDOVER [=y])
+#           -> Live Update Orchestrator (LIVEUPDATE [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: 9e2fd062fa17 (liveupdate: luo_core: Live Update Orchestrator)
+# CONFIG_LIVEUPDATE is not set

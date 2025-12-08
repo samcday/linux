@@ -1,0 +1,14 @@
+# ~~~
+# Symbol: ARCH_TENSTORRENT [=n]
+# Type  : bool
+# Defined at arch/riscv/Kconfig.socs:71
+#   Prompt: Tenstorrent SoCs
+#   Location:
+#     -> SoC selection
+#       -> Tenstorrent SoCs (ARCH_TENSTORRENT [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: 16eb4e02a631 (riscv: Kconfig.socs: Add ARCH_TENSTORRENT for Tenstorrent SoCs)
+# CONFIG_ARCH_TENSTORRENT is not set

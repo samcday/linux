@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: RENESAS_WWDT [=n]
+# Type  : tristate
+# Defined at drivers/watchdog/Kconfig:972
+#   Prompt: Renesas Window WWDT Watchdog
+#   Depends on: WATCHDOG [=y] && (ARCH_RENESAS [=y] || COMPILE_TEST [=n])
+#   Location:
+#     -> Device Drivers
+#       -> Watchdog Timer Support (WATCHDOG [=y])
+#         -> Renesas Window WWDT Watchdog (RENESAS_WWDT [=n])
+# Selects: WATCHDOG_CORE [=m]
+# 
+# 
+# 
+# ~~~
+# Commit: babe81b06158 (watchdog: renesas_wwdt: add driver)
+# CONFIG_RENESAS_WWDT is not set

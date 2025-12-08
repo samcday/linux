@@ -1,0 +1,18 @@
+# ~~~
+# Symbol: TRACE_SYSCALL_BUF_SIZE_DEFAULT [=63]
+# Type  : integer
+# Range : [0 165]
+# Defined at kernel/trace/Kconfig:604
+#   Prompt: System call user read max size
+#   Depends on: FTRACE [=y] && FTRACE_SYSCALLS [=y]
+#   Location:
+#     -> Kernel hacking
+#       -> Tracers (FTRACE [=y])
+#         -> Trace syscalls (FTRACE_SYSCALLS [=y])
+#           -> System call user read max size (TRACE_SYSCALL_BUF_SIZE_DEFAULT [=63])
+# 
+# 
+# 
+# ~~~
+# Commit: 299ea67e6a2b (tracing: Add a config and syscall_user_buf_size file to limit amount written)
+CONFIG_TRACE_SYSCALL_BUF_SIZE_DEFAULT=63
