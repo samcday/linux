@@ -1,0 +1,19 @@
+# ~~~
+# Symbol: VCHIQ_CDEV [=y]
+# Type  : bool
+# Defined at drivers/platform/raspberrypi/Kconfig:34
+#   Prompt: VCHIQ Character Driver
+#   Depends on: BCM_VIDEOCORE [=m] && BCM2835_VCHIQ [=m]
+#   Location:
+#     -> Device Drivers
+#       -> Broadcom VideoCore support (BCM_VIDEOCORE [=m])
+#         -> BCM2835 VCHIQ (BCM2835_VCHIQ [=m])
+#           -> VCHIQ Character Driver (VCHIQ_CDEV [=y])
+# Implied by [m]:
+#   - BCM2835_VCHIQ [=m] && BCM_VIDEOCORE [=m] && HAS_DMA [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: aa125180c673 (platform/raspberrypi: Destage VCHIQ interface)
+CONFIG_VCHIQ_CDEV=y

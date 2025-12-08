@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: MAX14001 [=n]
+# Type  : tristate
+# Defined at drivers/iio/adc/Kconfig:1023
+#   Prompt: Analog Devices MAX14001/MAX14002 ADC driver
+#   Depends on: IIO [=m] && SPI [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Industrial I/O support (IIO [=m])
+#         -> Analog to digital converters
+#           -> Analog Devices MAX14001/MAX14002 ADC driver (MAX14001 [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: 59795109fa67 (iio: adc: max14001: New driver)
+# CONFIG_MAX14001 is not set

@@ -1,0 +1,15 @@
+# ~~~
+# Symbol: BCM_VIDEOCORE [=m]
+# Type  : tristate
+# Defined at drivers/platform/raspberrypi/Kconfig:3
+#   Prompt: Broadcom VideoCore support
+#   Depends on: OF [=y] && (RASPBERRYPI_FIRMWARE [=m] || COMPILE_TEST [=n] && !RASPBERRYPI_FIRMWARE [=m])
+#   Location:
+#     -> Device Drivers
+#       -> Broadcom VideoCore support (BCM_VIDEOCORE [=m])
+# 
+# 
+# 
+# ~~~
+# Commit: aa125180c673 (platform/raspberrypi: Destage VCHIQ interface)
+CONFIG_BCM_VIDEOCORE=m
