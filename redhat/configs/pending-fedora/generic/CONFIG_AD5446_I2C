@@ -1,0 +1,18 @@
+# ~~~
+# Symbol: AD5446_I2C [=n]
+# Type  : tristate
+# Defined at drivers/iio/dac/Kconfig:116
+#   Prompt: Analog Devices AD5446 and similar single channel DACs driver (I2C)
+#   Depends on: IIO [=m] && I2C [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Industrial I/O support (IIO [=m])
+#         -> Digital to analog converters
+#           -> Analog Devices AD5446 and similar single channel DACs driver (I2C) (AD5446_I2C [=n])
+# Selects: AD5446 [=n]
+# 
+# 
+# 
+# ~~~
+# Commit: 876d94024087 (iio: dac: ad5446: Separate I2C/SPI into different drivers)
+# CONFIG_AD5446_I2C is not set

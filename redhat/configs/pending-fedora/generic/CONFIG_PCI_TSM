@@ -1,0 +1,19 @@
+# ~~~
+# Symbol: PCI_TSM [=n]
+# Type  : bool
+# Defined at drivers/pci/Kconfig:128
+#   Prompt: PCI TSM: Device security protocol support
+#   Depends on: PCI [=y]
+#   Location:
+#     -> Device Drivers
+#       -> PCI support (PCI [=y])
+#         -> PCI TSM: Device security protocol support (PCI_TSM [=n])
+# Selects: PCI_IDE [=n] && PCI_DOE [=y] && TSM [=n]
+# Selected by [n]:
+#   - CRYPTO_DEV_SP_PSP [=n] && CRYPTO [=y] && CRYPTO_HW [=y] && CRYPTO_DEV_CCP [=y] && CRYPTO_DEV_CCP_DD [=y] && X86_64 [=y] && AMD_IOMMU [=y] && PCI [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: 3225f52cde56 (PCI/TSM: Establish Secure Sessions and Link Encryption)
+# CONFIG_PCI_TSM is not set

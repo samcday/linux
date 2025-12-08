@@ -1,0 +1,16 @@
+# ~~~
+# Symbol: NVMEM_QNAP_MCU_EEPROM [=n]
+# Type  : tristate
+# Defined at drivers/nvmem/Kconfig:288
+#   Prompt: QNAP MCU EEPROM Support
+#   Depends on: NVMEM [=y] && MFD_QNAP_MCU [=m]
+#   Location:
+#     -> Device Drivers
+#       -> NVMEM Support (NVMEM [=y])
+#         -> QNAP MCU EEPROM Support (NVMEM_QNAP_MCU_EEPROM [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: 2f9fae509895 (nvmem: Add driver for the eeprom in qnap-mcu controllers)
+# CONFIG_NVMEM_QNAP_MCU_EEPROM is not set
