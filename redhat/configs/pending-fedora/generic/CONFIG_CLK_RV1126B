@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: CLK_RV1126B [=y]
+# Type  : bool
+# Defined at drivers/clk/rockchip/Kconfig:33
+#   Prompt: Rockchip RV1126B clock controller support
+#   Depends on: COMMON_CLK [=y] && COMMON_CLK_ROCKCHIP [=y] && (ARM64 [=y] || COMPILE_TEST [=n])
+#   Location:
+#     -> Device Drivers
+#       -> Common Clock Framework (COMMON_CLK [=y])
+#         -> Rockchip clock controller common support (COMMON_CLK_ROCKCHIP [=y])
+#           -> Rockchip RV1126B clock controller support (CLK_RV1126B [=y])
+# 
+# 
+# 
+# ~~~
+# Commit: 652c108cc44c (clk: rockchip: Add clock controller for the RV1126B)
+CONFIG_CLK_RV1126B=y

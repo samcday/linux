@@ -1,0 +1,18 @@
+# ~~~
+# Symbol: USB_DWC3_APPLE [=m]
+# Type  : tristate
+# Defined at drivers/usb/dwc3/Kconfig:203
+#   Prompt: Apple Silicon DWC3 Platform Driver
+#   Depends on: USB_SUPPORT [=y] && USB_DWC3 [=m] && OF [=y] && ARCH_APPLE [=y]
+#   Location:
+#     -> Device Drivers
+#       -> USB support (USB_SUPPORT [=y])
+#         -> DesignWare USB3 DRD Core Support (USB_DWC3 [=m])
+#           -> Apple Silicon DWC3 Platform Driver (USB_DWC3_APPLE [=m])
+# Selects: USB_ROLE_SWITCH [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: 0ec946d32ef7 (usb: dwc3: Add Apple Silicon DWC3 glue layer driver)
+CONFIG_USB_DWC3_APPLE=m

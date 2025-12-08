@@ -1,0 +1,18 @@
+# ~~~
+# Symbol: KEXEC_HANDOVER_DEBUGFS [=y]
+# Type  : bool
+# Defined at kernel/liveupdate/Kconfig:29
+#   Prompt: kexec handover debugfs interface
+#   Depends on: !DEFERRED_STRUCT_PAGE_INIT [=n] && KEXEC_HANDOVER [=y]
+#   Location:
+#     -> General setup
+#       -> Live Update and Kexec HandOver
+#         -> kexec handover (KEXEC_HANDOVER [=y])
+#           -> kexec handover debugfs interface (KEXEC_HANDOVER_DEBUGFS [=y])
+# Selects: DEBUG_FS [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: 48a1b2321d76 (liveupdate: kho: move to kernel/liveupdate)
+CONFIG_KEXEC_HANDOVER_DEBUGFS=y

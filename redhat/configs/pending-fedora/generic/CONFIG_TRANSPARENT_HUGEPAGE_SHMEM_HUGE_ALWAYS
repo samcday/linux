@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: TRANSPARENT_HUGEPAGE_SHMEM_HUGE_ALWAYS [=n]
+# Type  : bool
+# Defined at mm/Kconfig:877
+#   Prompt: always
+#   Depends on: TRANSPARENT_HUGEPAGE [=y]
+#   Location:
+#     -> Memory Management options
+#       -> Transparent Hugepage Support (TRANSPARENT_HUGEPAGE [=y])
+#         -> Shmem hugepage allocation defaults (<choice> [=n])
+#           -> always (TRANSPARENT_HUGEPAGE_SHMEM_HUGE_ALWAYS [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: e97d7c516522 (mm: shmem/tmpfs hugepage defaults config choice)
+# CONFIG_TRANSPARENT_HUGEPAGE_SHMEM_HUGE_ALWAYS is not set
