@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: RZ_DMAC [=n]
+# Type  : tristate
+# Defined at drivers/dma/sh/Kconfig:51
+#   Prompt: Renesas RZ DMA Controller
+#   Depends on: DMADEVICES [=y] && (ARCH_RENESAS [=y] || COMPILE_TEST [=n])
+#   Location:
+#     -> Device Drivers
+#       -> DMA Engine support (DMADEVICES [=y])
+#         -> Renesas RZ DMA Controller (RZ_DMAC [=n])
+# Selects: RENESAS_DMA [=y] && DMA_VIRTUAL_CHANNELS [=m]
+# 
+# 
+# 
+# ~~~
+# Commit: 5000d37042a6 (dmaengine: sh: Add DMAC driver for RZ/G2L SoC)
+# CONFIG_RZ_DMAC is not set
