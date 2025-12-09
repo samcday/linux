@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: PINCTRL_PIC64GX [=y]
+# Type  : bool
+# Defined at drivers/pinctrl/Kconfig:489
+#   Prompt: pic64gx gpio2 pinctrl driver
+#   Depends on: PINCTRL [=y] && (ARCH_MICROCHIP [=y] || COMPILE_TEST [=n]) && OF [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Pin controllers (PINCTRL [=y])
+#         -> pic64gx gpio2 pinctrl driver (PINCTRL_PIC64GX [=y])
+# Selects: GENERIC_PINCONF [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: 38cf9d641314 (pinctrl: add pic64gx "gpio2" pinmux driver)
+CONFIG_PINCTRL_PIC64GX=y
