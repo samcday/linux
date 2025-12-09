@@ -1,3 +1,10 @@
+* Tue Dec 09 2025 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.19.0-0.rc0.cb015814f8b6.8]
+- restore HYPERV configs to 6.17 state (Paolo Bonzini)
+- redhat/configs: automotive: enable NXP_STM_TIMER (Jared Kangas)
+- redhat/configs: automotive: enable S32G_WDT (Jared Kangas)
+- Linux v6.19.0-0.rc0.cb015814f8b6
+Resolves: 
+
 * Mon Dec 08 2025 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.19.0-0.rc0.c2f2b01b74be.7]
 - Linux v6.19.0-0.rc0.c2f2b01b74be
 Resolves: 
