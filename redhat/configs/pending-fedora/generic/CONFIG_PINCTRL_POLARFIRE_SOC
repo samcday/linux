@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: PINCTRL_POLARFIRE_SOC [=y]
+# Type  : bool
+# Defined at drivers/pinctrl/Kconfig:509
+#   Prompt: Polarfire SoC pinctrl driver
+#   Depends on: PINCTRL [=y] && (ARCH_MICROCHIP [=y] || COMPILE_TEST [=n]) && OF [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Pin controllers (PINCTRL [=y])
+#         -> Polarfire SoC pinctrl driver (PINCTRL_POLARFIRE_SOC [=y])
+# Selects: GENERIC_PINCONF [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: 46397274da22 (pinctrl: add polarfire soc iomux0 pinmux driver)
+CONFIG_PINCTRL_POLARFIRE_SOC=y
