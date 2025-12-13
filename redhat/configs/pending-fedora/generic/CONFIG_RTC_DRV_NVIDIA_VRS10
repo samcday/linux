@@ -1,0 +1,16 @@
+# ~~~
+# Symbol: RTC_DRV_NVIDIA_VRS10 [=n]
+# Type  : tristate
+# Defined at drivers/rtc/Kconfig:419
+#   Prompt: NVIDIA VRS10 RTC device
+#   Depends on: RTC_CLASS [=y] && I2C [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Real Time Clock (RTC_CLASS [=y])
+#         -> NVIDIA VRS10 RTC device (RTC_DRV_NVIDIA_VRS10 [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: 9d6d6b06933c (rtc: nvvrs: add NVIDIA VRS RTC device driver)
+# CONFIG_RTC_DRV_NVIDIA_VRS10 is not set
