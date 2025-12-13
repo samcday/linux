@@ -1,0 +1,16 @@
+# ~~~
+# Symbol: RTC_DRV_MACSMC [=n]
+# Type  : tristate
+# Defined at drivers/rtc/Kconfig:2101
+#   Prompt: Apple Mac System Management Controller RTC
+#   Depends on: RTC_CLASS [=y] && MFD_MACSMC [=m]
+#   Location:
+#     -> Device Drivers
+#       -> Real Time Clock (RTC_CLASS [=y])
+#         -> Apple Mac System Management Controller RTC (RTC_DRV_MACSMC [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: 49a51df427db (rtc: Add new rtc-macsmc driver for Apple Silicon Macs)
+# CONFIG_RTC_DRV_MACSMC is not set
