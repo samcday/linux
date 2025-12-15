@@ -1,3 +1,8 @@
+* Mon Dec 15 2025 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.19.0-0.rc1.13]
+- Fix up zfcpdump mismatch (Justin M. Forbes)
+- Linux v6.19.0-0.rc1
+Resolves: 
+
 * Sun Dec 14 2025 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.19.0-0.rc0.9d9c1cfec01c.12]
 - redhat/kernel.spec.template: Let kernel-modules installation rebuild initrd in UKI system (Li Tian) [RHEL-135256]
 Resolves: RHEL-135256
