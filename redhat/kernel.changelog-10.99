@@ -1,3 +1,9 @@
+* Mon Dec 15 2025 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.19.0-0.rc1.14]
+- redhat/self-test: refresh with new variables (Scott Weaver)
+- gitlab-ci: enable c10s automotive package build (Scott Weaver)
+- automotive: add configurable package name and disttag variables (Scott Weaver)
+Resolves: 
+
 * Mon Dec 15 2025 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.19.0-0.rc1.13]
 - Fix up zfcpdump mismatch (Justin M. Forbes)
 - Linux v6.19.0-0.rc1
