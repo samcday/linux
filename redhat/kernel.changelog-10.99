@@ -1,3 +1,7 @@
+* Tue Dec 16 2025 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.19.0-0.rc1.40fbbd64bba6.15]
+- Linux v6.19.0-0.rc1.40fbbd64bba6
+Resolves: 
+
 * Mon Dec 15 2025 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.19.0-0.rc1.14]
 - redhat/self-test: refresh with new variables (Scott Weaver)
 - gitlab-ci: enable c10s automotive package build (Scott Weaver)
