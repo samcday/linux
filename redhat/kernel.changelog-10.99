@@ -1,3 +1,7 @@
+* Thu Dec 25 2025 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.19.0-0.rc2.ccd1cdca5cd4.21]
+- Linux v6.19.0-0.rc2.ccd1cdca5cd4
+Resolves: 
+
 * Tue Dec 23 2025 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.19.0-0.rc2.b927546677c8.20]
 - Fedora: arm: aarch64: Enable mandatory CONFIGs for QCS8300 (Shivendra Pratap)
 - fedora: updates for the 6.19 merge (Peter Robinson)
