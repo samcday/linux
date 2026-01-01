@@ -2939,9 +2939,9 @@ BuildKernel() {
 
 	rm -f $KernelUnifiedInitrd
 
-  KernelAddonsDirOut="$KernelUnifiedImage.extra.d"
-  mkdir -p $KernelAddonsDirOut
-  python3 %{SOURCE151} %{SOURCE152} $KernelAddonsDirOut virt %{primary_target} %{_target_cpu} @uki-addons.sbat
+	KernelAddonsDirOut="$KernelUnifiedImage.extra.d"
+	mkdir -p $KernelAddonsDirOut
+	python3 %{SOURCE151} %{SOURCE152} $KernelAddonsDirOut virt %{primary_target} %{_target_cpu} @uki-addons.sbat
 
 %if %{signkernel}
 	%{log_msg "Sign the EFI UKI kernel"}
@@ -2964,20 +2964,20 @@ BuildKernel() {
         fi
         mv $KernelUnifiedImage.signed $KernelUnifiedImage
 
-      for addon in "$KernelAddonsDirOut"/*; do
-        %pesign -s -i $addon -o $addon.signed -a %{secureboot_ca_0} -c %{secureboot_key_0} -n %{pesign_name_0}
-        rm -f $addon
-        mv $addon.signed $addon
-      done
+	for addon in "$KernelAddonsDirOut"/*; do
+	   %pesign -s -i $addon -o $addon.signed -a %{secureboot_ca_0} -c %{secureboot_key_0} -n %{pesign_name_0}
+	   rm -f $addon
+	   mv $addon.signed $addon
+	done
 
 # signkernel
 %endif
 
-    # hmac sign the UKI for FIPS
-    KernelUnifiedImageHMAC="$KernelUnifiedImageDir/.$InstallName-virt.efi.hmac"
-    %{log_msg "hmac sign the UKI for FIPS"}
-    %{log_msg "Creating hmac file: $KernelUnifiedImageHMAC"}
-    (cd $KernelUnifiedImageDir && sha512hmac $InstallName-virt.efi) > $KernelUnifiedImageHMAC;
+	# hmac sign the UKI for FIPS
+	KernelUnifiedImageHMAC="$KernelUnifiedImageDir/.$InstallName-virt.efi.hmac"
+	%{log_msg "hmac sign the UKI for FIPS"}
+	%{log_msg "Creating hmac file: $KernelUnifiedImageHMAC"}
+	(cd $KernelUnifiedImageDir && sha512hmac $InstallName-virt.efi) > $KernelUnifiedImageHMAC;
 
 # with_efiuki
 %endif
