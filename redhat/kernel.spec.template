@@ -996,18 +996,23 @@ Source13: redhatsecureboot501.cer
 %define pesign_name_0 redhatsecureboot501
 %define secureboot_ca_0 %{SOURCE10}
 %define secureboot_key_0 %{SOURCE13}
+%define pesign_name_uki_0 %{pesign_name_0}
+%define secureboot_key_uki_0 %{secureboot_key_0}
 %endif
 
 # RHEL/centos certs come from system-sb-certs
 %if 0%{?rhel} && !0%{?eln}
 %define secureboot_ca_0 %{_datadir}/pki/sb-certs/secureboot-ca-%{_arch}.cer
 %define secureboot_key_0 %{_datadir}/pki/sb-certs/secureboot-kernel-%{_arch}.cer
+%define secureboot_key_uki_0 %{_datadir}/pki/sb-certs/secureboot-uki-virt-%{_arch}.cer
 
 %if 0%{?centos}
 %define pesign_name_0 centossecureboot201
+%define pesign_name_uki_0 centossecureboot204
 %else
 %ifarch x86_64 aarch64
 %define pesign_name_0 redhatsecureboot501
+%define pesign_name_uki_0 redhatsecureboot504
 %endif
 %ifarch s390x
 %define pesign_name_0 redhatsecureboot302
@@ -2945,19 +2950,7 @@ BuildKernel() {
 
 %if %{signkernel}
 	%{log_msg "Sign the EFI UKI kernel"}
-%if 0%{?fedora}%{?eln}
-        %pesign -s -i $KernelUnifiedImage -o $KernelUnifiedImage.signed -a %{secureboot_ca_0} -c %{secureboot_key_0} -n %{pesign_name_0}
-%else
-%if 0%{?centos}
-        UKI_secureboot_name=centossecureboot204
-%else
-        UKI_secureboot_name=redhatsecureboot504
-%endif
-        UKI_secureboot_cert=%{_datadir}/pki/sb-certs/secureboot-uki-virt-%{_arch}.cer
-
-        %pesign -s -i $KernelUnifiedImage -o $KernelUnifiedImage.signed -a %{secureboot_ca_0} -c $UKI_secureboot_cert -n $UKI_secureboot_name
-# 0%{?fedora}%{?eln}
-%endif
+        %pesign -s -i $KernelUnifiedImage -o $KernelUnifiedImage.signed -a %{secureboot_ca_0} -c %{secureboot_key_uki_0} -n %{pesign_name_uki_0}
         if [ ! -s $KernelUnifiedImage.signed ]; then
             echo "pesigning failed"
             exit 1
@@ -2969,8 +2962,6 @@ BuildKernel() {
 	   rm -f $addon
 	   mv $addon.signed $addon
 	done
-
-# signkernel
 %endif
 
 	# hmac sign the UKI for FIPS
