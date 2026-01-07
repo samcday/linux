@@ -1,3 +1,8 @@
+* Wed Jan 07 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.19.0-0.rc4.f0b9d8eb98df.32]
+- Revert "Turn on CONFIG_DEBUG_INFO_COMPRESSED_ZLIB" (Lianbo Jiang)
+- Linux v6.19.0-0.rc4.f0b9d8eb98df
+Resolves: 
+
 * Tue Jan 06 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.19.0-0.rc4.7f98ab9da046.31]
 - Linux v6.19.0-0.rc4.7f98ab9da046
 Resolves: 
