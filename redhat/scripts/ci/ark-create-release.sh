@@ -19,7 +19,6 @@ fi
 
 git checkout "${BRANCH}"
 touch localversion
-old_head="$(git rev-parse HEAD)"
 make dist-release
 
 # prep ark-latest branch
@@ -36,10 +35,10 @@ done
 # tag already exists and infra changes have already been applied.  Let's
 # skip those conditions and exit gracefully.
 make dist-release
-new_head="$(git rev-parse HEAD)"
-if test "$old_head" == "$new_head"; then
-	echo "Nothing changed, skipping updates"
-	exit 0
+if git rev-parse "$(make --silent dist-get-tag)" &> /dev/null; then
+	echo "No new release, skipping updates"
+	# We use this exit code so gitlab CI can recognize this case.
+	exit 137
 fi
 
 make dist-release-tag
