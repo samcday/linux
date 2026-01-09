@@ -68,7 +68,9 @@ _afy_perform_startup()
 	# parse parameters
 	for parameter in $@; do
 		case "${parameter}" in
-		--latest|--rawhide) _afy_arkinfra_rawhide="True" ;;
+		--rawhide)
+			_afy_arkinfra_rawhide="True"
+			;;
 		*)
 			echo "Aborting, parameter '${parameter}' unkown."
 			exit 1
@@ -105,9 +107,6 @@ _afy_ensure_remote_present()
 	local remote_branches
 	remote_branches="$(git branch --list -r 'arkify*')"
 	local branches_interested_in=(arkify-fixes-"${_afy_target_kind}" arkify-infra-"${_afy_target_kind}" arkify-upstream-"${_afy_target_kind}")
-	if [[ "${_afy_target_kind}" =~ (mainline|next) ]]; then
-		branches_interested_in+=(arkify-infra-"${_afy_target_kind}"-latest)
-	fi
 	for branch in "${branches_interested_in[@]}"; do
 		if ! echo "${remote_branches}" | grep -E "^[[:blank:]] arkify/${branch}$" &> /dev/null; then
 			echo "* Adding remote branch 'arkify/${branch}'"
@@ -150,9 +149,6 @@ _afy_handle_arkify-infra-branch()
 	date_upstream_branch="$(git show -s --format=%ct arkify-local-upstream-"${_afy_target_branch}")"
 
 	local _arkify_tagnames_tolookfor="arkify-infra-${_afy_target_kind}"
-	if [[ "${_afy_target_kind}" =~ (mainline|next) ]]; then
-		_arkify_tagnames_tolookfor+="-latest"
-	fi
 	if [[ ! "${_afy_arkinfra_rawhide}" ]]; then
 		while read -r arkify_tagname tagdate; do
 			if (( tagdate > date_upstream_branch )); then
@@ -164,9 +160,6 @@ _afy_handle_arkify-infra-branch()
 	# fallback: try latest in case no tag was found or if _afy_arkinfra_rawhide is set
 	if [[ ! "${arkify_tagname}" ]]; then
 		arkify_tagname=arkify/arkify-infra-"${_afy_target_kind}"
-		if [[ "${_afy_target_kind}" =~ (mainline|next) ]]; then
-			arkify_tagname+="-latest"
-		fi
 	fi
 
 	# create or update a branch with the ark-infra to allow local changes
