@@ -758,6 +758,8 @@ merge-upstream:
 
 rawhide-release:
   extends: .maintenance
+  allow_failure:
+    exit_codes: 137
   script:
     - redhat/scripts/ci/ark-create-release.sh
 
