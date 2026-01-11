@@ -1,3 +1,7 @@
+* Sun Jan 11 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.19.0-0.rc4.755bc1335e3b.36]
+- Linux v6.19.0-0.rc4.755bc1335e3b
+Resolves: 
+
 * Sat Jan 10 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.19.0-0.rc4.b6151c4e60e5.35]
 - gitlab-ci: set allow_failure for the rawhide-release job (Patrick Talbert)
 - redhat: export FLAVOR (Jose Ignacio Tornos Martinez)
