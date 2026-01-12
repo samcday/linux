@@ -1531,6 +1531,7 @@ This package provides debug information for the rv package.
 %package selftests-internal
 Summary: Kernel samples and selftests
 Requires: binutils, bpftool, fuse-libs, iproute-tc, iputils, keyutils, nmap-ncat, python3
+Provides: %{name}-selftests-internal-present
 %description selftests-internal
 Kernel sample programs and selftests.
 
@@ -1668,6 +1669,7 @@ Provides: %{name}%{?1:-%{1}}-modules-internal-uname-r = %{KVERREL}%{uname_suffix
 Requires: %{name}-uname-r = %{KVERREL}%{uname_suffix %{?1}}\
 Requires: %{name}%{?1:-%{1}}-modules-uname-r = %{KVERREL}%{uname_suffix %{?1}}\
 Requires: %{name}%{?1:-%{1}}-modules-core-uname-r = %{KVERREL}%{uname_suffix %{?1}}\
+Supplements: (%{name}-selftests-internal-present and %{name}-uname-r = %{KVERREL}%{uname_suffix %{?1}})\
 AutoReq: no\
 AutoProv: yes\
 %description %{?1:%{1}-}modules-internal\
