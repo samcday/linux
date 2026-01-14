@@ -1,3 +1,11 @@
+* Wed Jan 14 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.19.0-0.rc5.c537e12daeec.39]
+- redhat: dereference GITID during tarball creation (Jan Drögehoff)
+- redhat/configs: Disable CONFIG_INTEL_TH on RHEL (David Arcari)
+- Revert "[redhat] temporarily disable CONFIG_CRYPTO_DEV_SP_PSP" (Scott Weaver)
+- kernel-tools: split the python tools off (Peter Robinson)
+- Linux v6.19.0-0.rc5.c537e12daeec
+Resolves: 
+
 * Tue Jan 13 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.19.0-0.rc5.b71e635feefc.38]
 - Linux v6.19.0-0.rc5.b71e635feefc
 Resolves: 
