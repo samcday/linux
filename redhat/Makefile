@@ -67,8 +67,15 @@ ifeq ($(AUTOMOTIVE_BUILD), 1)
 endif
 
 GITID:= $(shell $(GIT) log --max-count=1 --pretty=format:%H $(HEAD))
+
+# Derivative kernel version elements used in the package NVR
+# If a 'dot' or any other separator is required, include it in DERIVATIVE_TAG.
+ifeq ("$(DERIVATIVE_STREAM)", "yes")
+  DERIVATIVE_VERSION:=$(DERIVATIVE_TAG).$(DERIVATIVE_BUILD)
+endif
+
 ifndef RHSELFTESTDATA
-  BUILD:=$(RHEL_RELEASE)
+  BUILD:=$(RHEL_RELEASE)$(DERIVATIVE_VERSION)
 endif
 FLAVOR=
 CURARCH := $(shell uname -m)
@@ -856,7 +863,7 @@ dist-rpm-baseonly: ##build Create the binary RPMS for the kernel and modules (no
 dist-rpm-baseonly: RPMBUILDOPTS=--target $(MACH) --without debug --without debuginfo --without vdso_install --without bpftool --without perf --without tools -bb
 dist-rpm-baseonly: dist-sources do-rpmbuild
 
-# unless you know what you're doing, you don't want to use the next four ones
+# dist-release related targets are used by the kernel maintainer team
 dist-release-finish: setup-source
 	@cp $(SOURCES)/$(SPECCHANGELOG) $(REDHAT)/$(SPECCHANGELOG)
 	@echo $(MARKER) > $(REDHAT)/marker
@@ -871,7 +878,9 @@ dist-release-changed:
 		   [ "$$(wc -l $$CLOGF | cut -d ' ' -f 1)" -le 3 ]; then \
 			echo "Nothing changed, skipping updates"; \
 		else \
-			$(REDHAT)/scripts/new_release.sh; \
+			if [ "$(BUMP_RELEASE)" == "yes" ]; then \
+				$(REDHAT)/scripts/new_release.sh; \
+			fi; \
 			$(MAKE) dist-release-finish; \
 		fi \
 	else \
