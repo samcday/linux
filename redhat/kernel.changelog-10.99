@@ -1,3 +1,8 @@
+* Thu Jan 15 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.19.0-0.rc5.944aacb68baf.40]
+- Rename with_up to with_stock. (Alexandra Hájková)
+- Linux v6.19.0-0.rc5.944aacb68baf
+Resolves: 
+
 * Wed Jan 14 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.19.0-0.rc5.c537e12daeec.39]
 - redhat: dereference GITID during tarball creation (Jan Drögehoff)
 - redhat/configs: Disable CONFIG_INTEL_TH on RHEL (David Arcari)
