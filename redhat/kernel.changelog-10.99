@@ -1,3 +1,7 @@
+* Fri Jan 16 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.19.0-0.rc5.944aacb68baf.41]
+- redhat: add usbio kmod placement rule (Jan Stancek)
+Resolves: 
+
 * Thu Jan 15 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.19.0-0.rc5.944aacb68baf.40]
 - Rename with_up to with_stock. (Alexandra Hájková)
 - Linux v6.19.0-0.rc5.944aacb68baf
