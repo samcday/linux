@@ -758,6 +758,9 @@ merge-upstream:
 
 rawhide-release:
   extends: .maintenance
+  variables:
+    # https://gitlab.com/gitlab-org/gitlab-runner/-/merge_requests/5821
+    FF_USE_NEW_BASH_EVAL_STRATEGY: true
   allow_failure:
     exit_codes: 137
   script:
