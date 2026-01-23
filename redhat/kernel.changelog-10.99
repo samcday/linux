@@ -1,3 +1,7 @@
+* Fri Jan 23 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.19.0-0.rc6.c072629f05d7.45]
+- Linux v6.19.0-0.rc6.c072629f05d7
+Resolves: 
+
 * Thu Jan 22 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.19.0-0.rc6.a66191c590b3.44]
 - [gitlab-ci] rawhide_release: set FF_USE_NEW_BASH_EVAL_STRATEGY=true (Patrick Talbert)
 - Linux v6.19.0-0.rc6.a66191c590b3
