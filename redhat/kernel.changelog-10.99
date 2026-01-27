@@ -1,3 +1,8 @@
+* Tue Jan 27 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.19.0-0.rc7.fcb70a56f4d8.47]
+- fedora: arm64: make pinctrl-msm8916 built-in (Sam Day)
+- Linux v6.19.0-0.rc7.fcb70a56f4d8
+Resolves: 
+
 * Mon Jan 26 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.19.0-0.rc7.46]
 - Linux v6.19.0-0.rc7
 Resolves: 
