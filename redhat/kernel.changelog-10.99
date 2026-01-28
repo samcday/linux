@@ -1,3 +1,13 @@
+* Wed Jan 28 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.19.0-0.rc7.1f97d9dcf536.48]
+- Set Fedora configs for 6.19 kernels (Justin M. Forbes)
+- configs: enable FUNCTION_GRAPH_RETVAL everywhere (Jerome Marchand)
+- configs: riscv: Enable ARCH_ESWIN for CentOS (Jennifer Berringer)
+- configs: riscv: Enable StarFive drivers for CentOS (Jennifer Berringer)
+- configs: riscv: Enable common hardware drivers for CentOS (Jennifer Berringer)
+- redhat: exclude DERIVATIVE_BUILD and DERIVATIVE_VERSION from self-test data (Jan Stancek)
+- Linux v6.19.0-0.rc7.1f97d9dcf536
+Resolves: 
+
 * Tue Jan 27 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.19.0-0.rc7.fcb70a56f4d8.47]
 - fedora: arm64: make pinctrl-msm8916 built-in (Sam Day)
 - Linux v6.19.0-0.rc7.fcb70a56f4d8
