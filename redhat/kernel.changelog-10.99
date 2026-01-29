@@ -1,3 +1,8 @@
+* Thu Jan 29 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.19.0-0.rc7.8dfce8991b95.49]
+- redhat/configs: Ship nft_osf.ko in Fedora, too (Phil Sutter)
+- Linux v6.19.0-0.rc7.8dfce8991b95
+Resolves: 
+
 * Wed Jan 28 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.19.0-0.rc7.1f97d9dcf536.48]
 - Set Fedora configs for 6.19 kernels (Justin M. Forbes)
 - configs: enable FUNCTION_GRAPH_RETVAL everywhere (Jerome Marchand)
