@@ -808,15 +808,14 @@ pages:
     - *on-success
 
 tag-cki-gating:
-  extends: .git_setup
   image: quay.io/cki/cki-tools:production
   stage: deploy
   environment: cki-gating
+  variables:
+    GIT_STRATEGY: empty
   script:
-    - !reference [.scripts, git_setup]
-    - git fetch git@${CI_SERVER_HOST}:${CI_PROJECT_PATH}.git ark-latest
-    - git merge --no-edit FETCH_HEAD
-    - git push --force git@${CI_SERVER_HOST}:${CI_PROJECT_PATH}.git HEAD:refs/heads/cki-gating
+    - git clone --filter=blob:none --depth 1 --no-checkout --branch ark-latest $CI_REPOSITORY_URL
+    - git -C $CI_PROJECT_NAME push --force $CI_REPOSITORY_URL ark-latest:refs/heads/cki-gating
   rules:
     - *only-ark-latest-head-mr
     - *manual-on-mr
