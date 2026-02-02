@@ -1,3 +1,9 @@
+* Mon Feb 02 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.19.0-0.rc8.53]
+- [gitlab-ci] tag-cki-gating: refactor to use GIT_STRATEGY=empty (Patrick Talbert)
+- efi: Fix swapped arguments to bsearch() in efi_status_to_*() (Dongdong Tao)
+- Linux v6.19.0-0.rc8
+Resolves: 
+
 * Sun Feb 01 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.19.0-0.rc7.162b42445b58.52]
 - Linux v6.19.0-0.rc7.162b42445b58
 Resolves: 
