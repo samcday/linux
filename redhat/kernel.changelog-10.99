@@ -1,3 +1,12 @@
+* Fri Feb 06 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.19.0-0.rc8.b7ff7151e653.57]
+- redhat/dracut-virt.conf: omit drm drivers in UKI initrd (Li Tian) [RHEL-147296]
+- Prevent stripping of rtla and rv binaries during install (John Kacur)
+- Fix rtla and rv debuginfo package definitions (John Kacur)
+- Add debuginfo package for rtla tool (John Kacur)
+- Add debuginfo package for rv tool (John Kacur)
+- Linux v6.19.0-0.rc8.b7ff7151e653
+Resolves: RHEL-147296
+
 * Thu Feb 05 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.19.0-0.rc8.f14faaf3a1fb.56]
 - Consolidate configs to common for 6.19 (Justin M. Forbes)
 - redhat/configs: Set CONFIG_PTP_S390=y (Mete Durlu) [RHEL-141647]
