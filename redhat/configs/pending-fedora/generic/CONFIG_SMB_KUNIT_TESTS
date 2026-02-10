@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: SMB_KUNIT_TESTS [=m]
+# Type  : tristate
+# Defined at fs/smb/Kconfig:13
+#   Prompt: KUnit tests for SMB
+#   Depends on: NETWORK_FILESYSTEMS [=y] && SMBFS [=m] && KUNIT [=m]
+#   Visible if: NETWORK_FILESYSTEMS [=y] && SMBFS [=m] && KUNIT [=m] && !KUNIT_ALL_TESTS [=m]
+#   Location:
+#     -> File systems
+#       -> Network File Systems (NETWORK_FILESYSTEMS [=y])
+#         -> KUnit tests for SMB (SMB_KUNIT_TESTS [=m])
+# 
+# 
+# 
+# ~~~
+# Commit: 480afcb19b61 (smb/client: introduce KUnit test to check search result of smb2_error_map_table)
+CONFIG_SMB_KUNIT_TESTS=m
