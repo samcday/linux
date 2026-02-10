@@ -14,4 +14,4 @@
 # 
 # ~~~
 # Commit: 480afcb19b61 (smb/client: introduce KUnit test to check search result of smb2_error_map_table)
-CONFIG_SMB_KUNIT_TESTS=m
+# CONFIG_SMB_KUNIT_TESTS is not set
