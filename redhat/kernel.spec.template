@@ -781,6 +781,8 @@ Requires: %{name}-core-uname-r = %{KVERREL}
 Requires: %{name}-modules-uname-r = %{KVERREL}
 Requires: %{name}-modules-core-uname-r = %{KVERREL}
 Requires: ((%{name}-modules-extra-uname-r = %{KVERREL}) if %{name}-modules-extra-matched)
+# Prefer the plain kernel-core pkg as core-uname-r provider
+Suggests: %{name}-core = %{specversion}-%{release}
 Provides: installonlypkg(kernel)
 %endif
 
@@ -1760,6 +1762,8 @@ Requires: %{name}-%{1}-core-uname-r = %{KVERREL}%{uname_suffix %{1}}\
 Requires: %{name}-%{1}-modules-uname-r = %{KVERREL}%{uname_suffix %{1}}\
 Requires: %{name}-%{1}-modules-core-uname-r = %{KVERREL}%{uname_suffix %{1}}\
 Requires: ((%{name}-%{1}-modules-extra-uname-r = %{KVERREL}%{uname_suffix %{1}}) if %{name}-modules-extra-matched)\
+# Prefer the plain kernel-<subpackage>-core pkg as core-uname-r provider\
+Suggests: %{name}-%{1}-core = %{specversion}-%{release}\
 %if "%{1}" == "rt" || "%{1}" == "rt-debug" || "%{1}" == "rt-64k" || "%{1}" == "rt-64k-debug"\
 Requires: realtime-setup\
 %endif\
@@ -1828,6 +1832,7 @@ Requires(pre): systemd >= 254-1\
 Summary: %{variant_summary} with systemd-stub for auto DTB loading\
 Provides: installonlypkg(kernel)\
 Provides: %{name}-uname-r = %{KVERREL}%{uname_suffix %{?1}}\
+Provides: %{name}%{?1:-%{1}}-core-uname-r = %{KVERREL}%{uname_suffix %{?1}}\
 Requires: %{name}%{?1:-%{1}}-modules-core-uname-r = %{KVERREL}%{uname_suffix %{?1}}\
 Requires(pre): %{kernel_prereq}\
 # "kernel-install add ..." treats this as a regular kernel, which is what we want.\
