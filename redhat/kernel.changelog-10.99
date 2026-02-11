@@ -1,3 +1,8 @@
+* Wed Feb 11 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.20.0-0.rc0.72c395024dac.2]
+- Turn off CONFIG_SMB_KUNIT_TESTS in pending (Justin M. Forbes)
+- Trim the changelog for 7.0 (Justin M. Forbes)
+Resolves: 
+
 * Tue Feb 10 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.20.0-0.rc0.72c395024dac.1]
 - Reset RHEL_RELEASE for the 7.0 series (Justin M. Forbes)
 - redhat/configs: rename CONFIG_QCOM_QFPROM to CONFIG_NVMEM_QCOM_QFPROM (Eric Chanudet)
