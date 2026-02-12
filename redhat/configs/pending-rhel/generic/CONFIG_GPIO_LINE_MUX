@@ -1,0 +1,18 @@
+# ~~~
+# Symbol: GPIO_LINE_MUX [=n]
+# Type  : tristate
+# Defined at drivers/gpio/Kconfig:2006
+#   Prompt: GPIO line mux driver
+#   Depends on: GPIOLIB [=y] && OF_GPIO [=y]
+#   Location:
+#     -> Device Drivers
+#       -> GPIO Support (GPIOLIB [=y])
+#         -> Virtual GPIO drivers
+#           -> GPIO line mux driver (GPIO_LINE_MUX [=n])
+# Selects: MULTIPLEXER [=n]
+# 
+# 
+# 
+# ~~~
+# Commit: 2b03d9a40cd1 (gpio: add gpio-line-mux driver)
+# CONFIG_GPIO_LINE_MUX is not set

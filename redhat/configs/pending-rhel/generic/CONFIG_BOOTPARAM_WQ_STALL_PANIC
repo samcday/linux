@@ -1,0 +1,18 @@
+# ~~~
+# Symbol: BOOTPARAM_WQ_STALL_PANIC [=0]
+# Type  : integer
+# Range : [0 100]
+# Defined at lib/Kconfig.debug:1325
+#   Prompt: Panic on Nth workqueue stall
+#   Depends on: WQ_WATCHDOG [=y]
+#   Location:
+#     -> Kernel hacking
+#       -> Debug Oops, Lockups and Hangs
+#         -> Detect Workqueue Stalls (WQ_WATCHDOG [=y])
+#           -> Panic on Nth workqueue stall (BOOTPARAM_WQ_STALL_PANIC [=0])
+# 
+# 
+# 
+# ~~~
+# Commit: 32d572e39031 (workqueue: add CONFIG_BOOTPARAM_WQ_STALL_PANIC option)
+CONFIG_BOOTPARAM_WQ_STALL_PANIC=0

@@ -1,0 +1,18 @@
+# ~~~
+# Symbol: DRM_ST7571 [=n]
+# Type  : tristate
+# Defined at drivers/gpu/drm/sitronix/Kconfig:1
+#   Prompt: DRM support for Sitronix ST7567/ST7571 display panels
+#   Depends on: HAS_IOMEM [=y] && DRM [=y] && MMU [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Graphics support
+#         -> Direct Rendering Manager (XFree86 4.1.0 and higher DRI support) (DRM [=y])
+#           -> DRM support for Sitronix ST7567/ST7571 display panels (DRM_ST7571 [=n])
+# Selects: DRM_CLIENT_SELECTION [=y] && DRM_GEM_SHMEM_HELPER [=y] && DRM_KMS_HELPER [=y] && VIDEOMODE_HELPERS [=n]
+# 
+# 
+# 
+# ~~~
+# Commit: b362de167daf (drm/sitronix/st7571: split up the driver into a common and an i2c part)
+# CONFIG_DRM_ST7571 is not set

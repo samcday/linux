@@ -1,0 +1,19 @@
+# ~~~
+# Symbol: VIDEO_OS05B10 [=n]
+# Type  : tristate
+# Defined at drivers/media/i2c/Kconfig:375
+#   Prompt: OmniVision OS05B10 sensor support
+#   Depends on: MEDIA_SUPPORT [=m] && VIDEO_DEV [=m] && VIDEO_CAMERA_SENSOR [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Multimedia support (MEDIA_SUPPORT [=m])
+#         -> Media ancillary drivers
+#           -> Camera sensor devices (VIDEO_CAMERA_SENSOR [=y])
+#             -> OmniVision OS05B10 sensor support (VIDEO_OS05B10 [=n])
+# Selects: V4L2_CCI_I2C [=m]
+# 
+# 
+# 
+# ~~~
+# Commit: 3aa9296a23ec (media: i2c: add os05b10 image sensor driver)
+# CONFIG_VIDEO_OS05B10 is not set

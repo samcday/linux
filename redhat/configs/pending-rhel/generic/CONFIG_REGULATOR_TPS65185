@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: REGULATOR_TPS65185 [=n]
+# Type  : tristate
+# Defined at drivers/regulator/Kconfig:1711
+#   Prompt: TI TPS65185 EPD regulator
+#   Depends on: REGULATOR [=y] && I2C [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Voltage and Current Regulator Support (REGULATOR [=y])
+#         -> TI TPS65185 EPD regulator (REGULATOR_TPS65185 [=n])
+# Selects: REGMAP_I2C [=m]
+# 
+# 
+# 
+# ~~~
+# Commit: b0fc1e770194 (regulator: Add TPS65185 driver)
+# CONFIG_REGULATOR_TPS65185 is not set
