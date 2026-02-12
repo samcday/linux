@@ -1,3 +1,9 @@
+* Thu Feb 12 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.20.0-0.rc0.c22e26bd0906.3]
+- Fix up a couple of mismatches with PREEMPT_LAZY and x86 SND_SOC_TAS2781_I2C for RHEL (Justin M. Forbes)
+- Turn on CONFIG_PREEMPT in pending to avoid mismatch (Justin M. Forbes)
+- Linux v6.20.0-0.rc0.c22e26bd0906
+Resolves: 
+
 * Wed Feb 11 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.20.0-0.rc0.72c395024dac.2]
 - Turn off CONFIG_SMB_KUNIT_TESTS in pending (Justin M. Forbes)
 - Trim the changelog for 7.0 (Justin M. Forbes)
