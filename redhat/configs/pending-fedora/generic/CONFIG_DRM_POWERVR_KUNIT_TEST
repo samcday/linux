@@ -1,0 +1,19 @@
+# ~~~
+# Symbol: DRM_POWERVR_KUNIT_TEST [=m]
+# Type  : tristate
+# Defined at drivers/gpu/drm/imagination/Kconfig:22
+#   Prompt: KUnit tests for the drm powervr driver
+#   Depends on: HAS_IOMEM [=y] && DRM [=y] && DRM_POWERVR [=m] && KUNIT [=m]
+#   Visible if: HAS_IOMEM [=y] && DRM [=y] && DRM_POWERVR [=m] && KUNIT [=m] && !KUNIT_ALL_TESTS [=m]
+#   Location:
+#     -> Device Drivers
+#       -> Graphics support
+#         -> Direct Rendering Manager (XFree86 4.1.0 and higher DRI support) (DRM [=y])
+#           -> Imagination Technologies PowerVR (Series 6 and later) & IMG Graphics (DRM_POWERVR [=m])
+#             -> KUnit tests for the drm powervr driver (DRM_POWERVR_KUNIT_TEST [=m])
+# 
+# 
+# 
+# ~~~
+# Commit: 3519e9ea13b4 (drm/imagination: KUnit test for pvr_gpuid_decode_string())
+CONFIG_DRM_POWERVR_KUNIT_TEST=m

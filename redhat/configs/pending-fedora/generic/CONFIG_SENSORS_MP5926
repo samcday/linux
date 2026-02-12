@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: SENSORS_MP5926 [=n]
+# Type  : tristate
+# Defined at drivers/hwmon/pmbus/Kconfig:484
+#   Prompt: MPS MP5926
+#   Depends on: HWMON [=y] && PMBUS [=m]
+#   Location:
+#     -> Device Drivers
+#       -> Hardware Monitoring support (HWMON [=y])
+#         -> PMBus support (PMBUS [=m])
+#           -> MPS MP5926 (SENSORS_MP5926 [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: ca2cf3554492 (hwmon: (pmbus) Add mp5926 driver)
+# CONFIG_SENSORS_MP5926 is not set

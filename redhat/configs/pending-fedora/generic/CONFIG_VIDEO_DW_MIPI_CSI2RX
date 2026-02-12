@@ -1,0 +1,19 @@
+# ~~~
+# Symbol: VIDEO_DW_MIPI_CSI2RX [=n]
+# Type  : tristate
+# Defined at drivers/media/platform/synopsys/Kconfig:5
+#   Prompt: Synopsys DesignWare MIPI CSI-2 Receiver
+#   Depends on: MEDIA_SUPPORT [=m] && MEDIA_PLATFORM_SUPPORT [=y] && MEDIA_PLATFORM_DRIVERS [=y] && VIDEO_DEV [=m] && V4L_PLATFORM_DRIVERS [=y] && PM [=y] && COMMON_CLK [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Multimedia support (MEDIA_SUPPORT [=m])
+#         -> Media drivers
+#           -> Media platform devices (MEDIA_PLATFORM_DRIVERS [=y])
+#             -> Synopsys DesignWare MIPI CSI-2 Receiver (VIDEO_DW_MIPI_CSI2RX [=n])
+# Selects: MEDIA_CONTROLLER [=y] && V4L2_FWNODE [=m] && VIDEO_V4L2_SUBDEV_API [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: 355a11004066 (media: synopsys: add driver for the designware mipi csi-2 receiver)
+# CONFIG_VIDEO_DW_MIPI_CSI2RX is not set

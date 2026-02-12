@@ -1,0 +1,18 @@
+# ~~~
+# Symbol: CRYPTO_LIB_NH_KUNIT_TEST [=m]
+# Type  : tristate
+# Defined at lib/crypto/tests/Kconfig:50
+#   Prompt: KUnit tests for NH
+#   Depends on: KUNIT [=m]
+#   Visible if: KUNIT [=m] && !KUNIT_ALL_TESTS [=m]
+#   Location:
+#     -> Library routines
+#       -> Crypto library routines
+#         -> KUnit tests for NH (CRYPTO_LIB_NH_KUNIT_TEST [=m])
+# Selects: CRYPTO_LIB_NH [=m]
+# 
+# 
+# 
+# ~~~
+# Commit: 7246fe6cd644 (lib/crypto: tests: Add KUnit tests for NH)
+CONFIG_CRYPTO_LIB_NH_KUNIT_TEST=m
