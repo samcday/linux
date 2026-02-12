@@ -1,0 +1,18 @@
+# ~~~
+# Symbol: NET_DSA_MXL862 [=n]
+# Type  : tristate
+# Defined at drivers/net/dsa/mxl862xx/Kconfig:2
+#   Prompt: MaxLinear MxL862xx
+#   Depends on: NETDEVICES [=y] && NET_DSA [=m]
+#   Location:
+#     -> Device Drivers
+#       -> Network device support (NETDEVICES [=y])
+#         -> Distributed Switch Architecture drivers
+#           -> MaxLinear MxL862xx (NET_DSA_MXL862 [=n])
+# Selects: MAXLINEAR_GPHY [=m] && NET_DSA_TAG_MXL_862XX [=n]
+# 
+# 
+# 
+# ~~~
+# Commit: 23794bec1cb6 (net: dsa: add basic initial driver for MxL862xx switches)
+# CONFIG_NET_DSA_MXL862 is not set

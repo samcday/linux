@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: DPLL_REFCNT_TRACKER [=n]
+# Type  : bool
+# Defined at drivers/dpll/Kconfig:11
+#   Prompt: DPLL reference count tracking
+#   Depends on: DEBUG_KERNEL [=y] && STACKTRACE_SUPPORT [=y] && DPLL [=y]
+#   Location:
+#     -> Device Drivers
+#       -> DPLL device support
+#         -> DPLL reference count tracking (DPLL_REFCNT_TRACKER [=n])
+# Selects: REF_TRACKER [=n]
+# 
+# 
+# 
+# ~~~
+# Commit: 3c0da1030c58 (dpll: Add reference count tracking support)
+# CONFIG_DPLL_REFCNT_TRACKER is not set
