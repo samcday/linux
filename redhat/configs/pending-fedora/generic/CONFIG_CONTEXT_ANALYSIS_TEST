@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: CONTEXT_ANALYSIS_TEST [=n]
+# Type  : bool
+# Defined at lib/Kconfig.debug:2861
+#   Prompt: Compiler context-analysis warnings test
+#   Depends on: RUNTIME_TESTING_MENU [=y] && EXPERT [=y]
+#   Location:
+#     -> Kernel hacking
+#       -> Kernel Testing and Coverage
+#         -> Runtime Testing (RUNTIME_TESTING_MENU [=y])
+#           -> Compiler context-analysis warnings test (CONTEXT_ANALYSIS_TEST [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: 9b00c1609dee (compiler-context-analysis: Add test stub)
+# CONFIG_CONTEXT_ANALYSIS_TEST is not set

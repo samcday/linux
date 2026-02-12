@@ -1,0 +1,21 @@
+# ~~~
+# Symbol: SND_SOC_CS35L56_SHARED_TEST [=m]
+# Type  : tristate
+# Defined at sound/soc/codecs/Kconfig:945
+#   Prompt: KUnit test for Cirrus Logic cs35l56-shared
+#   Depends on: SOUND [=m] && SND [=m] && SND_SOC [=m] && SND_SOC_CS35L56 [=m] && SND_SOC_CS35L56_SHARED [=m] && KUNIT [=m]
+#   Visible if: SOUND [=m] && SND [=m] && SND_SOC [=m] && SND_SOC_CS35L56 [=m] && SND_SOC_CS35L56_SHARED [=m] && KUNIT [=m] && !KUNIT_ALL_TESTS [=m]
+#   Location:
+#     -> Device Drivers
+#       -> Sound card support (SOUND [=m])
+#         -> Advanced Linux Sound Architecture (SND [=m])
+#           -> ALSA for SoC audio support (SND_SOC [=m])
+#             -> CODEC drivers
+#               -> CS35L56 driver options
+#                 -> KUnit test for Cirrus Logic cs35l56-shared (SND_SOC_CS35L56_SHARED_TEST [=m])
+# 
+# 
+# 
+# ~~~
+# Commit: 9bca0f05cea4 (ASoC: cs35l56-shared: KUnit tests for onchip speaker ID gpios)
+CONFIG_SND_SOC_CS35L56_SHARED_TEST=m

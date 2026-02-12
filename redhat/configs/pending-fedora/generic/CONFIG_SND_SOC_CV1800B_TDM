@@ -1,0 +1,20 @@
+# ~~~
+# Symbol: SND_SOC_CV1800B_TDM [=n]
+# Type  : tristate
+# Defined at sound/soc/sophgo/Kconfig:9
+#   Prompt: Sophgo CV1800B I2S/TDM support
+#   Depends on: SOUND [=m] && SND [=m] && (COMPILE_TEST [=n] || ARCH_SOPHGO [=y]) && SND_SOC [=m] && OF [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Sound card support (SOUND [=m])
+#         -> Advanced Linux Sound Architecture (SND [=m])
+#           -> ALSA for SoC audio support (SND_SOC [=m])
+#             -> Sophgo
+#               -> Sophgo CV1800B I2S/TDM support (SND_SOC_CV1800B_TDM [=n])
+# Selects: SND_SOC_GENERIC_DMAENGINE_PCM [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: ea0fb91c02c1 (ASoC: sophgo: add CV1800B I2S/TDM controller driver)
+# CONFIG_SND_SOC_CV1800B_TDM is not set

@@ -1,0 +1,18 @@
+# ~~~
+# Symbol: HID_RAPOO [=n]
+# Type  : tristate
+# Defined at drivers/hid/Kconfig:1019
+#   Prompt: Rapoo non-fully HID-compliant devices
+#   Depends on: HID_SUPPORT [=y] && HID [=y]
+#   Location:
+#     -> Device Drivers
+#       -> HID bus support (HID_SUPPORT [=y])
+#         -> HID bus core support (HID [=y])
+#           -> Special HID drivers
+#             -> Rapoo non-fully HID-compliant devices (HID_RAPOO [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: b3b1c68fb726 (HID: rapoo: Add support for side buttons on RAPOO 0x2015 mouse)
+# CONFIG_HID_RAPOO is not set

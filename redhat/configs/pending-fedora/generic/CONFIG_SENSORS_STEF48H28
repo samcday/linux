@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: SENSORS_STEF48H28 [=n]
+# Type  : tristate
+# Defined at drivers/hwmon/pmbus/Kconfig:597
+#   Prompt: ST STEF48H28
+#   Depends on: HWMON [=y] && PMBUS [=m]
+#   Location:
+#     -> Device Drivers
+#       -> Hardware Monitoring support (HWMON [=y])
+#         -> PMBus support (PMBUS [=m])
+#           -> ST STEF48H28 (SENSORS_STEF48H28 [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: 64824861ebd7 (hwmon: pmbus: add support for STEF48H28)
+# CONFIG_SENSORS_STEF48H28 is not set

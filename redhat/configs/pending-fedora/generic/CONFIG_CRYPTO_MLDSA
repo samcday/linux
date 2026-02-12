@@ -1,0 +1,21 @@
+# ~~~
+# Symbol: CRYPTO_MLDSA [=n]
+# Type  : tristate
+# Defined at crypto/Kconfig:347
+#   Prompt: ML-DSA (Module-Lattice-Based Digital Signature Algorithm)
+#   Depends on: CRYPTO [=y]
+#   Location:
+#     -> Cryptographic API (CRYPTO [=y])
+#       -> Public-key cryptography
+#         -> ML-DSA (Module-Lattice-Based Digital Signature Algorithm) (CRYPTO_MLDSA [=n])
+# Selects: CRYPTO_SIG [=y] && CRYPTO_LIB_MLDSA [=m]
+# Selected by [n]:
+#   - MODULE_SIG_KEY_TYPE_MLDSA_44 [=n] && CRYPTO [=y] && (MODULE_SIG [=y] || IMA_APPRAISE_MODSIG [=y] && MODULES [=y]) && OPENSSL_SUPPORTS_ML_DSA [=y]
+#   - MODULE_SIG_KEY_TYPE_MLDSA_65 [=n] && CRYPTO [=y] && (MODULE_SIG [=y] || IMA_APPRAISE_MODSIG [=y] && MODULES [=y]) && OPENSSL_SUPPORTS_ML_DSA [=y]
+#   - MODULE_SIG_KEY_TYPE_MLDSA_87 [=n] && CRYPTO [=y] && (MODULE_SIG [=y] || IMA_APPRAISE_MODSIG [=y] && MODULES [=y]) && OPENSSL_SUPPORTS_ML_DSA [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: d3b6dd90e23e (crypto: Add ML-DSA crypto_sig support)
+# CONFIG_CRYPTO_MLDSA is not set
