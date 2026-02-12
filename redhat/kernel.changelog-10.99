@@ -1,3 +1,8 @@
+* Thu Feb 12 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.20.0-0.rc0.37a93dd5c49b.4]
+- Fix mismatch for CONFIG_POWER_SEQUENCING (Justin M. Forbes)
+- Linux v6.20.0-0.rc0.37a93dd5c49b
+Resolves: 
+
 * Thu Feb 12 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.20.0-0.rc0.c22e26bd0906.3]
 - Fix up a couple of mismatches with PREEMPT_LAZY and x86 SND_SOC_TAS2781_I2C for RHEL (Justin M. Forbes)
 - Turn on CONFIG_PREEMPT in pending to avoid mismatch (Justin M. Forbes)
