@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: REGULATOR_MAX77675 [=n]
+# Type  : tristate
+# Defined at drivers/regulator/Kconfig:662
+#   Prompt: Maxim MAX77675 regulator driver
+#   Depends on: REGULATOR [=y] && I2C [=y] && OF [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Voltage and Current Regulator Support (REGULATOR [=y])
+#         -> Maxim MAX77675 regulator driver (REGULATOR_MAX77675 [=n])
+# Selects: REGMAP_I2C [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: 9e92c559d49d (regulator: max77675: Add MAX77675 regulator driver)
+# CONFIG_REGULATOR_MAX77675 is not set
