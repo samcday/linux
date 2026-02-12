@@ -1,0 +1,19 @@
+# ~~~
+# Symbol: NET_DSA_TAG_MXL_862XX [=n]
+# Type  : tristate
+# Defined at net/dsa/Kconfig:107
+#   Prompt: Tag driver for MaxLinear MxL862xx switches
+#   Depends on: NET [=y] && NET_DSA [=m]
+#   Location:
+#     -> Networking support (NET [=y])
+#       -> Networking options
+#         -> Distributed Switch Architecture (NET_DSA [=m])
+#           -> Tag driver for MaxLinear MxL862xx switches (NET_DSA_TAG_MXL_862XX [=n])
+# Selected by [n]:
+#   - NET_DSA_MXL862 [=n] && NETDEVICES [=y] && NET_DSA [=m]
+# 
+# 
+# 
+# ~~~
+# Commit: 85ee98742902 (net: dsa: add tag format for MxL862xx switches)
+# CONFIG_NET_DSA_TAG_MXL_862XX is not set

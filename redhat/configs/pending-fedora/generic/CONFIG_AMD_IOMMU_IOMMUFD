@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: AMD_IOMMU_IOMMUFD [=n]
+# Type  : bool
+# Defined at drivers/iommu/amd/Kconfig:33
+#   Prompt: Enable IOMMUFD features for AMD IOMMU (EXPERIMENTAL)
+#   Depends on: IOMMU_SUPPORT [=y] && IOMMUFD [=m] && AMD_IOMMU [=y]
+#   Location:
+#     -> Device Drivers
+#       -> IOMMU Hardware Support (IOMMU_SUPPORT [=y])
+#         -> AMD IOMMU support (AMD_IOMMU [=y])
+#           -> Enable IOMMUFD features for AMD IOMMU (EXPERIMENTAL) (AMD_IOMMU_IOMMUFD [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: 7d8b06ecc45b (iommu/amd: Add support for hw_info for iommu capability query)
+# CONFIG_AMD_IOMMU_IOMMUFD is not set
