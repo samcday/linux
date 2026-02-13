@@ -1,3 +1,7 @@
+* Fri Feb 13 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.20.0-0.rc0.cee73b1e840c.5]
+- Linux v6.20.0-0.rc0.cee73b1e840c
+Resolves: 
+
 * Thu Feb 12 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.20.0-0.rc0.37a93dd5c49b.4]
 - Fix mismatch for CONFIG_POWER_SEQUENCING (Justin M. Forbes)
 - Linux v6.20.0-0.rc0.37a93dd5c49b
