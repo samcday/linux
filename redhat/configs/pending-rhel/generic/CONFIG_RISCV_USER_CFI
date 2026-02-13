@@ -1,0 +1,16 @@
+# ~~~
+# Symbol: RISCV_USER_CFI [=y]
+# Type  : bool
+# Defined at arch/riscv/Kconfig:1166
+#   Prompt: riscv userspace control flow integrity
+#   Depends on: 64BIT [=y] && MMU [=y] && RISCV_ALTERNATIVE [=y]
+#   Location:
+#     -> Kernel features
+#       -> riscv userspace control flow integrity (RISCV_USER_CFI [=y])
+# Selects: RISCV_SBI [=y] && ARCH_HAS_USER_SHADOW_STACK [=y] && ARCH_USES_HIGH_VMA_FLAGS [=y] && DYNAMIC_SIGFRAME [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: 22c1e263af2a (riscv: create a Kconfig fragment for shadow stack and landing pad support)
+CONFIG_RISCV_USER_CFI=y
