@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: BOOTPARAM_SOFTLOCKUP_PANIC [=0]
+# Type  : integer
+# Defined at lib/Kconfig.debug:1149
+#   Prompt: Panic (Reboot) On Soft Lockups
+#   Depends on: SOFTLOCKUP_DETECTOR [=y]
+#   Location:
+#     -> Kernel hacking
+#       -> Debug Oops, Lockups and Hangs
+#         -> Detect Soft Lockups (SOFTLOCKUP_DETECTOR [=y])
+#           -> Panic (Reboot) On Soft Lockups (BOOTPARAM_SOFTLOCKUP_PANIC [=0])
+# 
+# 
+# 
+# ~~~
+# Commit: 5f00ae0d3ef8 (lib/Kconfig.debug: Debug Lockups and Hangs: keep SOFTLOCKUP options together)
+CONFIG_BOOTPARAM_SOFTLOCKUP_PANIC=0

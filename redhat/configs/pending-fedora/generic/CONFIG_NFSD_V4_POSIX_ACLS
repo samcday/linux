@@ -1,0 +1,16 @@
+# ~~~
+# Symbol: NFSD_V4_POSIX_ACLS [=n]
+# Type  : bool
+# Defined at fs/nfsd/Kconfig:190
+#   Prompt: Support NFSv4 POSIX draft ACLs
+#   Depends on: NETWORK_FILESYSTEMS [=y] && NFSD_V4 [=y]
+#   Location:
+#     -> File systems
+#       -> Network File Systems (NETWORK_FILESYSTEMS [=y])
+#         -> Support NFSv4 POSIX draft ACLs (NFSD_V4_POSIX_ACLS [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: feb8a46b14d9 (NFSD: Add a Kconfig setting to enable support for NFSv4 POSIX ACLs)
+# CONFIG_NFSD_V4_POSIX_ACLS is not set
