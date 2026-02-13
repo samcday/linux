@@ -1,0 +1,16 @@
+# ~~~
+# Symbol: LAZY_MMU_MODE_KUNIT_TEST [=m]
+# Type  : tristate
+# Defined at mm/Kconfig:1462
+#   Prompt: KUnit tests for the lazy MMU mode
+#   Depends on: ARCH_HAS_LAZY_MMU_MODE [=y] && KUNIT [=m]
+#   Visible if: ARCH_HAS_LAZY_MMU_MODE [=y] && KUNIT [=m] && !KUNIT_ALL_TESTS [=m]
+#   Location:
+#     -> Memory Management options
+#       -> KUnit tests for the lazy MMU mode (LAZY_MMU_MODE_KUNIT_TEST [=m])
+# 
+# 
+# 
+# ~~~
+# Commit: ee628d9cc8d5 (mm: add basic tests for lazy_mmu)
+CONFIG_LAZY_MMU_MODE_KUNIT_TEST=m

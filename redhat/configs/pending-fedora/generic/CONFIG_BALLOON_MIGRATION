@@ -1,0 +1,15 @@
+# ~~~
+# Symbol: BALLOON_MIGRATION [=y]
+# Type  : bool
+# Defined at mm/Kconfig:590
+#   Prompt: Allow for balloon memory migration
+#   Depends on: MIGRATION [=y] && BALLOON [=y]
+#   Location:
+#     -> Memory Management options
+#       -> Allow for balloon memory migration (BALLOON_MIGRATION [=y])
+# 
+# 
+# 
+# ~~~
+# Commit: cd8e95d80bc2 (mm: rename CONFIG_BALLOON_COMPACTION to CONFIG_BALLOON_MIGRATION)
+CONFIG_BALLOON_MIGRATION=y
