@@ -1,3 +1,8 @@
+* Sat Feb 14 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.20.0-0.rc0.770aaedb461a.6]
+- Fix up merge from master (Justin M. Forbes)
+- Linux v6.20.0-0.rc0.770aaedb461a
+Resolves: 
+
 * Fri Feb 13 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.20.0-0.rc0.cee73b1e840c.5]
 - Linux v6.20.0-0.rc0.cee73b1e840c
 Resolves: 
