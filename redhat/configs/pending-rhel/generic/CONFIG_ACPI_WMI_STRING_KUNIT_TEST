@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: ACPI_WMI_STRING_KUNIT_TEST [=m]
+# Type  : tristate
+# Defined at drivers/platform/wmi/tests/Kconfig:18
+#   Prompt: KUnit Test for ACPI-WMI string conversion
+#   Depends on: ACPI_WMI [=m] && KUNIT [=m]
+#   Visible if: ACPI_WMI [=m] && KUNIT [=m] && !KUNIT_ALL_TESTS [=m]
+#   Location:
+#     -> Device Drivers
+#       -> ACPI-WMI support (ACPI_WMI [=m])
+#         -> KUnit Test for ACPI-WMI string conversion (ACPI_WMI_STRING_KUNIT_TEST [=m])
+# 
+# 
+# 
+# ~~~
+# Commit: 0e1a8143e797 (platform/wmi: Add kunit test for the string conversion code)
+CONFIG_ACPI_WMI_STRING_KUNIT_TEST=m
