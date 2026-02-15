@@ -1,0 +1,18 @@
+# ~~~
+# Symbol: LOGO_LINUX_CLUT224_FILE [=drivers/video/logo/logo_linux_clut224.ppm]
+# Type  : string
+# Defined at drivers/video/logo/Kconfig:61
+#   Prompt: 224-color logo .ppm file
+#   Depends on: (FB_CORE [=y] || SGI_NEWPORT_CONSOLE [=n]) && LOGO [=y] && LOGO_LINUX_CLUT224 [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Graphics support
+#         -> Bootup logo (LOGO [=y])
+#           -> Standard 224-color Linux logo (LOGO_LINUX_CLUT224 [=y])
+#             -> 224-color logo .ppm file (LOGO_LINUX_CLUT224_FILE [=drivers/video/logo/logo_linux_clut224.ppm])
+# 
+# 
+# 
+# ~~~
+# Commit: dfa6ce636cb8 (video/logo: allow custom logo)
+CONFIG_LOGO_LINUX_CLUT224_FILE="drivers/video/logo/logo_linux_clut224.ppm"
