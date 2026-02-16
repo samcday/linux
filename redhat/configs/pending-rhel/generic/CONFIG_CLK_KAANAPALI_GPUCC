@@ -1,0 +1,18 @@
+# ~~~
+# Symbol: CLK_KAANAPALI_GPUCC [=n]
+# Type  : tristate
+# Defined at drivers/clk/qcom/Kconfig:78
+#   Prompt: Kaanapali Graphics Clock Controller
+#   Depends on: COMMON_CLK [=y] && COMMON_CLK_QCOM [=y] && (ARM64 [=y] || COMPILE_TEST [=n])
+#   Location:
+#     -> Device Drivers
+#       -> Common Clock Framework (COMMON_CLK [=y])
+#         -> Support for Qualcomm's clock controllers (COMMON_CLK_QCOM [=y])
+#           -> Kaanapali Graphics Clock Controller (CLK_KAANAPALI_GPUCC [=n])
+# Selects: CLK_KAANAPALI_GCC [=n]
+# 
+# 
+# 
+# ~~~
+# Commit: 685ec348339b (clk: qcom: Add support for GPUCC and GXCLK for Kaanapali)
+# CONFIG_CLK_KAANAPALI_GPUCC is not set
