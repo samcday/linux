@@ -1,0 +1,18 @@
+# ~~~
+# Symbol: CLK_KAANAPALI_CAMCC [=n]
+# Type  : tristate
+# Defined at drivers/clk/qcom/Kconfig:49
+#   Prompt: Kaanapali Camera Clock Controller
+#   Depends on: COMMON_CLK [=y] && COMMON_CLK_QCOM [=y] && (ARM64 [=y] || COMPILE_TEST [=n])
+#   Location:
+#     -> Device Drivers
+#       -> Common Clock Framework (COMMON_CLK [=y])
+#         -> Support for Qualcomm's clock controllers (COMMON_CLK_QCOM [=y])
+#           -> Kaanapali Camera Clock Controller (CLK_KAANAPALI_CAMCC [=n])
+# Selects: CLK_KAANAPALI_GCC [=n]
+# 
+# 
+# 
+# ~~~
+# Commit: 92aae35f667c (clk: qcom: camcc: Add support for camera clock controller for Kaanapali)
+# CONFIG_CLK_KAANAPALI_CAMCC is not set
