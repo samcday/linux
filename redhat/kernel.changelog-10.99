@@ -1,3 +1,13 @@
+* Mon Feb 16 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.20.0-0.rc0.0f2acd3148e0.8]
+- configs: enable Freescale MXS DMA engine (Jiri Benc)
+- redhat/dracut-virt.conf: remove erroneous spaces in omit_dracutmodules (Li Tian)
+- redhat/kernel.spec.template: Make -uki-dtbloader provide kernel-core-uname-r (Hans de Goede)
+- redhat/kernel.spec.template: Add kernel-uki-dtbloader sub-package (Hans de Goede)
+- redhat/kernel.spec.template: Simplify uki-virt signing (Hans de Goede)
+- redhat/kernel.spec.template: Fix indentation of uki-virt generation code (Hans de Goede)
+- Linux v6.20.0-0.rc0.0f2acd3148e0
+Resolves: 
+
 * Sun Feb 15 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.20.0-0.rc0.ca4ee40bf13d.7]
 - Linux v6.20.0-0.rc0.ca4ee40bf13d
 Resolves: 
