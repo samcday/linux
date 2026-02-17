@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: MFD_TN48M_CPLD [=n]
+# Type  : tristate
+# Defined at drivers/mfd/Kconfig:410
+#   Prompt: Delta Networks TN48M switch CPLD driver
+#   Depends on: HAS_IOMEM [=y] && I2C [=y] && (ARCH_MVEBU [=y] || COMPILE_TEST [=n])
+#   Location:
+#     -> Device Drivers
+#       -> Multifunction device drivers
+#         -> Delta Networks TN48M switch CPLD driver (MFD_TN48M_CPLD [=n])
+# Selects: MFD_SIMPLE_MFD_I2C [=m]
+# 
+# 
+# 
+# ~~~
+# Commit: 8f34c1a64c53 (mfd: simple-mfd-i2c: Add Delta TN48M CPLD support)
+# CONFIG_MFD_TN48M_CPLD is not set
