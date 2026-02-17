@@ -1,3 +1,7 @@
+* Tue Feb 17 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.20.0-0.rc0.970296997869.9]
+- Linux v6.20.0-0.rc0.970296997869
+Resolves: 
+
 * Mon Feb 16 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.20.0-0.rc0.0f2acd3148e0.8]
 - configs: enable Freescale MXS DMA engine (Jiri Benc)
 - redhat/dracut-virt.conf: remove erroneous spaces in omit_dracutmodules (Li Tian)
