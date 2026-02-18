@@ -1,0 +1,18 @@
+# ~~~
+# Symbol: MAX22007 [=n]
+# Type  : tristate
+# Defined at drivers/iio/dac/Kconfig:485
+#   Prompt: Analog Devices MAX22007 DAC Driver
+#   Depends on: IIO [=m] && SPI [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Industrial I/O support (IIO [=m])
+#         -> Digital to analog converters
+#           -> Analog Devices MAX22007 DAC Driver (MAX22007 [=n])
+# Selects: REGMAP_SPI [=m] && CRC8 [=m]
+# 
+# 
+# 
+# ~~~
+# Commit: f52690c50893 (iio: dac: Add MAX22007 DAC driver support)
+# CONFIG_MAX22007 is not set
