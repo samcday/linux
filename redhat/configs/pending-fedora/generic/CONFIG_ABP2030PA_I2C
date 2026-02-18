@@ -1,0 +1,18 @@
+# ~~~
+# Symbol: ABP2030PA_I2C [=n]
+# Type  : tristate
+# Defined at drivers/iio/pressure/Kconfig:24
+#   Prompt: Honeywell ABP2 pressure sensor series I2C driver
+#   Depends on: IIO [=m] && I2C [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Industrial I/O support (IIO [=m])
+#         -> Pressure sensors
+#           -> Honeywell ABP2 pressure sensor series I2C driver (ABP2030PA_I2C [=n])
+# Selects: ABP2030PA [=n]
+# 
+# 
+# 
+# ~~~
+# Commit: 47d323ce1e89 (iio: pressure: add Honeywell ABP2 driver)
+# CONFIG_ABP2030PA_I2C is not set

@@ -1,0 +1,18 @@
+# ~~~
+# Symbol: NXP_SAR_ADC [=n]
+# Type  : tristate
+# Defined at drivers/iio/adc/Kconfig:1250
+#   Prompt: NXP S32G SAR-ADC driver
+#   Depends on: IIO [=m] && (ARCH_S32 [=y] || COMPILE_TEST [=n])
+#   Location:
+#     -> Device Drivers
+#       -> Industrial I/O support (IIO [=m])
+#         -> Analog to digital converters
+#           -> NXP S32G SAR-ADC driver (NXP_SAR_ADC [=n])
+# Selects: IIO_BUFFER [=y] && IIO_TRIGGERED_BUFFER [=m]
+# 
+# 
+# 
+# ~~~
+# Commit: 4434072a893e (iio: adc: Add the NXP SAR ADC support for the s32g2/3 platforms)
+# CONFIG_NXP_SAR_ADC is not set

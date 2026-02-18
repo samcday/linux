@@ -1,0 +1,18 @@
+# ~~~
+# Symbol: TI_ADS131M02 [=n]
+# Type  : tristate
+# Defined at drivers/iio/adc/Kconfig:1774
+#   Prompt: Texas Instruments ADS131M02
+#   Depends on: IIO [=m] && SPI [=y] && REGULATOR [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Industrial I/O support (IIO [=m])
+#         -> Analog to digital converters
+#           -> Texas Instruments ADS131M02 (TI_ADS131M02 [=n])
+# Selects: CRC_ITU_T [=m]
+# 
+# 
+# 
+# ~~~
+# Commit: 4aa91223fd6c (iio: adc: Add TI ADS131M0x ADC driver)
+# CONFIG_TI_ADS131M02 is not set

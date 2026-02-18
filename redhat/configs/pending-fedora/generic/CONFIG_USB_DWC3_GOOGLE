@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: USB_DWC3_GOOGLE [=n]
+# Type  : tristate
+# Defined at drivers/usb/dwc3/Kconfig:214
+#   Prompt: Google Platform
+#   Depends on: USB_SUPPORT [=y] && USB_DWC3 [=m]
+#   Location:
+#     -> Device Drivers
+#       -> USB support (USB_SUPPORT [=y])
+#         -> DesignWare USB3 DRD Core Support (USB_DWC3 [=m])
+#           -> Google Platform (USB_DWC3_GOOGLE [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: 8995a37371bf (usb: dwc3: Add Google Tensor SoC DWC3 glue driver)
+# CONFIG_USB_DWC3_GOOGLE is not set
