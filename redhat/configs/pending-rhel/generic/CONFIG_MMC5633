@@ -1,0 +1,18 @@
+# ~~~
+# Symbol: MMC5633 [=n]
+# Type  : tristate
+# Defined at drivers/iio/magnetometer/Kconfig:142
+#   Prompt: MEMSIC MMC5633 3-axis magnetic sensor
+#   Depends on: IIO [=m] && I2C [=y] && (I3C [=n] || !I3C [=n])
+#   Location:
+#     -> Device Drivers
+#       -> Industrial I/O support (IIO [=m])
+#         -> Magnetometer sensors
+#           -> MEMSIC MMC5633 3-axis magnetic sensor (MMC5633 [=n])
+# Selects: REGMAP_I2C [=m] && REGMAP_I3C [=n]
+# 
+# 
+# 
+# ~~~
+# Commit: 6e5f6bf2e3f0 (iio: magnetometer: Add mmc5633 sensor)
+# CONFIG_MMC5633 is not set
