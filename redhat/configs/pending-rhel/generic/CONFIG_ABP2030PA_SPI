@@ -1,0 +1,18 @@
+# ~~~
+# Symbol: ABP2030PA_SPI [=n]
+# Type  : tristate
+# Defined at drivers/iio/pressure/Kconfig:36
+#   Prompt: Honeywell ABP2 pressure sensor series SPI driver
+#   Depends on: IIO [=m] && SPI_MASTER [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Industrial I/O support (IIO [=m])
+#         -> Pressure sensors
+#           -> Honeywell ABP2 pressure sensor series SPI driver (ABP2030PA_SPI [=n])
+# Selects: ABP2030PA [=n]
+# 
+# 
+# 
+# ~~~
+# Commit: 47d323ce1e89 (iio: pressure: add Honeywell ABP2 driver)
+# CONFIG_ABP2030PA_SPI is not set

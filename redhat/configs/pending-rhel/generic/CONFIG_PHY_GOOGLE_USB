@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: PHY_GOOGLE_USB [=n]
+# Type  : tristate
+# Defined at drivers/phy/Kconfig:50
+#   Prompt: Google Tensor SoC USB PHY driver
+#   Depends on: TYPEC [=y]
+#   Location:
+#     -> Device Drivers
+#       -> PHY Subsystem
+#         -> Google Tensor SoC USB PHY driver (PHY_GOOGLE_USB [=n])
+# Selects: GENERIC_PHY [=n]
+# 
+# 
+# 
+# ~~~
+# Commit: cbce66669c82 (phy: Add Google Tensor SoC USB PHY driver)
+# CONFIG_PHY_GOOGLE_USB is not set
