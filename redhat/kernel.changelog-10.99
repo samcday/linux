@@ -1,3 +1,7 @@
+* Sat Feb 21 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.20.0-0.rc0.d79526b89571.13]
+- Linux v6.20.0-0.rc0.d79526b89571
+Resolves: 
+
 * Fri Feb 20 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [6.20.0-0.rc0.8bf22c33e7a1.12]
 - redhat/configs: enable CONFIG_AQTION on all archs (Michal Schmidt) [RHEL-150853]
 - Add signing key for Nvidia Jetson (Enrique Belarte)
