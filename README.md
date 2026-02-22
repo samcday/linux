@@ -34,11 +34,11 @@ When you execute arkify for the first time, it will do the following things
 * Create a 'arkify-local-upstream-master' branch containing Linux mainline at
   the point where your local 'master' branch forked off.
 * Create a 'arkify-local-infra-master' branch from a tag in the
-  'arkify/arkify-infra-mainline-latest' branch that is close to the date of the
-  HEAD commit in your 'master' branch, as anything older or newer might be
-  unsuitable and result in a build error; if you nevertheless want the latest
-  arkify infrastructure similar to the one used for Fedora rawhide currently,
-  start arkify with '--latest'.
+  'arkify/arkify-infra-mainline' branch that is close to the date of the HEAD
+  commit in your 'master' branch, as anything older or newer might be unsuitable
+  and result in a build error; if you nevertheless want the latest arkify
+  infrastructure similar to the one used for Fedora rawhide currently, start
+  arkify with '--latest'.
 * Switch to 'arkify-local-infra-master' branch.
 * Adjust the configuration in 'redhat/Makefile.variables' to local needs.
 * Checkout 'master' brach.
@@ -61,44 +61,44 @@ to build the SRPMs for its kernels, but disables a few things (see
 'Advantages of using arkify over kernel-ark/ark-latest or kernel-ark/ark-infra'
 below for details).
 
-Running arkify again later will when needed update 'arkify-local-upstream-master'
-and rebase 'arkify-local-infra-master' to a suitable upstream point; afterwards
-it will bulk-import the code from the latter to 'master'. This will overwrite
-any modifications you performed to the ark infrastructure (e.g. the redhat/
+Running arkify again later will update 'arkify-local-upstream-master' and rebase
+'arkify-local-infra-master' to a suitable upstream point; afterwards it will
+bulk-import the code from the latter to 'master'. This will overwrite any
+modifications you performed to the ark infrastructure (e.g. the redhat/
 directory) in 'master'. To prevent that, perform them in 'arkify-infra-mainline'
 branch instead; afterwards checkout 'master' and run arkify again to import your
-changes. That way arkify then can later cleanly rebase your changes on-top of
-the upstream changes to the arkify/ark infrastructure using the normal Git merge
+changes. That way arkify then can cleanly rebase your changes on-top of the
+upstream changes to the arkify/ark infrastructure using the normal Git merge
 mechanisms.
 
 Note, arkify will create 'arkify-infra-…' branches for each local branch you use
 arkify on. If you add local changes to say 'arkify-infra-master' branch, you thus
-might need to cherry-pick then into the others; this is required, as the state of
+might need to cherry-pick them into the others; this is required, as the state of
 the arkify infrastructure to build mainline from ten weeks ago might be unsuitable
 to build current mainline or vice versa.
 
-## Advantages of using arkify over kernel-ark/ark-latest or kernel-ark/ark-infra
+Be aware that arkify avoids build sub-packages like -tools, -perf, or -selftests;
+it also does not build a -debug or -rt kernel. If you need any of that, enable
+it locally in 'redhat/kernel.spec.template' before building a SRPM.
+
+## Advantages of using arkify over kernel-ark/os-build or kernel-ark/ark-infra
 
 Arkify and the SRPMs it creates have the following advantages over using
 [kernel-ark/os-build](https://gitlab.com/cki-project/kernel-ark/-/tree/os-build):
 
-* Focus on building just one kernel. This speeds things up a lot, as it avoids
-  building various things:
-  - The sub-packages with a second kernel which has various debug options enabled.
+* The SRPMS build just one kernel. This speeds things up a lot, as it avoids
+  building various things you often won't need:
+  - A separate debug kernel.
   - The efiuki sub-package.
   - Utilities shipped in sub-packages like -tools, -perf, or -selftests.
-  If you need any of this or want to build a -rt kernel, re-enable it locally
-  in 'redhat/kernel.spec.template'.
-* The resulting RPMs besides rawhide should support proper Fedora Linux releases
-  all the time, too.
-* Support for Linux-next and various Linux stable series.
-* Faster SRPM generation:
-  - Try less hard compressing the kernel sources during tarball generation.
-* Use a proven state of the ark infrastructure that should match your code
-  base, better, as the latest might not fit your code, as it might be behind
-  or ahead of mainline.
-* Suggestion of fixes that might need to be cherry picked to make the SRPM
-  compile.
+* The SRPMs besides rawhide work on all current Fedora Linux releases.
+* Arkify support Linux-next and various Linux stable series.
+* The SRPM are generated faster, as they try less hard compressing the kernel
+  sources during tarball generation.
+* Arkify applies a proven state of the ark infrastructure that should match your
+  code base better than the latest ark-infrastructure from kernel-ark.
+* Arkify suggests fixes found in [kernel-ark/ark-latest](https://gitlab.com/cki-project/kernel-ark/-/tree/ark-latest)
+  that you might have to cherry pick to make the SRPM compile.
 
 ## TODO list
 
