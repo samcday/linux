@@ -4482,6 +4482,7 @@ fi\
 %{_includedir}/perf/evlist.h
 %{_includedir}/perf/evsel.h
 %{_includedir}/perf/mmap.h
+%{_includedir}/perf/schedstat-*.h
 %{_includedir}/perf/threadmap.h
 %{_mandir}/man3/libperf.3.gz
 %{_mandir}/man7/libperf-counting.7.gz
