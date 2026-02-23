@@ -13,4 +13,4 @@
 # 
 # ~~~
 # Commit: 4e0269352534 (NFS: Add a way to disable NFS v4.0 via KConfig)
-# CONFIG_NFS_V4_0 is not set
+CONFIG_NFS_V4_0=y
