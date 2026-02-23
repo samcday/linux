@@ -13,4 +13,4 @@
 # 
 # ~~~
 # Commit: feb8a46b14d9 (NFSD: Add a Kconfig setting to enable support for NFSv4 POSIX ACLs)
-# CONFIG_NFSD_V4_POSIX_ACLS is not set
+CONFIG_NFSD_V4_POSIX_ACLS=y

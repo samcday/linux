@@ -17,4 +17,4 @@
 # 
 # ~~~
 # Commit: 02ff155ea281 (net: stmmac: Add glue driver for Motorcomm YT6801 ethernet controller)
-# CONFIG_DWMAC_MOTORCOMM is not set
+CONFIG_DWMAC_MOTORCOMM=m
