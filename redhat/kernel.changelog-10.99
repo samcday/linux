@@ -1,3 +1,10 @@
+* Tue Feb 24 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.0.0-0.rc1.7dff99b35460.16]
+- Reset the changelog for 7.0-rc1 (Justin M. Forbes)
+- A couple more quick important 7.0 config updates for Fedora (Justin M. Forbes)
+- A couple of quick important 7.0 config updates for Fedora (Justin M. Forbes)
+- Linux v7.0.0-0.rc1.7dff99b35460
+Resolves: 
+
 * Mon Feb 23 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.0.0-0.rc1.15]
 - redhat/configs: enable CONFIG_AQTION on all archs (Michal Schmidt) [RHEL-150853]
 - Add signing key for Nvidia Jetson (Enrique Belarte)
