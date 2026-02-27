@@ -1,3 +1,7 @@
+* Fri Feb 27 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.0.0-0.rc1.a75cb869a8cc.18]
+- Linux v7.0.0-0.rc1.a75cb869a8cc
+Resolves: 
+
 * Thu Feb 26 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.0.0-0.rc1.f4d0ec0aa20d.17]
 - redhat/configs: unify CONFIG_CAN for RHEL and Fedora (Radu Rendec)
 - redhat: add a weak relationship between modules-internal and selftests (Jan Stancek)
