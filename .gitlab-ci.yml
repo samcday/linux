@@ -191,6 +191,17 @@ workflow:
   variables:
     merge_branch: ark-latest
 
+# prevent hitting GitLab rate-limit of 25 pipelines per minute
+delay_job:
+  stage: test
+  when: delayed
+  start_in: 3 minutes
+  script:
+    - echo "Delayed start dummy job"
+
+.delayed_start:
+  needs: [ delay_job ]
+
 # variants
 .rawhide_up:
   variables:
@@ -362,19 +373,19 @@ rawhide_16k_debug_baseline:
 
 rawhide_clang_baseline:
   extends: [.baseline, .trigger_rawhide, .reported_tests_clang, .ark_latest_head,
-            .rawhide_clang_up]
+            .rawhide_clang_up, .delayed_start ]
 
 rawhide_clang_debug_baseline:
   extends: [.baseline, .trigger_rawhide, .reported_tests_clang, .ark_latest_head,
-            .rawhide_clang_up_debug]
+            .rawhide_clang_up_debug, .delayed_start ]
 
 rawhide_clanglto_baseline:
   extends: [.baseline, .trigger_rawhide, .reported_tests_clang, .ark_latest_head,
-            .rawhide_clanglto_up]
+            .rawhide_clanglto_up, .delayed_start ]
 
 rawhide_clanglto_debug_baseline:
   extends: [.baseline, .trigger_rawhide, .reported_tests_clang, .ark_latest_head,
-            .rawhide_clanglto_up_debug]
+            .rawhide_clanglto_up_debug, .delayed_start ]
 
 rawhide_next_baseline:
   extends: [.baseline, .trigger_rawhide, .reported_tests, .os_build_next_head,
