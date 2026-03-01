@@ -1,3 +1,11 @@
+* Sun Mar 01 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.0.0-0.rc1.eb71ab2bf722.20]
+- [gitlab-ci] delay start rawhide clang pipelines by 3 mins. (Simone Tollardo)
+- fedora: Updates for the 7.0 merge (Peter Robinson)
+- fedora: disable Kaanapali by default (Peter Robinson)
+- fedora: minor beeper cleanups (Peter Robinson)
+- Linux v7.0.0-0.rc1.eb71ab2bf722
+Resolves: 
+
 * Sat Feb 28 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.0.0-0.rc1.4d349ee5c778.19]
 - Linux v7.0.0-0.rc1.4d349ee5c778
 Resolves: 
