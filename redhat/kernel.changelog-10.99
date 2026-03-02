@@ -1,3 +1,8 @@
+* Mon Mar 02 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.0.0-0.rc2.21]
+- Add signing key for Nvidia Bluefield GPU (Enrique Belarte Luque)
+- Linux v7.0.0-0.rc2
+Resolves: 
+
 * Sun Mar 01 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.0.0-0.rc1.eb71ab2bf722.20]
 - [gitlab-ci] delay start rawhide clang pipelines by 3 mins. (Simone Tollardo)
 - fedora: Updates for the 7.0 merge (Peter Robinson)
