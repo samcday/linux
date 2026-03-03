@@ -1,3 +1,10 @@
+* Tue Mar 03 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.0.0-0.rc2.af4e9ef3d784.22]
+- redhat/configs: automotive: enable NVMEM_S32G_OCOTP (Jared Kangas)
+- redhat/scripts: remove remnants of git notes usage and dead code (Jan Stancek)
+- New configs in fs/smb (Fedora Kernel Team)
+- Linux v7.0.0-0.rc2.af4e9ef3d784
+Resolves: 
+
 * Mon Mar 02 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.0.0-0.rc2.21]
 - Add signing key for Nvidia Bluefield GPU (Enrique Belarte Luque)
 - Linux v7.0.0-0.rc2
