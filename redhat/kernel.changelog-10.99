@@ -1,3 +1,7 @@
+* Tue Mar 10 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.0.0-0.rc3.29]
+- redhat/configs: automotive: enable USB_CHIPIDEA_IMX (Jared Kangas)
+Resolves: 
+
 * Mon Mar 09 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.0.0-0.rc3.28]
 - Linux v7.0.0-0.rc3
 Resolves: 
