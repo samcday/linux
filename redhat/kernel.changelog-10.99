@@ -1,3 +1,8 @@
+* Thu Mar 12 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.0.0-0.rc3.80234b5ab240.31]
+- redhat/configs: remove CONFIG_ZBUD (Rafael Aquini)
+- Linux v7.0.0-0.rc3.80234b5ab240
+Resolves: 
+
 * Wed Mar 11 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.0.0-0.rc3.b29fb8829bff.30]
 - Linux v7.0.0-0.rc3.b29fb8829bff
 Resolves: 
