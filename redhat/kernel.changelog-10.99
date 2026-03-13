@@ -1,3 +1,8 @@
+* Fri Mar 13 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.0.0-0.rc3.0257f64bdac7.32]
+- redhat: genlog: add new JIRA cloud server hostname (Jan Stancek)
+- Linux v7.0.0-0.rc3.0257f64bdac7
+Resolves: 
+
 * Thu Mar 12 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.0.0-0.rc3.80234b5ab240.31]
 - redhat/configs: remove CONFIG_ZBUD (Rafael Aquini)
 - Linux v7.0.0-0.rc3.80234b5ab240
