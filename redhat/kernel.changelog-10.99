@@ -1,3 +1,7 @@
+* Fri Mar 20 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.0.0-0.rc4.0e4f8f1a3d08.39]
+- Linux v7.0.0-0.rc4.0e4f8f1a3d08
+Resolves: 
+
 * Thu Mar 19 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.0.0-0.rc4.8a30aeb0d1b4.38]
 - redhat/configs: enable CONFIG_LIVEUPDATE for fedora (Luca Boccassi)
 - Linux v7.0.0-0.rc4.8a30aeb0d1b4
