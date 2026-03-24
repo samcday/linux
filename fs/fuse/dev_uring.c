@@ -1178,7 +1178,7 @@ int fuse_uring_cmd(struct io_uring_cmd *cmd, unsigned int issue_flags)
 		return -EOPNOTSUPP;
 	}
 
-	if (fc->aborted)
+	if (fc->chan->abort_with_err)
 		return -ECONNABORTED;
 	if (!fc->chan->connected)
 		return -ENOTCONN;
