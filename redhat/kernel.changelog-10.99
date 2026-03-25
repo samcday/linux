@@ -1,3 +1,9 @@
+* Wed Mar 25 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.0.0-0.rc5.bbeb83d3182a.43]
+- redhat/spec: Re-enable gdb index for riscv cross-compile (Jennifer Berringer)
+- redhat/kernel.spec: add aarch64 to fedora secure boot list (Jeremy Cline)
+- Linux v7.0.0-0.rc5.bbeb83d3182a
+Resolves: 
+
 * Mon Mar 23 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.0.0-0.rc5.42]
 - Linux v7.0.0-0.rc5
 Resolves: 
