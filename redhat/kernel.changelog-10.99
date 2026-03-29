@@ -1,3 +1,7 @@
+* Sun Mar 29 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.0.0-0.rc5.cbfffcca2bf0.47]
+- Linux v7.0.0-0.rc5.cbfffcca2bf0
+Resolves: 
+
 * Sat Mar 28 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.0.0-0.rc5.be762d8b6dd7.46]
 - fedora: arm64: Make qcom geni i2c-adapter and i2c-hid-of drivers builtin (Hans de Goede)
 - Linux v7.0.0-0.rc5.be762d8b6dd7
