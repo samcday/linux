@@ -1,3 +1,8 @@
+* Mon Mar 30 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.0.0-0.rc6.48]
+- redhat/configs: Centralize iommu debugfs options, and enable amd iommu debugfs (Jerry Snitselaar)
+- Linux v7.0.0-0.rc6
+Resolves: 
+
 * Sun Mar 29 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.0.0-0.rc5.cbfffcca2bf0.47]
 - Linux v7.0.0-0.rc5.cbfffcca2bf0
 Resolves: 
