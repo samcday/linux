@@ -4095,6 +4095,7 @@ popd
 #
 %define kernel_devel_post() \
 %{expand:%%post %{?1:%{1}-}devel}\
+%if %{undefined __brp_linkdupes}\
 if [ -f /etc/sysconfig/kernel ]\
 then\
     . /etc/sysconfig/kernel || exit 0\
@@ -4108,6 +4109,7 @@ then\
      /usr/bin/find /usr/src/kernels -type f -name '*.hardlink-temporary' -delete\
     )\
 fi\
+%endif\
 %if %{with_cross}\
     echo "Building scripts and resolve_btfids"\
     env --unset=ARCH make -C /usr/src/kernels/%{KVERREL}%{?1:+%{1}} prepare_after_cross\
