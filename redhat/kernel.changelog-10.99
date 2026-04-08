@@ -1,3 +1,16 @@
+* Wed Apr 08 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.0.0-0.rc7.3036cd0d3328.56]
+- Remove stale config items (Justin M. Forbes)
+- redhat/configs: enable CONFIG_WATCHDOG_HRTIMER_PRETIMEOUT (David Arcari)
+- Turn on CONFIG_PREEMPT_LAZY for all arches (Justin M. Forbes)
+- redhat: selftests/bpf: Add cpuv4 variant (Viktor Malik)
+- redhat/configs: automotive: enable CONFIG_INIT_STACK_ALL_ZERO (Joe Simmons-Talbott)
+- Turn om SND_SOC_TAS2781_I2C=m for x86_64 (Justin M. Forbes)
+- Fix mismatch for CONFIG_POWER_SEQUENCING (Justin M. Forbes)
+- scriptlets: exit 0 on explicit exits (Adam Williamson)
+- Work around binutils update in s390x perf (Justin M. Forbes)
+- Linux v7.0.0-0.rc7.3036cd0d3328
+Resolves: 
+
 * Tue Apr 07 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.0.0-0.rc7.bfe62a454542.55]
 - Linux v7.0.0-0.rc7.bfe62a454542
 Resolves: 
