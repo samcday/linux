@@ -1,3 +1,8 @@
+* Thu Apr 09 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.0.0-0.rc7.7f87a5ea75f0.57]
+- Consolidate configs to common for 7.0 (Justin M. Forbes)
+- Linux v7.0.0-0.rc7.7f87a5ea75f0
+Resolves: 
+
 * Wed Apr 08 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.0.0-0.rc7.3036cd0d3328.56]
 - Remove stale config items (Justin M. Forbes)
 - redhat/configs: enable CONFIG_WATCHDOG_HRTIMER_PRETIMEOUT (David Arcari)
