@@ -1,3 +1,8 @@
+* Fri Apr 10 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.0.0-0.rc7.9a9c8ce300cd.58]
+- rh_message.h: update support status of mlx5 devices (Scott Weaver)
+- Linux v7.0.0-0.rc7.9a9c8ce300cd
+Resolves: 
+
 * Thu Apr 09 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.0.0-0.rc7.7f87a5ea75f0.57]
 - Consolidate configs to common for 7.0 (Justin M. Forbes)
 - Linux v7.0.0-0.rc7.7f87a5ea75f0
