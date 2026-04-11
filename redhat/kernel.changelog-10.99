@@ -1,3 +1,10 @@
+* Sat Apr 11 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.0.0-0.rc7.e774d5f1bc27.59]
+- redhat: allow genlog to exclude commits and issues based on ref pattern (Jan Stancek)
+- redhat/configs: enable the DIBS driver as it is now required for the SMC networking (Dan Horák)
+- redhat/configs: enable CRYPTO_PHMAC as module on s390x (Dan Horák)
+- Linux v7.0.0-0.rc7.e774d5f1bc27
+Resolves: 
+
 * Fri Apr 10 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.0.0-0.rc7.9a9c8ce300cd.58]
 - rh_message.h: update support status of mlx5 devices (Scott Weaver)
 - Linux v7.0.0-0.rc7.9a9c8ce300cd
