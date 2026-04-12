@@ -1,3 +1,7 @@
+* Sun Apr 12 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.0.0-0.rc7.f5459048c38a.60]
+- Linux v7.0.0-0.rc7.f5459048c38a
+Resolves: 
+
 * Sat Apr 11 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.0.0-0.rc7.e774d5f1bc27.59]
 - redhat: allow genlog to exclude commits and issues based on ref pattern (Jan Stancek)
 - redhat/configs: enable the DIBS driver as it is now required for the SMC networking (Dan Horák)
