@@ -1,3 +1,8 @@
+* Mon Apr 13 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.0.0-62]
+- Add epoch support for rv and rv-debuginfo packages (John Kacur)
+- Drop the hardlink step in %%post scriptlet (Zbigniew Jędrzejewski-Szmek)
+Resolves: 
+
 * Mon Apr 13 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.0.0-61]
 - Linux v7.0.0
 Resolves: 
