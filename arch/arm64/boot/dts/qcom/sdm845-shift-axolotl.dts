@@ -676,6 +676,13 @@
 };
 
 &pm8998_gpios {
+	sw_ctrl_default: sw-ctrl-default-state {
+		pins = "gpio3";
+		function = "normal";
+		input-enable;
+		bias-pull-down;
+	};
+
 	camera_rear_dvdd_n_default: camera-rear-dvdd-n-default-pins {
 		pins = "gpio12";
 		function = "normal";
