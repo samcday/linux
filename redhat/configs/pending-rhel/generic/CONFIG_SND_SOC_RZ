@@ -1,0 +1,19 @@
+# ~~~
+# Symbol: SND_SOC_RZ [=n]
+# Type  : tristate
+# Defined at sound/soc/renesas/Kconfig:56
+#   Prompt: RZ/G2L series SSIF-2 support
+#   Depends on: SOUND [=m] && SND [=m] && SND_SOC [=m] && (SUPERH || ARCH_RENESAS [=y] || COMPILE_TEST [=n]) && (ARCH_RZG2L [=y] || COMPILE_TEST [=n])
+#   Location:
+#     -> Device Drivers
+#       -> Sound card support (SOUND [=m])
+#         -> Advanced Linux Sound Architecture (SND [=m])
+#           -> ALSA for SoC audio support (SND_SOC [=m])
+#             -> Renesas
+#               -> RZ/G2L series SSIF-2 support (SND_SOC_RZ [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: 03e786bd4341 (ASoC: sh: Add RZ/G2L SSIF-2 driver)
+# CONFIG_SND_SOC_RZ is not set
