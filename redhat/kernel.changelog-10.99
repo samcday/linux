@@ -1,3 +1,8 @@
+* Fri Apr 17 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.1.0-0.rc0.43cfbdda5af6.65]
+- Correct manual merge error in crypto/rng.c (Patrick Talbert)
+- Linux v7.1.0-0.rc0.43cfbdda5af6
+Resolves: 
+
 * Thu Apr 16 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.1.0-0.rc0.1d51b370a0f8.64]
 - Fix up pending for mismatches (Justin M. Forbes)
 - Fix up rebase typo in drivers/pci/quirks.c (Justin M. Forbes)
