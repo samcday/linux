@@ -1,3 +1,7 @@
+* Sat Apr 18 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.1.0-0.rc0.8541d8f725c6.66]
+- Linux v7.1.0-0.rc0.8541d8f725c6
+Resolves: 
+
 * Fri Apr 17 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.1.0-0.rc0.43cfbdda5af6.65]
 - Correct manual merge error in crypto/rng.c (Patrick Talbert)
 - Linux v7.1.0-0.rc0.43cfbdda5af6
