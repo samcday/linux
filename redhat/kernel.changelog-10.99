@@ -1,3 +1,7 @@
+* Wed Apr 22 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.1.0-0.rc0.6596a02b2078.3]
+- Linux v7.1.0-0.rc0.6596a02b2078
+Resolves: 
+
 * Tue Apr 21 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.1.0-0.rc0.b4e07588e743.2]
 - Trim changelog and reset RHEL_RELEASE for 7.1 (Justin M. Forbes)
 - Linux v7.1.0-0.rc0.b4e07588e743
