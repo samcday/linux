@@ -41,6 +41,7 @@ properties:
       - semtech,sx8654
       - semtech,sx8655
       - semtech,sx8656
+      - siw,sw49410_ts_spi
 
   reg:
     maxItems: 1
