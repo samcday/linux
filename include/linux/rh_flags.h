@@ -28,7 +28,7 @@ void rh_print_flags(void);
 	unlikely(__ret_mark_once);					\
 })
 #else
-static void rh_print_flags(void) { }
-static void rh_add_flag(const char *flag_name) { }
+static inline void rh_print_flags(void) { }
+static inline void rh_add_flag(const char *flag_name) { }
 #endif
 #endif
