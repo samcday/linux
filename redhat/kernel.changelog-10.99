@@ -1,3 +1,12 @@
+* Wed Apr 29 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.1.0-0.rc1.dca922e019dd.10]
+- Delete Fedora configs removed upstream for 7.1 (Justin M. Forbes)
+- add man-page for rv-mon-stall (Thorsten Leemhuis)
+- Enable FFA for TPM on AArch64 (Marcin Juszkiewicz)
+- redhat: rh_flags: mark !CONFIG_RHEL_DIFFERENCES stubs as static inline (Jonathan Steffan)
+- redhat: Add DENYLIST.rhel to BPF selftests (Viktor Malik)
+- Linux v7.1.0-0.rc1.dca922e019dd
+Resolves: 
+
 * Tue Apr 28 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.1.0-0.rc1.3b3bea6d4b9c.9]
 - Linux v7.1.0-0.rc1.3b3bea6d4b9c
 Resolves: 
