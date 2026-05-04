@@ -808,7 +808,7 @@ sources-rh: $(TARBALL) $(KABI_TARBALL) $(KABIDW_TARBALL) generate-testpatch-tmp 
 		dtbloader.sbat.template \
 		dracut-virt.conf \
 		$(SOURCES)/
-	@changelog_glob="$(SPECPACKAGE_NAME).changelog-*"; \
+	@changelog_glob="$(SPECPACKAGE_NAME).changelog-$(RHEL_MAJOR).*[0-9]"; \
 	cat $$(ls -1 $$changelog_glob | sort -V -r) \
 		> $(SOURCES)/$(SPECPACKAGE_NAME).changelog
 	cp keys/redhatsecureboot{501,ca5}.cer $(SOURCES)/;
