@@ -209,7 +209,7 @@ UPSTREAM:=$(shell $(GIT) rev-parse -q --verify origin/$(UPSTREAM_BRANCH) || \
 
 ifneq ("$(wildcard $(TOPDIR)/localversion-next)", "")
   # we are building linux-next
-  MARKER:=$(shell $(GIT) describe $(UPSTREAM))
+  MARKER:=$(shell $(GIT) describe --abbrev=12 $(UPSTREAM))
   # The merge window is weird because the actual versioning hasn't
   # been updated but we still need something that works for
   # packaging. Fix this by bumping the patch level.
@@ -225,13 +225,13 @@ else ifeq ($(VERSION_ON_UPSTREAM),1)
       $(error "Missing an $(UPSTREAM_BRANCH) branch")
   endif
   MERGE_BASE:=$(shell $(GIT) merge-base $(HEAD) $(UPSTREAM))
-  _TAG:=$(shell $(GIT) describe $(MERGE_BASE))
+  _TAG:=$(shell $(GIT) describe --abbrev=12 $(MERGE_BASE))
   # a snapshot off of a tagged git is of the form [tag]-[cnt]-g[hash]
   SNAPSHOT:=$(shell echo $(_TAG) | grep -c '\-g')
 
   ifeq ($(SNAPSHOT),1)
     # The base for generating tags is the snapshot commit
-    MARKER:=$(shell echo $(_TAG) | awk -F "-g" '{ print $$2 }')
+    MARKER:=$(shell echo $(_TAG) | awk -F "-g" '{ print $$2 }' | cut -c 1-12)
     # The merge window is weird because the actual versioning hasn't
     # been updated but we still need something that works for
     # packaging. Fix this by bumping the patch level and marking
@@ -261,7 +261,7 @@ else
   ifneq ($(ADD_COMMITID_TO_VERSION),)
     _EXACT_TAG:=$(shell $(GIT) describe --exact-match 2>/dev/null)
     ifeq ($(_EXACT_TAG),)
-      _TAG:=$(shell $(GIT) describe 2>/dev/null)
+      _TAG:=$(shell $(GIT) describe --abbrev=12 2>/dev/null)
       ifneq ($(_TAG),)
         _BUILDCOMMIT:=$(shell echo $(_TAG) | awk -F- '{ printf(".%s", $$(NF)) }' | cut -c 1-6)
         BUILD:=$(BUILD)$(_BUILDCOMMIT)
