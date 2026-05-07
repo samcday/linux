@@ -1,3 +1,7 @@
+* Thu May 07 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.1.0-0.rc2.8ab992f815d6.18]
+- Linux v7.1.0-0.rc2.8ab992f815d6
+Resolves: 
+
 * Wed May 06 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.1.0-0.rc2.74fe02ce122a.17]
 - redhat/configs: enable CONFIG_GPIO_NOVALAKE for x86 on RHEL (Steve Best)
 - redhat/Makefile: avoid picking up editor backup files in changelog glob (Jan Stancek)
