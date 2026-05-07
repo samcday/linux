@@ -13,5 +13,6 @@ if __name__ == '__main__':
     loader.add_multi_constructor('', default_ctor)
 
     with open(sys.argv[1], 'r') as file:
-        yaml.load(file, Loader=loader)
+        for _ in yaml.load_all(file, Loader=loader):
+            pass
     print('OK')
