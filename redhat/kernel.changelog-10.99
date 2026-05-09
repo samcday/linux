@@ -1,3 +1,7 @@
+* Sat May 09 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.1.0-0.rc2.70390501d194.20]
+- Linux v7.1.0-0.rc2.70390501d194
+Resolves: 
+
 * Fri May 08 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.1.0-0.rc2.917719c412c4.19]
 - Enable MEDIA_TUNER_MXL301RF for Fedora (Justin M. Forbes)
 - Turn on DVB_PT3 for Fedora at user request (Justin M. Forbes)
