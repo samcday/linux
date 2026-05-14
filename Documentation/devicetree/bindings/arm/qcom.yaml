@@ -108,6 +108,11 @@ properties:
 
       - items:
           - enum:
+              - samsung,expressltexx
+          - const: qcom,msm8930
+
+      - items:
+          - enum:
               - asus,z00t
               - huawei,kiwi
               - longcheer,l9100
