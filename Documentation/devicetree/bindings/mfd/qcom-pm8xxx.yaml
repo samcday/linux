@@ -24,6 +24,8 @@ properties:
       - items:
           - enum:
               - qcom,pm8018
+              - qcom,pm8038
+              - qcom,pm8917
           - const: qcom,pm8921
 
   reg:
