@@ -4,6 +4,7 @@
 #include <dt-bindings/input/input.h>
 
 #include "qcom-msm8930.dtsi"
+#include "pm8917.dtsi"
 
 / {
 	model = "Samsung Galaxy Express GT-I8730";
@@ -125,6 +126,10 @@
 			bias-pull-down;
 		};
 	};
+};
+
+&pm8917 {
+	interrupts-extended = <&tlmm 104 IRQ_TYPE_LEVEL_LOW>;
 };
 
 &sdcc1 {

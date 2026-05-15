@@ -1,0 +1,42 @@
+// SPDX-License-Identifier: GPL-2.0
+
+#include <dt-bindings/interrupt-controller/irq.h>
+
+&ssbi {
+	pm8917: pmic {
+		compatible = "qcom,pm8917", "qcom,pm8921";
+		#interrupt-cells = <2>;
+		interrupt-controller;
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		pm8917_pwrkey: pwrkey@1c {
+			compatible = "qcom,pm8917-pwrkey", "qcom,pm8921-pwrkey";
+			reg = <0x1c>;
+			interrupts-extended = <&pm8917 50 IRQ_TYPE_EDGE_RISING>,
+					      <&pm8917 51 IRQ_TYPE_EDGE_RISING>;
+			debounce = <15625>;
+			pull-up;
+		};
+
+		pm8917_mpps: mpps@50 {
+			compatible = "qcom,pm8917-mpp", "qcom,ssbi-mpp";
+			reg = <0x50>;
+			gpio-controller;
+			#gpio-cells = <2>;
+			gpio-ranges = <&pm8917_mpps 0 0 10>;
+			interrupt-controller;
+			#interrupt-cells = <2>;
+		};
+
+		pm8917_gpio: gpio@150 {
+			compatible = "qcom,pm8917-gpio", "qcom,ssbi-gpio";
+			reg = <0x150>;
+			interrupt-controller;
+			#interrupt-cells = <2>;
+			gpio-controller;
+			gpio-ranges = <&pm8917_gpio 0 0 38>;
+			#gpio-cells = <2>;
+		};
+	};
+};
