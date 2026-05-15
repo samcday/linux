@@ -7,12 +7,37 @@
 	chassis-type = "handset";
 
 	aliases {
+		display0 = &framebuffer0;
 		serial0 = &gsbi5_serial;
 	};
 
 	chosen {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		ranges;
 		stdout-path = "serial0:115200n8";
+
+		framebuffer0: framebuffer@88a00000 {
+			compatible = "simple-framebuffer";
+			reg = <0x88a00000 0x119400>;
+			width = <480>;
+			height = <800>;
+			stride = <1440>;
+			format = "r8g8b8";
+		};
 	};
+
+	reserved-memory {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		ranges;
+
+		framebuffer@88a00000 {
+			reg = <0x88a00000 0x119400>;
+			no-map;
+		};
+	};
+
 };
 
 &{/memory@80000000} {
