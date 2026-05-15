@@ -38,6 +38,24 @@
 		};
 	};
 
+	reg_usb_hs1_1p8: regulator-usb-hs1-1p8 {
+		compatible = "regulator-fixed";
+		regulator-name = "usb_hs1_1p8";
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <1800000>;
+		regulator-always-on;
+		regulator-boot-on;
+	};
+
+	reg_usb_hs1_3p3: regulator-usb-hs1-3p3 {
+		compatible = "regulator-fixed";
+		regulator-name = "usb_hs1_3p3";
+		regulator-min-microvolt = <3075000>;
+		regulator-max-microvolt = <3075000>;
+		regulator-always-on;
+		regulator-boot-on;
+	};
+
 };
 
 &{/memory@80000000} {
@@ -73,6 +91,9 @@
 };
 
 &usb_hs1_phy {
+	v1p8-supply = <&reg_usb_hs1_1p8>;
+	v3p3-supply = <&reg_usb_hs1_3p3>;
+
 	qcom,init-seq = /bits/ 8 <
 		0x44 0x80
 		0x5f 0x81
