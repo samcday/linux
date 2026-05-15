@@ -915,6 +915,23 @@ static const struct rpm_regulator_data rpm_pm8921_regulators[] = {
 	{ }
 };
 
+static const struct rpm_regulator_data rpm_pm8038_regulators[] = {
+	{ "s4", QCOM_RPM_PM8038_SMPS4, &pm8921_smps },
+	{ "l3", QCOM_RPM_PM8038_LDO3, &pm8921_pldo },
+	{ "l4", QCOM_RPM_PM8038_LDO4, &pm8921_pldo },
+	{ "l5", QCOM_RPM_PM8038_LDO5, &pm8921_pldo },
+	{ "l11", QCOM_RPM_PM8038_LDO11, &pm8921_pldo },
+	{ }
+};
+
+static const struct rpm_regulator_data rpm_pm8917_regulators[] = {
+	{ "s4", QCOM_RPM_PM8917_SMPS4, &pm8921_smps },
+	{ "l3", QCOM_RPM_PM8917_LDO3, &pm8921_pldo },
+	{ "l4", QCOM_RPM_PM8917_LDO4, &pm8921_pldo },
+	{ "l5", QCOM_RPM_PM8917_LDO5, &pm8921_pldo },
+	{ }
+};
+
 static const struct rpm_regulator_data rpm_smb208_regulators[] = {
 	{ "s1a",  QCOM_RPM_SMB208_S1a, &smb208_smps, "vin_s1a" },
 	{ "s1b",  QCOM_RPM_SMB208_S1b, &smb208_smps, "vin_s1b" },
@@ -929,6 +946,8 @@ static const struct of_device_id rpm_of_match[] = {
 	{ .compatible = "qcom,rpm-pm8058-regulators", .data = &rpm_pm8058_regulators },
 	{ .compatible = "qcom,rpm-pm8901-regulators", .data = &rpm_pm8901_regulators },
 	{ .compatible = "qcom,rpm-pm8921-regulators", .data = &rpm_pm8921_regulators },
+	{ .compatible = "qcom,rpm-pm8038-regulators", .data = &rpm_pm8038_regulators },
+	{ .compatible = "qcom,rpm-pm8917-regulators", .data = &rpm_pm8917_regulators },
 	{ .compatible = "qcom,rpm-smb208-regulators", .data = &rpm_smb208_regulators },
 	{ }
 };

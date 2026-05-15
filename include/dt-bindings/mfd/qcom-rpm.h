@@ -170,6 +170,15 @@
 #define QCOM_RPM_PM8018_LVS1			159
 #define QCOM_RPM_PM8018_NCP			160
 #define QCOM_RPM_VOLTAGE_CORNER			161
+#define QCOM_RPM_PM8038_SMPS4			162
+#define QCOM_RPM_PM8038_LDO3			163
+#define QCOM_RPM_PM8038_LDO4			164
+#define QCOM_RPM_PM8038_LDO5			165
+#define QCOM_RPM_PM8038_LDO11			166
+#define QCOM_RPM_PM8917_SMPS4			167
+#define QCOM_RPM_PM8917_LDO3			168
+#define QCOM_RPM_PM8917_LDO4			169
+#define QCOM_RPM_PM8917_LDO5			170
 
 /*
  * Constants used to select force mode for regulators.
