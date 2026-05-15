@@ -56,6 +56,24 @@
 		regulator-boot-on;
 	};
 
+	reg_emmc_vdd: regulator-emmc-vdd {
+		compatible = "regulator-fixed";
+		regulator-name = "emmc_vdd";
+		regulator-min-microvolt = <2950000>;
+		regulator-max-microvolt = <2950000>;
+		regulator-always-on;
+		regulator-boot-on;
+	};
+
+	reg_emmc_vdd_io: regulator-emmc-vdd-io {
+		compatible = "regulator-fixed";
+		regulator-name = "emmc_vdd_io";
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <1800000>;
+		regulator-always-on;
+		regulator-boot-on;
+	};
+
 };
 
 &{/memory@80000000} {
@@ -74,6 +92,15 @@
 	status = "okay";
 };
 
+&sdcc1 {
+	pinctrl-0 = <&sdcc1_default_state>;
+	pinctrl-1 = <&sdcc1_sleep_state>;
+	pinctrl-names = "default", "sleep";
+	vmmc-supply = <&reg_emmc_vdd>;
+	vqmmc-supply = <&reg_emmc_vdd_io>;
+	status = "okay";
+};
+
 &tlmm {
 	gsbi5_uart_default_state: gsbi5-uart-default-state {
 		uart-pins {
@@ -81,6 +108,46 @@
 			function = "gsbi5";
 			drive-strength = <8>;
 			bias-disable;
+		};
+	};
+
+	sdcc1_default_state: sdcc1-default-state {
+		clk-pins {
+			pins = "sdc1_clk";
+			drive-strength = <16>;
+			bias-disable;
+		};
+
+		cmd-pins {
+			pins = "sdc1_cmd";
+			drive-strength = <10>;
+			bias-pull-up;
+		};
+
+		data-pins {
+			pins = "sdc1_data";
+			drive-strength = <10>;
+			bias-pull-up;
+		};
+	};
+
+	sdcc1_sleep_state: sdcc1-sleep-state {
+		clk-pins {
+			pins = "sdc1_clk";
+			drive-strength = <2>;
+			bias-disable;
+		};
+
+		cmd-pins {
+			pins = "sdc1_cmd";
+			drive-strength = <2>;
+			bias-pull-up;
+		};
+
+		data-pins {
+			pins = "sdc1_data";
+			drive-strength = <2>;
+			bias-pull-up;
 		};
 	};
 };

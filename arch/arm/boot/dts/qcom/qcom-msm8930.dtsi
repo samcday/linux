@@ -179,10 +179,37 @@
 				      "pll4_vote",
 				      "mi2s_codec_clk",
 				      "codec_i2s_mic_codec_clk",
-				      "spare_i2s_mic_codec_clk",
-				      "codec_i2s_spkr_codec_clk",
-				      "spare_i2s_spkr_codec_clk",
-				      "pcm_codec_clk";
+					      "spare_i2s_mic_codec_clk",
+					      "codec_i2s_spkr_codec_clk",
+					      "spare_i2s_spkr_codec_clk",
+					      "pcm_codec_clk";
+		};
+
+		sdcc1: mmc@12400000 {
+			compatible = "arm,pl18x", "arm,primecell";
+			reg = <0x12400000 0x2000>;
+			arm,primecell-periphid = <0x00051180>;
+			interrupts = <GIC_SPI 104 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&gcc SDC1_CLK>, <&gcc SDC1_H_CLK>;
+			clock-names = "mclk", "apb_pclk";
+			bus-width = <8>;
+			max-frequency = <96000000>;
+			non-removable;
+			cap-mmc-highspeed;
+			dmas = <&sdcc1bam 2>, <&sdcc1bam 1>;
+			dma-names = "tx", "rx";
+
+			status = "disabled";
+		};
+
+		sdcc1bam: dma-controller@12402000 {
+			compatible = "qcom,bam-v1.3.0";
+			reg = <0x12402000 0x4000>;
+			interrupts = <GIC_SPI 98 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&gcc SDC1_H_CLK>;
+			clock-names = "bam_clk";
+			#dma-cells = <1>;
+			qcom,ee = <0>;
 		};
 
 		gsbi5: gsbi@16400000 {
