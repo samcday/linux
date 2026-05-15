@@ -1,4 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/input/gpio-keys.h>
+#include <dt-bindings/input/input.h>
+
 #include "qcom-msm8930.dtsi"
 
 / {
@@ -35,6 +39,36 @@
 		framebuffer@88a00000 {
 			reg = <0x88a00000 0x119400>;
 			no-map;
+		};
+	};
+
+	gpio-keys {
+		compatible = "gpio-keys";
+
+		pinctrl-0 = <&gpio_keys_default_state>;
+		pinctrl-names = "default";
+
+		key-home {
+			label = "Home";
+			gpios = <&tlmm 35 GPIO_ACTIVE_LOW>;
+			linux,code = <KEY_HOMEPAGE>;
+			debounce-interval = <5>;
+			wakeup-event-action = <EV_ACT_ASSERTED>;
+			wakeup-source;
+		};
+
+		key-volume-down {
+			label = "Volume Down";
+			gpios = <&tlmm 81 GPIO_ACTIVE_LOW>;
+			linux,code = <KEY_VOLUMEDOWN>;
+			debounce-interval = <5>;
+		};
+
+		key-volume-up {
+			label = "Volume Up";
+			gpios = <&tlmm 50 GPIO_ACTIVE_LOW>;
+			linux,code = <KEY_VOLUMEUP>;
+			debounce-interval = <5>;
 		};
 	};
 
@@ -103,6 +137,13 @@
 };
 
 &tlmm {
+	gpio_keys_default_state: gpio-keys-default-state {
+		pins = "gpio35", "gpio50", "gpio81";
+		function = "gpio";
+		drive-strength = <8>;
+		bias-pull-up;
+	};
+
 	gsbi5_uart_default_state: gsbi5-uart-default-state {
 		uart-pins {
 			pins = "gpio22", "gpio23";
