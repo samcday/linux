@@ -644,7 +644,7 @@ int tsens_resume_common(struct tsens_priv *priv);
 #endif
 
 /* TSENS target */
-extern struct tsens_plat_data data_8960;
+extern struct tsens_plat_data data_8960, data_8930;
 
 /* TSENS v0.1 targets */
 extern struct tsens_plat_data data_8226, data_8909, data_8916, data_8939, data_8974, data_9607;

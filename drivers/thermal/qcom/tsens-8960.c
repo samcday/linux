@@ -33,6 +33,13 @@
 
 #define INT_STATUS_ADDR		0x363c
 
+#define STATUS_CNTL_ADDR	0x3660
+/* STATUS_CNTL_ADDR bitmasks */
+#define MIN_MASK		BIT(0)
+#define LOWER_CLR		BIT(1)
+#define UPPER_CLR		BIT(2)
+#define MAX_MASK		BIT(3)
+
 #define S0_STATUS_OFF		0x3628
 #define S1_STATUS_OFF		0x362c
 #define S2_STATUS_OFF		0x3630
@@ -50,6 +57,11 @@ static u32 tsens_msm8960_slope[] = {
 			826, 826, 804, 826,
 			761, 782, 782, 849,
 			782, 849, 782
+			};
+
+static u32 tsens_msm8930_slope[] = {
+			1132, 1135, 1137, 1135, 1157,
+			1142, 1124, 1153, 1175, 1166
 			};
 
 static int suspend_8960(struct tsens_priv *priv)
@@ -175,7 +187,7 @@ static void disable_8960(struct tsens_priv *priv)
 	regmap_write(priv->tm_map, CNTL_ADDR, reg_cntl);
 }
 
-static int calibrate_8960(struct tsens_priv *priv)
+static int calibrate_8960_common(struct tsens_priv *priv, u32 *slope)
 {
 	int i;
 	char *data;
@@ -189,7 +201,7 @@ static int calibrate_8960(struct tsens_priv *priv)
 
 	for (i = 0; i < priv->num_sensors; i++) {
 		p1[i] = data[i];
-		priv->sensor[i].slope = tsens_msm8960_slope[i];
+		priv->sensor[i].slope = slope[i];
 	}
 
 	compute_intercept_slope(priv, p1, NULL, ONE_PT_CALIB);
@@ -197,6 +209,54 @@ static int calibrate_8960(struct tsens_priv *priv)
 	kfree(data);
 
 	return 0;
+}
+
+static int calibrate_8960(struct tsens_priv *priv)
+{
+	return calibrate_8960_common(priv, tsens_msm8960_slope);
+}
+
+static int calibrate_8930(struct tsens_priv *priv)
+{
+	return calibrate_8960_common(priv, tsens_msm8930_slope);
+}
+
+static int init_8930(struct tsens_priv *priv)
+{
+	u32 sensor_mask = GENMASK(priv->num_sensors - 1, 0) << SENSOR0_SHIFT;
+	u32 reg_cntl;
+	int ret;
+
+	ret = init_common(priv);
+	if (ret)
+		return ret;
+
+	ret = regmap_read(priv->tm_map, CNTL_ADDR, &reg_cntl);
+	if (ret)
+		return ret;
+
+	ret = regmap_write(priv->tm_map, CNTL_ADDR, reg_cntl | SW_RST);
+	if (ret)
+		return ret;
+
+	reg_cntl &= ~SW_RST;
+	reg_cntl |= sensor_mask | MEASURE_PERIOD | SLP_CLK_ENA;
+
+	ret = regmap_write(priv->tm_map, CNTL_ADDR, reg_cntl);
+	if (ret)
+		return ret;
+
+	ret = regmap_update_bits(priv->tm_map, STATUS_CNTL_ADDR,
+				       MIN_MASK | LOWER_CLR | UPPER_CLR | MAX_MASK,
+				       MIN_MASK | LOWER_CLR | UPPER_CLR | MAX_MASK);
+	if (ret)
+		return ret;
+
+	ret = regmap_update_bits(priv->tm_map, CONFIG_ADDR, CONFIG_MASK, CONFIG);
+	if (ret)
+		return ret;
+
+	return regmap_write(priv->tm_map, CNTL_ADDR, reg_cntl | EN);
 }
 
 static const struct reg_field tsens_8960_regfields[MAX_REGFIELDS] = {
@@ -266,6 +326,15 @@ static const struct tsens_ops ops_8960 = {
 	.resume		= resume_8960,
 };
 
+static const struct tsens_ops ops_8930 = {
+	.init		= init_8930,
+	.calibrate	= calibrate_8930,
+	.get_temp	= get_temp_common,
+	.disable	= disable_8960,
+	.suspend	= suspend_8960,
+	.resume		= resume_8960,
+};
+
 static struct tsens_features tsens_8960_feat = {
 	.ver_major	= VER_0,
 	.crit_int	= 0,
@@ -280,6 +349,13 @@ static struct tsens_features tsens_8960_feat = {
 struct tsens_plat_data data_8960 = {
 	.num_sensors	= 11,
 	.ops		= &ops_8960,
+	.feat		= &tsens_8960_feat,
+	.fields		= tsens_8960_regfields,
+};
+
+struct tsens_plat_data data_8930 = {
+	.num_sensors	= 10,
+	.ops		= &ops_8930,
 	.feat		= &tsens_8960_feat,
 	.fields		= tsens_8960_regfields,
 };
