@@ -50,6 +50,10 @@ patternProperties:
     type: object
     $ref: /schemas/pinctrl/qcom,pmic-gpio.yaml#
 
+  "charger@[0-9a-f]+$":
+    type: object
+    $ref: /schemas/power/supply/qcom,pm8921-charger.yaml#
+
   "keypad@[0-9a-f]+$":
     type: object
     $ref: /schemas/input/qcom,pm8921-keypad.yaml#

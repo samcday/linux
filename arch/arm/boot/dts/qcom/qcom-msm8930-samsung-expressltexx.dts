@@ -45,6 +45,18 @@
 		};
 	};
 
+	battery: battery {
+		compatible = "simple-battery";
+		device-chemistry = "lithium-ion";
+		charge-full-design-microamp-hours = <2000000>;
+		constant-charge-current-max-microamp = <1500000>;
+		constant-charge-voltage-max-microvolt = <4350000>;
+		charge-term-current-microamp = <60000>;
+		voltage-min-design-microvolt = <3400000>;
+		voltage-max-design-microvolt = <4350000>;
+		factory-internal-resistance-micro-ohms = <166000>;
+	};
+
 	gpio-keys {
 		compatible = "gpio-keys";
 
@@ -177,6 +189,26 @@
 
 &pm8917 {
 	interrupts-extended = <&tlmm 104 IRQ_TYPE_LEVEL_LOW>;
+
+	pm8917_charger: charger@204 {
+		compatible = "qcom,pm8917-charger", "qcom,pm8921-charger";
+		reg = <0x204>;
+		interrupt-parent = <&pm8917>;
+		interrupts = <15 IRQ_TYPE_EDGE_BOTH>,
+			     <21 IRQ_TYPE_EDGE_RISING>,
+			     <17 IRQ_TYPE_EDGE_BOTH>,
+			     <16 IRQ_TYPE_EDGE_RISING>,
+			     <13 IRQ_TYPE_EDGE_BOTH>;
+		interrupt-names = "usb-valid", "charge-done", "fast-charge",
+				  "trickle-charge", "battery-present";
+		monitored-battery = <&battery>;
+		qcom,fast-charge-current-limit = <1500000>;
+		qcom,fast-charge-safe-current = <2000000>;
+		qcom,fast-charge-high-threshold-voltage = <4350000>;
+		qcom,fast-charge-safe-voltage = <4350000>;
+		qcom,term-current = <60000>;
+		usb-charge-current-limit = <500000>;
+	};
 
 	regulators {
 		compatible = "qcom,pm8917-direct-regulators";

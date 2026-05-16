@@ -1,0 +1,115 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/power/supply/qcom,pm8921-charger.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Qualcomm PM8921 Battery Charger
+
+maintainers:
+  - Sebastian Reichel <sre@kernel.org>
+
+description: |
+  The PM8921/PM8917 PMIC charger is a single-cell battery charger exposed as a
+  child of the PM8xxx SSBI PMIC.
+
+allOf:
+  - $ref: power-supply.yaml#
+
+properties:
+  compatible:
+    oneOf:
+      - const: qcom,pm8921-charger
+      - items:
+          - const: qcom,pm8917-charger
+          - const: qcom,pm8921-charger
+
+  reg:
+    maxItems: 1
+
+  interrupts:
+    minItems: 5
+    maxItems: 5
+
+  interrupt-names:
+    items:
+      - const: usb-valid
+      - const: charge-done
+      - const: fast-charge
+      - const: trickle-charge
+      - const: battery-present
+
+  qcom,fast-charge-current-limit:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    minimum: 325000
+    maximum: 2000000
+    description: Maximum battery charge current in microamps.
+
+  qcom,fast-charge-safe-current:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    minimum: 225000
+    maximum: 3375000
+    description: Maximum safe battery charge current in microamps.
+
+  qcom,fast-charge-high-threshold-voltage:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    minimum: 3400000
+    maximum: 4500000
+    description: Target battery charge voltage in microvolts.
+
+  qcom,fast-charge-safe-voltage:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    minimum: 3400000
+    maximum: 4500000
+    description: Maximum safe battery charge voltage in microvolts.
+
+  qcom,term-current:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    minimum: 50000
+    maximum: 200000
+    description: End-of-charge termination current in microamps.
+
+  usb-charge-current-limit:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    minimum: 100000
+    maximum: 1500000
+    description: USB input current limit in microamps.
+
+  monitored-battery: true
+
+required:
+  - compatible
+  - reg
+  - interrupts
+  - interrupt-names
+
+unevaluatedProperties: false
+
+examples:
+  - |
+    #include <dt-bindings/interrupt-controller/irq.h>
+
+    pmic {
+      #address-cells = <1>;
+      #size-cells = <0>;
+      interrupt-controller;
+      #interrupt-cells = <2>;
+
+      charger@204 {
+        compatible = "qcom,pm8921-charger";
+        reg = <0x204>;
+        interrupts = <15 IRQ_TYPE_EDGE_BOTH>,
+                     <21 IRQ_TYPE_EDGE_RISING>,
+                     <17 IRQ_TYPE_EDGE_BOTH>,
+                     <16 IRQ_TYPE_EDGE_RISING>,
+                     <13 IRQ_TYPE_EDGE_BOTH>;
+        interrupt-names = "usb-valid", "charge-done", "fast-charge",
+                          "trickle-charge", "battery-present";
+        qcom,fast-charge-current-limit = <1500000>;
+        qcom,fast-charge-safe-current = <2000000>;
+        qcom,fast-charge-high-threshold-voltage = <4350000>;
+        qcom,fast-charge-safe-voltage = <4350000>;
+        qcom,term-current = <60000>;
+        usb-charge-current-limit = <500000>;
+      };
+    };
