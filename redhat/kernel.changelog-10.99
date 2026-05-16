@@ -1,3 +1,11 @@
+* Sat May 16 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.1.0-0.rc3.6916d5703ddf.27]
+- Enable HID_SENSOR_PROX for Fedora x86 (Justin M. Forbes)
+- Fedora: set default panic screen to QR code (Jocelyn Falempe)
+- redhat/configs/fedora: Enable MPAM options (Gavin Shan)
+- redhat/configs/rhel: Enable MPAM options (Gavin Shan)
+- Linux v7.1.0-0.rc3.6916d5703ddf
+Resolves: 
+
 * Fri May 15 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.1.0-0.rc3.70eda68668d1.26]
 - Linux v7.1.0-0.rc3.70eda68668d1
 Resolves: 
