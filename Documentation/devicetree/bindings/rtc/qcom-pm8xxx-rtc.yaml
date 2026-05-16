@@ -20,6 +20,7 @@ properties:
       - items:
           - enum:
               - qcom,pm8018-rtc
+              - qcom,pm8917-rtc
           - const: qcom,pm8921-rtc
 
   reg:
