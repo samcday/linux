@@ -13,6 +13,8 @@
 
 	aliases {
 		display0 = &framebuffer0;
+		mmc0 = &sdcc1;
+		mmc1 = &sdcc3;
 		serial0 = &gsbi5_serial;
 	};
 
@@ -120,6 +122,20 @@
 			regulator-max-microvolt = <2950000>;
 			bias-pull-down;
 		};
+
+		pm8917_l6: l6 {
+			regulator-min-microvolt = <2950000>;
+			regulator-max-microvolt = <2950000>;
+			bias-pull-down;
+		};
+
+		pm8917_l7: l7 {
+			regulator-always-on;
+			regulator-boot-on;
+			regulator-min-microvolt = <1850000>;
+			regulator-max-microvolt = <2950000>;
+			bias-pull-down;
+		};
 	};
 };
 
@@ -133,6 +149,17 @@
 	pinctrl-names = "default", "sleep";
 	vmmc-supply = <&pm8917_l5>;
 	vqmmc-supply = <&pm8917_s4>;
+	status = "okay";
+};
+
+&sdcc3 {
+	cd-gpios = <&tlmm 39 GPIO_ACTIVE_LOW>;
+	disable-wp;
+	pinctrl-0 = <&sdcc3_default_state>, <&sdcc3_cd_state>;
+	pinctrl-1 = <&sdcc3_sleep_state>, <&sdcc3_cd_state>;
+	pinctrl-names = "default", "sleep";
+	vmmc-supply = <&pm8917_l6>;
+	vqmmc-supply = <&pm8917_l7>;
 	status = "okay";
 };
 
@@ -190,6 +217,53 @@
 			pins = "sdc1_data";
 			drive-strength = <2>;
 			bias-pull-up;
+		};
+	};
+
+	sdcc3_cd_state: sdcc3-cd-state {
+		pins = "gpio39";
+		function = "gpio";
+		drive-strength = <2>;
+		bias-pull-up;
+	};
+
+	sdcc3_default_state: sdcc3-default-state {
+		clk-pins {
+			pins = "sdc3_clk";
+			drive-strength = <8>;
+			bias-disable;
+		};
+
+		cmd-pins {
+			pins = "sdc3_cmd";
+			drive-strength = <8>;
+			bias-pull-up;
+		};
+
+		data-pins {
+			pins = "sdc3_data";
+			drive-strength = <8>;
+			bias-pull-up;
+		};
+	};
+
+	sdcc3_sleep_state: sdcc3-sleep-state {
+		clk-pins {
+			pins = "sdc3_clk";
+			drive-strength = <2>;
+			bias-disable;
+		};
+
+		cmd-pins {
+			pins = "sdc3_cmd";
+			drive-strength = <2>;
+			bias-pull-down;
+		};
+
+		data-pins {
+			pins = "sdc3_data";
+			drive-strength = <2>;
+			bias-pull-down;
 		};
 	};
 };
