@@ -95,9 +95,9 @@
 		};
 	};
 
-	memory@80000000 {
+	memory@80200000 {
 		device_type = "memory";
-		reg = <0x80000000 0>;
+		reg = <0x80200000 0>;
 	};
 
 	soc: soc {

@@ -70,6 +70,10 @@ patternProperties:
     type: object
     $ref: /schemas/rtc/qcom-pm8xxx-rtc.yaml#
 
+  "regulators$":
+    type: object
+    $ref: /schemas/regulator/qcom,pm8917-direct-regulators.yaml#
+
   "vibrator@[0-9a-f]+$":
     type: object
     $ref: /schemas/input/qcom,pm8xxx-vib.yaml#

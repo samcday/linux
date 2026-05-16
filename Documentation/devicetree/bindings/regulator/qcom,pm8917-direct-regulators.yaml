@@ -1,0 +1,42 @@
+# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/regulator/qcom,pm8917-direct-regulators.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Qualcomm PM8917 Direct Regulators
+
+maintainers:
+  - Sam Protsenko <semen.protsenko@linaro.org>
+
+description:
+  PM8917 regulators controlled directly through the PM8xxx SSBI register map.
+  These are separate from regulators controlled by the Qualcomm RPM.
+
+properties:
+  compatible:
+    const: qcom,pm8917-direct-regulators
+
+patternProperties:
+  "^l(30|33)$":
+    type: object
+    $ref: regulator.yaml#
+    unevaluatedProperties: false
+
+required:
+  - compatible
+
+additionalProperties: false
+
+examples:
+  - |
+    regulators {
+      compatible = "qcom,pm8917-direct-regulators";
+
+      l30 {
+        regulator-min-microvolt = <2800000>;
+        regulator-max-microvolt = <2800000>;
+        bias-pull-down;
+      };
+    };
+...

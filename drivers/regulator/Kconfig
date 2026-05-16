@@ -1148,6 +1148,13 @@ config REGULATOR_QCOM_PM8008
 	  Select this option to enable support for the voltage regulators in
 	  Qualcomm PM8008 PMICs.
 
+config REGULATOR_QCOM_PM8917
+	tristate "Qualcomm PM8917 direct regulator driver"
+	depends on MFD_PM8XXX
+	help
+	  This driver supports PM8917 regulators controlled directly through
+	  the PM8xxx SSBI regmap, instead of through RPM votes.
+
 config REGULATOR_QCOM_REFGEN
 	tristate "Qualcomm REFGEN regulator driver"
 	depends on ARCH_QCOM || COMPILE_TEST

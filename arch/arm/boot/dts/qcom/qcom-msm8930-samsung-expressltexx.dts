@@ -75,7 +75,39 @@
 		};
 	};
 
+	i2c-touchkey {
+		compatible = "i2c-gpio";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		sda-gpios = <&tlmm 24 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
+		scl-gpios = <&tlmm 25 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
+		i2c-gpio,delay-us = <2>;
+
+		pinctrl-0 = <&touchkey_i2c_state>;
+		pinctrl-names = "default";
+
+		touchkey@20 {
+			compatible = "cypress,midas-touchkey";
+			reg = <0x20>;
+			interrupt-parent = <&tlmm>;
+			interrupts = <65 IRQ_TYPE_EDGE_FALLING>;
+			linux,keycodes = <KEY_MENU KEY_BACK>;
+			vcc-supply = <&pm8917_l30>;
+			vdd-supply = <&pm8917_l33>;
+			vddio-supply = <&pm8917_lvs5>;
+
+			pinctrl-0 = <&touchkey_irq_state>;
+			pinctrl-names = "default";
+		};
+	};
+
 };
+
+/*
+&{/memory@80200000} {
+	reg = <0x80200000 0x1fe00000>,
+	      <0xa0000000 0x20000000>;
+};*/
 
 &gsbi5 {
 	qcom,mode = <GSBI_PROT_I2C_UART>;
@@ -136,11 +168,31 @@
 			regulator-max-microvolt = <2950000>;
 			bias-pull-down;
 		};
+
+		pm8917_lvs5: lvs5 {
+			bias-pull-down;
+		};
 	};
 };
 
 &pm8917 {
 	interrupts-extended = <&tlmm 104 IRQ_TYPE_LEVEL_LOW>;
+
+	regulators {
+		compatible = "qcom,pm8917-direct-regulators";
+
+		pm8917_l30: l30 {
+			regulator-min-microvolt = <2800000>;
+			regulator-max-microvolt = <2800000>;
+			bias-pull-down;
+		};
+
+		pm8917_l33: l33 {
+			regulator-min-microvolt = <3300000>;
+			regulator-max-microvolt = <3300000>;
+			bias-pull-down;
+		};
+	};
 };
 
 &sdcc1 {
@@ -178,6 +230,20 @@
 			drive-strength = <8>;
 			bias-disable;
 		};
+	};
+
+	touchkey_i2c_state: touchkey-i2c-state {
+		pins = "gpio24", "gpio25";
+		function = "gpio";
+		drive-strength = <2>;
+		bias-pull-up;
+	};
+
+	touchkey_irq_state: touchkey-irq-state {
+		pins = "gpio65";
+		function = "gpio";
+		drive-strength = <2>;
+		bias-pull-up;
 	};
 
 	sdcc1_default_state: sdcc1-default-state {

@@ -98,7 +98,8 @@ static int tm2_touchkey_led_brightness_set(struct led_classdev *led_dev,
 		data = touchkey->variant->cmd_led_on;
 	}
 
-	if (!touchkey->variant->fixed_regulator)
+	if (!touchkey->variant->fixed_regulator &&
+	    regulator_is_supported_voltage(touchkey->vdd, volt, volt))
 		regulator_set_voltage(touchkey->vdd, volt, volt);
 
 	return touchkey->variant->no_reg ?
@@ -278,7 +279,7 @@ static int tm2_touchkey_probe(struct i2c_client *client)
 
 	/* led device */
 	touchkey->led_dev.name = TM2_TOUCHKEY_DEV_NAME;
-	touchkey->led_dev.brightness = LED_ON;
+	touchkey->led_dev.brightness = LED_OFF;
 	touchkey->led_dev.max_brightness = LED_ON;
 	touchkey->led_dev.brightness_set_blocking =
 					tm2_touchkey_led_brightness_set;

@@ -350,6 +350,7 @@ static const struct qcom_rpm_resource msm8930_rpm_resource_table[] = {
 	[QCOM_RPM_PM8917_LDO5] =		{ 114, 55, 42, 2 },
 	[QCOM_RPM_PM8917_LDO6] =		{ 116, 57, 43, 2 },
 	[QCOM_RPM_PM8917_LDO7] =		{ 118, 59, 44, 2 },
+	[QCOM_RPM_PM8917_LVS5] =		{ 179, 120, 76, 1 },
 };
 
 static const struct qcom_rpm_data msm8930_template = {
