@@ -1,3 +1,9 @@
+* Sun May 17 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.1.0-0.rc3.6916d5703ddf.28]
+- Add missing config file for Fedora (Justin M. Forbes)
+- Turn on XFS_ONLINE_REPAIR for Fedora (Justin M. Forbes)
+- Enable SND_DESIGNWARE for Fedora x86 (Justin M. Forbes)
+Resolves: 
+
 * Sat May 16 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.1.0-0.rc3.6916d5703ddf.27]
 - Enable HID_SENSOR_PROX for Fedora x86 (Justin M. Forbes)
 - Fedora: set default panic screen to QR code (Jocelyn Falempe)
