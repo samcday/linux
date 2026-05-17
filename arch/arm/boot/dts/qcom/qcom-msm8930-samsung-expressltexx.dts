@@ -132,6 +132,31 @@
 	status = "okay";
 };
 
+&gsbi3 {
+	qcom,mode = <GSBI_PROT_I2C>;
+	status = "okay";
+};
+
+&gsbi3_i2c {
+	pinctrl-0 = <&gsbi3_i2c_default_state>;
+	pinctrl-1 = <&gsbi3_i2c_sleep_state>;
+	pinctrl-names = "default", "sleep";
+	status = "okay";
+
+	touchscreen@4a {
+		compatible = "atmel,maxtouch";
+		reg = <0x4a>;
+		interrupt-parent = <&tlmm>;
+		interrupts = <11 IRQ_TYPE_LEVEL_LOW>;
+		pinctrl-0 = <&touchscreen_irq_state>;
+		pinctrl-names = "default";
+		touchscreen-size-x = <480>;
+		touchscreen-size-y = <800>;
+		vdda-supply = <&pm8917_l31>;
+		vdd-supply = <&pm8917_lvs6>;
+	};
+};
+
 &rpm {
 	regulators {
 		compatible = "qcom,rpm-pm8917-regulators";
@@ -184,6 +209,10 @@
 		pm8917_lvs5: lvs5 {
 			bias-pull-down;
 		};
+
+		pm8917_lvs6: lvs6 {
+			bias-pull-down;
+		};
 	};
 };
 
@@ -216,6 +245,12 @@
 		pm8917_l30: l30 {
 			regulator-min-microvolt = <2800000>;
 			regulator-max-microvolt = <2800000>;
+			bias-pull-down;
+		};
+
+		pm8917_l31: l31 {
+			regulator-min-microvolt = <3300000>;
+			regulator-max-microvolt = <3300000>;
 			bias-pull-down;
 		};
 
@@ -262,6 +297,31 @@
 			drive-strength = <8>;
 			bias-disable;
 		};
+	};
+
+	gsbi3_i2c_default_state: gsbi3-i2c-default-state {
+		i2c-pins {
+			pins = "gpio16", "gpio17";
+			function = "gsbi3";
+			drive-strength = <8>;
+			bias-disable;
+		};
+	};
+
+	gsbi3_i2c_sleep_state: gsbi3-i2c-sleep-state {
+		i2c-pins {
+			pins = "gpio16", "gpio17";
+			function = "gpio";
+			drive-strength = <2>;
+			bias-bus-hold;
+		};
+	};
+
+	touchscreen_irq_state: touchscreen-irq-state {
+		pins = "gpio11";
+		function = "gpio";
+		drive-strength = <2>;
+		bias-disable;
 	};
 
 	touchkey_i2c_state: touchkey-i2c-state {

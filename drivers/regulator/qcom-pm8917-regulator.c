@@ -186,6 +186,7 @@ static const struct regulator_ops pm8917_ldo_ops = {
 
 static struct pm8917_ldo pm8917_ldos[] = {
 	PM8917_PLDO(l30, 0x0a3, 0x0a4),
+	PM8917_PLDO(l31, 0x0a5, 0x0a6),
 	PM8917_PLDO(l33, 0x0c6, 0x0c7),
 };
 

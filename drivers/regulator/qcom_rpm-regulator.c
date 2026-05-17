@@ -932,6 +932,7 @@ static const struct rpm_regulator_data rpm_pm8917_regulators[] = {
 	{ "l6", QCOM_RPM_PM8917_LDO6, &pm8921_pldo },
 	{ "l7", QCOM_RPM_PM8917_LDO7, &pm8921_pldo },
 	{ "lvs5", QCOM_RPM_PM8917_LVS5, &pm8921_switch },
+	{ "lvs6", QCOM_RPM_PM8917_LVS6, &pm8921_switch },
 	{ }
 };
 

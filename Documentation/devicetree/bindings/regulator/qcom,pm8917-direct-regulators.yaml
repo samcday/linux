@@ -18,7 +18,7 @@ properties:
     const: qcom,pm8917-direct-regulators
 
 patternProperties:
-  "^l(30|33)$":
+  "^l(30|31|33)$":
     type: object
     $ref: regulator.yaml#
     unevaluatedProperties: false
