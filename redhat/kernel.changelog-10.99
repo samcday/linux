@@ -1,3 +1,7 @@
+* Mon May 18 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.1.0-0.rc4.29]
+- Linux v7.1.0-0.rc4
+Resolves: 
+
 * Sun May 17 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.1.0-0.rc3.6916d5703ddf.28]
 - Add missing config file for Fedora (Justin M. Forbes)
 - Turn on XFS_ONLINE_REPAIR for Fedora (Justin M. Forbes)
