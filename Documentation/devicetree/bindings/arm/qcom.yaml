@@ -93,6 +93,11 @@ properties:
 
       - items:
           - enum:
+              - nokia,fame
+          - const: qcom,msm8227
+
+      - items:
+          - enum:
               - htc,memul
               - microsoft,superman-lte
               - microsoft,tesla
