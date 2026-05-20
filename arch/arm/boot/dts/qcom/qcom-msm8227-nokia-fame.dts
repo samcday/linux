@@ -10,13 +10,14 @@
 
 	aliases {
 		display0 = &framebuffer0;
+		serial0 = &gsbi5_serial;
 	};
 
 	chosen {
 		#address-cells = <1>;
 		#size-cells = <1>;
 		ranges;
-		stdout-path = "display0";
+		stdout-path = "serial0:115200n8";
 
 		framebuffer0: framebuffer@80400000 {
 			compatible = "simple-framebuffer";
@@ -45,4 +46,12 @@
 			no-map;
 		};
 	};
+};
+
+&gsbi5 {
+	status = "okay";
+};
+
+&gsbi5_serial {
+	status = "okay";
 };
