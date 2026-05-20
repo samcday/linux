@@ -1,3 +1,9 @@
+* Wed May 20 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.1.0-0.rc4.27fa82620cba.31]
+- redhat/configs: do not enable ARCH_TEGRA_238_SOC (Eric Chanudet)
+- redhat/configs: do not enable ARCH_R9A08G046 (Eric Chanudet)
+- Linux v7.1.0-0.rc4.27fa82620cba
+Resolves: 
+
 * Tue May 19 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.1.0-0.rc4.ab5fce87a778.30]
 - redhat/configs: realign LOCKDEP_STACK_TRACE_*_BITS with upstream KASAN defaults (Mikhail Gavrilov)
 - Linux v7.1.0-0.rc4.ab5fce87a778
