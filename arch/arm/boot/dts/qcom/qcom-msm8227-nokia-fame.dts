@@ -10,6 +10,7 @@
 
 	aliases {
 		display0 = &framebuffer0;
+		mmc0 = &sdcc1;
 		serial0 = &gsbi5_serial;
 	};
 
@@ -53,6 +54,10 @@
 };
 
 &gsbi5_serial {
+	status = "okay";
+};
+
+&sdcc1 {
 	status = "okay";
 };
 
