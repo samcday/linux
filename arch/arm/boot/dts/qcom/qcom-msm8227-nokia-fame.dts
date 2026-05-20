@@ -55,3 +55,7 @@
 &gsbi5_serial {
 	status = "okay";
 };
+
+&usb1 {
+	status = "okay";
+};
