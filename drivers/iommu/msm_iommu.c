@@ -754,17 +754,25 @@ static int msm_iommu_probe(struct platform_device *pdev)
 	}
 	iommu->ncb = val;
 
+	ret = __enable_clocks(iommu);
+	if (ret)
+		return dev_err_probe(iommu->dev, ret,
+				     "could not enable clocks\n");
+
 	msm_iommu_reset(iommu->base, iommu->ncb);
 	SET_M(iommu->base, 0, 1);
 	SET_PAR(iommu->base, 0, 0);
 	SET_V2PCFG(iommu->base, 0, 1);
 	SET_V2PPR(iommu->base, 0, 0);
+	mb();
 	par = GET_PAR(iommu->base, 0);
 	SET_V2PCFG(iommu->base, 0, 0);
 	SET_M(iommu->base, 0, 0);
+	mb();
+	__disable_clocks(iommu);
 
 	if (!par) {
-		pr_err("Invalid PAR value detected\n");
+		dev_err(iommu->dev, "Invalid PAR value detected\n");
 		return -ENODEV;
 	}
 
