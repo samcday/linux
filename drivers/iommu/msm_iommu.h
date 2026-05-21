@@ -41,7 +41,6 @@
  * clk:		The bus clock for this IOMMU hardware instance
  * pclk:	The clock for the IOMMU bus interconnect
  * dev_node:	list head in qcom_iommu_device_list
- * dom_node:	list head for domain
  * ctx_list:	list of 'struct msm_iommu_ctx_dev'
  * context_map: Bitmap to track allocated context banks
  */
@@ -53,7 +52,6 @@ struct msm_iommu_dev {
 	struct clk *clk;
 	struct clk *pclk;
 	struct list_head dev_node;
-	struct list_head dom_node;
 	struct list_head ctx_list;
 	DECLARE_BITMAP(context_map, IOMMU_MAX_CBS);
 
@@ -63,7 +61,8 @@ struct msm_iommu_dev {
 /**
  * struct msm_iommu_ctx_dev - an IOMMU context bank instance
  * of_node	node ptr of client device
- * num		Index of this context bank within the hardware
+ * num		Index of this context bank within the hardware, or -1 when
+ *		unattached
  * mids		List of Machine IDs that are to be mapped into this context
  *		bank, terminated by -1. The MID is a set of signals on the
  *		AXI bus that identifies the function associated with a specific
