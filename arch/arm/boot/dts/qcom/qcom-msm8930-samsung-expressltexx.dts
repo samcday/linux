@@ -31,6 +31,19 @@
 			height = <800>;
 			stride = <1440>;
 			format = "r8g8b8";
+			clocks = <&mmcc MDP_AHB_CLK>,
+				 <&mmcc MDP_AXI_CLK>,
+				 <&mmcc MDP_CLK>,
+				 <&mmcc MDP_LUT_CLK>,
+				 <&mmcc MDP_VSYNC_CLK>,
+				 <&mmcc DSI_M_AHB_CLK>,
+				 <&mmcc DSI_S_AHB_CLK>,
+				 <&mmcc AMP_AHB_CLK>,
+				 <&mmcc DSI_CLK>,
+				 <&mmcc DSI1_BYTE_CLK>,
+				 <&mmcc DSI_PIXEL_CLK>,
+				 <&mmcc DSI1_ESC_CLK>;
+			power-domains = <&mmcc MDP_PD>;
 		};
 	};
 
