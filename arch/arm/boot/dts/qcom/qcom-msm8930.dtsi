@@ -257,6 +257,183 @@
 				      "hdmipll";
 		};
 
+		dsi0: dsi@4700000 {
+			compatible = "qcom,apq8064-dsi-ctrl",
+				     "qcom,mdss-dsi-ctrl";
+			reg = <0x04700000 0x200>;
+			reg-names = "dsi_ctrl";
+			interrupts = <GIC_SPI 82 IRQ_TYPE_LEVEL_HIGH>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			clocks = <&mmcc DSI_M_AHB_CLK>,
+				 <&mmcc DSI_S_AHB_CLK>,
+				 <&mmcc AMP_AHB_CLK>,
+				 <&mmcc DSI_CLK>,
+				 <&mmcc DSI1_BYTE_CLK>,
+				 <&mmcc DSI_PIXEL_CLK>,
+				 <&mmcc DSI1_ESC_CLK>;
+			clock-names = "iface",
+				      "bus",
+				      "core_mmss",
+				      "src",
+				      "byte",
+				      "pixel",
+				      "core";
+
+			assigned-clocks = <&mmcc DSI1_BYTE_SRC>,
+					  <&mmcc DSI1_ESC_SRC>,
+					  <&mmcc DSI_SRC>,
+					  <&mmcc DSI_PIXEL_SRC>;
+			assigned-clock-parents = <&dsi0_phy 0>,
+						 <&dsi0_phy 0>,
+						 <&dsi0_phy 1>,
+						 <&dsi0_phy 1>;
+			syscon-sfpb = <&mmss_sfpb>;
+			phys = <&dsi0_phy>;
+
+			status = "disabled";
+
+			ports {
+				#address-cells = <1>;
+				#size-cells = <0>;
+
+				port@0 {
+					reg = <0>;
+
+					dsi0_in: endpoint {
+						remote-endpoint = <&mdp_dsi1_out>;
+					};
+				};
+
+				port@1 {
+					reg = <1>;
+
+					dsi0_out: endpoint {
+					};
+				};
+			};
+		};
+
+		dsi0_phy: phy@4700200 {
+			compatible = "qcom,dsi-phy-28nm-8960";
+			reg = <0x04700200 0x100>,
+			      <0x04700300 0x200>,
+			      <0x04700500 0x5c>;
+			reg-names = "dsi_pll",
+				    "dsi_phy",
+				    "dsi_phy_regulator";
+			clocks = <&mmcc DSI_M_AHB_CLK>,
+				 <&pxo_board>;
+			clock-names = "iface",
+				      "ref";
+			#clock-cells = <1>;
+			#phy-cells = <0>;
+
+			status = "disabled";
+		};
+
+		mmss_sfpb: syscon@5700000 {
+			compatible = "qcom,apq8064-mmss-sfpb", "syscon";
+			reg = <0x05700000 0x70>;
+		};
+
+		mdp: display-controller@5100000 {
+			compatible = "qcom,mdp4";
+			reg = <0x05100000 0xf0000>;
+			interrupts = <GIC_SPI 75 IRQ_TYPE_LEVEL_HIGH>;
+			power-domains = <&mmcc MDP_PD>;
+			clocks = <&mmcc MDP_CLK>,
+				 <&mmcc MDP_AHB_CLK>,
+				 <&mmcc MDP_AXI_CLK>,
+				 <&mmcc MDP_LUT_CLK>,
+				 <&mmcc HDMI_TV_CLK>,
+				 <&mmcc MDP_TV_CLK>,
+				 <&mmcc LVDS_CLK>,
+				 <&pxo_board>;
+			clock-names = "core_clk",
+				      "iface_clk",
+				      "bus_clk",
+				      "lut_clk",
+				      "hdmi_clk",
+				      "tv_clk",
+				      "lcdc_clk",
+				      "pxo";
+			#clock-cells = <0>;
+			iommus = <&mdp_port0 0>,
+				 <&mdp_port0 2>,
+				 <&mdp_port1 0>,
+				 <&mdp_port1 2>;
+
+			status = "disabled";
+
+			ports {
+				#address-cells = <1>;
+				#size-cells = <0>;
+
+				port@0 {
+					reg = <0>;
+
+					mdp_lvds_out: endpoint {
+					};
+				};
+
+				port@1 {
+					reg = <1>;
+
+					mdp_dsi1_out: endpoint {
+						remote-endpoint = <&dsi0_in>;
+					};
+				};
+
+				port@2 {
+					reg = <2>;
+
+					mdp_dsi2_out: endpoint {
+					};
+				};
+
+				port@3 {
+					reg = <3>;
+
+					mdp_dtv_out: endpoint {
+					};
+				};
+			};
+		};
+
+		mdp_port0: iommu@7500000 {
+			compatible = "qcom,apq8064-iommu";
+			reg = <0x07500000 0x100000>;
+			interrupts = <GIC_SPI 63 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 64 IRQ_TYPE_LEVEL_HIGH>;
+			power-domains = <&mmcc MDP_PD>;
+			clocks = <&mmcc SMMU_AHB_CLK>,
+				 <&mmcc MDP_AXI_CLK>;
+			clock-names = "smmu_pclk",
+				      "iommu_clk";
+			#iommu-cells = <1>;
+			qcom,ncb = <2>;
+
+			status = "disabled";
+		};
+
+		mdp_port1: iommu@7600000 {
+			compatible = "qcom,apq8064-iommu";
+			reg = <0x07600000 0x100000>;
+			interrupts = <GIC_SPI 61 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 62 IRQ_TYPE_LEVEL_HIGH>;
+			power-domains = <&mmcc MDP_PD>;
+			clocks = <&mmcc SMMU_AHB_CLK>,
+				 <&mmcc MDP_AXI_CLK>;
+			clock-names = "smmu_pclk",
+				      "iommu_clk";
+			#iommu-cells = <1>;
+			qcom,ncb = <2>;
+
+			status = "disabled";
+		};
+
 		sfpb_mutex: hwlock@1200600 {
 			compatible = "qcom,sfpb-mutex";
 			reg = <0x01200600 0x84>;
