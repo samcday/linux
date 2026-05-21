@@ -12,7 +12,9 @@
 #include <linux/module.h>
 #include <linux/clk.h>
 #include <linux/clk-provider.h>
+#include <linux/pm_domain.h>
 #include <linux/regmap.h>
+#include <linux/slab.h>
 
 #include <dt-bindings/clock/qcom,mmcc-msm8960.h>
 #include <dt-bindings/reset/qcom,mmcc-msm8960.h>
@@ -3115,6 +3117,191 @@ static const struct qcom_reset_map mmcc_apq8064_resets[] = {
 	[CSI_RDI2_RESET] = { 0x0214 },
 };
 
+#define MDP_PD_CTL_REG			0x0190
+#define PD_CTL_DELAY_MASK		GENMASK(4, 0)
+#define PD_CTL_DELAY_VAL		31
+#define PD_CTL_CLAMP			BIT(5)
+#define PD_CTL_ENABLE			BIT(8)
+#define PD_CTL_RETENTION		BIT(9)
+
+/* MSM8960-era MMCC power control registers predate modern GDSCs. */
+struct mmcc_msm8960_pd {
+	struct generic_pm_domain pd;
+	struct regmap *regmap;
+	struct clk_bulk_data clks[5];
+	unsigned int num_clks;
+};
+
+static struct mmcc_msm8960_pd *to_mmcc_msm8960_pd(struct generic_pm_domain *pd)
+{
+	return container_of(pd, struct mmcc_msm8960_pd, pd);
+}
+
+static int mmcc_msm8960_mdp_pd_is_on(struct mmcc_msm8960_pd *domain, bool *on)
+{
+	unsigned int val;
+	int ret;
+
+	ret = regmap_read(domain->regmap, MDP_PD_CTL_REG, &val);
+	if (ret)
+		return ret;
+
+	*on = (val & (PD_CTL_ENABLE | PD_CTL_CLAMP)) == PD_CTL_ENABLE;
+
+	return 0;
+}
+
+static int mmcc_msm8960_mdp_pd_power_on(struct generic_pm_domain *genpd)
+{
+	struct mmcc_msm8960_pd *domain = to_mmcc_msm8960_pd(genpd);
+	bool on;
+	int ret;
+
+	ret = mmcc_msm8960_mdp_pd_is_on(domain, &on);
+	if (ret)
+		return ret;
+	if (on)
+		return 0;
+
+	ret = clk_bulk_prepare_enable(domain->num_clks, domain->clks);
+	if (ret)
+		return ret;
+
+	ret = regmap_update_bits(domain->regmap, MDP_PD_CTL_REG,
+				 PD_CTL_DELAY_MASK | PD_CTL_RETENTION,
+				 PD_CTL_DELAY_VAL);
+	if (ret)
+		goto out_disable_clks;
+
+	ret = regmap_update_bits(domain->regmap, MDP_PD_CTL_REG,
+				 PD_CTL_ENABLE, PD_CTL_ENABLE);
+	if (ret)
+		goto out_disable_clks;
+
+	mb();
+	udelay(1);
+
+	ret = regmap_update_bits(domain->regmap, MDP_PD_CTL_REG,
+				 PD_CTL_CLAMP, 0);
+
+out_disable_clks:
+	clk_bulk_disable_unprepare(domain->num_clks, domain->clks);
+
+	return ret;
+}
+
+static int mmcc_msm8960_mdp_pd_power_off(struct generic_pm_domain *genpd)
+{
+	struct mmcc_msm8960_pd *domain = to_mmcc_msm8960_pd(genpd);
+	unsigned int val;
+	int ret;
+
+	ret = regmap_read(domain->regmap, MDP_PD_CTL_REG, &val);
+	if (ret)
+		return ret;
+
+	if (!(val & PD_CTL_ENABLE))
+		return 0;
+
+	ret = clk_bulk_prepare_enable(domain->num_clks, domain->clks);
+	if (ret)
+		return ret;
+
+	ret = regmap_update_bits(domain->regmap, MDP_PD_CTL_REG,
+				 PD_CTL_RETENTION, 0);
+	if (ret)
+		goto out_disable_clks;
+
+	ret = regmap_update_bits(domain->regmap, MDP_PD_CTL_REG,
+				 PD_CTL_CLAMP, PD_CTL_CLAMP);
+	if (ret)
+		goto out_disable_clks;
+
+	ret = regmap_update_bits(domain->regmap, MDP_PD_CTL_REG,
+				 PD_CTL_ENABLE, 0);
+
+out_disable_clks:
+	clk_bulk_disable_unprepare(domain->num_clks, domain->clks);
+
+	return ret;
+}
+
+static void mmcc_msm8960_pd_unregister(void *data)
+{
+	struct device *dev = data;
+
+	of_genpd_del_provider(dev->of_node);
+}
+
+static int mmcc_msm8960_init_mdp_pd(struct device *dev, struct regmap *regmap)
+{
+	struct genpd_onecell_data *data;
+	struct mmcc_msm8960_pd *domain;
+	unsigned int val;
+	int i, ret;
+
+	if (!IS_ENABLED(CONFIG_PM_GENERIC_DOMAINS))
+		return 0;
+
+	data = devm_kzalloc(dev, sizeof(*data), GFP_KERNEL);
+	if (!data)
+		return -ENOMEM;
+
+	data->num_domains = MDP_PD + 1;
+	data->domains = devm_kcalloc(dev, data->num_domains,
+				      sizeof(*data->domains), GFP_KERNEL);
+	if (!data->domains)
+		return -ENOMEM;
+
+	domain = devm_kzalloc(dev, sizeof(*domain), GFP_KERNEL);
+	if (!domain)
+		return -ENOMEM;
+
+	domain->regmap = regmap;
+	domain->pd.name = "mdp";
+	domain->pd.power_on = mmcc_msm8960_mdp_pd_power_on;
+	domain->pd.power_off = mmcc_msm8960_mdp_pd_power_off;
+	domain->num_clks = ARRAY_SIZE(domain->clks);
+	domain->clks[0].clk = devm_clk_hw_get_clk(dev, &mdp_clk.clkr.hw,
+						     "mdp_pd");
+	domain->clks[1].clk = devm_clk_hw_get_clk(dev, &mdp_ahb_clk.clkr.hw,
+						     "mdp_pd");
+	domain->clks[2].clk = devm_clk_hw_get_clk(dev, &mdp_axi_clk.clkr.hw,
+						     "mdp_pd");
+	domain->clks[3].clk = devm_clk_hw_get_clk(dev, &mdp_vsync_clk.clkr.hw,
+						     "mdp_pd");
+	domain->clks[4].clk = devm_clk_hw_get_clk(dev, &mdp_lut_clk.clkr.hw,
+						     "mdp_pd");
+	for (i = 0; i < domain->num_clks; i++) {
+		if (IS_ERR(domain->clks[i].clk))
+			return PTR_ERR(domain->clks[i].clk);
+	}
+
+	ret = regmap_update_bits(regmap, MDP_PD_CTL_REG,
+				 PD_CTL_DELAY_MASK | PD_CTL_RETENTION,
+				 PD_CTL_DELAY_VAL);
+	if (ret)
+		return ret;
+
+	ret = regmap_read(regmap, MDP_PD_CTL_REG, &val);
+	if (ret)
+		return ret;
+
+	ret = pm_genpd_init(&domain->pd, NULL,
+			    (val & (PD_CTL_ENABLE | PD_CTL_CLAMP)) !=
+			    PD_CTL_ENABLE);
+	if (ret)
+		return ret;
+
+	data->domains[MDP_PD] = &domain->pd;
+
+	ret = of_genpd_add_provider_onecell(dev->of_node, data);
+	if (ret)
+		return ret;
+
+	return devm_add_action_or_reset(dev, mmcc_msm8960_pd_unregister, dev);
+}
+
 static const struct regmap_config mmcc_msm8960_regmap_config = {
 	.reg_bits	= 32,
 	.reg_stride	= 4,
@@ -3159,6 +3346,7 @@ static int mmcc_msm8960_probe(struct platform_device *pdev)
 	struct regmap *regmap;
 	struct device *dev = &pdev->dev;
 	const struct qcom_cc_desc *desc = device_get_match_data(dev);
+	int ret;
 
 	if (desc == &mmcc_apq8064_desc) {
 		gfx3d_src.freq_tbl = clk_tbl_gfx3d_8064;
@@ -3173,7 +3361,11 @@ static int mmcc_msm8960_probe(struct platform_device *pdev)
 
 	clk_pll_configure_sr(&pll15, regmap, &pll15_config, false);
 
-	return qcom_cc_really_probe(&pdev->dev, desc, regmap);
+	ret = qcom_cc_really_probe(&pdev->dev, desc, regmap);
+	if (ret)
+		return ret;
+
+	return mmcc_msm8960_init_mdp_pd(dev, regmap);
 }
 
 static struct platform_driver mmcc_msm8960_driver = {
