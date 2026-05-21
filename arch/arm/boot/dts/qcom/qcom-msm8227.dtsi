@@ -58,6 +58,11 @@
 		#size-cells = <1>;
 		ranges;
 
+		restart@800820 {
+			compatible = "qcom,pshold";
+			reg = <0x00800820 0x4>;
+		};
+
 		gcc: clock-controller@900000 {
 			compatible = "qcom,gcc-msm8960", "syscon";
 			reg = <0x00900000 0x4000>;
