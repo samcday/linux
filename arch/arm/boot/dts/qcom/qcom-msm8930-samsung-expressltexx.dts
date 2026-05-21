@@ -371,6 +371,14 @@
 		bias-pull-up;
 	};
 
+	panel_reset_state: panel-reset-state {
+		pins = "gpio58";
+		function = "gpio";
+		drive-strength = <2>;
+		bias-disable;
+		output-high;
+	};
+
 	sdcc1_default_state: sdcc1-default-state {
 		clk-pins {
 			pins = "sdc1_clk";
@@ -480,12 +488,27 @@
 	vdda-supply = <&pm8917_l2>;
 	avdd-supply = <&pm8917_l8>;
 	vddio-supply = <&pm8917_l23>;
-
 	status = "okay";
+
+	panel@0 {
+		compatible = "magnachip,ams452gp32";
+		reg = <0>;
+
+		reset-gpios = <&tlmm 58 GPIO_ACTIVE_LOW>;
+		pinctrl-0 = <&panel_reset_state>;
+		pinctrl-names = "default";
+
+		port {
+			panel_in: endpoint {
+				remote-endpoint = <&dsi0_out>;
+			};
+		};
+	};
 };
 
 &dsi0_out {
 	data-lanes = <1 2>;
+	remote-endpoint = <&panel_in>;
 };
 
 &dsi0_phy {
