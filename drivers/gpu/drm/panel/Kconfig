@@ -480,6 +480,18 @@ config DRM_PANEL_LXD_M9189A
 	  Say Y if you want to enable support for the LXD M9189A 4-Lane
 	  1024x600 MIPI DSI panel.
 
+config DRM_PANEL_MAGNACHIP_AMS452GP32
+	tristate "Magnachip AMS452GP32 WVGA OLED panel"
+	depends on GPIOLIB && OF
+	depends on DRM_MIPI_DSI
+	help
+	  DRM panel driver for the Magnachip AMS452GP32 (SMD_AMS452GP32)
+	  480x800 WVGA OLED panel. Used on Samsung Galaxy Express LTE and
+	  similar devices. MIPI-DSI video mode, 2 lanes, RGB888.
+
+	  To compile this driver as a module, choose M here: the module will
+	  be called panel-magnachip-ams452gp32.
+
 config DRM_PANEL_MAGNACHIP_D53E6EA8966
 	tristate "Magnachip D53E6EA8966 DSI panel"
 	depends on OF && SPI
