@@ -444,6 +444,30 @@
 	status = "okay";
 };
 
+&mdp {
+	status = "okay";
+};
+
+&mdp_port0 {
+	status = "okay";
+};
+
+&mdp_port1 {
+	status = "okay";
+};
+
+&dsi0 {
+	status = "okay";
+};
+
+&dsi0_out {
+	data-lanes = <1 2>;
+};
+
+&dsi0_phy {
+	status = "okay";
+};
+
 &usb_hs1_phy {
 	v1p8-supply = <&pm8917_l4>;
 	v3p3-supply = <&pm8917_l3>;
