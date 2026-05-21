@@ -5,6 +5,7 @@
  */
 
 #include <linux/delay.h>
+#include <linux/of.h>
 
 #include <drm/drm_bridge.h>
 #include <drm/drm_bridge_connector.h>
@@ -524,13 +525,17 @@ static int mdp4_probe(struct platform_device *pdev)
 
 	mdp4_kms->base.base.irq = irq;
 
-	/* NOTE: driver for this regulator still missing upstream.. use
-	 * _get_exclusive() and ignore the error if it does not exist
-	 * (and hope that the bootloader left it on for us)
+	/*
+	 * Legacy MDP4 DTs model the block power rail as a regulator. If DT
+	 * provides a power domain instead, genpd owns that sequencing and the
+	 * regulator fallback would only trigger a dummy-regulator warning.
 	 */
-	mdp4_kms->vdd = devm_regulator_get_exclusive(&pdev->dev, "vdd");
-	if (IS_ERR(mdp4_kms->vdd))
-		mdp4_kms->vdd = NULL;
+	if (!pdev->dev.of_node ||
+	    !of_property_present(pdev->dev.of_node, "power-domains")) {
+		mdp4_kms->vdd = devm_regulator_get_exclusive(&pdev->dev, "vdd");
+		if (IS_ERR(mdp4_kms->vdd))
+			mdp4_kms->vdd = NULL;
+	}
 
 	mdp4_kms->clk = devm_clk_get(&pdev->dev, "core_clk");
 	if (IS_ERR(mdp4_kms->clk))
