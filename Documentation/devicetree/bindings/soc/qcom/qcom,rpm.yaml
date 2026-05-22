@@ -20,6 +20,7 @@ properties:
     enum:
       - qcom,rpm-apq8064
       - qcom,rpm-msm8660
+      - qcom,rpm-msm8930
       - qcom,rpm-msm8960
       - qcom,rpm-ipq8064
       - qcom,rpm-mdm9615
