@@ -338,6 +338,38 @@ static const struct qcom_rpm_data msm8960_template = {
 	.ack_sel_size = 7,
 };
 
+static const struct qcom_rpm_resource msm8930_rpm_resource_table[] = {
+	[QCOM_RPM_MM_FABRIC_HALT] =		{ 73, 27, 26, 2 },
+	[QCOM_RPM_PM8038_SMPS4] =		{ 96, 37, 33, 2 },
+	[QCOM_RPM_PM8038_LDO3] =		{ 106, 47, 38, 2 },
+	[QCOM_RPM_PM8038_LDO4] =		{ 108, 49, 39, 2 },
+	[QCOM_RPM_PM8038_LDO5] =		{ 110, 51, 40, 2 },
+	[QCOM_RPM_PM8038_LDO11] =		{ 122, 63, 46, 2 },
+	[QCOM_RPM_PM8917_SMPS4] =		{ 96, 37, 33, 2 },
+	[QCOM_RPM_PM8917_LDO2] =		{ 108, 49, 39, 2 },
+	[QCOM_RPM_PM8917_LDO3] =		{ 110, 51, 40, 2 },
+	[QCOM_RPM_PM8917_LDO4] =		{ 112, 53, 41, 2 },
+	[QCOM_RPM_PM8917_LDO5] =		{ 114, 55, 42, 2 },
+	[QCOM_RPM_PM8917_LDO6] =		{ 116, 57, 43, 2 },
+	[QCOM_RPM_PM8917_LDO7] =		{ 118, 59, 44, 2 },
+	[QCOM_RPM_PM8917_LDO8] =		{ 120, 61, 45, 2 },
+	[QCOM_RPM_PM8917_LDO23] =		{ 144, 85, 57, 2 },
+	[QCOM_RPM_PM8917_LVS5] =		{ 179, 120, 76, 1 },
+	[QCOM_RPM_PM8917_LVS6] =		{ 180, 121, 77, 1 },
+};
+
+static const struct qcom_rpm_data msm8930_template = {
+	.version = 3,
+	.resource_table = msm8930_rpm_resource_table,
+	.n_resources = ARRAY_SIZE(msm8930_rpm_resource_table),
+	.req_ctx_off = 3,
+	.req_sel_off = 11,
+	.ack_ctx_off = 15,
+	.ack_sel_off = 23,
+	.req_sel_size = 4,
+	.ack_sel_size = 7,
+};
+
 static const struct qcom_rpm_resource ipq806x_rpm_resource_table[] = {
 	[QCOM_RPM_CXO_CLK] =			{ 25, 9, 5, 1 },
 	[QCOM_RPM_PXO_CLK] =			{ 26, 10, 6, 1 },
@@ -437,6 +469,7 @@ static const struct qcom_rpm_data mdm9615_template = {
 static const struct of_device_id qcom_rpm_of_match[] = {
 	{ .compatible = "qcom,rpm-apq8064", .data = &apq8064_template },
 	{ .compatible = "qcom,rpm-msm8660", .data = &msm8660_template },
+	{ .compatible = "qcom,rpm-msm8930", .data = &msm8930_template },
 	{ .compatible = "qcom,rpm-msm8960", .data = &msm8960_template },
 	{ .compatible = "qcom,rpm-ipq8064", .data = &ipq806x_template },
 	{ .compatible = "qcom,rpm-mdm9615", .data = &mdm9615_template },
