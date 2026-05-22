@@ -68,9 +68,54 @@
 };
 
 &sdcc1 {
+	pinctrl-0 = <&sdcc1_default_state>;
+	pinctrl-1 = <&sdcc1_sleep_state>;
+	pinctrl-names = "default", "sleep";
 	vmmc-supply = <&pm8038_l5>;
 	vqmmc-supply = <&pm8038_l11>;
 	status = "okay";
+};
+
+&tlmm {
+	sdcc1_default_state: sdcc1-default-state {
+		clk-pins {
+			pins = "sdc1_clk";
+			drive-strength = <16>;
+			bias-disable;
+		};
+
+		cmd-pins {
+			pins = "sdc1_cmd";
+			drive-strength = <10>;
+			bias-pull-up;
+		};
+
+		data-pins {
+			pins = "sdc1_data";
+			drive-strength = <10>;
+			bias-pull-up;
+		};
+	};
+
+	sdcc1_sleep_state: sdcc1-sleep-state {
+		clk-pins {
+			pins = "sdc1_clk";
+			drive-strength = <2>;
+			bias-disable;
+		};
+
+		cmd-pins {
+			pins = "sdc1_cmd";
+			drive-strength = <2>;
+			bias-pull-up;
+		};
+
+		data-pins {
+			pins = "sdc1_data";
+			drive-strength = <2>;
+			bias-pull-up;
+		};
+	};
 };
 
 &usb1 {
