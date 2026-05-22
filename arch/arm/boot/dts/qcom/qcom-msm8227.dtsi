@@ -114,6 +114,17 @@
 			};
 		};
 
+		tlmm: pinctrl@800000 {
+			compatible = "qcom,msm8960-pinctrl";
+			reg = <0x00800000 0x4000>;
+			gpio-controller;
+			gpio-ranges = <&tlmm 0 0 152>;
+			#gpio-cells = <2>;
+			interrupts = <GIC_SPI 16 IRQ_TYPE_LEVEL_HIGH>;
+			interrupt-controller;
+			#interrupt-cells = <2>;
+		};
+
 		restart@800820 {
 			compatible = "qcom,pshold";
 			reg = <0x00800820 0x4>;
