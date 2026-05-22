@@ -119,6 +119,8 @@ static long mdp4_round_pixclk(struct msm_kms *kms, unsigned long rate,
 	}
 }
 
+static void mdp4_disable_init_clocks(struct mdp4_kms *mdp4_kms);
+
 static void mdp4_destroy(struct msm_kms *kms)
 {
 	struct mdp4_kms *mdp4_kms = to_mdp4_kms(to_mdp_kms(kms));
@@ -145,6 +147,8 @@ static void mdp4_destroy(struct msm_kms *kms)
 		pm_runtime_disable(dev);
 		mdp4_kms->rpm_enabled = false;
 	}
+
+	mdp4_disable_init_clocks(mdp4_kms);
 
 	mdp_kms_destroy(&mdp4_kms->base);
 	if (priv->kms == kms)
@@ -515,10 +519,80 @@ static const struct dev_pm_ops mdp4_pm_ops = {
 	.complete = msm_kms_pm_complete,
 };
 
+static int mdp4_enable_init_clk(struct device *dev, const char *name,
+				       struct clk *clk)
+{
+	int ret;
+
+	if (!clk)
+		return 0;
+
+	ret = clk_prepare_enable(clk);
+	if (ret)
+		return dev_err_probe(dev, ret,
+				     "failed to enable %s for MDP4 init\n", name);
+
+	return 0;
+}
+
+static void mdp4_disable_init_clk(struct clk *clk)
+{
+	if (clk)
+		clk_disable_unprepare(clk);
+}
+
+static void mdp4_disable_init_clocks(struct mdp4_kms *mdp4_kms)
+{
+	if (!mdp4_kms->init_clocks_enabled)
+		return;
+
+	mdp4_disable_init_clk(mdp4_kms->lut_clk);
+	mdp4_disable_init_clk(mdp4_kms->axi_clk);
+	mdp4_disable_init_clk(mdp4_kms->pclk);
+	mdp4_disable_init_clk(mdp4_kms->clk);
+	mdp4_kms->init_clocks_enabled = false;
+}
+
+static int mdp4_enable_init_clocks(struct platform_device *pdev,
+				   struct mdp4_kms *mdp4_kms)
+{
+	struct device *dev = &pdev->dev;
+	int ret;
+
+	ret = mdp4_enable_init_clk(dev, "core_clk", mdp4_kms->clk);
+	if (ret)
+		return ret;
+
+	ret = mdp4_enable_init_clk(dev, "iface_clk", mdp4_kms->pclk);
+	if (ret)
+		goto disable_core;
+
+	ret = mdp4_enable_init_clk(dev, "bus_clk", mdp4_kms->axi_clk);
+	if (ret)
+		goto disable_iface;
+
+	ret = mdp4_enable_init_clk(dev, "lut_clk", mdp4_kms->lut_clk);
+	if (ret)
+		goto disable_bus;
+
+	mdp4_kms->init_clocks_enabled = true;
+
+	return 0;
+
+disable_bus:
+	mdp4_disable_init_clk(mdp4_kms->axi_clk);
+disable_iface:
+	mdp4_disable_init_clk(mdp4_kms->pclk);
+disable_core:
+	mdp4_disable_init_clk(mdp4_kms->clk);
+	return ret;
+}
+
 static int mdp4_probe(struct platform_device *pdev)
 {
 	struct device *dev = &pdev->dev;
 	struct mdp4_kms *mdp4_kms;
+	int ret;
 	int irq;
 
 	mdp4_kms = devm_kzalloc(dev, sizeof(*mdp4_kms), GFP_KERNEL);
@@ -567,7 +641,16 @@ static int mdp4_probe(struct platform_device *pdev)
 	if (IS_ERR(mdp4_kms->lut_clk))
 		return dev_err_probe(dev, PTR_ERR(mdp4_kms->lut_clk), "failed to get lut_clk\n");
 
-	return msm_drv_probe(&pdev->dev, mdp4_kms_init, &mdp4_kms->base.base);
+	/* Keep MDP clocks owned before msm_drv_probe() removes firmware fbdevs. */
+	ret = mdp4_enable_init_clocks(pdev, mdp4_kms);
+	if (ret)
+		return ret;
+
+	ret = msm_drv_probe(&pdev->dev, mdp4_kms_init, &mdp4_kms->base.base);
+	if (ret)
+		mdp4_disable_init_clocks(mdp4_kms);
+
+	return ret;
 }
 
 static void mdp4_remove(struct platform_device *pdev)
