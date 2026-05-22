@@ -59,6 +59,10 @@ int mdp4_irq_postinstall(struct msm_kms *kms)
 void mdp4_irq_uninstall(struct msm_kms *kms)
 {
 	struct mdp4_kms *mdp4_kms = to_mdp4_kms(to_mdp_kms(kms));
+
+	if (!kms->irq_requested)
+		return;
+
 	mdp4_enable(mdp4_kms);
 	mdp4_write(mdp4_kms, REG_MDP4_INTR_ENABLE, 0x00000000);
 	mdp4_disable(mdp4_kms);

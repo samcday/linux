@@ -122,23 +122,33 @@ static long mdp4_round_pixclk(struct msm_kms *kms, unsigned long rate,
 static void mdp4_destroy(struct msm_kms *kms)
 {
 	struct mdp4_kms *mdp4_kms = to_mdp4_kms(to_mdp_kms(kms));
-	struct device *dev = mdp4_kms->dev->dev;
+	struct drm_device *drm = mdp4_kms->dev;
+	struct msm_drm_private *priv = drm->dev_private;
+	struct device *dev = drm->dev;
 
-	if (mdp4_kms->blank_cursor_iova)
+	if (mdp4_kms->blank_cursor_iova) {
 		msm_gem_unpin_iova(mdp4_kms->blank_cursor_bo, kms->vm);
+		mdp4_kms->blank_cursor_iova = 0;
+	}
 	drm_gem_object_put(mdp4_kms->blank_cursor_bo);
+	mdp4_kms->blank_cursor_bo = NULL;
 
 	if (kms->vm) {
 		struct msm_mmu *mmu = to_msm_vm(kms->vm)->mmu;
 
 		mmu->funcs->detach(mmu);
 		drm_gpuvm_put(kms->vm);
+		kms->vm = NULL;
 	}
 
-	if (mdp4_kms->rpm_enabled)
+	if (mdp4_kms->rpm_enabled) {
 		pm_runtime_disable(dev);
+		mdp4_kms->rpm_enabled = false;
+	}
 
 	mdp_kms_destroy(&mdp4_kms->base);
+	if (priv->kms == kms)
+		priv->kms = NULL;
 }
 
 static const struct mdp_kms_funcs kms_funcs = {
