@@ -33,10 +33,52 @@
 	status = "okay";
 };
 
+&rpm {
+	regulators {
+		compatible = "qcom,rpm-pm8038-regulators";
+
+		pm8038_l3: l3 {
+			regulator-min-microvolt = <3075000>;
+			regulator-max-microvolt = <3075000>;
+			bias-pull-down;
+		};
+
+		pm8038_l4: l4 {
+			regulator-min-microvolt = <1800000>;
+			regulator-max-microvolt = <1800000>;
+			bias-pull-down;
+		};
+
+		pm8038_l5: l5 {
+			regulator-always-on;
+			regulator-boot-on;
+			regulator-min-microvolt = <2950000>;
+			regulator-max-microvolt = <2950000>;
+			bias-pull-down;
+		};
+
+		pm8038_l11: l11 {
+			regulator-always-on;
+			regulator-boot-on;
+			regulator-min-microvolt = <1800000>;
+			regulator-max-microvolt = <1800000>;
+			bias-pull-down;
+		};
+	};
+};
+
 &sdcc1 {
+	vmmc-supply = <&pm8038_l5>;
+	vqmmc-supply = <&pm8038_l11>;
 	status = "okay";
 };
 
 &usb1 {
 	status = "okay";
+};
+
+&usb_hs1_phy {
+	v1p8-supply = <&pm8038_l4>;
+	v3p3-supply = <&pm8038_l3>;
+	qcom,init-seq = /bits/ 8 <0x01 0x38 0x02 0x14>;
 };
