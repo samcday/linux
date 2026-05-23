@@ -39,6 +39,9 @@ properties:
       - description: non-secure mode interrupt
       - description: secure mode interrupt (for instances which supports it)
 
+  power-domains:
+    maxItems: 1
+
   "#iommu-cells":
     const: 1
     description: Each IOMMU specifier describes a single Stream ID.
