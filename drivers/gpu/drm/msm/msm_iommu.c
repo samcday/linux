@@ -5,7 +5,6 @@
  */
 
 #include <linux/adreno-smmu-priv.h>
-#include <linux/dma-map-ops.h>
 #include <linux/io-pgtable.h>
 #include <linux/kmemleak.h>
 #include "msm_drv.h"
@@ -760,8 +759,6 @@ struct msm_mmu *msm_iommu_disp_new(struct device *dev, unsigned long quirks)
 {
 	struct msm_iommu *iommu;
 	struct msm_mmu *mmu;
-
-	arch_teardown_dma_ops(dev);
 
 	mmu = msm_iommu_new(dev, quirks);
 	if (IS_ERR(mmu))

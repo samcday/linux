@@ -1462,8 +1462,14 @@ static int platform_dma_configure(struct device *dev)
 		ret = acpi_dma_configure(dev, attr);
 	}
 	/* @dev->driver may not be valid when we're called from the IOMMU layer */
-	if (ret || !drv || to_platform_driver(drv)->driver_managed_dma)
+	if (ret || !drv)
 		return ret;
+
+	if (to_platform_driver(drv)->driver_managed_dma) {
+		/* of_dma_configure() may have installed arch DMA API ops. */
+		arch_teardown_dma_ops(dev);
+		return 0;
+	}
 
 	ret = iommu_device_use_default_domain(dev);
 	if (ret)
