@@ -540,6 +540,15 @@ config DRM_PANEL_NEWVISION_NV3052C
 	  Say Y here if you want to enable support for the panels built
 	  around the NewVision NV3052C display controller.
 
+config DRM_PANEL_NOKIA_TEISKO
+	tristate "Nokia Teisko (Orise FWVGA) DSI panel"
+	depends on OF
+	depends on DRM_MIPI_DSI
+	help
+	  Say Y here if you want to enable support for the Nokia "Teisko"
+	  FWVGA 480x800 MIPI-DSI video panel found on the Nokia Lumia 520
+	  (fame, MSM8227). The panel uses an Orise-based controller.
+
 config DRM_PANEL_NOVATEK_NT35510
 	tristate "Novatek NT35510 RGB panel driver"
 	depends on OF
