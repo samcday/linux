@@ -350,11 +350,6 @@ static void dsi_28nm_pll_save_state(struct msm_dsi_phy *phy)
 			readl(base + REG_DSI_28nm_8960_PHY_PLL_CTRL_8);
 
 	cached_state->vco_rate = clk_hw_get_rate(phy->vco_hw);
-	DRM_DEV_ERROR(&phy->pdev->dev,
-		      "HACK: save 28nm-8960 PLL state vco=%lu postdiv3=%#x postdiv2=%#x postdiv1=%#x pll_on=%d\n",
-		      cached_state->vco_rate, cached_state->postdiv3,
-		      cached_state->postdiv2, cached_state->postdiv1,
-		      phy->pll_on);
 }
 
 static int dsi_28nm_pll_restore_state(struct msm_dsi_phy *phy)
@@ -363,12 +358,6 @@ static int dsi_28nm_pll_restore_state(struct msm_dsi_phy *phy)
 	struct pll_28nm_cached_state *cached_state = &pll_28nm->cached_state;
 	void __iomem *base = pll_28nm->phy->pll_base;
 	int ret;
-
-	DRM_DEV_ERROR(&phy->pdev->dev,
-		      "HACK: restore 28nm-8960 PLL state vco=%lu postdiv3=%#x postdiv2=%#x postdiv1=%#x pll_on=%d\n",
-		      cached_state->vco_rate, cached_state->postdiv3,
-		      cached_state->postdiv2, cached_state->postdiv1,
-		      phy->pll_on);
 
 	ret = dsi_pll_28nm_clk_set_rate(phy->vco_hw,
 					cached_state->vco_rate, 0);
@@ -381,10 +370,6 @@ static int dsi_28nm_pll_restore_state(struct msm_dsi_phy *phy)
 	writel(cached_state->postdiv3, base + REG_DSI_28nm_8960_PHY_PLL_CTRL_10);
 	writel(cached_state->postdiv2, base + REG_DSI_28nm_8960_PHY_PLL_CTRL_9);
 	writel(cached_state->postdiv1, base + REG_DSI_28nm_8960_PHY_PLL_CTRL_8);
-
-	DRM_DEV_ERROR(&phy->pdev->dev,
-		      "HACK: restored 28nm-8960 PLL state actual_vco=%lu pll_on=%d\n",
-		      clk_hw_get_rate(phy->vco_hw), phy->pll_on);
 
 	return 0;
 }
