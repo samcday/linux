@@ -15,6 +15,7 @@
 #include <linux/pm_domain.h>
 #include <linux/regmap.h>
 #include <linux/slab.h>
+#include <linux/string.h>
 
 #include <dt-bindings/clock/qcom,mmcc-msm8960.h>
 #include <dt-bindings/reset/qcom,mmcc-msm8960.h>
@@ -2044,6 +2045,19 @@ static struct clk_branch gfx3d_axi_clk = {
 	},
 };
 
+static struct clk_branch gfx3d_axi_clk_8930 = {
+	.halt_reg = 0x0240,
+	.halt_bit = 12,
+	.clkr = {
+		.enable_reg = 0x0244,
+		.enable_mask = BIT(12),
+		.hw.init = &(struct clk_init_data){
+			.name = "gfx3d_axi_clk",
+			.ops = &clk_branch_ops,
+		},
+	},
+};
+
 static struct clk_branch amp_ahb_clk = {
 	.halt_reg = 0x01dc,
 	.halt_bit = 18,
@@ -2930,6 +2944,8 @@ static const struct qcom_reset_map mmcc_msm8960_resets[] = {
 	[CSI_RDI2_RESET] = { 0x0214 },
 };
 
+static struct clk_regmap *mmcc_msm8930_clks[ARRAY_SIZE(mmcc_msm8960_clks)];
+
 static struct clk_regmap *mmcc_apq8064_clks[] = {
 	[AMP_AHB_CLK] = &amp_ahb_clk.clkr,
 	[DSI2_S_AHB_CLK] = &dsi2_s_ahb_clk.clkr,
@@ -3117,6 +3133,7 @@ static const struct qcom_reset_map mmcc_apq8064_resets[] = {
 	[CSI_RDI2_RESET] = { 0x0214 },
 };
 
+#define GFX3D_PD_CTL_REG		0x0188
 #define MDP_PD_CTL_REG			0x0190
 #define PD_CTL_DELAY_MASK		GENMASK(4, 0)
 #define PD_CTL_DELAY_VAL		31
@@ -3130,6 +3147,17 @@ struct mmcc_msm8960_pd {
 	struct device *dev;
 	struct regmap *regmap;
 	struct clk_bulk_data clks[5];
+	const char *dbg_name;
+	unsigned int ctl_reg;
+	unsigned int num_clks;
+};
+
+struct mmcc_msm8960_pd_desc {
+	const char *name;
+	const char *dbg_name;
+	unsigned int id;
+	unsigned int ctl_reg;
+	struct clk_regmap *clks[5];
 	unsigned int num_clks;
 };
 
@@ -3138,33 +3166,34 @@ static struct mmcc_msm8960_pd *to_mmcc_msm8960_pd(struct generic_pm_domain *pd)
 	return container_of(pd, struct mmcc_msm8960_pd, pd);
 }
 
-static void mmcc_msm8960_mdp_pd_dbg(struct mmcc_msm8960_pd *domain,
-				    const char *stage)
+static void mmcc_msm8960_pd_dbg(struct mmcc_msm8960_pd *domain,
+				const char *stage)
 {
 	unsigned int val;
 	int ret;
 
-	ret = regmap_read(domain->regmap, MDP_PD_CTL_REG, &val);
+	ret = regmap_read(domain->regmap, domain->ctl_reg, &val);
 	if (ret) {
-		dev_dbg(domain->dev, "MDP_PD %s: failed to read CTL: %d\n",
-			stage, ret);
+		dev_dbg(domain->dev, "%s %s: failed to read CTL: %d\n",
+			domain->dbg_name, stage, ret);
 		return;
 	}
 
 	dev_dbg(domain->dev,
-		"MDP_PD %s: ctl=0x%08x delay=%u clamp=%u enable=%u retention=%u on=%u\n",
-		stage, val, (unsigned int)(val & PD_CTL_DELAY_MASK),
+		"%s %s: ctl=0x%08x delay=%u clamp=%u enable=%u retention=%u on=%u\n",
+		domain->dbg_name, stage, val,
+		(unsigned int)(val & PD_CTL_DELAY_MASK),
 		!!(val & PD_CTL_CLAMP), !!(val & PD_CTL_ENABLE),
 		!!(val & PD_CTL_RETENTION),
 		(val & (PD_CTL_ENABLE | PD_CTL_CLAMP)) == PD_CTL_ENABLE);
 }
 
-static int mmcc_msm8960_mdp_pd_is_on(struct mmcc_msm8960_pd *domain, bool *on)
+static int mmcc_msm8960_pd_is_on(struct mmcc_msm8960_pd *domain, bool *on)
 {
 	unsigned int val;
 	int ret;
 
-	ret = regmap_read(domain->regmap, MDP_PD_CTL_REG, &val);
+	ret = regmap_read(domain->regmap, domain->ctl_reg, &val);
 	if (ret)
 		return ret;
 
@@ -3173,130 +3202,134 @@ static int mmcc_msm8960_mdp_pd_is_on(struct mmcc_msm8960_pd *domain, bool *on)
 	return 0;
 }
 
-static int mmcc_msm8960_mdp_pd_power_on(struct generic_pm_domain *genpd)
+static int mmcc_msm8960_pd_power_on(struct generic_pm_domain *genpd)
 {
 	struct mmcc_msm8960_pd *domain = to_mmcc_msm8960_pd(genpd);
 	bool on;
 	int ret;
 
-	mmcc_msm8960_mdp_pd_dbg(domain, "power_on entry");
+	mmcc_msm8960_pd_dbg(domain, "power_on entry");
 
-	ret = mmcc_msm8960_mdp_pd_is_on(domain, &on);
+	ret = mmcc_msm8960_pd_is_on(domain, &on);
 	if (ret) {
-		dev_dbg(domain->dev, "MDP_PD power_on: state read failed: %d\n",
-			ret);
+		dev_dbg(domain->dev, "%s power_on: state read failed: %d\n",
+			domain->dbg_name, ret);
 		return ret;
 	}
 	if (on) {
-		dev_dbg(domain->dev, "MDP_PD power_on: already on\n");
+		dev_dbg(domain->dev, "%s power_on: already on\n",
+			domain->dbg_name);
 		return 0;
 	}
 
 	ret = clk_bulk_prepare_enable(domain->num_clks, domain->clks);
 	if (ret) {
-		dev_dbg(domain->dev, "MDP_PD power_on: clock enable failed: %d\n",
-			ret);
+		dev_dbg(domain->dev, "%s power_on: clock enable failed: %d\n",
+			domain->dbg_name, ret);
 		return ret;
 	}
-	dev_dbg(domain->dev, "MDP_PD power_on: clocks enabled\n");
+	dev_dbg(domain->dev, "%s power_on: clocks enabled\n", domain->dbg_name);
 
-	ret = regmap_update_bits(domain->regmap, MDP_PD_CTL_REG,
+	ret = regmap_update_bits(domain->regmap, domain->ctl_reg,
 				 PD_CTL_DELAY_MASK | PD_CTL_RETENTION,
 				 PD_CTL_DELAY_VAL);
 	if (ret) {
 		dev_dbg(domain->dev,
-			"MDP_PD power_on: delay/retention write failed: %d\n",
-			ret);
+			"%s power_on: delay/retention write failed: %d\n",
+			domain->dbg_name, ret);
 		goto out_disable_clks;
 	}
-	mmcc_msm8960_mdp_pd_dbg(domain, "power_on delay");
+	mmcc_msm8960_pd_dbg(domain, "power_on delay");
 
-	ret = regmap_update_bits(domain->regmap, MDP_PD_CTL_REG,
+	ret = regmap_update_bits(domain->regmap, domain->ctl_reg,
 				 PD_CTL_ENABLE, PD_CTL_ENABLE);
 	if (ret) {
-		dev_dbg(domain->dev, "MDP_PD power_on: enable write failed: %d\n",
-			ret);
+		dev_dbg(domain->dev, "%s power_on: enable write failed: %d\n",
+			domain->dbg_name, ret);
 		goto out_disable_clks;
 	}
-	mmcc_msm8960_mdp_pd_dbg(domain, "power_on enable");
+	mmcc_msm8960_pd_dbg(domain, "power_on enable");
 
 	mb();
 	udelay(1);
 
-	ret = regmap_update_bits(domain->regmap, MDP_PD_CTL_REG,
+	ret = regmap_update_bits(domain->regmap, domain->ctl_reg,
 				 PD_CTL_CLAMP, 0);
 	if (ret)
-		dev_dbg(domain->dev, "MDP_PD power_on: unclamp write failed: %d\n",
-			ret);
+		dev_dbg(domain->dev, "%s power_on: unclamp write failed: %d\n",
+			domain->dbg_name, ret);
 	else
-		mmcc_msm8960_mdp_pd_dbg(domain, "power_on unclamp");
+		mmcc_msm8960_pd_dbg(domain, "power_on unclamp");
 
 out_disable_clks:
 	clk_bulk_disable_unprepare(domain->num_clks, domain->clks);
-	dev_dbg(domain->dev, "MDP_PD power_on: clocks disabled ret=%d\n", ret);
-	mmcc_msm8960_mdp_pd_dbg(domain, "power_on exit");
+	dev_dbg(domain->dev, "%s power_on: clocks disabled ret=%d\n",
+		domain->dbg_name, ret);
+	mmcc_msm8960_pd_dbg(domain, "power_on exit");
 
 	return ret;
 }
 
-static int mmcc_msm8960_mdp_pd_power_off(struct generic_pm_domain *genpd)
+static int mmcc_msm8960_pd_power_off(struct generic_pm_domain *genpd)
 {
 	struct mmcc_msm8960_pd *domain = to_mmcc_msm8960_pd(genpd);
 	unsigned int val;
 	int ret;
 
-	mmcc_msm8960_mdp_pd_dbg(domain, "power_off entry");
+	mmcc_msm8960_pd_dbg(domain, "power_off entry");
 
-	ret = regmap_read(domain->regmap, MDP_PD_CTL_REG, &val);
+	ret = regmap_read(domain->regmap, domain->ctl_reg, &val);
 	if (ret) {
-		dev_dbg(domain->dev, "MDP_PD power_off: state read failed: %d\n",
-			ret);
+		dev_dbg(domain->dev, "%s power_off: state read failed: %d\n",
+			domain->dbg_name, ret);
 		return ret;
 	}
 
 	if (!(val & PD_CTL_ENABLE)) {
-		dev_dbg(domain->dev, "MDP_PD power_off: already off\n");
+		dev_dbg(domain->dev, "%s power_off: already off\n",
+			domain->dbg_name);
 		return 0;
 	}
 
 	ret = clk_bulk_prepare_enable(domain->num_clks, domain->clks);
 	if (ret) {
-		dev_dbg(domain->dev, "MDP_PD power_off: clock enable failed: %d\n",
-			ret);
+		dev_dbg(domain->dev, "%s power_off: clock enable failed: %d\n",
+			domain->dbg_name, ret);
 		return ret;
 	}
-	dev_dbg(domain->dev, "MDP_PD power_off: clocks enabled\n");
+	dev_dbg(domain->dev, "%s power_off: clocks enabled\n", domain->dbg_name);
 
-	ret = regmap_update_bits(domain->regmap, MDP_PD_CTL_REG,
+	ret = regmap_update_bits(domain->regmap, domain->ctl_reg,
 				 PD_CTL_RETENTION, 0);
 	if (ret) {
-		dev_dbg(domain->dev, "MDP_PD power_off: retention write failed: %d\n",
-			ret);
+		dev_dbg(domain->dev, "%s power_off: retention write failed: %d\n",
+			domain->dbg_name, ret);
 		goto out_disable_clks;
 	}
-	mmcc_msm8960_mdp_pd_dbg(domain, "power_off retention");
+	mmcc_msm8960_pd_dbg(domain, "power_off retention");
 
-	ret = regmap_update_bits(domain->regmap, MDP_PD_CTL_REG,
+	ret = regmap_update_bits(domain->regmap, domain->ctl_reg,
 				 PD_CTL_CLAMP, PD_CTL_CLAMP);
 	if (ret) {
-		dev_dbg(domain->dev, "MDP_PD power_off: clamp write failed: %d\n",
-			ret);
+		dev_dbg(domain->dev, "%s power_off: clamp write failed: %d\n",
+			domain->dbg_name, ret);
 		goto out_disable_clks;
 	}
-	mmcc_msm8960_mdp_pd_dbg(domain, "power_off clamp");
+	mmcc_msm8960_pd_dbg(domain, "power_off clamp");
 
-	ret = regmap_update_bits(domain->regmap, MDP_PD_CTL_REG,
+	ret = regmap_update_bits(domain->regmap, domain->ctl_reg,
 				 PD_CTL_ENABLE, 0);
 	if (ret)
-		dev_dbg(domain->dev, "MDP_PD power_off: disable write failed: %d\n",
-			ret);
+		dev_dbg(domain->dev, "%s power_off: disable write failed: %d\n",
+			domain->dbg_name, ret);
 	else
-		mmcc_msm8960_mdp_pd_dbg(domain, "power_off disable");
+		mmcc_msm8960_pd_dbg(domain, "power_off disable");
 
 out_disable_clks:
 	clk_bulk_disable_unprepare(domain->num_clks, domain->clks);
-	dev_dbg(domain->dev, "MDP_PD power_off: clocks disabled ret=%d\n", ret);
-	mmcc_msm8960_mdp_pd_dbg(domain, "power_off exit");
+	dev_dbg(domain->dev, "%s power_off: clocks disabled ret=%d\n",
+		domain->dbg_name, ret);
+	mmcc_msm8960_pd_dbg(domain, "power_off exit");
 
 	return ret;
 }
@@ -3308,12 +3341,121 @@ static void mmcc_msm8960_pd_unregister(void *data)
 	of_genpd_del_provider(dev->of_node);
 }
 
-static int mmcc_msm8960_init_mdp_pd(struct device *dev, struct regmap *regmap)
+static int mmcc_msm8960_init_pd(struct device *dev, struct regmap *regmap,
+				struct genpd_onecell_data *data,
+				const struct mmcc_msm8960_pd_desc *desc)
 {
-	struct genpd_onecell_data *data;
 	struct mmcc_msm8960_pd *domain;
 	unsigned int val;
 	int i, ret;
+
+	domain = devm_kzalloc(dev, sizeof(*domain), GFP_KERNEL);
+	if (!domain)
+		return -ENOMEM;
+
+	domain->dev = dev;
+	domain->regmap = regmap;
+	domain->dbg_name = desc->dbg_name;
+	domain->ctl_reg = desc->ctl_reg;
+	domain->pd.name = desc->name;
+	domain->pd.power_on = mmcc_msm8960_pd_power_on;
+	domain->pd.power_off = mmcc_msm8960_pd_power_off;
+	domain->num_clks = desc->num_clks;
+
+	for (i = 0; i < domain->num_clks; i++) {
+		domain->clks[i].clk = devm_clk_hw_get_clk(dev,
+							  &desc->clks[i]->hw,
+							  desc->name);
+		if (IS_ERR(domain->clks[i].clk))
+			return PTR_ERR(domain->clks[i].clk);
+	}
+
+	ret = regmap_update_bits(regmap, desc->ctl_reg,
+				 PD_CTL_DELAY_MASK | PD_CTL_RETENTION,
+				 PD_CTL_DELAY_VAL);
+	if (ret)
+		return ret;
+
+	ret = regmap_read(regmap, desc->ctl_reg, &val);
+	if (ret)
+		return ret;
+	dev_dbg(dev, "%s init: ctl=0x%08x initial_on=%u\n", desc->dbg_name, val,
+		(val & (PD_CTL_ENABLE | PD_CTL_CLAMP)) == PD_CTL_ENABLE);
+
+	ret = pm_genpd_init(&domain->pd, NULL,
+			    (val & (PD_CTL_ENABLE | PD_CTL_CLAMP)) !=
+			    PD_CTL_ENABLE);
+	if (ret)
+		return ret;
+
+	data->domains[desc->id] = &domain->pd;
+
+	return 0;
+}
+
+static const struct mmcc_msm8960_pd_desc mmcc_msm8960_pds[] = {
+	{
+		.name = "gfx3d",
+		.dbg_name = "GFX3D_PD",
+		.id = GFX3D_PD,
+		.ctl_reg = GFX3D_PD_CTL_REG,
+		.clks = {
+			&gfx3d_clk.clkr,
+			&gfx3d_ahb_clk.clkr,
+			&gfx3d_axi_clk.clkr,
+		},
+		.num_clks = 3,
+	}, {
+		.name = "mdp",
+		.dbg_name = "MDP_PD",
+		.id = MDP_PD,
+		.ctl_reg = MDP_PD_CTL_REG,
+		.clks = {
+			&mdp_clk.clkr,
+			&mdp_ahb_clk.clkr,
+			&mdp_axi_clk.clkr,
+			&mdp_vsync_clk.clkr,
+			&mdp_lut_clk.clkr,
+		},
+		.num_clks = 5,
+	},
+};
+
+static const struct mmcc_msm8960_pd_desc mmcc_msm8930_pds[] = {
+	{
+		.name = "gfx3d",
+		.dbg_name = "GFX3D_PD",
+		.id = GFX3D_PD,
+		.ctl_reg = GFX3D_PD_CTL_REG,
+		.clks = {
+			&gfx3d_clk.clkr,
+			&gfx3d_ahb_clk.clkr,
+			&gfx3d_axi_clk_8930.clkr,
+		},
+		.num_clks = 3,
+	}, {
+		.name = "mdp",
+		.dbg_name = "MDP_PD",
+		.id = MDP_PD,
+		.ctl_reg = MDP_PD_CTL_REG,
+		.clks = {
+			&mdp_clk.clkr,
+			&mdp_ahb_clk.clkr,
+			&mdp_axi_clk.clkr,
+			&mdp_vsync_clk.clkr,
+			&mdp_lut_clk.clkr,
+		},
+		.num_clks = 5,
+	},
+};
+
+static int mmcc_msm8960_init_pds(struct device *dev, struct regmap *regmap,
+				 const struct mmcc_msm8960_pd_desc *pds,
+				 size_t num_pds)
+{
+	struct genpd_onecell_data *data;
+	size_t i;
+	int ret;
 
 	if (!IS_ENABLED(CONFIG_PM_GENERIC_DOMAINS))
 		return 0;
@@ -3328,50 +3470,11 @@ static int mmcc_msm8960_init_mdp_pd(struct device *dev, struct regmap *regmap)
 	if (!data->domains)
 		return -ENOMEM;
 
-	domain = devm_kzalloc(dev, sizeof(*domain), GFP_KERNEL);
-	if (!domain)
-		return -ENOMEM;
-
-	domain->dev = dev;
-	domain->regmap = regmap;
-	domain->pd.name = "mdp";
-	domain->pd.power_on = mmcc_msm8960_mdp_pd_power_on;
-	domain->pd.power_off = mmcc_msm8960_mdp_pd_power_off;
-	domain->num_clks = ARRAY_SIZE(domain->clks);
-	domain->clks[0].clk = devm_clk_hw_get_clk(dev, &mdp_clk.clkr.hw,
-						     "mdp_pd");
-	domain->clks[1].clk = devm_clk_hw_get_clk(dev, &mdp_ahb_clk.clkr.hw,
-						     "mdp_pd");
-	domain->clks[2].clk = devm_clk_hw_get_clk(dev, &mdp_axi_clk.clkr.hw,
-						     "mdp_pd");
-	domain->clks[3].clk = devm_clk_hw_get_clk(dev, &mdp_vsync_clk.clkr.hw,
-						     "mdp_pd");
-	domain->clks[4].clk = devm_clk_hw_get_clk(dev, &mdp_lut_clk.clkr.hw,
-						     "mdp_pd");
-	for (i = 0; i < domain->num_clks; i++) {
-		if (IS_ERR(domain->clks[i].clk))
-			return PTR_ERR(domain->clks[i].clk);
+	for (i = 0; i < num_pds; i++) {
+		ret = mmcc_msm8960_init_pd(dev, regmap, data, &pds[i]);
+		if (ret)
+			return ret;
 	}
-
-	ret = regmap_update_bits(regmap, MDP_PD_CTL_REG,
-				 PD_CTL_DELAY_MASK | PD_CTL_RETENTION,
-				 PD_CTL_DELAY_VAL);
-	if (ret)
-		return ret;
-
-	ret = regmap_read(regmap, MDP_PD_CTL_REG, &val);
-	if (ret)
-		return ret;
-	dev_dbg(dev, "MDP_PD init: ctl=0x%08x initial_on=%u\n", val,
-		(val & (PD_CTL_ENABLE | PD_CTL_CLAMP)) == PD_CTL_ENABLE);
-
-	ret = pm_genpd_init(&domain->pd, NULL,
-			    (val & (PD_CTL_ENABLE | PD_CTL_CLAMP)) !=
-			    PD_CTL_ENABLE);
-	if (ret)
-		return ret;
-
-	data->domains[MDP_PD] = &domain->pd;
 
 	ret = of_genpd_add_provider_onecell(dev->of_node, data);
 	if (ret)
@@ -3404,6 +3507,14 @@ static const struct qcom_cc_desc mmcc_msm8960_desc = {
 	.num_resets = ARRAY_SIZE(mmcc_msm8960_resets),
 };
 
+static const struct qcom_cc_desc mmcc_msm8930_desc = {
+	.config = &mmcc_msm8960_regmap_config,
+	.clks = mmcc_msm8930_clks,
+	.num_clks = ARRAY_SIZE(mmcc_msm8930_clks),
+	.resets = mmcc_msm8960_resets,
+	.num_resets = ARRAY_SIZE(mmcc_msm8960_resets),
+};
+
 static const struct qcom_cc_desc mmcc_apq8064_desc = {
 	.config = &mmcc_apq8064_regmap_config,
 	.clks = mmcc_apq8064_clks,
@@ -3414,6 +3525,7 @@ static const struct qcom_cc_desc mmcc_apq8064_desc = {
 
 static const struct of_device_id mmcc_msm8960_match_table[] = {
 	{ .compatible = "qcom,mmcc-msm8960", .data = &mmcc_msm8960_desc },
+	{ .compatible = "qcom,mmcc-msm8930", .data = &mmcc_msm8930_desc },
 	{ .compatible = "qcom,mmcc-apq8064", .data = &mmcc_apq8064_desc },
 	{ }
 };
@@ -3424,6 +3536,8 @@ static int mmcc_msm8960_probe(struct platform_device *pdev)
 	struct regmap *regmap;
 	struct device *dev = &pdev->dev;
 	const struct qcom_cc_desc *desc = device_get_match_data(dev);
+	const struct mmcc_msm8960_pd_desc *pds = mmcc_msm8960_pds;
+	size_t num_pds = ARRAY_SIZE(mmcc_msm8960_pds);
 	int ret;
 
 	if (desc == &mmcc_apq8064_desc) {
@@ -3431,6 +3545,12 @@ static int mmcc_msm8960_probe(struct platform_device *pdev)
 		gfx3d_src.clkr.hw.init = &gfx3d_8064_init;
 		gfx3d_src.s[0].parent_map = mmcc_pxo_pll8_pll2_pll15_map;
 		gfx3d_src.s[1].parent_map = mmcc_pxo_pll8_pll2_pll15_map;
+	} else if (desc == &mmcc_msm8930_desc) {
+		memcpy(mmcc_msm8930_clks, mmcc_msm8960_clks,
+		       sizeof(mmcc_msm8930_clks));
+		mmcc_msm8930_clks[GFX3D_AXI_CLK] = &gfx3d_axi_clk_8930.clkr;
+		pds = mmcc_msm8930_pds;
+		num_pds = ARRAY_SIZE(mmcc_msm8930_pds);
 	}
 
 	regmap = qcom_cc_map(pdev, desc);
@@ -3443,7 +3563,7 @@ static int mmcc_msm8960_probe(struct platform_device *pdev)
 	if (ret)
 		return ret;
 
-	return mmcc_msm8960_init_mdp_pd(dev, regmap);
+	return mmcc_msm8960_init_pds(dev, regmap, pds, num_pds);
 }
 
 static struct platform_driver mmcc_msm8960_driver = {
