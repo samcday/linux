@@ -3,6 +3,8 @@
  * Copyright (c) 2015, The Linux Foundation. All rights reserved.
  */
 
+#include <linux/of.h>
+
 #include "drm/drm_bridge_connector.h"
 
 #include "msm_kms.h"
@@ -42,6 +44,11 @@ static inline struct msm_dsi *dsi_mgr_get_dsi(int id)
 static inline struct msm_dsi *dsi_mgr_get_other_dsi(int id)
 {
 	return msm_dsim_glb.dsi[(id + 1) % DSI_MAX];
+}
+
+static bool dsi_mgr_retain_power_on_post_disable(void)
+{
+	return of_machine_is_compatible("samsung,expressltexx");
 }
 
 static int dsi_mgr_parse_of(struct device_node *np, int id)
@@ -220,6 +227,14 @@ static int dsi_mgr_bridge_power_on(struct drm_bridge *bridge)
 
 	DBG("id=%d", id);
 
+	if (dsi_mgr_retain_power_on_post_disable() && msm_dsi->phy_enabled) {
+		msm_dsi_host_enable_irq(host);
+		if (is_bonded_dsi && msm_dsi1)
+			msm_dsi_host_enable_irq(msm_dsi1->host);
+
+		return 0;
+	}
+
 	ret = dsi_mgr_phy_enable(id, phy_shared_timings);
 	if (ret)
 		goto phy_en_fail;
@@ -366,6 +381,9 @@ static void dsi_mgr_bridge_post_disable(struct drm_bridge *bridge)
 
 	/* Save PHY status if it is a clock source */
 	msm_dsi_phy_pll_save_state(msm_dsi->phy);
+
+	if (dsi_mgr_retain_power_on_post_disable())
+		return;
 
 	ret = msm_dsi_host_power_off(host);
 	if (ret)
