@@ -3127,6 +3127,7 @@ static const struct qcom_reset_map mmcc_apq8064_resets[] = {
 /* MSM8960-era MMCC power control registers predate modern GDSCs. */
 struct mmcc_msm8960_pd {
 	struct generic_pm_domain pd;
+	struct device *dev;
 	struct regmap *regmap;
 	struct clk_bulk_data clks[5];
 	unsigned int num_clks;
@@ -3135,6 +3136,27 @@ struct mmcc_msm8960_pd {
 static struct mmcc_msm8960_pd *to_mmcc_msm8960_pd(struct generic_pm_domain *pd)
 {
 	return container_of(pd, struct mmcc_msm8960_pd, pd);
+}
+
+static void mmcc_msm8960_mdp_pd_dbg(struct mmcc_msm8960_pd *domain,
+				    const char *stage)
+{
+	unsigned int val;
+	int ret;
+
+	ret = regmap_read(domain->regmap, MDP_PD_CTL_REG, &val);
+	if (ret) {
+		dev_dbg(domain->dev, "MDP_PD %s: failed to read CTL: %d\n",
+			stage, ret);
+		return;
+	}
+
+	dev_dbg(domain->dev,
+		"MDP_PD %s: ctl=0x%08x delay=%u clamp=%u enable=%u retention=%u on=%u\n",
+		stage, val, (unsigned int)(val & PD_CTL_DELAY_MASK),
+		!!(val & PD_CTL_CLAMP), !!(val & PD_CTL_ENABLE),
+		!!(val & PD_CTL_RETENTION),
+		(val & (PD_CTL_ENABLE | PD_CTL_CLAMP)) == PD_CTL_ENABLE);
 }
 
 static int mmcc_msm8960_mdp_pd_is_on(struct mmcc_msm8960_pd *domain, bool *on)
@@ -3157,35 +3179,62 @@ static int mmcc_msm8960_mdp_pd_power_on(struct generic_pm_domain *genpd)
 	bool on;
 	int ret;
 
+	mmcc_msm8960_mdp_pd_dbg(domain, "power_on entry");
+
 	ret = mmcc_msm8960_mdp_pd_is_on(domain, &on);
-	if (ret)
+	if (ret) {
+		dev_dbg(domain->dev, "MDP_PD power_on: state read failed: %d\n",
+			ret);
 		return ret;
-	if (on)
+	}
+	if (on) {
+		dev_dbg(domain->dev, "MDP_PD power_on: already on\n");
 		return 0;
+	}
 
 	ret = clk_bulk_prepare_enable(domain->num_clks, domain->clks);
-	if (ret)
+	if (ret) {
+		dev_dbg(domain->dev, "MDP_PD power_on: clock enable failed: %d\n",
+			ret);
 		return ret;
+	}
+	dev_dbg(domain->dev, "MDP_PD power_on: clocks enabled\n");
 
 	ret = regmap_update_bits(domain->regmap, MDP_PD_CTL_REG,
 				 PD_CTL_DELAY_MASK | PD_CTL_RETENTION,
 				 PD_CTL_DELAY_VAL);
-	if (ret)
+	if (ret) {
+		dev_dbg(domain->dev,
+			"MDP_PD power_on: delay/retention write failed: %d\n",
+			ret);
 		goto out_disable_clks;
+	}
+	mmcc_msm8960_mdp_pd_dbg(domain, "power_on delay");
 
 	ret = regmap_update_bits(domain->regmap, MDP_PD_CTL_REG,
 				 PD_CTL_ENABLE, PD_CTL_ENABLE);
-	if (ret)
+	if (ret) {
+		dev_dbg(domain->dev, "MDP_PD power_on: enable write failed: %d\n",
+			ret);
 		goto out_disable_clks;
+	}
+	mmcc_msm8960_mdp_pd_dbg(domain, "power_on enable");
 
 	mb();
 	udelay(1);
 
 	ret = regmap_update_bits(domain->regmap, MDP_PD_CTL_REG,
 				 PD_CTL_CLAMP, 0);
+	if (ret)
+		dev_dbg(domain->dev, "MDP_PD power_on: unclamp write failed: %d\n",
+			ret);
+	else
+		mmcc_msm8960_mdp_pd_dbg(domain, "power_on unclamp");
 
 out_disable_clks:
 	clk_bulk_disable_unprepare(domain->num_clks, domain->clks);
+	dev_dbg(domain->dev, "MDP_PD power_on: clocks disabled ret=%d\n", ret);
+	mmcc_msm8960_mdp_pd_dbg(domain, "power_on exit");
 
 	return ret;
 }
@@ -3196,32 +3245,58 @@ static int mmcc_msm8960_mdp_pd_power_off(struct generic_pm_domain *genpd)
 	unsigned int val;
 	int ret;
 
-	ret = regmap_read(domain->regmap, MDP_PD_CTL_REG, &val);
-	if (ret)
-		return ret;
+	mmcc_msm8960_mdp_pd_dbg(domain, "power_off entry");
 
-	if (!(val & PD_CTL_ENABLE))
+	ret = regmap_read(domain->regmap, MDP_PD_CTL_REG, &val);
+	if (ret) {
+		dev_dbg(domain->dev, "MDP_PD power_off: state read failed: %d\n",
+			ret);
+		return ret;
+	}
+
+	if (!(val & PD_CTL_ENABLE)) {
+		dev_dbg(domain->dev, "MDP_PD power_off: already off\n");
 		return 0;
+	}
 
 	ret = clk_bulk_prepare_enable(domain->num_clks, domain->clks);
-	if (ret)
+	if (ret) {
+		dev_dbg(domain->dev, "MDP_PD power_off: clock enable failed: %d\n",
+			ret);
 		return ret;
+	}
+	dev_dbg(domain->dev, "MDP_PD power_off: clocks enabled\n");
 
 	ret = regmap_update_bits(domain->regmap, MDP_PD_CTL_REG,
 				 PD_CTL_RETENTION, 0);
-	if (ret)
+	if (ret) {
+		dev_dbg(domain->dev, "MDP_PD power_off: retention write failed: %d\n",
+			ret);
 		goto out_disable_clks;
+	}
+	mmcc_msm8960_mdp_pd_dbg(domain, "power_off retention");
 
 	ret = regmap_update_bits(domain->regmap, MDP_PD_CTL_REG,
 				 PD_CTL_CLAMP, PD_CTL_CLAMP);
-	if (ret)
+	if (ret) {
+		dev_dbg(domain->dev, "MDP_PD power_off: clamp write failed: %d\n",
+			ret);
 		goto out_disable_clks;
+	}
+	mmcc_msm8960_mdp_pd_dbg(domain, "power_off clamp");
 
 	ret = regmap_update_bits(domain->regmap, MDP_PD_CTL_REG,
 				 PD_CTL_ENABLE, 0);
+	if (ret)
+		dev_dbg(domain->dev, "MDP_PD power_off: disable write failed: %d\n",
+			ret);
+	else
+		mmcc_msm8960_mdp_pd_dbg(domain, "power_off disable");
 
 out_disable_clks:
 	clk_bulk_disable_unprepare(domain->num_clks, domain->clks);
+	dev_dbg(domain->dev, "MDP_PD power_off: clocks disabled ret=%d\n", ret);
+	mmcc_msm8960_mdp_pd_dbg(domain, "power_off exit");
 
 	return ret;
 }
@@ -3257,6 +3332,7 @@ static int mmcc_msm8960_init_mdp_pd(struct device *dev, struct regmap *regmap)
 	if (!domain)
 		return -ENOMEM;
 
+	domain->dev = dev;
 	domain->regmap = regmap;
 	domain->pd.name = "mdp";
 	domain->pd.power_on = mmcc_msm8960_mdp_pd_power_on;
@@ -3286,6 +3362,8 @@ static int mmcc_msm8960_init_mdp_pd(struct device *dev, struct regmap *regmap)
 	ret = regmap_read(regmap, MDP_PD_CTL_REG, &val);
 	if (ret)
 		return ret;
+	dev_dbg(dev, "MDP_PD init: ctl=0x%08x initial_on=%u\n", val,
+		(val & (PD_CTL_ENABLE | PD_CTL_CLAMP)) == PD_CTL_ENABLE);
 
 	ret = pm_genpd_init(&domain->pd, NULL,
 			    (val & (PD_CTL_ENABLE | PD_CTL_CLAMP)) !=
