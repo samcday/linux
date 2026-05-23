@@ -5,6 +5,7 @@
  */
 
 #include <linux/delay.h>
+#include <linux/io.h>
 #include <linux/of.h>
 
 #include <drm/drm_bridge.h>
@@ -409,6 +410,57 @@ fail:
 	return ret;
 }
 
+/*
+ * HACK: read-only sample of MMCC MDP reset/clock/footswitch state, taken right
+ * before the MDP4 version readl that currently hangs. MMCC base/size from DT
+ * mmcc@4000000 (reg = <0x04000000 0x1000>). Bare ioremap() so it does not
+ * request the region and cannot clash with the MMCC driver's own mapping.
+ * All offsets verified against drivers/clk/qcom/mmcc-msm8960.c.
+ */
+static void mdp4_hack_dump_mmcc(struct drm_device *dev)
+{
+	void __iomem *mmcc;
+	u32 reset_ahb, reset_mdp, pd_ctl;
+	u32 v_01d0, v_00c0;	/* mdp_clk     halt / enable      */
+	u32 v_01dc, v_0008;	/* mdp_ahb_clk halt / enable      */
+	u32 v_01d8, v_0018;	/* mdp_axi_clk halt / enable+hwcg */
+	u32 v_01e8, v_016c;	/* mdp_lut_clk halt / enable      */
+
+	mmcc = ioremap(0x04000000, 0x1000);
+	if (!mmcc) {
+		DRM_DEV_INFO(dev->dev, "HACK: mmcc ioremap failed");
+		return;
+	}
+
+	reset_ahb = readl(mmcc + 0x020c);
+	reset_mdp = readl(mmcc + 0x0210);
+	pd_ctl    = readl(mmcc + 0x0190);
+	v_01d0    = readl(mmcc + 0x01d0);
+	v_00c0    = readl(mmcc + 0x00c0);
+	v_01dc    = readl(mmcc + 0x01dc);
+	v_0008    = readl(mmcc + 0x0008);
+	v_01d8    = readl(mmcc + 0x01d8);
+	v_0018    = readl(mmcc + 0x0018);
+	v_01e8    = readl(mmcc + 0x01e8);
+	v_016c    = readl(mmcc + 0x016c);
+
+	iounmap(mmcc);
+
+	DRM_DEV_INFO(dev->dev, "HACK: mmcc MDP_AHB_RESET %#x asserted=%d",
+		     reset_ahb, !!(reset_ahb & BIT(3)));
+	DRM_DEV_INFO(dev->dev, "HACK: mmcc MDP_RESET %#x asserted=%d",
+		     reset_mdp, !!(reset_mdp & BIT(21)));
+	DRM_DEV_INFO(dev->dev, "HACK: mmcc MDP_PD_CTL %#x", pd_ctl);
+	DRM_DEV_INFO(dev->dev, "HACK: mmcc mdp_clk en=%d halt=%d (running=halt0)",
+		     !!(v_00c0 & BIT(0)), !!(v_01d0 & BIT(10)));
+	DRM_DEV_INFO(dev->dev, "HACK: mmcc mdp_ahb_clk en=%d halt=%d (running=halt0)",
+		     !!(v_0008 & BIT(10)), !!(v_01dc & BIT(11)));
+	DRM_DEV_INFO(dev->dev, "HACK: mmcc mdp_axi_clk en=%d halt=%d hwcg=%d (running=halt0)",
+		     !!(v_0018 & BIT(23)), !!(v_01d8 & BIT(8)), !!(v_0018 & BIT(16)));
+	DRM_DEV_INFO(dev->dev, "HACK: mmcc mdp_lut_clk en=%d halt=%d (running=halt0)",
+		     !!(v_016c & BIT(0)), !!(v_01e8 & BIT(13)));
+}
+
 static void read_mdp_hw_revision(struct mdp4_kms *mdp4_kms,
 				 u32 *major, u32 *minor)
 {
@@ -426,6 +478,7 @@ static void read_mdp_hw_revision(struct mdp4_kms *mdp4_kms,
 	}
 
 	DRM_DEV_INFO(dev->dev, "HACK: read_mdp_hw_revision before version read");
+	mdp4_hack_dump_mmcc(dev);
 	version = mdp4_read(mdp4_kms, REG_MDP4_VERSION);
 	mdp4_disable(mdp4_kms);
 
