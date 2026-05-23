@@ -3257,25 +3257,14 @@ static int mmcc_msm8960_mdp_pd_selftest(struct mmcc_msm8960_pd *domain)
 		return ret;
 	pr_info("HACK: mmcc MDP_PD initial ctl=%#x\n", val);
 
-	pr_info("HACK: mmcc MDP_PD selftest off\n");
-	ret = mmcc_msm8960_mdp_pd_power_off(&domain->pd);
-	if (ret)
-		return ret;
-
-	ret = regmap_read(domain->regmap, MDP_PD_CTL_REG, &val);
-	if (ret)
-		return ret;
-	pr_info("HACK: mmcc MDP_PD after selftest off ctl=%#x\n", val);
-
-	pr_info("HACK: mmcc MDP_PD selftest on\n");
-	ret = mmcc_msm8960_mdp_pd_power_on(&domain->pd);
-	if (ret)
-		return ret;
-
-	ret = regmap_read(domain->regmap, MDP_PD_CTL_REG, &val);
-	if (ret)
-		return ret;
-	pr_info("HACK: mmcc MDP_PD after selftest on ctl=%#x\n", val);
+	/*
+	 * HACK: this used to power-cycle the MDP (off then on) as a selftest.
+	 * UEFI hands us a live, powered MDP (initial ctl=0x11f) and power_on()
+	 * does not pulse MDP_RESET, so collapsing and restoring the core left
+	 * its AHB slave wedged -- the MDP version readl then hung. Leave the
+	 * firmware-provided power state untouched to test that theory.
+	 */
+	pr_info("HACK: mmcc MDP_PD skip power-cycle, leaving ctl=%#x\n", val);
 
 	return 0;
 }
