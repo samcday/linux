@@ -917,9 +917,11 @@ static const struct rpm_regulator_data rpm_pm8921_regulators[] = {
 
 static const struct rpm_regulator_data rpm_pm8038_regulators[] = {
 	{ "s4", QCOM_RPM_PM8038_SMPS4, &pm8921_smps },
+	{ "l2", QCOM_RPM_PM8038_LDO2, &pm8921_nldo },
 	{ "l3", QCOM_RPM_PM8038_LDO3, &pm8921_pldo },
 	{ "l4", QCOM_RPM_PM8038_LDO4, &pm8921_pldo },
 	{ "l5", QCOM_RPM_PM8038_LDO5, &pm8921_pldo },
+	{ "l8", QCOM_RPM_PM8038_LDO8, &pm8921_pldo },
 	{ "l11", QCOM_RPM_PM8038_LDO11, &pm8921_pldo },
 	{ }
 };

@@ -186,6 +186,8 @@
 #define QCOM_RPM_PM8917_LDO2			175
 #define QCOM_RPM_PM8917_LDO8			176
 #define QCOM_RPM_PM8917_LDO23			177
+#define QCOM_RPM_PM8038_LDO2			178
+#define QCOM_RPM_PM8038_LDO8			179
 
 /*
  * Constants used to select force mode for regulators.
