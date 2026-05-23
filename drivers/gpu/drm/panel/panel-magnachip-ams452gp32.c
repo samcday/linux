@@ -824,10 +824,10 @@ out:
 }
 
 /*
- * Read EA8868 MTP for diagnostic logging. Requires Level2/Level3 keys
- * to be unlocked, so this runs AFTER _on().
+ * Read EA8868 MTP for smart-dimming gamma. Requires Level2/Level3 keys
+ * to be unlocked, so this runs after _on().
  */
-static void magnachip_ams452gp32_read_diag(struct magnachip_ams452gp32 *ctx)
+static void magnachip_ams452gp32_read_mtp(struct magnachip_ams452gp32 *ctx)
 {
 	struct mipi_dsi_device *dsi = ctx->dsi;
 	struct device *dev = &dsi->dev;
@@ -845,7 +845,7 @@ static void magnachip_ams452gp32_read_diag(struct magnachip_ams452gp32 *ctx)
 
 	ret = mipi_dsi_set_maximum_return_packet_size(dsi, 7);
 	if (ret < 0) {
-		dev_warn(dev, "DIAG: set_max_return_packet_size failed: %d\n", ret);
+		dev_warn(dev, "MTP: set_max_return_packet_size failed: %d\n", ret);
 		goto out;
 	}
 
@@ -854,13 +854,13 @@ static void magnachip_ams452gp32_read_diag(struct magnachip_ams452gp32 *ctx)
 
 		ret = mipi_dsi_dcs_write_buffer(dsi, set_addr, sizeof(set_addr));
 		if (ret < 0) {
-			dev_warn(dev, "DIAG: bank %d set_addr failed: %d\n", bank, ret);
+			dev_warn(dev, "MTP: bank %d set_addr failed: %d\n", bank, ret);
 			goto out;
 		}
 
 		ret = mipi_dsi_dcs_read(dsi, 0xFE, &mtp[bank * 7], 7);
 		if (ret < 0) {
-			dev_warn(dev, "DIAG: bank %d (0x%02x) read failed: %d\n",
+			dev_warn(dev, "MTP: bank %d (0x%02x) read failed: %d\n",
 				 bank, mtp_addrs[bank], ret);
 			goto out;
 		}
@@ -869,7 +869,7 @@ static void magnachip_ams452gp32_read_diag(struct magnachip_ams452gp32 *ctx)
 	n = 0;
 	for (i = 0; i < (int)sizeof(mtp); i++)
 		n += scnprintf(buf + n, sizeof(buf) - n, " %02x", mtp[i]);
-	dev_info(dev, "DIAG: MTP[21] =%s\n", buf);
+	dev_info(dev, "MTP[21] =%s\n", buf);
 
 	/* Store MTP for smart-dimming gamma computation */
 	memcpy(ctx->mtp, mtp, sizeof(mtp));
@@ -950,11 +950,10 @@ static int magnachip_ams452gp32_prepare(struct drm_panel *panel)
 	dev_info(dev, "prepare: panel init complete (DSI cmds sent OK)\n");
 
 	/*
-	 * One-shot diagnostic read of panel ID + MTP. Logs to dmesg under
-	 * "DIAG:" prefix. We don't fail prepare() on read errors - the
-	 * panel might still be usable even if BTA is broken.
+	 * One-shot MTP read. Don't fail prepare() on read errors; the panel
+	 * can still use the static fallback gamma.
 	 */
-	magnachip_ams452gp32_read_diag(ctx);
+	magnachip_ams452gp32_read_mtp(ctx);
 
 	/*
 	 * Smart-dimming: compute per-panel gamma from MTP.  On the very
