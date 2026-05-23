@@ -562,7 +562,10 @@ static struct msm_gpu *a3xx_gpu_init(struct drm_device *dev)
 	icc_path = devm_of_icc_get(&pdev->dev, "gfx-mem");
 	if (IS_ERR(icc_path)) {
 		ret = PTR_ERR(icc_path);
-		goto fail;
+		/* Older A3xx devicetrees predate interconnect descriptions. */
+		if (ret != -ENODATA)
+			goto fail;
+		icc_path = NULL;
 	}
 
 	ocmem_icc_path = devm_of_icc_get(&pdev->dev, "ocmem");
