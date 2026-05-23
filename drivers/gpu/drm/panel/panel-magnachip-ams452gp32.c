@@ -9,6 +9,7 @@
 #include <linux/gpio/consumer.h>
 #include <linux/math64.h>
 #include <linux/module.h>
+#include <linux/moduleparam.h>
 #include <linux/of.h>
 #include <linux/regulator/consumer.h>
 #include <linux/slab.h>
@@ -38,9 +39,35 @@ struct magnachip_ams452gp32 {
 	bool	gamma_valid;
 };
 
+static int diag_late_on_phase;
+module_param_named(diag_late_on_phase, diag_late_on_phase, int, 0644);
+MODULE_PARM_DESC(diag_late_on_phase,
+		 "Diagnostic late-on phase: 0 skip, 1 enable/HS, 2 enable/LP, 3 prepare/HS");
+
+static bool diag_sleep_in_on_unprepare;
+module_param_named(diag_sleep_in_on_unprepare, diag_sleep_in_on_unprepare,
+		   bool, 0644);
+MODULE_PARM_DESC(diag_sleep_in_on_unprepare,
+		 "Send DCS sleep-in during unprepare instead of only powering off");
+
+static bool diag_verbose = true;
+module_param_named(diag_verbose, diag_verbose, bool, 0644);
+MODULE_PARM_DESC(diag_verbose, "Log diagnostic panel command phases");
+
 static inline struct magnachip_ams452gp32 *to_magnachip_ams452gp32(struct drm_panel *panel)
 {
 	return container_of(panel, struct magnachip_ams452gp32, panel);
+}
+
+static int magnachip_ams452gp32_late_on_phase(struct device *dev)
+{
+	if (diag_late_on_phase >= 0 && diag_late_on_phase <= 3)
+		return diag_late_on_phase;
+
+	dev_warn(dev, "diag: invalid late_on_phase=%d, treating as 0\n",
+		 diag_late_on_phase);
+
+	return 0;
 }
 
 static struct regulator *magnachip_ams452gp32_get_optional_supply(struct device *dev,
@@ -95,7 +122,7 @@ static void magnachip_ams452gp32_disable_supplies(struct magnachip_ams452gp32 *c
  * helper automatically picks DCS Short Write (0x05/0x15) for payloads
  * <= 2 bytes, which this panel's firmware does not handle.
  */
-static void dcs_long_write(struct mipi_dsi_multi_context *ctx,
+static void dcs_long_write(struct mipi_dsi_multi_context *ctx, const char *label,
 			   const void *data, size_t len)
 {
 	struct mipi_dsi_device *dsi = ctx->dsi;
@@ -110,12 +137,23 @@ static void dcs_long_write(struct mipi_dsi_multi_context *ctx,
 	if (ctx->accum_err)
 		return;
 
+	if (diag_verbose)
+		dev_info(&dsi->dev,
+			 "diag: cmd=%s flags=0x%lx tx=%s data0=0x%02x len=%zu\n",
+			 label, dsi->mode_flags,
+			 dsi->mode_flags & MIPI_DSI_MODE_LPM ? "LP" : "HS",
+			 len ? *(const u8 *)data : 0, len);
+
 	if (dsi->mode_flags & MIPI_DSI_MODE_LPM)
 		msg.flags |= MIPI_DSI_MSG_USE_LPM;
 
 	ret = dsi->host->ops->transfer(dsi->host, &msg);
-	if (ret < 0)
+	if (ret < 0) {
+		if (diag_verbose)
+			dev_err(&dsi->dev,
+				"diag: cmd=%s failed: %zd\n", label, ret);
 		ctx->accum_err = ret;
+	}
 }
 
 /* Manufacturer command set (from downstream samsung_display_on_cmds) */
@@ -684,8 +722,10 @@ static int magnachip_ams452gp32_on(struct magnachip_ams452gp32 *ctx)
 	dsi->mode_flags &= ~MIPI_DSI_MODE_LPM;
 
 	/* Downstream: samsung_display_on_cmds[] sequence, all DCS Long Write */
-	dcs_long_write(&dsi_ctx, level2_cmd, sizeof(level2_cmd));
-	dcs_long_write(&dsi_ctx, sleep_out, sizeof(sleep_out));
+	dcs_long_write(&dsi_ctx, "ready_to_on:level2", level2_cmd,
+		       sizeof(level2_cmd));
+	dcs_long_write(&dsi_ctx, "ready_to_on:sleep_out", sleep_out,
+		       sizeof(sleep_out));
 	/*
 	 * MIPI DCS spec: Sleep_Out (0x11) requires the DDIC's internal
 	 * regulator + RAM to power up before any further commands are
@@ -703,21 +743,29 @@ static int magnachip_ams452gp32_on(struct magnachip_ams452gp32 *ctx)
 	 */
 	mipi_dsi_msleep(&dsi_ctx, 120);
 
-	dcs_long_write(&dsi_ctx, key_cmd, sizeof(key_cmd));
-	dcs_long_write(&dsi_ctx, level2_cmd, sizeof(level2_cmd));
-	dcs_long_write(&dsi_ctx, level3_cmd, sizeof(level3_cmd));
+	dcs_long_write(&dsi_ctx, "ready_to_on:key", key_cmd, sizeof(key_cmd));
+	dcs_long_write(&dsi_ctx, "ready_to_on:level2", level2_cmd,
+		       sizeof(level2_cmd));
+	dcs_long_write(&dsi_ctx, "ready_to_on:level3", level3_cmd,
+		       sizeof(level3_cmd));
 
-	dcs_long_write(&dsi_ctx, display_ctl, sizeof(display_ctl));
+	dcs_long_write(&dsi_ctx, "ready_to_on:display_ctl", display_ctl,
+		       sizeof(display_ctl));
 	mipi_dsi_msleep(&dsi_ctx, 10);  /* downstream: 10ms wait */
-	dcs_long_write(&dsi_ctx, gtcon, sizeof(gtcon));
+	dcs_long_write(&dsi_ctx, "ready_to_on:gtcon", gtcon, sizeof(gtcon));
 
-	dcs_long_write(&dsi_ctx, ltps_buf, sizeof(ltps_buf));
+	dcs_long_write(&dsi_ctx, "ready_to_on:ltps", ltps_buf,
+		       sizeof(ltps_buf));
 
-	dcs_long_write(&dsi_ctx, gamma_flag, sizeof(gamma_flag));
-	dcs_long_write(&dsi_ctx, gamma_buf, sizeof(gamma_buf));
-	dcs_long_write(&dsi_ctx, gamma_flag2, sizeof(gamma_flag2));
+	dcs_long_write(&dsi_ctx, "ready_to_on:gamma_flag", gamma_flag,
+		       sizeof(gamma_flag));
+	dcs_long_write(&dsi_ctx, "ready_to_on:gamma", gamma_buf,
+		       sizeof(gamma_buf));
+	dcs_long_write(&dsi_ctx, "ready_to_on:gamma_flag2", gamma_flag2,
+		       sizeof(gamma_flag2));
 
-	dcs_long_write(&dsi_ctx, elvss_on, sizeof(elvss_on));
+	dcs_long_write(&dsi_ctx, "ready_to_on:elvss_on", elvss_on,
+		       sizeof(elvss_on));
 
 	/*
 	 * Patch ELVSS_COND with runtime value: id3 + 0x06 (delta_200cd
@@ -741,15 +789,21 @@ static int magnachip_ams452gp32_on(struct magnachip_ams452gp32 *ctx)
 			 elvss, ctx->panel_id3,
 			 ctx->panel_id3_valid ? "" : "in");
 	}
-	dcs_long_write(&dsi_ctx, elvss_cond, sizeof(elvss_cond));
+	dcs_long_write(&dsi_ctx, "ready_to_on:elvss_cond", elvss_cond,
+		       sizeof(elvss_cond));
 
-	dcs_long_write(&dsi_ctx, acl_off, sizeof(acl_off));
+	dcs_long_write(&dsi_ctx, "ready_to_on:acl_off", acl_off,
+		       sizeof(acl_off));
 
-	dcs_long_write(&dsi_ctx, power_ctl, sizeof(power_ctl));
+	dcs_long_write(&dsi_ctx, "ready_to_on:power_ctl", power_ctl,
+		       sizeof(power_ctl));
 
-	dcs_long_write(&dsi_ctx, nvm_ref, sizeof(nvm_ref));
-	dcs_long_write(&dsi_ctx, global_param, sizeof(global_param));
-	dcs_long_write(&dsi_ctx, eot_cmd, sizeof(eot_cmd));
+	dcs_long_write(&dsi_ctx, "ready_to_on:nvm_ref", nvm_ref,
+		       sizeof(nvm_ref));
+	dcs_long_write(&dsi_ctx, "ready_to_on:global_param", global_param,
+		       sizeof(global_param));
+	dcs_long_write(&dsi_ctx, "ready_to_on:eot", eot_cmd,
+		       sizeof(eot_cmd));
 
 	/*
 	 * Downstream samsung_display_on_cmds[] ends with display_on (0x29)
@@ -758,7 +812,9 @@ static int magnachip_ams452gp32_on(struct magnachip_ams452gp32 *ctx)
 	 */
 	{
 		static const u8 disp_on[] = { MIPI_DCS_SET_DISPLAY_ON, 0x00 };
-		dcs_long_write(&dsi_ctx, disp_on, sizeof(disp_on));
+
+		dcs_long_write(&dsi_ctx, "ready_to_on:display_on",
+			       disp_on, sizeof(disp_on));
 	}
 
 	return dsi_ctx.accum_err;
@@ -856,16 +912,58 @@ out:
 	dsi->mode_flags &= ~MIPI_DSI_MODE_LPM;
 }
 
+static int magnachip_ams452gp32_late_on(struct magnachip_ams452gp32 *ctx,
+					const char *phase, bool lpm)
+{
+	struct mipi_dsi_device *dsi = ctx->dsi;
+	struct mipi_dsi_multi_context dsi_ctx = { .dsi = dsi };
+	static const u8 display_on[] = { MIPI_DCS_SET_DISPLAY_ON, 0x00 };
+	static const u8 normal_mode[] = { MIPI_DCS_ENTER_NORMAL_MODE, 0x00 };
+	unsigned long old_mode_flags = dsi->mode_flags;
+
+	if (lpm)
+		dsi->mode_flags |= MIPI_DSI_MODE_LPM;
+	else
+		dsi->mode_flags &= ~MIPI_DSI_MODE_LPM;
+
+	if (diag_verbose)
+		dev_info(&dsi->dev, "diag: late_on phase=%s tx=%s\n", phase,
+			 lpm ? "LP" : "HS");
+
+	/*
+	 * Downstream mipi_magna_late_on() sends enter_normal_mode (0x13)
+	 * first, then display_on (0x29) with a 5ms delay.
+	 */
+	dcs_long_write(&dsi_ctx, "late_on:normal_mode", normal_mode,
+		       sizeof(normal_mode));
+	dcs_long_write(&dsi_ctx, "late_on:display_on", display_on,
+		       sizeof(display_on));
+	mipi_dsi_msleep(&dsi_ctx, 5);
+
+	dsi->mode_flags = old_mode_flags;
+
+	if (dsi_ctx.accum_err)
+		dev_err(&dsi->dev, "late_on: command send failed: %d\n",
+			dsi_ctx.accum_err);
+
+	return dsi_ctx.accum_err;
+}
+
 static int magnachip_ams452gp32_prepare(struct drm_panel *panel)
 {
 	struct magnachip_ams452gp32 *ctx = to_magnachip_ams452gp32(panel);
 	struct device *dev = &ctx->dsi->dev;
+	int late_on_phase;
 	int ret;
 
 	dev_info(dev, "prepare: starting panel init\n");
 	dev_info(dev, "prepare: dcdc_en_gpio=%s enable_gpio=%s\n",
 		ctx->dcdc_en_gpio ? "present" : "MISSING",
 		ctx->enable_gpio ? "present" : "MISSING");
+	late_on_phase = magnachip_ams452gp32_late_on_phase(dev);
+	if (diag_verbose)
+		dev_info(dev, "diag: late_on_phase=%d sleep_in_on_unprepare=%u verbose=%u\n",
+			 late_on_phase, diag_sleep_in_on_unprepare, diag_verbose);
 
 	ret = magnachip_ams452gp32_enable_supplies(ctx);
 	if (ret < 0) {
@@ -927,15 +1025,22 @@ static int magnachip_ams452gp32_prepare(struct drm_panel *panel)
 		memcpy(&gcmd[1], ctx->computed_gamma, SD_GAMMA_LEN);
 
 		ctx->dsi->mode_flags &= ~MIPI_DSI_MODE_LPM;
-		dcs_long_write(&gctx, gf1, sizeof(gf1));
-		dcs_long_write(&gctx, gcmd, sizeof(gcmd));
-		dcs_long_write(&gctx, gf2, sizeof(gf2));
+		dcs_long_write(&gctx, "smart_gamma:flag", gf1, sizeof(gf1));
+		dcs_long_write(&gctx, "smart_gamma:gamma", gcmd, sizeof(gcmd));
+		dcs_long_write(&gctx, "smart_gamma:flag2", gf2, sizeof(gf2));
 
 		n = 0;
 		for (i = 0; i < SD_GAMMA_LEN; i++)
 			n += scnprintf(hex + n, sizeof(hex) - n, " %02x",
 				       ctx->computed_gamma[i]);
 		dev_info(dev, "prepare: smart-dimming gamma[24] =%s\n", hex);
+	}
+
+	if (late_on_phase == 3) {
+		ret = magnachip_ams452gp32_late_on(ctx, "prepare-pre-video",
+						   false);
+		if (ret)
+			return ret;
 	}
 
 	return 0;
@@ -945,27 +1050,28 @@ static int magnachip_ams452gp32_enable(struct drm_panel *panel)
 {
 	struct magnachip_ams452gp32 *ctx = to_magnachip_ams452gp32(panel);
 	struct mipi_dsi_device *dsi = ctx->dsi;
-	struct mipi_dsi_multi_context dsi_ctx = { .dsi = dsi };
-	static const u8 display_on[] = { MIPI_DCS_SET_DISPLAY_ON, 0x00 };
-	static const u8 normal_mode[] = { MIPI_DCS_ENTER_NORMAL_MODE, 0x00 };
+	int late_on_phase = magnachip_ams452gp32_late_on_phase(&dsi->dev);
 
-	dev_info(&dsi->dev, "enable: sending display_on after video start\n");
-
-	/*
-	 * Downstream mipi_magna_late_on() sends enter_normal_mode (0x13)
-	 * first, then display_on (0x29) with a 5ms delay - in that exact
-	 * order, AFTER video mode has started.  HS mode, not LP.
-	 */
-	dsi->mode_flags &= ~MIPI_DSI_MODE_LPM;
-	dcs_long_write(&dsi_ctx, normal_mode, sizeof(normal_mode));
-	dcs_long_write(&dsi_ctx, display_on, sizeof(display_on));
-	mipi_dsi_msleep(&dsi_ctx, 5);
-
-	if (dsi_ctx.accum_err)
-		dev_err(&dsi->dev, "enable: command send failed: %d\n",
-			dsi_ctx.accum_err);
-
-	return dsi_ctx.accum_err;
+	switch (late_on_phase) {
+	case 0:
+		if (diag_verbose)
+			dev_info(&dsi->dev,
+				 "diag: enable skipping post-video late_on\n");
+		return 0;
+	case 1:
+		return magnachip_ams452gp32_late_on(ctx, "enable-post-video",
+						    false);
+	case 2:
+		return magnachip_ams452gp32_late_on(ctx, "enable-post-video",
+						    true);
+	case 3:
+		if (diag_verbose)
+			dev_info(&dsi->dev,
+				 "diag: enable late_on already sent in prepare\n");
+		return 0;
+	default:
+		return 0;
+	}
 }
 
 static int magnachip_ams452gp32_disable(struct drm_panel *panel)
@@ -975,8 +1081,11 @@ static int magnachip_ams452gp32_disable(struct drm_panel *panel)
 	struct mipi_dsi_multi_context dsi_ctx = { .dsi = dsi };
 	static const u8 display_off[] = { MIPI_DCS_SET_DISPLAY_OFF, 0x00 };
 
+	if (diag_verbose)
+		dev_info(&dsi->dev, "diag: disable display_off\n");
 	dsi->mode_flags |= MIPI_DSI_MODE_LPM;
-	dcs_long_write(&dsi_ctx, display_off, sizeof(display_off));
+	dcs_long_write(&dsi_ctx, "disable:display_off", display_off,
+		       sizeof(display_off));
 	mipi_dsi_msleep(&dsi_ctx, 20);
 
 	return dsi_ctx.accum_err;
@@ -989,10 +1098,17 @@ static int magnachip_ams452gp32_unprepare(struct drm_panel *panel)
 	struct mipi_dsi_multi_context dsi_ctx = { .dsi = dsi };
 	static const u8 sleep_in[] = { MIPI_DCS_ENTER_SLEEP_MODE, 0x00 };
 
-	/* Enter sleep mode before powering down */
-	dsi->mode_flags |= MIPI_DSI_MODE_LPM;
-	dcs_long_write(&dsi_ctx, sleep_in, sizeof(sleep_in));
-	mipi_dsi_msleep(&dsi_ctx, 120);
+	if (diag_sleep_in_on_unprepare) {
+		if (diag_verbose)
+			dev_info(&dsi->dev, "diag: unprepare sending sleep_in\n");
+		dsi->mode_flags |= MIPI_DSI_MODE_LPM;
+		dcs_long_write(&dsi_ctx, "unprepare:sleep_in", sleep_in,
+			       sizeof(sleep_in));
+		mipi_dsi_msleep(&dsi_ctx, 120);
+	} else {
+		if (diag_verbose)
+			dev_info(&dsi->dev, "diag: unprepare skipping sleep_in\n");
+	}
 
 	magnachip_ams452gp32_power_off(ctx);
 	magnachip_ams452gp32_disable_supplies(ctx);
