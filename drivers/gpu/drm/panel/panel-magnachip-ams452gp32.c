@@ -1005,11 +1005,21 @@ static int magnachip_ams452gp32_disable(struct drm_panel *panel)
 	struct mipi_dsi_device *dsi = ctx->dsi;
 	struct mipi_dsi_multi_context dsi_ctx = { .dsi = dsi };
 	static const u8 display_off[] = { MIPI_DCS_SET_DISPLAY_OFF, 0x00 };
+	static const u8 sleep_in[] = { MIPI_DCS_ENTER_SLEEP_MODE, 0x00 };
 
+	/*
+	 * Downstream sends display-off and sleep-in from its panel .off()
+	 * callback before disabling the DSI engine.  On MSM DSI, post-disable
+	 * panel commands run after video teardown and can time out waiting for
+	 * a video-done event that is no longer produced.
+	 */
 	dsi->mode_flags |= MIPI_DSI_MODE_LPM;
 	dcs_long_write(&dsi_ctx, "disable:display_off", display_off,
 		       sizeof(display_off));
-	mipi_dsi_msleep(&dsi_ctx, 20);
+	mipi_dsi_msleep(&dsi_ctx, 5);
+	dcs_long_write(&dsi_ctx, "disable:sleep_in", sleep_in,
+		       sizeof(sleep_in));
+	mipi_dsi_msleep(&dsi_ctx, 120);
 
 	return dsi_ctx.accum_err;
 }
@@ -1017,14 +1027,6 @@ static int magnachip_ams452gp32_disable(struct drm_panel *panel)
 static int magnachip_ams452gp32_unprepare(struct drm_panel *panel)
 {
 	struct magnachip_ams452gp32 *ctx = to_magnachip_ams452gp32(panel);
-	struct mipi_dsi_device *dsi = ctx->dsi;
-	struct mipi_dsi_multi_context dsi_ctx = { .dsi = dsi };
-	static const u8 sleep_in[] = { MIPI_DCS_ENTER_SLEEP_MODE, 0x00 };
-
-	dsi->mode_flags |= MIPI_DSI_MODE_LPM;
-	dcs_long_write(&dsi_ctx, "unprepare:sleep_in", sleep_in,
-		       sizeof(sleep_in));
-	mipi_dsi_msleep(&dsi_ctx, 120);
 
 	magnachip_ams452gp32_power_off(ctx);
 	magnachip_ams452gp32_disable_supplies(ctx);
