@@ -112,20 +112,30 @@ static void msm_atomic_pending_work(struct kthread_work *work)
 int msm_atomic_init_pending_timer(struct msm_pending_timer *timer,
 		struct msm_kms *kms, int crtc_idx)
 {
+	pr_info("HACK: msm_atomic_init_pending_timer %d entry\n", crtc_idx);
+
 	timer->kms = kms;
 	timer->crtc_idx = crtc_idx;
 
+	pr_info("HACK: msm_atomic_init_pending_timer %d before kthread\n", crtc_idx);
 	timer->worker = kthread_run_worker(0, "atomic-worker-%d", crtc_idx);
+	pr_info("HACK: msm_atomic_init_pending_timer %d after kthread worker=%p\n",
+		crtc_idx, timer->worker);
 	if (IS_ERR(timer->worker)) {
 		int ret = PTR_ERR(timer->worker);
 		timer->worker = NULL;
 		return ret;
 	}
-	sched_set_fifo(timer->worker->task);
 
+	pr_info("HACK: msm_atomic_init_pending_timer %d before sched_set_fifo\n", crtc_idx);
+	sched_set_fifo(timer->worker->task);
+	pr_info("HACK: msm_atomic_init_pending_timer %d after sched_set_fifo\n", crtc_idx);
+
+	pr_info("HACK: msm_atomic_init_pending_timer %d before hrtimer init\n", crtc_idx);
 	msm_hrtimer_work_init(&timer->work, timer->worker,
 			      msm_atomic_pending_work,
 			      CLOCK_MONOTONIC, HRTIMER_MODE_ABS);
+	pr_info("HACK: msm_atomic_init_pending_timer %d exit\n", crtc_idx);
 
 	return 0;
 }

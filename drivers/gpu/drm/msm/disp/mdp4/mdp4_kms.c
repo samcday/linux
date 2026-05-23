@@ -189,12 +189,33 @@ int mdp4_disable(struct mdp4_kms *mdp4_kms)
 
 int mdp4_enable(struct mdp4_kms *mdp4_kms)
 {
+	int ret;
+
 	DBG("");
 
-	clk_prepare_enable(mdp4_kms->clk);
-	clk_prepare_enable(mdp4_kms->pclk);
-	clk_prepare_enable(mdp4_kms->lut_clk);
-	clk_prepare_enable(mdp4_kms->axi_clk);
+	DRM_DEV_INFO(mdp4_kms->dev->dev, "HACK: mdp4_enable before core_clk");
+	ret = clk_prepare_enable(mdp4_kms->clk);
+	DRM_DEV_INFO(mdp4_kms->dev->dev, "HACK: mdp4_enable after core_clk ret=%d", ret);
+	if (ret)
+		return ret;
+
+	DRM_DEV_INFO(mdp4_kms->dev->dev, "HACK: mdp4_enable before iface_clk");
+	ret = clk_prepare_enable(mdp4_kms->pclk);
+	DRM_DEV_INFO(mdp4_kms->dev->dev, "HACK: mdp4_enable after iface_clk ret=%d", ret);
+	if (ret)
+		return ret;
+
+	DRM_DEV_INFO(mdp4_kms->dev->dev, "HACK: mdp4_enable before lut_clk");
+	ret = clk_prepare_enable(mdp4_kms->lut_clk);
+	DRM_DEV_INFO(mdp4_kms->dev->dev, "HACK: mdp4_enable after lut_clk ret=%d", ret);
+	if (ret)
+		return ret;
+
+	DRM_DEV_INFO(mdp4_kms->dev->dev, "HACK: mdp4_enable before bus_clk");
+	ret = clk_prepare_enable(mdp4_kms->axi_clk);
+	DRM_DEV_INFO(mdp4_kms->dev->dev, "HACK: mdp4_enable after bus_clk ret=%d", ret);
+	if (ret)
+		return ret;
 
 	return 0;
 }
@@ -393,8 +414,18 @@ static void read_mdp_hw_revision(struct mdp4_kms *mdp4_kms,
 {
 	struct drm_device *dev = mdp4_kms->dev;
 	u32 version;
+	int ret;
 
-	mdp4_enable(mdp4_kms);
+	DRM_DEV_INFO(dev->dev, "HACK: read_mdp_hw_revision before mdp4_enable");
+	ret = mdp4_enable(mdp4_kms);
+	DRM_DEV_INFO(dev->dev, "HACK: read_mdp_hw_revision after mdp4_enable ret=%d", ret);
+	if (ret) {
+		*major = 0;
+		*minor = 0;
+		return;
+	}
+
+	DRM_DEV_INFO(dev->dev, "HACK: read_mdp_hw_revision before version read");
 	version = mdp4_read(mdp4_kms, REG_MDP4_VERSION);
 	mdp4_disable(mdp4_kms);
 
@@ -420,7 +451,9 @@ static int mdp4_kms_init(struct drm_device *dev)
 	max_clk = 266667000;
 	DRM_DEV_INFO(dev->dev, "HACK: mdp4_kms_init entry");
 
+	DRM_DEV_INFO(dev->dev, "HACK: mdp4_kms_init before mdp_kms_init");
 	ret = mdp_kms_init(&mdp4_kms->base, &kms_funcs);
+	DRM_DEV_INFO(dev->dev, "HACK: mdp4_kms_init after mdp_kms_init ret=%d", ret);
 	if (ret) {
 		DRM_DEV_ERROR(dev->dev, "failed to init kms\n");
 		goto fail;
@@ -438,9 +471,14 @@ static int mdp4_kms_init(struct drm_device *dev)
 		}
 	}
 
-	clk_set_rate(mdp4_kms->clk, max_clk);
+	DRM_DEV_INFO(dev->dev, "HACK: mdp4_kms_init before core clk_set_rate %lu", max_clk);
+	ret = clk_set_rate(mdp4_kms->clk, max_clk);
+	DRM_DEV_INFO(dev->dev, "HACK: mdp4_kms_init after core clk_set_rate ret=%d", ret);
 
+	DRM_DEV_INFO(dev->dev, "HACK: mdp4_kms_init before read_mdp_hw_revision");
 	read_mdp_hw_revision(mdp4_kms, &major, &minor);
+	DRM_DEV_INFO(dev->dev, "HACK: mdp4_kms_init after read_mdp_hw_revision major=%u minor=%u",
+		     major, minor);
 
 	if (major != 4) {
 		DRM_DEV_ERROR(dev->dev, "unexpected MDP version: v%d.%d\n",

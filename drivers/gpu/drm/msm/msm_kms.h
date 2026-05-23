@@ -177,21 +177,29 @@ static inline int msm_kms_init(struct msm_kms *kms,
 {
 	unsigned i, ret;
 
+	pr_info("HACK: msm_kms_init entry\n");
+
 	for (i = 0; i < ARRAY_SIZE(kms->commit_lock); i++)
 		mutex_init(&kms->commit_lock[i]);
 
 	kms->funcs = funcs;
 
+	pr_info("HACK: msm_kms_init before workqueue alloc\n");
 	kms->wq = alloc_ordered_workqueue("msm", 0);
+	pr_info("HACK: msm_kms_init after workqueue alloc wq=%p\n", kms->wq);
 	if (!kms->wq)
 		return -ENOMEM;
 
 	for (i = 0; i < ARRAY_SIZE(kms->pending_timers); i++) {
+		pr_info("HACK: msm_kms_init before pending timer %u\n", i);
 		ret = msm_atomic_init_pending_timer(&kms->pending_timers[i], kms, i);
+		pr_info("HACK: msm_kms_init after pending timer %u ret=%d\n", i, ret);
 		if (ret) {
 			return ret;
 		}
 	}
+
+	pr_info("HACK: msm_kms_init exit\n");
 
 	return 0;
 }
