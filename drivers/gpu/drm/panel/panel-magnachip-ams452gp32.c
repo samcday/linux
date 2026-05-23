@@ -50,6 +50,18 @@ module_param_named(diag_sleep_in_on_unprepare, diag_sleep_in_on_unprepare,
 MODULE_PARM_DESC(diag_sleep_in_on_unprepare,
 		 "Send DCS sleep-in during unprepare instead of only powering off");
 
+static bool diag_display_off_on_disable;
+module_param_named(diag_display_off_on_disable, diag_display_off_on_disable,
+		   bool, 0644);
+MODULE_PARM_DESC(diag_display_off_on_disable,
+		 "Send DCS display-off during disable instead of only powering off");
+
+static bool diag_mtp_read_each_prepare;
+module_param_named(diag_mtp_read_each_prepare, diag_mtp_read_each_prepare,
+		   bool, 0644);
+MODULE_PARM_DESC(diag_mtp_read_each_prepare,
+		 "Read panel MTP on every prepare instead of reusing the first valid read");
+
 static bool diag_verbose = true;
 module_param_named(diag_verbose, diag_verbose, bool, 0644);
 MODULE_PARM_DESC(diag_verbose, "Log diagnostic panel command phases");
@@ -874,6 +886,11 @@ static void magnachip_ams452gp32_read_diag(struct magnachip_ams452gp32 *ctx)
 	char buf[3 * sizeof(mtp) + 16];
 	int i, n;
 
+	if (ctx->mtp_valid && !diag_mtp_read_each_prepare) {
+		dev_info(dev, "DIAG: MTP cached, skipping live read\n");
+		return;
+	}
+
 	dsi->mode_flags |= MIPI_DSI_MODE_LPM;
 
 	ret = mipi_dsi_set_maximum_return_packet_size(dsi, 7);
@@ -962,8 +979,11 @@ static int magnachip_ams452gp32_prepare(struct drm_panel *panel)
 		ctx->enable_gpio ? "present" : "MISSING");
 	late_on_phase = magnachip_ams452gp32_late_on_phase(dev);
 	if (diag_verbose)
-		dev_info(dev, "diag: late_on_phase=%d sleep_in_on_unprepare=%u verbose=%u\n",
-			 late_on_phase, diag_sleep_in_on_unprepare, diag_verbose);
+		dev_info(dev,
+			 "diag: late_on_phase=%d sleep_in_on_unprepare=%u display_off_on_disable=%u mtp_read_each_prepare=%u verbose=%u\n",
+			 late_on_phase, diag_sleep_in_on_unprepare,
+			 diag_display_off_on_disable, diag_mtp_read_each_prepare,
+			 diag_verbose);
 
 	ret = magnachip_ams452gp32_enable_supplies(ctx);
 	if (ret < 0) {
@@ -1081,8 +1101,14 @@ static int magnachip_ams452gp32_disable(struct drm_panel *panel)
 	struct mipi_dsi_multi_context dsi_ctx = { .dsi = dsi };
 	static const u8 display_off[] = { MIPI_DCS_SET_DISPLAY_OFF, 0x00 };
 
+	if (!diag_display_off_on_disable) {
+		if (diag_verbose)
+			dev_info(&dsi->dev, "diag: disable skipping display_off\n");
+		return 0;
+	}
+
 	if (diag_verbose)
-		dev_info(&dsi->dev, "diag: disable display_off\n");
+		dev_info(&dsi->dev, "diag: disable sending display_off\n");
 	dsi->mode_flags |= MIPI_DSI_MODE_LPM;
 	dcs_long_write(&dsi_ctx, "disable:display_off", display_off,
 		       sizeof(display_off));
