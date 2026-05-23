@@ -472,6 +472,14 @@
 	status = "okay";
 };
 
+&gpu {
+	status = "okay";
+};
+
+&gfx3d_iommu {
+	status = "okay";
+};
+
 &mdp {
 	status = "okay";
 };

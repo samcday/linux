@@ -234,7 +234,7 @@
 		};
 
 		mmcc: clock-controller@4000000 {
-			compatible = "qcom,mmcc-msm8960";
+			compatible = "qcom,mmcc-msm8930";
 			reg = <0x04000000 0x1000>;
 			#clock-cells = <1>;
 			#power-domain-cells = <1>;
@@ -255,6 +255,76 @@
 				      "dsi2pll",
 				      "dsi2pllbyte",
 				      "hdmipll";
+		};
+
+		gpu: gpu@4300000 {
+			compatible = "qcom,adreno-305.0", "qcom,adreno";
+			reg = <0x04300000 0x20000>;
+			reg-names = "kgsl_3d0_reg_memory";
+			interrupts = <GIC_SPI 80 IRQ_TYPE_LEVEL_HIGH>;
+			interrupt-names = "kgsl_3d0_irq";
+			power-domains = <&mmcc GFX3D_PD>;
+			clocks = <&mmcc GFX3D_CLK>,
+				 <&mmcc GFX3D_AHB_CLK>,
+				 <&mmcc GFX3D_AXI_CLK>;
+			clock-names = "core",
+				      "iface",
+				      "mem_iface";
+			iommus = <&gfx3d_iommu 0>,
+				 <&gfx3d_iommu 1>,
+				 <&gfx3d_iommu 2>,
+				 <&gfx3d_iommu 3>,
+				 <&gfx3d_iommu 4>,
+				 <&gfx3d_iommu 5>,
+				 <&gfx3d_iommu 6>,
+				 <&gfx3d_iommu 7>,
+				 <&gfx3d_iommu 8>,
+				 <&gfx3d_iommu 9>,
+				 <&gfx3d_iommu 10>,
+				 <&gfx3d_iommu 11>,
+				 <&gfx3d_iommu 12>,
+				 <&gfx3d_iommu 13>,
+				 <&gfx3d_iommu 14>,
+				 <&gfx3d_iommu 15>,
+				 <&gfx3d_iommu 16>,
+				 <&gfx3d_iommu 17>,
+				 <&gfx3d_iommu 18>,
+				 <&gfx3d_iommu 19>,
+				 <&gfx3d_iommu 20>,
+				 <&gfx3d_iommu 21>,
+				 <&gfx3d_iommu 22>,
+				 <&gfx3d_iommu 23>,
+				 <&gfx3d_iommu 24>,
+				 <&gfx3d_iommu 25>,
+				 <&gfx3d_iommu 26>,
+				 <&gfx3d_iommu 27>,
+				 <&gfx3d_iommu 28>,
+				 <&gfx3d_iommu 29>,
+				 <&gfx3d_iommu 30>,
+				 <&gfx3d_iommu 31>;
+			operating-points-v2 = <&gpu_opp_table>;
+
+			status = "disabled";
+
+			gpu_opp_table: opp-table {
+				compatible = "operating-points-v2";
+
+				opp-400000000 {
+					opp-hz = /bits/ 64 <400000000>;
+				};
+
+				opp-320000000 {
+					opp-hz = /bits/ 64 <320000000>;
+				};
+
+				opp-192000000 {
+					opp-hz = /bits/ 64 <192000000>;
+				};
+
+				opp-27000000 {
+					opp-hz = /bits/ 64 <27000000>;
+				};
+			};
 		};
 
 		dsi0: dsi@4700000 {
@@ -430,6 +500,22 @@
 				      "iommu_clk";
 			#iommu-cells = <1>;
 			qcom,ncb = <2>;
+
+			status = "disabled";
+		};
+
+		gfx3d_iommu: iommu@7c00000 {
+			compatible = "qcom,apq8064-iommu";
+			reg = <0x07c00000 0x100000>;
+			interrupts = <GIC_SPI 69 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 70 IRQ_TYPE_LEVEL_HIGH>;
+			power-domains = <&mmcc GFX3D_PD>;
+			clocks = <&mmcc SMMU_AHB_CLK>,
+				 <&mmcc GFX3D_AXI_CLK>;
+			clock-names = "smmu_pclk",
+				      "iommu_clk";
+			#iommu-cells = <1>;
+			qcom,ncb = <3>;
 
 			status = "disabled";
 		};
