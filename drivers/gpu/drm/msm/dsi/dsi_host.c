@@ -201,26 +201,63 @@ static inline void dsi_write(struct msm_dsi_host *msm_host, u32 reg, u32 data)
 static const struct msm_dsi_cfg_handler *
 dsi_get_config(struct msm_dsi_host *msm_host)
 {
+	static const char * const apq8064_config_clk_names[] = {
+		"core_mmss", "iface", "bus",
+	};
+	struct clk_bulk_data apq8064_config_clks[ARRAY_SIZE(apq8064_config_clk_names)];
 	const struct msm_dsi_cfg_handler *cfg_hnd = NULL;
 	struct device *dev = &msm_host->pdev->dev;
 	struct clk *ahb_clk;
-	int ret;
+	bool apq8064_config_clks_enabled;
+	int i, ret;
 	u32 major = 0, minor = 0;
+	u32 ctrl, version, version_shifted;
 
-	ahb_clk = msm_clk_get(msm_host->pdev, "iface");
-	if (IS_ERR(ahb_clk)) {
-		dev_err_probe(dev, PTR_ERR(ahb_clk), "%s: cannot get interface clock\n",
-			      __func__);
-		goto exit;
+	apq8064_config_clks_enabled = of_device_is_compatible(dev->of_node,
+							"qcom,apq8064-dsi-ctrl");
+	if (apq8064_config_clks_enabled) {
+		for (i = 0; i < ARRAY_SIZE(apq8064_config_clks); i++)
+			apq8064_config_clks[i].id = apq8064_config_clk_names[i];
+
+		ret = clk_bulk_get(dev, ARRAY_SIZE(apq8064_config_clks),
+				       apq8064_config_clks);
+		if (ret) {
+			dev_err_probe(dev, ret, "%s: cannot get config clocks\n",
+				      __func__);
+			goto exit;
+		}
+
+		ahb_clk = NULL;
+	} else {
+		ahb_clk = msm_clk_get(msm_host->pdev, "iface");
+		if (IS_ERR(ahb_clk)) {
+			dev_err_probe(dev, PTR_ERR(ahb_clk),
+				      "%s: cannot get interface clock\n",
+				      __func__);
+			goto exit;
+		}
 	}
 
 	pm_runtime_get_sync(dev);
 
-	ret = clk_prepare_enable(ahb_clk);
+	if (apq8064_config_clks_enabled)
+		ret = clk_bulk_prepare_enable(ARRAY_SIZE(apq8064_config_clks),
+					      apq8064_config_clks);
+	else
+		ret = clk_prepare_enable(ahb_clk);
 	if (ret) {
-		dev_err_probe(dev, ret, "%s: unable to enable ahb_clk\n", __func__);
+		dev_err_probe(dev, ret, "%s: unable to enable config clocks\n",
+			      __func__);
 		goto runtime_put;
 	}
+
+	ctrl = readl(msm_host->ctrl_base + REG_DSI_CTRL);
+	version = readl(msm_host->ctrl_base + REG_DSI_VERSION);
+	version_shifted = readl(msm_host->ctrl_base + DSI_6G_REG_SHIFT +
+			       REG_DSI_VERSION);
+	dev_info(dev,
+		 "HACK: dsi raw ctrl=%#x version=%#x version+shift=%#x\n",
+		 ctrl, version, version_shifted);
 
 	ret = dsi_get_version(msm_host->ctrl_base, &major, &minor);
 	if (ret) {
@@ -233,9 +270,16 @@ dsi_get_config(struct msm_dsi_host *msm_host)
 	DBG("%s: Version %x:%x\n", __func__, major, minor);
 
 disable_clks:
-	clk_disable_unprepare(ahb_clk);
+	if (apq8064_config_clks_enabled)
+		clk_bulk_disable_unprepare(ARRAY_SIZE(apq8064_config_clks),
+					   apq8064_config_clks);
+	else
+		clk_disable_unprepare(ahb_clk);
 runtime_put:
 	pm_runtime_put_sync(dev);
+	if (apq8064_config_clks_enabled)
+		clk_bulk_put(ARRAY_SIZE(apq8064_config_clks),
+			     apq8064_config_clks);
 exit:
 	return cfg_hnd;
 }
