@@ -3,6 +3,8 @@
  * Copyright (c) 2015, The Linux Foundation. All rights reserved.
  */
 
+#include <linux/moduleparam.h>
+
 #include "drm/drm_bridge_connector.h"
 
 #include "msm_kms.h"
@@ -29,6 +31,12 @@ struct msm_dsi_manager {
 };
 
 static struct msm_dsi_manager msm_dsim_glb;
+
+static bool diag_power_off_on_post_disable;
+module_param_named(diag_power_off_on_post_disable,
+		   diag_power_off_on_post_disable, bool, 0644);
+MODULE_PARM_DESC(diag_power_off_on_post_disable,
+		 "HACK: power off DSI host and PHY during bridge post_disable");
 
 #define IS_BONDED_DSI()		(msm_dsim_glb.is_bonded_dsi)
 #define IS_SYNC_NEEDED()	(msm_dsim_glb.is_sync_needed)
@@ -220,6 +228,16 @@ static int dsi_mgr_bridge_power_on(struct drm_bridge *bridge)
 
 	DBG("id=%d", id);
 
+	if (!diag_power_off_on_post_disable && msm_dsi->phy_enabled) {
+		dev_info(&msm_dsi->pdev->dev,
+			 "HACK: DSI power_on reusing retained host/PHY/link clocks\n");
+		msm_dsi_host_enable_irq(host);
+		if (is_bonded_dsi && msm_dsi1)
+			msm_dsi_host_enable_irq(msm_dsi1->host);
+
+		return 0;
+	}
+
 	ret = dsi_mgr_phy_enable(id, phy_shared_timings);
 	if (ret)
 		goto phy_en_fail;
@@ -366,6 +384,12 @@ static void dsi_mgr_bridge_post_disable(struct drm_bridge *bridge)
 
 	/* Save PHY status if it is a clock source */
 	msm_dsi_phy_pll_save_state(msm_dsi->phy);
+
+	if (!diag_power_off_on_post_disable) {
+		dev_info(&msm_dsi->pdev->dev,
+			 "HACK: DSI post_disable retaining host/PHY/link clocks\n");
+		return;
+	}
 
 	ret = msm_dsi_host_power_off(host);
 	if (ret)

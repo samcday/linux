@@ -474,11 +474,16 @@ error:
 
 int dsi_link_clk_set_rate_v2(struct msm_dsi_host *msm_host)
 {
+	struct device *dev = &msm_host->pdev->dev;
 	int ret;
 
 	DBG("Set clk rates: pclk=%lu, byteclk=%lu, esc_clk=%lu, dsi_src_clk=%lu",
 	    msm_host->pixel_clk_rate, msm_host->byte_clk_rate,
 	    msm_host->esc_clk_rate, msm_host->src_clk_rate);
+	dev_info(dev,
+		 "HACK: DSI v2 link set_rate request pixel=%lu byte=%lu esc=%lu src=%lu\n",
+		 msm_host->pixel_clk_rate, msm_host->byte_clk_rate,
+		 msm_host->esc_clk_rate, msm_host->src_clk_rate);
 
 	ret = clk_set_rate(msm_host->byte_clk, msm_host->byte_clk_rate);
 	if (ret) {
@@ -504,11 +509,19 @@ int dsi_link_clk_set_rate_v2(struct msm_dsi_host *msm_host)
 		return ret;
 	}
 
+	dev_info(dev,
+		 "HACK: DSI v2 link after set_rate pixel=%lu byte=%lu esc=%lu src=%lu\n",
+		 clk_get_rate(msm_host->pixel_clk),
+		 clk_get_rate(msm_host->byte_clk),
+		 clk_get_rate(msm_host->esc_clk),
+		 clk_get_rate(msm_host->src_clk));
+
 	return 0;
 }
 
 int dsi_link_clk_enable_v2(struct msm_dsi_host *msm_host)
 {
+	struct device *dev = &msm_host->pdev->dev;
 	int ret;
 
 	ret = clk_prepare_enable(msm_host->byte_clk);
@@ -534,6 +547,13 @@ int dsi_link_clk_enable_v2(struct msm_dsi_host *msm_host)
 		pr_err("%s: Failed to enable dsi pixel clk\n", __func__);
 		goto pixel_clk_err;
 	}
+
+	dev_info(dev,
+		 "HACK: DSI v2 link after enable pixel=%lu byte=%lu esc=%lu src=%lu\n",
+		 clk_get_rate(msm_host->pixel_clk),
+		 clk_get_rate(msm_host->byte_clk),
+		 clk_get_rate(msm_host->esc_clk),
+		 clk_get_rate(msm_host->src_clk));
 
 	return 0;
 
