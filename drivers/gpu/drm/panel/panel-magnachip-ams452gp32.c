@@ -37,6 +37,7 @@ struct magnachip_ams452gp32 {
 	bool	mtp_valid;
 	u8	computed_gamma[24]; /* Smart-dimming gamma (no 0xF9 prefix) */
 	bool	gamma_valid;
+	bool	retained_power;
 };
 
 static int diag_late_on_phase;
@@ -61,6 +62,12 @@ module_param_named(diag_mtp_read_each_prepare, diag_mtp_read_each_prepare,
 		   bool, 0644);
 MODULE_PARM_DESC(diag_mtp_read_each_prepare,
 		 "Read panel MTP on every prepare instead of reusing the first valid read");
+
+static bool diag_power_off_on_unprepare;
+module_param_named(diag_power_off_on_unprepare, diag_power_off_on_unprepare,
+		   bool, 0644);
+MODULE_PARM_DESC(diag_power_off_on_unprepare,
+		 "Power off and reset the panel during unprepare instead of retaining power");
 
 static bool diag_verbose = true;
 module_param_named(diag_verbose, diag_verbose, bool, 0644);
@@ -980,10 +987,19 @@ static int magnachip_ams452gp32_prepare(struct drm_panel *panel)
 	late_on_phase = magnachip_ams452gp32_late_on_phase(dev);
 	if (diag_verbose)
 		dev_info(dev,
-			 "diag: late_on_phase=%d sleep_in_on_unprepare=%u display_off_on_disable=%u mtp_read_each_prepare=%u verbose=%u\n",
+			 "diag: late_on_phase=%d sleep_in_on_unprepare=%u display_off_on_disable=%u mtp_read_each_prepare=%u power_off_on_unprepare=%u retained_power=%u verbose=%u\n",
 			 late_on_phase, diag_sleep_in_on_unprepare,
 			 diag_display_off_on_disable, diag_mtp_read_each_prepare,
+			 diag_power_off_on_unprepare, ctx->retained_power,
 			 diag_verbose);
+
+	if (ctx->retained_power) {
+		if (diag_verbose)
+			dev_info(dev,
+				 "diag: prepare reusing retained panel power\n");
+		ctx->retained_power = false;
+		return 0;
+	}
 
 	ret = magnachip_ams452gp32_enable_supplies(ctx);
 	if (ret < 0) {
@@ -1136,8 +1152,17 @@ static int magnachip_ams452gp32_unprepare(struct drm_panel *panel)
 			dev_info(&dsi->dev, "diag: unprepare skipping sleep_in\n");
 	}
 
+	if (!diag_power_off_on_unprepare) {
+		if (diag_verbose)
+			dev_info(&dsi->dev,
+				 "diag: unprepare retaining reset/power/supplies\n");
+		ctx->retained_power = true;
+		return 0;
+	}
+
 	magnachip_ams452gp32_power_off(ctx);
 	magnachip_ams452gp32_disable_supplies(ctx);
+	ctx->retained_power = false;
 
 	return 0;
 }
