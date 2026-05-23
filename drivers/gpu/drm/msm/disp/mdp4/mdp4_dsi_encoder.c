@@ -84,10 +84,14 @@ static void mdp4_dsi_encoder_disable(struct drm_encoder *encoder)
 {
 	struct mdp4_dsi_encoder *mdp4_dsi_encoder = to_mdp4_dsi_encoder(encoder);
 	struct mdp4_kms *mdp4_kms = get_kms(encoder);
+	bool latched;
+	u32 enable_before;
+	u32 enable_after;
 
 	if (!mdp4_dsi_encoder->enabled)
 		return;
 
+	enable_before = mdp4_read(mdp4_kms, REG_MDP4_DSI_ENABLE);
 	mdp4_write(mdp4_kms, REG_MDP4_DSI_ENABLE, 0);
 
 	/*
@@ -98,7 +102,19 @@ static void mdp4_dsi_encoder_disable(struct drm_encoder *encoder)
 	 * the settings changes for the new modeset (like new
 	 * scanout buffer) don't latch properly..
 	 */
-	mdp_irq_wait(&mdp4_kms->base, MDP4_IRQ_PRIMARY_VSYNC);
+	latched = mdp_irq_wait(&mdp4_kms->base, MDP4_IRQ_PRIMARY_VSYNC);
+	enable_after = mdp4_read(mdp4_kms, REG_MDP4_DSI_ENABLE);
+
+	if (latched)
+		DRM_DEV_INFO(encoder->dev->dev,
+			     "HACK: DSI disable latched on primary vsync enable=%#x->%#x irqmask=%#x\n",
+			     enable_before, enable_after,
+			     mdp4_kms->base.cur_irq_mask);
+	else
+		DRM_DEV_ERROR(encoder->dev->dev,
+			      "HACK: DSI disable primary-vsync wait timed out enable=%#x->%#x irqmask=%#x\n",
+			      enable_before, enable_after,
+			      mdp4_kms->base.cur_irq_mask);
 
 	mdp4_dsi_encoder->enabled = false;
 }
@@ -123,6 +139,10 @@ static void mdp4_dsi_encoder_enable(struct drm_encoder *encoder)
 	mdp4_crtc_set_intf(encoder->crtc, INTF_DSI_VIDEO, 0);
 
 	mdp4_write(mdp4_kms, REG_MDP4_DSI_ENABLE, 1);
+	DRM_DEV_INFO(encoder->dev->dev,
+		     "HACK: DSI enable written enable=%#x irqmask=%#x\n",
+		     mdp4_read(mdp4_kms, REG_MDP4_DSI_ENABLE),
+		     mdp4_kms->base.cur_irq_mask);
 
 	mdp4_dsi_encoder->enabled = true;
 }

@@ -183,6 +183,7 @@ int mdp4_disable(struct mdp4_kms *mdp4_kms)
 	clk_disable_unprepare(mdp4_kms->pclk);
 	clk_disable_unprepare(mdp4_kms->lut_clk);
 	clk_disable_unprepare(mdp4_kms->axi_clk);
+	clk_disable_unprepare(mdp4_kms->vsync_clk);
 
 	return 0;
 }
@@ -195,6 +196,7 @@ int mdp4_enable(struct mdp4_kms *mdp4_kms)
 	clk_prepare_enable(mdp4_kms->pclk);
 	clk_prepare_enable(mdp4_kms->lut_clk);
 	clk_prepare_enable(mdp4_kms->axi_clk);
+	clk_prepare_enable(mdp4_kms->vsync_clk);
 
 	return 0;
 }
@@ -548,6 +550,7 @@ static void mdp4_disable_init_clocks(struct mdp4_kms *mdp4_kms)
 
 	mdp4_disable_init_clk(mdp4_kms->lut_clk);
 	mdp4_disable_init_clk(mdp4_kms->axi_clk);
+	mdp4_disable_init_clk(mdp4_kms->vsync_clk);
 	mdp4_disable_init_clk(mdp4_kms->pclk);
 	mdp4_disable_init_clk(mdp4_kms->clk);
 	mdp4_kms->init_clocks_enabled = false;
@@ -575,10 +578,16 @@ static int mdp4_enable_init_clocks(struct platform_device *pdev,
 	if (ret)
 		goto disable_bus;
 
+	ret = mdp4_enable_init_clk(dev, "vsync_clk", mdp4_kms->vsync_clk);
+	if (ret)
+		goto disable_lut;
+
 	mdp4_kms->init_clocks_enabled = true;
 
 	return 0;
 
+disable_lut:
+	mdp4_disable_init_clk(mdp4_kms->lut_clk);
 disable_bus:
 	mdp4_disable_init_clk(mdp4_kms->axi_clk);
 disable_iface:
@@ -640,6 +649,10 @@ static int mdp4_probe(struct platform_device *pdev)
 	mdp4_kms->lut_clk = devm_clk_get_optional(&pdev->dev, "lut_clk");
 	if (IS_ERR(mdp4_kms->lut_clk))
 		return dev_err_probe(dev, PTR_ERR(mdp4_kms->lut_clk), "failed to get lut_clk\n");
+
+	mdp4_kms->vsync_clk = devm_clk_get_optional(&pdev->dev, "vsync_clk");
+	if (IS_ERR(mdp4_kms->vsync_clk))
+		return dev_err_probe(dev, PTR_ERR(mdp4_kms->vsync_clk), "failed to get vsync_clk\n");
 
 	/* Keep MDP clocks owned before msm_drv_probe() removes firmware fbdevs. */
 	ret = mdp4_enable_init_clocks(pdev, mdp4_kms);

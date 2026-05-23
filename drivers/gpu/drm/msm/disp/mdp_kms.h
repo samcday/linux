@@ -69,7 +69,7 @@ struct mdp_irq {
 
 void mdp_dispatch_irqs(struct mdp_kms *mdp_kms, uint32_t status);
 void mdp_update_vblank_mask(struct mdp_kms *mdp_kms, uint32_t mask, bool enable);
-void mdp_irq_wait(struct mdp_kms *mdp_kms, uint32_t irqmask);
+bool mdp_irq_wait(struct mdp_kms *mdp_kms, uint32_t irqmask);
 void mdp_irq_register(struct mdp_kms *mdp_kms, struct mdp_irq *irq);
 void mdp_irq_unregister(struct mdp_kms *mdp_kms, struct mdp_irq *irq);
 void mdp_irq_update(struct mdp_kms *mdp_kms);
