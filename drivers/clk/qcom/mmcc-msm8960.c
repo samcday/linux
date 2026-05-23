@@ -3154,14 +3154,21 @@ static int mmcc_msm8960_mdp_pd_is_on(struct mmcc_msm8960_pd *domain, bool *on)
 static int mmcc_msm8960_mdp_pd_power_on(struct generic_pm_domain *genpd)
 {
 	struct mmcc_msm8960_pd *domain = to_mmcc_msm8960_pd(genpd);
+	unsigned int val;
 	bool on;
 	int ret;
+
+	pr_info("HACK: mmcc MDP_PD power_on\n");
 
 	ret = mmcc_msm8960_mdp_pd_is_on(domain, &on);
 	if (ret)
 		return ret;
-	if (on)
+	if (on) {
+		ret = regmap_read(domain->regmap, MDP_PD_CTL_REG, &val);
+		if (!ret)
+			pr_info("HACK: mmcc MDP_PD already on ctl=%#x\n", val);
 		return 0;
+	}
 
 	ret = clk_bulk_prepare_enable(domain->num_clks, domain->clks);
 	if (ret)
@@ -3183,6 +3190,11 @@ static int mmcc_msm8960_mdp_pd_power_on(struct generic_pm_domain *genpd)
 
 	ret = regmap_update_bits(domain->regmap, MDP_PD_CTL_REG,
 				 PD_CTL_CLAMP, 0);
+	if (!ret) {
+		ret = regmap_read(domain->regmap, MDP_PD_CTL_REG, &val);
+		if (!ret)
+			pr_info("HACK: mmcc MDP_PD on ctl=%#x\n", val);
+	}
 
 out_disable_clks:
 	clk_bulk_disable_unprepare(domain->num_clks, domain->clks);
@@ -3196,12 +3208,16 @@ static int mmcc_msm8960_mdp_pd_power_off(struct generic_pm_domain *genpd)
 	unsigned int val;
 	int ret;
 
+	pr_info("HACK: mmcc MDP_PD power_off\n");
+
 	ret = regmap_read(domain->regmap, MDP_PD_CTL_REG, &val);
 	if (ret)
 		return ret;
 
-	if (!(val & PD_CTL_ENABLE))
+	if (!(val & PD_CTL_ENABLE)) {
+		pr_info("HACK: mmcc MDP_PD already off ctl=%#x\n", val);
 		return 0;
+	}
 
 	ret = clk_bulk_prepare_enable(domain->num_clks, domain->clks);
 	if (ret)
@@ -3219,11 +3235,49 @@ static int mmcc_msm8960_mdp_pd_power_off(struct generic_pm_domain *genpd)
 
 	ret = regmap_update_bits(domain->regmap, MDP_PD_CTL_REG,
 				 PD_CTL_ENABLE, 0);
+	if (!ret) {
+		ret = regmap_read(domain->regmap, MDP_PD_CTL_REG, &val);
+		if (!ret)
+			pr_info("HACK: mmcc MDP_PD off ctl=%#x\n", val);
+	}
 
 out_disable_clks:
 	clk_bulk_disable_unprepare(domain->num_clks, domain->clks);
 
 	return ret;
+}
+
+static int mmcc_msm8960_mdp_pd_selftest(struct mmcc_msm8960_pd *domain)
+{
+	unsigned int val;
+	int ret;
+
+	ret = regmap_read(domain->regmap, MDP_PD_CTL_REG, &val);
+	if (ret)
+		return ret;
+	pr_info("HACK: mmcc MDP_PD initial ctl=%#x\n", val);
+
+	pr_info("HACK: mmcc MDP_PD selftest off\n");
+	ret = mmcc_msm8960_mdp_pd_power_off(&domain->pd);
+	if (ret)
+		return ret;
+
+	ret = regmap_read(domain->regmap, MDP_PD_CTL_REG, &val);
+	if (ret)
+		return ret;
+	pr_info("HACK: mmcc MDP_PD after selftest off ctl=%#x\n", val);
+
+	pr_info("HACK: mmcc MDP_PD selftest on\n");
+	ret = mmcc_msm8960_mdp_pd_power_on(&domain->pd);
+	if (ret)
+		return ret;
+
+	ret = regmap_read(domain->regmap, MDP_PD_CTL_REG, &val);
+	if (ret)
+		return ret;
+	pr_info("HACK: mmcc MDP_PD after selftest on ctl=%#x\n", val);
+
+	return 0;
 }
 
 static void mmcc_msm8960_pd_unregister(void *data)
@@ -3259,6 +3313,7 @@ static int mmcc_msm8960_init_mdp_pd(struct device *dev, struct regmap *regmap)
 
 	domain->regmap = regmap;
 	domain->pd.name = "mdp";
+	domain->pd.flags = GENPD_FLAG_ALWAYS_ON;
 	domain->pd.power_on = mmcc_msm8960_mdp_pd_power_on;
 	domain->pd.power_off = mmcc_msm8960_mdp_pd_power_off;
 	domain->num_clks = ARRAY_SIZE(domain->clks);
@@ -3280,6 +3335,10 @@ static int mmcc_msm8960_init_mdp_pd(struct device *dev, struct regmap *regmap)
 	ret = regmap_update_bits(regmap, MDP_PD_CTL_REG,
 				 PD_CTL_DELAY_MASK | PD_CTL_RETENTION,
 				 PD_CTL_DELAY_VAL);
+	if (ret)
+		return ret;
+
+	ret = mmcc_msm8960_mdp_pd_selftest(domain);
 	if (ret)
 		return ret;
 

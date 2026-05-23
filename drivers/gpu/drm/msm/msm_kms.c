@@ -269,17 +269,23 @@ int msm_drm_kms_init(struct device *dev, const struct drm_driver *drv)
 	int ret;
 
 	/* the fw fb could be anywhere in memory */
+	DRM_DEV_INFO(dev, "HACK: msm_drm_kms_init before aperture removal");
 	ret = aperture_remove_all_conflicting_devices(drv->name);
+	DRM_DEV_INFO(dev, "HACK: msm_drm_kms_init after aperture removal ret=%d", ret);
 	if (ret)
 		return ret;
 
+	DRM_DEV_INFO(dev, "HACK: msm_drm_kms_init before snapshot init");
 	ret = msm_disp_snapshot_init(ddev);
+	DRM_DEV_INFO(dev, "HACK: msm_drm_kms_init after snapshot init ret=%d", ret);
 	if (ret) {
 		DRM_DEV_ERROR(dev, "msm_disp_snapshot_init failed ret = %d\n", ret);
 		return ret;
 	}
 
+	DRM_DEV_INFO(dev, "HACK: msm_drm_kms_init before kms_init callback");
 	ret = priv->kms_init(ddev);
+	DRM_DEV_INFO(dev, "HACK: msm_drm_kms_init after kms_init callback ret=%d", ret);
 	if (ret) {
 		DRM_DEV_ERROR(dev, "failed to load kms\n");
 		goto err_msm_uninit;

@@ -398,6 +398,8 @@ static void read_mdp_hw_revision(struct mdp4_kms *mdp4_kms,
 	version = mdp4_read(mdp4_kms, REG_MDP4_VERSION);
 	mdp4_disable(mdp4_kms);
 
+	DRM_DEV_INFO(dev->dev, "HACK: raw MDP4 version %#x", version);
+
 	*major = FIELD(version, MDP4_VERSION_MAJOR);
 	*minor = FIELD(version, MDP4_VERSION_MINOR);
 
@@ -416,6 +418,7 @@ static int mdp4_kms_init(struct drm_device *dev)
 
 	/* TODO: Chips that aren't apq8064 have a 200 Mhz max_clk */
 	max_clk = 266667000;
+	DRM_DEV_INFO(dev->dev, "HACK: mdp4_kms_init entry");
 
 	ret = mdp_kms_init(&mdp4_kms->base, &kms_funcs);
 	if (ret) {
@@ -456,9 +459,6 @@ static int mdp4_kms_init(struct drm_device *dev)
 		}
 		clk_set_rate(mdp4_kms->lut_clk, max_clk);
 	}
-
-	pm_runtime_enable(dev->dev);
-	mdp4_kms->rpm_enabled = true;
 
 	/* make sure things are off before attaching iommu (bootloader could
 	 * have left things on, in which case we'll start getting faults if

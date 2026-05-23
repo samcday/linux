@@ -152,19 +152,25 @@ static int msm_drm_init(struct device *dev, const struct drm_driver *drv,
 	dma_set_max_seg_size(dev, UINT_MAX);
 
 	/* Bind all our sub-components: */
+	DRM_DEV_INFO(dev, "HACK: msm_drm_init before component bind");
 	if (gpu_ops)
 		ret = gpu_ops->bind(dev, dev, NULL);
 	else
 		ret = component_bind_all(dev, ddev);
+	DRM_DEV_INFO(dev, "HACK: msm_drm_init after component bind ret=%d", ret);
 	if (ret)
 		goto err_put_dev;
 
+	DRM_DEV_INFO(dev, "HACK: msm_drm_init before shrinker init");
 	ret = msm_gem_shrinker_init(ddev);
+	DRM_DEV_INFO(dev, "HACK: msm_drm_init after shrinker init ret=%d", ret);
 	if (ret)
 		goto err_msm_uninit;
 
 	if (priv->kms_init) {
+		DRM_DEV_INFO(dev, "HACK: msm_drm_init before kms init");
 		ret = msm_drm_kms_init(dev, drv);
+		DRM_DEV_INFO(dev, "HACK: msm_drm_init after kms init ret=%d", ret);
 		if (ret)
 			goto err_msm_uninit;
 	}
