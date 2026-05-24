@@ -411,26 +411,24 @@ fail:
 }
 
 /*
- * HACK: sample MMCC MDP reset/clock/footswitch state right before the MDP4
- * version readl that hangs, then deassert the MDP AXI bus reset. MMCC base/size
- * from DT mmcc@4000000 (reg = <0x04000000 0x1000>). Bare ioremap() so it does
- * not request the region and cannot clash with the MMCC driver's own mapping.
- * Offsets verified against drivers/clk/qcom/mmcc-msm8960.c and LK
- * platform/msm8960. MPD_AXI_RESET (0x0208 b13, mmcc-msm8960.c) is the MDP AXI
- * port reset: LK's mdp_axi_clk owns it via reset_reg/reset_mask, but mainline's
- * clk_branch does not, so nothing deasserts it during boot. A held AXI reset
- * wedges MDP register access while MMCC regs (outside it) still read fine --
- * matching boot-16 (AHB/CORE reset clear, clocks running, yet readl hangs).
+ * HACK: redo the MDP footswitch (GFS) power-up handshake with the MDP clocks
+ * actually running, right before the MDP4 version read. Confirmed over UART
+ * from U-Boot that the MDP register space only responds after this: SBL sets
+ * the GFS enable bit (MDP_PD_CTL=0x31f) while mdp_clk/mdp_ahb are off, so the
+ * power-on never finishes ramping and bus reads to 0x05100000 hang. With the
+ * enable bit already set, no transition occurs, so the core stays unpowered.
+ * mdp4_enable() has already enabled and rated the MDP clocks before we get
+ * here, so cycling the GFS now (collapse -> enable -> unclamp) lets the
+ * power-on complete with a live core clock.
+ *
+ * MMCC base/size from DT mmcc@4000000. GFS_CTL (mmcc-msm8960.c MDP_PD_CTL_REG)
+ * = 0x0190: DELAY[4:0]=0x1f, CLAMP=BIT(5), ENABLE=BIT(8), RETENTION=BIT(9).
  */
 static void mdp4_hack_dump_mmcc(struct drm_device *dev)
 {
 	void __iomem *mmcc;
-	u32 reset_ahb2, reset_all, reset_axi, reset_ahb, reset_core;
-	u32 reset_axi_after, pd_ctl;
-	u32 v_01d0, v_00c0;	/* mdp_clk     halt / enable      */
-	u32 v_01dc, v_0008;	/* mdp_ahb_clk halt / enable      */
-	u32 v_01d8, v_0018;	/* mdp_axi_clk halt / enable+hwcg */
-	u32 v_01e8, v_016c;	/* mdp_lut_clk halt / enable      */
+	u32 gfs_before, gfs_after, reset_axi, reset_ahb, reset_core;
+	u32 v_01d0, v_00c0, v_01dc, v_0008, v_01d8, v_0018, v_01e8, v_016c;
 
 	mmcc = ioremap(0x04000000, 0x1000);
 	if (!mmcc) {
@@ -438,44 +436,37 @@ static void mdp4_hack_dump_mmcc(struct drm_device *dev)
 		return;
 	}
 
-	reset_ahb2 = readl(mmcc + 0x0200);
-	reset_all  = readl(mmcc + 0x0204);
+	gfs_before = readl(mmcc + 0x0190);
 	reset_axi  = readl(mmcc + 0x0208);
 	reset_ahb  = readl(mmcc + 0x020c);
 	reset_core = readl(mmcc + 0x0210);
-	pd_ctl     = readl(mmcc + 0x0190);
-	v_01d0     = readl(mmcc + 0x01d0);
-	v_00c0     = readl(mmcc + 0x00c0);
-	v_01dc     = readl(mmcc + 0x01dc);
-	v_0008     = readl(mmcc + 0x0008);
-	v_01d8     = readl(mmcc + 0x01d8);
-	v_0018     = readl(mmcc + 0x0018);
-	v_01e8     = readl(mmcc + 0x01e8);
-	v_016c     = readl(mmcc + 0x016c);
+	v_01d0 = readl(mmcc + 0x01d0); v_00c0 = readl(mmcc + 0x00c0);
+	v_01dc = readl(mmcc + 0x01dc); v_0008 = readl(mmcc + 0x0008);
+	v_01d8 = readl(mmcc + 0x01d8); v_0018 = readl(mmcc + 0x0018);
+	v_01e8 = readl(mmcc + 0x01e8); v_016c = readl(mmcc + 0x016c);
 
-	/* Deassert MPD_AXI_RESET (MDP AXI bus port), preserving other masters. */
-	writel(reset_axi & ~BIT(13), mmcc + 0x0208);
-	reset_axi_after = readl(mmcc + 0x0208);	/* read-back flushes the write */
-	udelay(10);				/* let the deassert propagate */
+	/* Power-up handshake with clocks running: collapse -> enable -> unclamp. */
+	writel(0x1f | BIT(5), mmcc + 0x0190);		/* clamp on, enable off */
+	readl(mmcc + 0x0190);
+	udelay(20);
+	writel(0x1f | BIT(5) | BIT(8), mmcc + 0x0190);	/* enable on, clamp on  */
+	readl(mmcc + 0x0190);
+	udelay(20);
+	writel(0x1f | BIT(8), mmcc + 0x0190);		/* release clamp        */
+	gfs_after = readl(mmcc + 0x0190);
+	udelay(50);
 
 	iounmap(mmcc);
 
-	DRM_DEV_INFO(dev->dev, "HACK: mmcc SW_RESET_AHB2 %#x SW_RESET_ALL %#x",
-		     reset_ahb2, reset_all);
-	DRM_DEV_INFO(dev->dev, "HACK: mmcc MPD_AXI_RESET pre %#x b13=%d post %#x",
-		     reset_axi, !!(reset_axi & BIT(13)), reset_axi_after);
-	DRM_DEV_INFO(dev->dev, "HACK: mmcc MDP_AHB_RESET %#x asserted=%d",
-		     reset_ahb, !!(reset_ahb & BIT(3)));
-	DRM_DEV_INFO(dev->dev, "HACK: mmcc MDP_RESET %#x asserted=%d",
+	DRM_DEV_INFO(dev->dev, "HACK: mmcc GFS_CTL before %#x after %#x", gfs_before, gfs_after);
+	DRM_DEV_INFO(dev->dev, "HACK: mmcc resets AXI %#x(b13=%d) AHB %#x(b3=%d) CORE %#x(b21=%d)",
+		     reset_axi, !!(reset_axi & BIT(13)),
+		     reset_ahb, !!(reset_ahb & BIT(3)),
 		     reset_core, !!(reset_core & BIT(21)));
-	DRM_DEV_INFO(dev->dev, "HACK: mmcc MDP_PD_CTL %#x", pd_ctl);
-	DRM_DEV_INFO(dev->dev, "HACK: mmcc mdp_clk en=%d halt=%d (running=halt0)",
-		     !!(v_00c0 & BIT(0)), !!(v_01d0 & BIT(10)));
-	DRM_DEV_INFO(dev->dev, "HACK: mmcc mdp_ahb_clk en=%d halt=%d (running=halt0)",
-		     !!(v_0008 & BIT(10)), !!(v_01dc & BIT(11)));
-	DRM_DEV_INFO(dev->dev, "HACK: mmcc mdp_axi_clk en=%d halt=%d hwcg=%d (running=halt0)",
-		     !!(v_0018 & BIT(23)), !!(v_01d8 & BIT(8)), !!(v_0018 & BIT(16)));
-	DRM_DEV_INFO(dev->dev, "HACK: mmcc mdp_lut_clk en=%d halt=%d (running=halt0)",
+	DRM_DEV_INFO(dev->dev, "HACK: mmcc clk en/halt: mdp %d/%d ahb %d/%d axi %d/%d lut %d/%d",
+		     !!(v_00c0 & BIT(0)), !!(v_01d0 & BIT(10)),
+		     !!(v_0008 & BIT(10)), !!(v_01dc & BIT(11)),
+		     !!(v_0018 & BIT(23)), !!(v_01d8 & BIT(8)),
 		     !!(v_016c & BIT(0)), !!(v_01e8 & BIT(13)));
 }
 
