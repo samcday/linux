@@ -527,7 +527,9 @@ static int mdp4_kms_init(struct drm_device *dev)
 	unsigned long max_clk;
 
 	/* TODO: Chips that aren't apq8064 have a 200 Mhz max_clk */
-	max_clk = 266667000;
+	/* HACK: MSM8227 is not apq8064; 266 MHz wedges MDP register access
+	 * (boot-18/19 hang). Use the documented 200 MHz cap. */
+	max_clk = 200000000;
 	DRM_DEV_INFO(dev->dev, "HACK: mdp4_kms_init entry");
 
 	DRM_DEV_INFO(dev->dev, "HACK: mdp4_kms_init before mdp_kms_init");
