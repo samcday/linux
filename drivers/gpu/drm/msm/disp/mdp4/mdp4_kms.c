@@ -527,12 +527,15 @@ static int mdp4_kms_init(struct drm_device *dev)
 	unsigned long max_clk;
 
 	/* TODO: Chips that aren't apq8064 have a 200 Mhz max_clk */
-	/* HACK: 266 (boot-18/19) and 200 (boot-20) MHz both hang the MDP version
-	 * readl identically -- and both are P_PLL2 rates. PLL2 is an mmcc-internal
-	 * PLL spun up on demand and likely never locks on fame, so mdp_clk is a
-	 * dead clock. Use 27 MHz (P_PXO, always-on) to isolate PLL2 as the cause:
-	 * a clean read here means we move MDP onto a PLL8 rate / fix PLL2. */
-	max_clk = 27000000;
+	/* HACK: the 160-266 MHz MDP rates are all P_PLL2 (MM_PLL1), but PLL2 does
+	 * not lock on fame: boot-22 enabled it in-kernel (BYPASSNL|RESET_N) and
+	 * polled status bit16 for 500us -> lock=0, identical to a live U-Boot
+	 * probe, with PLL8 as a positive control (locked). msm8227 is a low-end
+	 * part and likely does not fit/use MM_PLL1, so the msm8960 driver's PLL2
+	 * rates are inapplicable here. The <=128 MHz rates source from PLL8
+	 * (always-up, voted), which is plenty for the 480x800 panel (~33 MHz
+	 * pixel). Cap at 128 MHz so mdp_src stays on PLL8. */
+	max_clk = 128000000;
 	DRM_DEV_INFO(dev->dev, "HACK: mdp4_kms_init entry");
 
 	DRM_DEV_INFO(dev->dev, "HACK: mdp4_kms_init before mdp_kms_init");
