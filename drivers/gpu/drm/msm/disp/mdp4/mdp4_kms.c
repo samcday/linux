@@ -418,8 +418,9 @@ fail:
  * power-on never finishes ramping and bus reads to 0x05100000 hang. With the
  * enable bit already set, no transition occurs, so the core stays unpowered.
  * mdp4_enable() has already enabled and rated the MDP clocks before we get
- * here, so cycling the GFS now (collapse -> enable -> unclamp) lets the
- * power-on complete with a live core clock.
+ * here, so cycling the GFS now (collapse -> assert resets -> enable ->
+ * unclamp -> deassert resets) lets the power-on complete and the reset pulse
+ * initialise the block, all with a live core clock.
  *
  * MMCC base/size from DT mmcc@4000000. GFS_CTL (mmcc-msm8960.c MDP_PD_CTL_REG)
  * = 0x0190: DELAY[4:0]=0x1f, CLAMP=BIT(5), ENABLE=BIT(8), RETENTION=BIT(9).
@@ -445,14 +446,30 @@ static void mdp4_hack_dump_mmcc(struct drm_device *dev)
 	v_01d8 = readl(mmcc + 0x01d8); v_0018 = readl(mmcc + 0x0018);
 	v_01e8 = readl(mmcc + 0x01e8); v_016c = readl(mmcc + 0x016c);
 
-	/* Power-up handshake with clocks running: collapse -> enable -> unclamp. */
-	writel(0x1f | BIT(5), mmcc + 0x0190);		/* clamp on, enable off */
+	/*
+	 * Power-up handshake with clocks running, mirroring downstream
+	 * footswitch-8x60.c: collapse -> assert MDP resets -> enable -> unclamp
+	 * -> deassert MDP resets. The reset pulse (with the core clock live)
+	 * initialises the freshly-powered block; U-Boot proved the GFS cycle
+	 * alone (no reset, mdp_clk off) only floats garbage. Resets: CORE
+	 * 0x0210 b21, AXI 0x0208 b13, AHB 0x020c b3.
+	 */
+	writel(0x1f | BIT(5), mmcc + 0x0190);		/* collapse: clamp on, enable off */
 	readl(mmcc + 0x0190);
 	udelay(20);
-	writel(0x1f | BIT(5) | BIT(8), mmcc + 0x0190);	/* enable on, clamp on  */
+	writel(reset_core | BIT(21), mmcc + 0x0210);	/* assert MDP resets */
+	writel(reset_axi  | BIT(13), mmcc + 0x0208);
+	writel(reset_ahb  | BIT(3),  mmcc + 0x020c);
+	readl(mmcc + 0x020c);
+	udelay(20);
+	writel(0x1f | BIT(5) | BIT(8), mmcc + 0x0190);	/* enable on, clamp on */
 	readl(mmcc + 0x0190);
 	udelay(20);
-	writel(0x1f | BIT(8), mmcc + 0x0190);		/* release clamp        */
+	writel(0x1f | BIT(8), mmcc + 0x0190);		/* release clamp */
+	udelay(20);
+	writel(reset_core & ~BIT(21), mmcc + 0x0210);	/* deassert MDP resets */
+	writel(reset_axi  & ~BIT(13), mmcc + 0x0208);
+	writel(reset_ahb  & ~BIT(3),  mmcc + 0x020c);
 	gfs_after = readl(mmcc + 0x0190);
 	udelay(50);
 
