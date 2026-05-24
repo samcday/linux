@@ -527,9 +527,12 @@ static int mdp4_kms_init(struct drm_device *dev)
 	unsigned long max_clk;
 
 	/* TODO: Chips that aren't apq8064 have a 200 Mhz max_clk */
-	/* HACK: MSM8227 is not apq8064; 266 MHz wedges MDP register access
-	 * (boot-18/19 hang). Use the documented 200 MHz cap. */
-	max_clk = 200000000;
+	/* HACK: 266 (boot-18/19) and 200 (boot-20) MHz both hang the MDP version
+	 * readl identically -- and both are P_PLL2 rates. PLL2 is an mmcc-internal
+	 * PLL spun up on demand and likely never locks on fame, so mdp_clk is a
+	 * dead clock. Use 27 MHz (P_PXO, always-on) to isolate PLL2 as the cause:
+	 * a clean read here means we move MDP onto a PLL8 rate / fix PLL2. */
+	max_clk = 27000000;
 	DRM_DEV_INFO(dev->dev, "HACK: mdp4_kms_init entry");
 
 	DRM_DEV_INFO(dev->dev, "HACK: mdp4_kms_init before mdp_kms_init");
