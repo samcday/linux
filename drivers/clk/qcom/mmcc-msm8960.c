@@ -3140,6 +3140,13 @@ static const struct qcom_reset_map mmcc_apq8064_resets[] = {
 #define PD_CTL_CLAMP			BIT(5)
 #define PD_CTL_ENABLE			BIT(8)
 #define PD_CTL_RETENTION		BIT(9)
+#define PD_RESET_DELAY_US		1
+
+struct mmcc_msm8960_pd_reset {
+	const char *name;
+	unsigned int reg;
+	unsigned int bit;
+};
 
 /* MSM8960-era MMCC power control registers predate modern GDSCs. */
 struct mmcc_msm8960_pd {
@@ -3150,6 +3157,10 @@ struct mmcc_msm8960_pd {
 	const char *dbg_name;
 	unsigned int ctl_reg;
 	unsigned int num_clks;
+	const struct mmcc_msm8960_pd_reset *resets;
+	unsigned int num_resets;
+	unsigned int core_reset;
+	bool toggle_core_reset;
 };
 
 struct mmcc_msm8960_pd_desc {
@@ -3159,6 +3170,10 @@ struct mmcc_msm8960_pd_desc {
 	unsigned int ctl_reg;
 	struct clk_regmap *clks[5];
 	unsigned int num_clks;
+	const struct mmcc_msm8960_pd_reset *resets;
+	unsigned int num_resets;
+	unsigned int core_reset;
+	bool toggle_core_reset;
 };
 
 static struct mmcc_msm8960_pd *to_mmcc_msm8960_pd(struct generic_pm_domain *pd)
@@ -3202,6 +3217,95 @@ static int mmcc_msm8960_pd_is_on(struct mmcc_msm8960_pd *domain, bool *on)
 	return 0;
 }
 
+static int mmcc_msm8960_pd_set_reset(struct mmcc_msm8960_pd *domain,
+				     const struct mmcc_msm8960_pd_reset *reset,
+				     bool assert)
+{
+	unsigned int val;
+	u32 mask = BIT(reset->bit);
+	int ret;
+
+	ret = regmap_update_bits(domain->regmap, reset->reg, mask,
+				 assert ? mask : 0);
+	if (ret) {
+		dev_dbg(domain->dev, "%s reset %s %s failed: %d\n",
+			domain->dbg_name, reset->name,
+			assert ? "assert" : "deassert", ret);
+		return ret;
+	}
+
+	ret = regmap_read(domain->regmap, reset->reg, &val);
+	if (ret) {
+		dev_dbg(domain->dev, "%s reset %s readback failed: %d\n",
+			domain->dbg_name, reset->name, ret);
+		return ret;
+	}
+
+	dev_dbg(domain->dev, "%s reset %s %s: reg[0x%04x]=0x%08x\n",
+		domain->dbg_name, reset->name,
+		assert ? "assert" : "deassert", reset->reg, val);
+
+	return 0;
+}
+
+static int mmcc_msm8960_pd_assert_resets(struct mmcc_msm8960_pd *domain)
+{
+	unsigned int i;
+	int ret;
+
+	for (i = domain->num_resets; i-- > 0;) {
+		ret = mmcc_msm8960_pd_set_reset(domain, &domain->resets[i],
+						true);
+		if (ret)
+			return ret;
+	}
+
+	if (domain->num_resets)
+		udelay(PD_RESET_DELAY_US);
+
+	return 0;
+}
+
+static int mmcc_msm8960_pd_deassert_resets(struct mmcc_msm8960_pd *domain)
+{
+	unsigned int i;
+	int ret;
+
+	for (i = 0; i < domain->num_resets; i++) {
+		ret = mmcc_msm8960_pd_set_reset(domain, &domain->resets[i],
+						false);
+		if (ret)
+			return ret;
+	}
+
+	return 0;
+}
+
+static int mmcc_msm8960_pd_toggle_core_reset(struct mmcc_msm8960_pd *domain)
+{
+	const struct mmcc_msm8960_pd_reset *reset;
+	int ret;
+
+	if (!domain->toggle_core_reset)
+		return 0;
+
+	reset = &domain->resets[domain->core_reset];
+
+	ret = mmcc_msm8960_pd_set_reset(domain, reset, true);
+	if (ret)
+		return ret;
+
+	udelay(PD_RESET_DELAY_US);
+
+	ret = mmcc_msm8960_pd_set_reset(domain, reset, false);
+	if (ret)
+		return ret;
+
+	udelay(PD_RESET_DELAY_US);
+
+	return 0;
+}
+
 static int mmcc_msm8960_pd_power_on(struct generic_pm_domain *genpd)
 {
 	struct mmcc_msm8960_pd *domain = to_mmcc_msm8960_pd(genpd);
@@ -3241,6 +3345,10 @@ static int mmcc_msm8960_pd_power_on(struct generic_pm_domain *genpd)
 	}
 	mmcc_msm8960_pd_dbg(domain, "power_on delay");
 
+	ret = mmcc_msm8960_pd_assert_resets(domain);
+	if (ret)
+		goto out_disable_clks;
+
 	ret = regmap_update_bits(domain->regmap, domain->ctl_reg,
 				 PD_CTL_ENABLE, PD_CTL_ENABLE);
 	if (ret) {
@@ -3258,8 +3366,15 @@ static int mmcc_msm8960_pd_power_on(struct generic_pm_domain *genpd)
 	if (ret)
 		dev_dbg(domain->dev, "%s power_on: unclamp write failed: %d\n",
 			domain->dbg_name, ret);
-	else
+	else {
 		mmcc_msm8960_pd_dbg(domain, "power_on unclamp");
+
+		ret = mmcc_msm8960_pd_deassert_resets(domain);
+		if (ret)
+			goto out_disable_clks;
+
+		ret = mmcc_msm8960_pd_toggle_core_reset(domain);
+	}
 
 out_disable_clks:
 	clk_bulk_disable_unprepare(domain->num_clks, domain->clks);
@@ -3307,6 +3422,10 @@ static int mmcc_msm8960_pd_power_off(struct generic_pm_domain *genpd)
 		goto out_disable_clks;
 	}
 	mmcc_msm8960_pd_dbg(domain, "power_off retention");
+
+	ret = mmcc_msm8960_pd_assert_resets(domain);
+	if (ret)
+		goto out_disable_clks;
 
 	ret = regmap_update_bits(domain->regmap, domain->ctl_reg,
 				 PD_CTL_CLAMP, PD_CTL_CLAMP);
@@ -3361,6 +3480,10 @@ static int mmcc_msm8960_init_pd(struct device *dev, struct regmap *regmap,
 	domain->pd.power_on = mmcc_msm8960_pd_power_on;
 	domain->pd.power_off = mmcc_msm8960_pd_power_off;
 	domain->num_clks = desc->num_clks;
+	domain->resets = desc->resets;
+	domain->num_resets = desc->num_resets;
+	domain->core_reset = desc->core_reset;
+	domain->toggle_core_reset = desc->toggle_core_reset;
 
 	for (i = 0; i < domain->num_clks; i++) {
 		domain->clks[i].clk = devm_clk_hw_get_clk(dev,
@@ -3393,6 +3516,24 @@ static int mmcc_msm8960_init_pd(struct device *dev, struct regmap *regmap,
 	return 0;
 }
 
+enum {
+	GFX3D_PD_CORE_RESET,
+	GFX3D_PD_IFACE_RESET,
+	GFX3D_PD_BUS_RESET,
+};
+
+static const struct mmcc_msm8960_pd_reset mmcc_msm8960_gfx3d_pd_resets[] = {
+	[GFX3D_PD_CORE_RESET] = { "core", 0x0210, 12 },
+	[GFX3D_PD_IFACE_RESET] = { "iface", 0x020c, 10 },
+	[GFX3D_PD_BUS_RESET] = { "bus", 0x0208, 17 },
+};
+
+static const struct mmcc_msm8960_pd_reset mmcc_msm8930_gfx3d_pd_resets[] = {
+	[GFX3D_PD_CORE_RESET] = { "core", 0x0210, 12 },
+	[GFX3D_PD_IFACE_RESET] = { "iface", 0x020c, 10 },
+	[GFX3D_PD_BUS_RESET] = { "bus", 0x0208, 16 },
+};
+
 static const struct mmcc_msm8960_pd_desc mmcc_msm8960_pds[] = {
 	{
 		.name = "gfx3d",
@@ -3405,6 +3546,10 @@ static const struct mmcc_msm8960_pd_desc mmcc_msm8960_pds[] = {
 			&gfx3d_axi_clk.clkr,
 		},
 		.num_clks = 3,
+		.resets = mmcc_msm8960_gfx3d_pd_resets,
+		.num_resets = ARRAY_SIZE(mmcc_msm8960_gfx3d_pd_resets),
+		.core_reset = GFX3D_PD_CORE_RESET,
+		.toggle_core_reset = true,
 	}, {
 		.name = "mdp",
 		.dbg_name = "MDP_PD",
@@ -3433,6 +3578,10 @@ static const struct mmcc_msm8960_pd_desc mmcc_msm8930_pds[] = {
 			&gfx3d_axi_clk_8930.clkr,
 		},
 		.num_clks = 3,
+		.resets = mmcc_msm8930_gfx3d_pd_resets,
+		.num_resets = ARRAY_SIZE(mmcc_msm8930_gfx3d_pd_resets),
+		.core_reset = GFX3D_PD_CORE_RESET,
+		.toggle_core_reset = true,
 	}, {
 		.name = "mdp",
 		.dbg_name = "MDP_PD",
