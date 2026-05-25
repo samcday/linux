@@ -13,6 +13,7 @@
 #include <linux/backlight.h>
 #include <linux/delay.h>
 #include <linux/gpio/consumer.h>
+#include <linux/minmax.h>
 #include <linux/module.h>
 #include <linux/of.h>
 
@@ -135,6 +136,16 @@ static struct backlight_device *teisko_create_backlight(struct teisko *ctx)
 					      &teisko_backlight_ops, &props);
 }
 
+static u8 teisko_current_brightness(struct teisko *ctx)
+{
+	u32 brightness = TEISKO_DEFAULT_BRIGHTNESS;
+
+	if (ctx->backlight)
+		brightness = ctx->backlight->props.brightness;
+
+	return min_t(u32, brightness, TEISKO_MAX_BRIGHTNESS);
+}
+
 static int teisko_prepare(struct drm_panel *panel)
 {
 	struct teisko *ctx = to_teisko(panel);
@@ -148,7 +159,6 @@ static int teisko_prepare(struct drm_panel *panel)
 	static const u8 vendor_cmd[] = { 0xff, 0x78 };
 	static const u8 address_mode[] = { 0x00 };
 	static const u8 control_display[] = { TEISKO_CONTROL_DISPLAY_ON };
-	u8 brightness = TEISKO_DEFAULT_BRIGHTNESS;
 	int ret;
 
 	if (ctx->prepared)
@@ -183,10 +193,7 @@ static int teisko_prepare(struct drm_panel *panel)
 	if (ret < 0)
 		return ret;
 
-	if (ctx->backlight)
-		brightness = backlight_get_brightness(ctx->backlight);
-
-	ret = teisko_write_brightness(ctx, brightness);
+	ret = teisko_write_brightness(ctx, teisko_current_brightness(ctx));
 	if (ret < 0)
 		return ret;
 
@@ -205,6 +212,10 @@ static int teisko_enable(struct drm_panel *panel)
 		return 0;
 
 	dev_info(dev, "enable\n");
+
+	ret = teisko_write_brightness(ctx, teisko_current_brightness(ctx));
+	if (ret < 0)
+		return ret;
 
 	ret = mipi_dsi_dcs_set_display_on(ctx->dsi);
 	ret = teisko_log_ret(ctx, "dcs set display on", ret);
@@ -241,20 +252,18 @@ static int teisko_disable(struct drm_panel *panel)
 static int teisko_unprepare(struct drm_panel *panel)
 {
 	struct teisko *ctx = to_teisko(panel);
-	int ret;
 
 	if (!ctx->prepared)
 		return 0;
 
 	dev_info(&ctx->dsi->dev, "unprepare\n");
+	dev_info(&ctx->dsi->dev, "skip DCS enter sleep mode\n");
 
-	ret = mipi_dsi_dcs_enter_sleep_mode(ctx->dsi);
-	ret = teisko_log_ret(ctx, "dcs enter sleep mode", ret);
-	msleep(120);
+	msleep(20);
 	gpiod_set_value_cansleep(ctx->reset_gpio, 1);
 	ctx->prepared = false;
 
-	return ret;
+	return 0;
 }
 
 /*
