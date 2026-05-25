@@ -325,7 +325,7 @@ static int teisko_probe(struct mipi_dsi_device *dsi)
 
 	dsi->lanes = 2;
 	dsi->format = MIPI_DSI_FMT_RGB888;
-	dsi->mode_flags = MIPI_DSI_MODE_VIDEO | MIPI_DSI_MODE_VIDEO_HSE;
+	dsi->mode_flags = MIPI_DSI_MODE_VIDEO;
 
 	drm_panel_init(&ctx->panel, dev, &teisko_panel_funcs,
 		       DRM_MODE_CONNECTOR_DSI);
