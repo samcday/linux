@@ -72,12 +72,11 @@ static int teisko_write_brightness(struct teisko *ctx, u8 brightness)
 {
 	struct mipi_dsi_device *dsi = ctx->dsi;
 	u8 control_display = brightness ? TEISKO_CONTROL_DISPLAY_ON : 0;
-	unsigned long mode_flags = dsi->mode_flags;
 	int ret, ret2;
 
-	dev_info(&dsi->dev, "set DSI brightness: 0x%02x\n", brightness);
+	dev_info(&dsi->dev, "set DSI LPM brightness: 0x%02x\n", brightness);
 
-	dsi->mode_flags &= ~MIPI_DSI_MODE_LPM;
+	dsi->mode_flags |= MIPI_DSI_MODE_LPM;
 
 	ret = mipi_dsi_dcs_write(dsi, MIPI_DCS_SET_DISPLAY_BRIGHTNESS,
 				 &brightness, sizeof(brightness));
@@ -86,8 +85,6 @@ static int teisko_write_brightness(struct teisko *ctx, u8 brightness)
 	ret2 = mipi_dsi_dcs_write(dsi, MIPI_DCS_WRITE_CONTROL_DISPLAY,
 				  &control_display, sizeof(control_display));
 	ret2 = teisko_log_ret(ctx, "dcs write control display", ret2);
-
-	dsi->mode_flags = mode_flags;
 
 	return ret ?: ret2;
 }
@@ -143,6 +140,7 @@ static int teisko_prepare(struct drm_panel *panel)
 	static const u8 vendor_cmd[] = { 0xff, 0x78 };
 	static const u8 address_mode[] = { 0x00 };
 	static const u8 control_display[] = { TEISKO_CONTROL_DISPLAY_ON };
+	u8 brightness = TEISKO_DEFAULT_BRIGHTNESS;
 	int ret;
 
 	if (ctx->prepared)
@@ -177,6 +175,13 @@ static int teisko_prepare(struct drm_panel *panel)
 	if (ret < 0)
 		return ret;
 
+	if (ctx->panel.backlight)
+		brightness = backlight_get_brightness(ctx->panel.backlight);
+
+	ret = teisko_write_brightness(ctx, brightness);
+	if (ret < 0)
+		return ret;
+
 	ctx->prepared = true;
 
 	return 0;
@@ -186,7 +191,6 @@ static int teisko_enable(struct drm_panel *panel)
 {
 	struct teisko *ctx = to_teisko(panel);
 	struct device *dev = &ctx->dsi->dev;
-	u8 brightness = TEISKO_DEFAULT_BRIGHTNESS;
 	int ret;
 
 	if (ctx->enabled)
@@ -203,10 +207,7 @@ static int teisko_enable(struct drm_panel *panel)
 
 	ctx->enabled = true;
 
-	if (ctx->panel.backlight)
-		brightness = backlight_get_brightness(ctx->panel.backlight);
-
-	return teisko_write_brightness(ctx, brightness);
+	return 0;
 }
 
 static int teisko_disable(struct drm_panel *panel)
