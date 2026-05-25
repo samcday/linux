@@ -28,6 +28,7 @@
 
 struct teisko {
 	struct drm_panel panel;
+	struct backlight_device *backlight;
 	struct mipi_dsi_device *dsi;
 	struct gpio_desc *reset_gpio;
 	bool prepared;
@@ -94,9 +95,16 @@ static int teisko_backlight_update_status(struct backlight_device *bl)
 	struct teisko *ctx = bl_get_data(bl);
 	int brightness = backlight_get_brightness(bl);
 
-	if (!ctx->prepared || !ctx->enabled) {
+	if (!ctx->prepared) {
 		dev_info(&ctx->dsi->dev,
-			 "defer DSI brightness 0x%02x until panel is enabled\n",
+			 "defer DSI brightness 0x%02x until panel is prepared\n",
+			 brightness);
+		return 0;
+	}
+
+	if (ctx->enabled) {
+		dev_info(&ctx->dsi->dev,
+			 "skip DSI brightness 0x%02x after display-on\n",
 			 brightness);
 		return 0;
 	}
@@ -175,8 +183,8 @@ static int teisko_prepare(struct drm_panel *panel)
 	if (ret < 0)
 		return ret;
 
-	if (ctx->panel.backlight)
-		brightness = backlight_get_brightness(ctx->panel.backlight);
+	if (ctx->backlight)
+		brightness = backlight_get_brightness(ctx->backlight);
 
 	ret = teisko_write_brightness(ctx, brightness);
 	if (ret < 0)
@@ -323,9 +331,9 @@ static int teisko_probe(struct mipi_dsi_device *dsi)
 		       DRM_MODE_CONNECTOR_DSI);
 	ctx->panel.prepare_prev_first = true;
 
-	ctx->panel.backlight = teisko_create_backlight(ctx);
-	if (IS_ERR(ctx->panel.backlight))
-		return dev_err_probe(dev, PTR_ERR(ctx->panel.backlight),
+	ctx->backlight = teisko_create_backlight(ctx);
+	if (IS_ERR(ctx->backlight))
+		return dev_err_probe(dev, PTR_ERR(ctx->backlight),
 				     "failed to register backlight\n");
 
 	dev_info(dev, "probed lanes=%u format=0x%x mode_flags=0x%lx\n",
