@@ -49,14 +49,14 @@ static struct clk_pll pll2 = {
 	.config_reg = 0x32c,
 	.mode_reg = 0x31c,
 	.status_reg = 0x334,
-	.status_bit = 16,
+	.status_bit = 0,
 	.clkr.hw.init = &(struct clk_init_data){
 		.name = "pll2",
 		.parent_data = (const struct clk_parent_data[]){
 			{ .fw_name = "pxo", .name = "pxo_board" },
 		},
 		.num_parents = 1,
-		.ops = &clk_pll_ops,
+		.ops = &clk_pll2_ops,
 	},
 };
 

@@ -334,3 +334,74 @@ const struct clk_ops clk_pll_sr2_ops = {
 	.determine_rate = clk_pll_determine_rate,
 };
 EXPORT_SYMBOL_GPL(clk_pll_sr2_ops);
+
+/*
+ * PLL2 (MM_PLL1) on MSM8227/fame requires BYPASSNL and RESET_N to be
+ * asserted together in a single write, not sequentially as clk_pll_enable
+ * does.  The bypass-first sequence (BYPASSNL alone with RESET_N still
+ * asserted) puts fame's PLL2 into a state it cannot recover from, leaving
+ * the PLL enabled (mode=0x7) but not oscillating (status bit0=0).
+ *
+ * The working recipe, confirmed over UART: clean disable -> write
+ * BYPASSNL|RESET_N together -> poll status bit0 -> enable output.
+ *
+ * PLL2's status bit 16 ("lock") never sets even when the PLL is correctly
+ * driving the display; status bit0 empirically tracks "PLL running".
+ */
+static int clk_pll2_enable(struct clk_hw *hw)
+{
+	struct clk_pll *pll = to_clk_pll(hw);
+	u32 val;
+	int ret, count;
+
+	ret = regmap_read(pll->clkr.regmap, pll->mode_reg, &val);
+	if (ret)
+		return ret;
+
+	if ((val & (PLL_OUTCTRL | PLL_RESET_N | PLL_BYPASSNL)) ==
+	    (PLL_OUTCTRL | PLL_RESET_N | PLL_BYPASSNL)) {
+		ret = regmap_read(pll->clkr.regmap, pll->status_reg, &val);
+		if (ret)
+			return ret;
+		if (val & BIT(0))
+			return 0;
+	}
+
+	/* Clean disable */
+	ret = regmap_write(pll->clkr.regmap, pll->mode_reg, 0);
+	if (ret)
+		return ret;
+
+	/* Assert BYPASSNL and RESET_N together */
+	ret = regmap_write(pll->clkr.regmap, pll->mode_reg,
+			   PLL_BYPASSNL | PLL_RESET_N);
+	if (ret)
+		return ret;
+
+	/* Wait for PLL to indicate running (status bit0) */
+	for (count = 200; count > 0; count--) {
+		ret = regmap_read(pll->clkr.regmap, pll->status_reg, &val);
+		if (ret)
+			return ret;
+		if (val & BIT(0))
+			break;
+		udelay(1);
+	}
+	if (count == 0) {
+		WARN(1, "%s didn't enable!\n", clk_hw_get_name(hw));
+		return -ETIMEDOUT;
+	}
+
+	/* Enable output */
+	return regmap_write(pll->clkr.regmap, pll->mode_reg,
+			    PLL_OUTCTRL | PLL_BYPASSNL | PLL_RESET_N);
+}
+
+const struct clk_ops clk_pll2_ops = {
+	.enable = clk_pll2_enable,
+	.disable = clk_pll_disable,
+	.recalc_rate = clk_pll_recalc_rate,
+	.determine_rate = clk_pll_determine_rate,
+	.set_rate = clk_pll_set_rate,
+};
+EXPORT_SYMBOL_GPL(clk_pll2_ops);
