@@ -10,6 +10,7 @@
  * by the DSI host; this driver only sequences reset and the DCS init.
  */
 
+#include <linux/backlight.h>
 #include <linux/delay.h>
 #include <linux/gpio/consumer.h>
 #include <linux/module.h>
@@ -21,10 +22,16 @@
 #include <drm/drm_modes.h>
 #include <drm/drm_panel.h>
 
+#define TEISKO_DEFAULT_BRIGHTNESS	0x80
+#define TEISKO_MAX_BRIGHTNESS		0xff
+#define TEISKO_CONTROL_DISPLAY_ON	0x24
+
 struct teisko {
 	struct drm_panel panel;
 	struct mipi_dsi_device *dsi;
 	struct gpio_desc *reset_gpio;
+	bool prepared;
+	bool enabled;
 };
 
 static inline struct teisko *to_teisko(struct drm_panel *panel)
@@ -47,6 +54,82 @@ static void teisko_reset(struct teisko *ctx)
 	msleep(20);
 }
 
+static int teisko_log_ret(struct teisko *ctx, const char *name, ssize_t ret)
+{
+	struct device *dev = &ctx->dsi->dev;
+
+	if (ret < 0) {
+		dev_err(dev, "%s failed: %zd\n", name, ret);
+		return ret;
+	}
+
+	dev_info(dev, "%s ok: %zd\n", name, ret);
+
+	return 0;
+}
+
+static int teisko_write_brightness(struct teisko *ctx, u8 brightness)
+{
+	struct mipi_dsi_device *dsi = ctx->dsi;
+	u8 control_display = brightness ? TEISKO_CONTROL_DISPLAY_ON : 0;
+	unsigned long mode_flags = dsi->mode_flags;
+	int ret, ret2;
+
+	dev_info(&dsi->dev, "set DSI brightness: 0x%02x\n", brightness);
+
+	dsi->mode_flags &= ~MIPI_DSI_MODE_LPM;
+
+	ret = mipi_dsi_dcs_write(dsi, MIPI_DCS_SET_DISPLAY_BRIGHTNESS,
+				 &brightness, sizeof(brightness));
+	ret = teisko_log_ret(ctx, "dcs set display brightness", ret);
+
+	ret2 = mipi_dsi_dcs_write(dsi, MIPI_DCS_WRITE_CONTROL_DISPLAY,
+				  &control_display, sizeof(control_display));
+	ret2 = teisko_log_ret(ctx, "dcs write control display", ret2);
+
+	dsi->mode_flags = mode_flags;
+
+	return ret ?: ret2;
+}
+
+static int teisko_backlight_update_status(struct backlight_device *bl)
+{
+	struct teisko *ctx = bl_get_data(bl);
+	int brightness = backlight_get_brightness(bl);
+
+	if (!ctx->prepared || !ctx->enabled) {
+		dev_info(&ctx->dsi->dev,
+			 "defer DSI brightness 0x%02x until panel is enabled\n",
+			 brightness);
+		return 0;
+	}
+
+	return teisko_write_brightness(ctx, brightness);
+}
+
+static int teisko_backlight_get_brightness(struct backlight_device *bl)
+{
+	return bl->props.brightness;
+}
+
+static const struct backlight_ops teisko_backlight_ops = {
+	.update_status = teisko_backlight_update_status,
+	.get_brightness = teisko_backlight_get_brightness,
+};
+
+static struct backlight_device *teisko_create_backlight(struct teisko *ctx)
+{
+	struct device *dev = &ctx->dsi->dev;
+	struct backlight_properties props = {
+		.type = BACKLIGHT_RAW,
+		.brightness = TEISKO_DEFAULT_BRIGHTNESS,
+		.max_brightness = TEISKO_MAX_BRIGHTNESS,
+	};
+
+	return devm_backlight_device_register(dev, dev_name(dev), dev, ctx,
+					      &teisko_backlight_ops, &props);
+}
+
 static int teisko_prepare(struct drm_panel *panel)
 {
 	struct teisko *ctx = to_teisko(panel);
@@ -59,33 +142,42 @@ static int teisko_prepare(struct drm_panel *panel)
 	 */
 	static const u8 vendor_cmd[] = { 0xff, 0x78 };
 	static const u8 address_mode[] = { 0x00 };
-	static const u8 control_display[] = { 0x24 };
+	static const u8 control_display[] = { TEISKO_CONTROL_DISPLAY_ON };
 	int ret;
+
+	if (ctx->prepared)
+		return 0;
+
+	dev_info(dev, "prepare\n");
 
 	teisko_reset(ctx);
 
 	dsi->mode_flags |= MIPI_DSI_MODE_LPM;
 
 	ret = mipi_dsi_dcs_exit_sleep_mode(dsi);
-	if (ret < 0) {
-		dev_err(dev, "failed to exit sleep mode: %d\n", ret);
+	ret = teisko_log_ret(ctx, "dcs exit sleep mode", ret);
+	if (ret < 0)
 		return ret;
-	}
 	msleep(120);
 
 	ret = mipi_dsi_generic_write(dsi, vendor_cmd, sizeof(vendor_cmd));
+	ret = teisko_log_ret(ctx, "generic vendor command ff 78", ret);
 	if (ret < 0)
 		return ret;
 
 	ret = mipi_dsi_dcs_write(dsi, MIPI_DCS_SET_ADDRESS_MODE,
 				 address_mode, sizeof(address_mode));
+	ret = teisko_log_ret(ctx, "dcs set address mode", ret);
 	if (ret < 0)
 		return ret;
 
 	ret = mipi_dsi_dcs_write(dsi, MIPI_DCS_WRITE_CONTROL_DISPLAY,
 				 control_display, sizeof(control_display));
+	ret = teisko_log_ret(ctx, "dcs write control display", ret);
 	if (ret < 0)
 		return ret;
+
+	ctx->prepared = true;
 
 	return 0;
 }
@@ -93,33 +185,67 @@ static int teisko_prepare(struct drm_panel *panel)
 static int teisko_enable(struct drm_panel *panel)
 {
 	struct teisko *ctx = to_teisko(panel);
+	struct device *dev = &ctx->dsi->dev;
+	u8 brightness = TEISKO_DEFAULT_BRIGHTNESS;
 	int ret;
 
+	if (ctx->enabled)
+		return 0;
+
+	dev_info(dev, "enable\n");
+
 	ret = mipi_dsi_dcs_set_display_on(ctx->dsi);
+	ret = teisko_log_ret(ctx, "dcs set display on", ret);
 	if (ret < 0)
 		return ret;
 
 	msleep(20);
 
-	return 0;
+	ctx->enabled = true;
+
+	if (ctx->panel.backlight)
+		brightness = backlight_get_brightness(ctx->panel.backlight);
+
+	return teisko_write_brightness(ctx, brightness);
 }
 
 static int teisko_disable(struct drm_panel *panel)
 {
 	struct teisko *ctx = to_teisko(panel);
+	int ret = 0, ret2;
 
-	return mipi_dsi_dcs_set_display_off(ctx->dsi);
+	if (!ctx->enabled)
+		return 0;
+
+	dev_info(&ctx->dsi->dev, "disable\n");
+
+	if (ctx->prepared)
+		ret = teisko_write_brightness(ctx, 0);
+
+	ret2 = mipi_dsi_dcs_set_display_off(ctx->dsi);
+	ret2 = teisko_log_ret(ctx, "dcs set display off", ret2);
+	ctx->enabled = false;
+
+	return ret ?: ret2;
 }
 
 static int teisko_unprepare(struct drm_panel *panel)
 {
 	struct teisko *ctx = to_teisko(panel);
+	int ret;
 
-	mipi_dsi_dcs_enter_sleep_mode(ctx->dsi);
+	if (!ctx->prepared)
+		return 0;
+
+	dev_info(&ctx->dsi->dev, "unprepare\n");
+
+	ret = mipi_dsi_dcs_enter_sleep_mode(ctx->dsi);
+	ret = teisko_log_ret(ctx, "dcs enter sleep mode", ret);
 	msleep(120);
 	gpiod_set_value_cansleep(ctx->reset_gpio, 1);
+	ctx->prepared = false;
 
-	return 0;
+	return ret;
 }
 
 /*
@@ -196,9 +322,13 @@ static int teisko_probe(struct mipi_dsi_device *dsi)
 		       DRM_MODE_CONNECTOR_DSI);
 	ctx->panel.prepare_prev_first = true;
 
-	ret = drm_panel_of_backlight(&ctx->panel);
-	if (ret)
-		return dev_err_probe(dev, ret, "failed to get backlight\n");
+	ctx->panel.backlight = teisko_create_backlight(ctx);
+	if (IS_ERR(ctx->panel.backlight))
+		return dev_err_probe(dev, PTR_ERR(ctx->panel.backlight),
+				     "failed to register backlight\n");
+
+	dev_info(dev, "probed lanes=%u format=0x%x mode_flags=0x%lx\n",
+		 dsi->lanes, dsi->format, dsi->mode_flags);
 
 	drm_panel_add(&ctx->panel);
 
