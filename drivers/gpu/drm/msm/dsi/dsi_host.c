@@ -941,8 +941,8 @@ static void dsi_ctrl_enable(struct msm_dsi_host *msm_host,
 			DSI_CMD_DMA_CTRL_LOW_POWER);
 
 	data = 0;
-	/* Always assume dedicated TE pin */
-	data |= DSI_TRIG_CTRL_TE;
+	if (!(flags & MIPI_DSI_MODE_VIDEO))
+		data |= DSI_TRIG_CTRL_TE;
 	data |= DSI_TRIG_CTRL_MDP_TRIGGER(TRIGGER_NONE);
 	data |= DSI_TRIG_CTRL_DMA_TRIGGER(TRIGGER_SW);
 	data |= DSI_TRIG_CTRL_STREAM(msm_host->channel);
