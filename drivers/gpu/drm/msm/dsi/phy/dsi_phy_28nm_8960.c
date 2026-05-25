@@ -6,6 +6,7 @@
 #include <dt-bindings/clock/qcom,dsi-phy-28nm.h>
 #include <linux/clk-provider.h>
 #include <linux/delay.h>
+#include <linux/of.h>
 
 #include "dsi_phy.h"
 #include "dsi.xml.h"
@@ -67,6 +68,37 @@ struct dsi_pll_28nm {
 };
 
 #define to_pll_28nm(x)	container_of(x, struct dsi_pll_28nm, clk_hw)
+
+static bool dsi_28nm_8960_is_msm8227(struct msm_dsi_phy *phy)
+{
+	return of_device_is_compatible(phy->pdev->dev.of_node,
+				       "qcom,msm8227-dsi-phy-28nm-8960");
+}
+
+static void dsi_28nm_8960_msm8227_regulator_ctrl(struct msm_dsi_phy *phy)
+{
+	static const u32 regulator[] = { 0x02, 0x08, 0x05, 0x00, 0x20 };
+	void __iomem *base = phy->reg_base;
+	int i;
+
+	for (i = 0; i < ARRAY_SIZE(regulator); i++)
+		writel(regulator[i],
+		       base + REG_DSI_28nm_8960_PHY_MISC_REGULATOR_CTRL_0 + i * 4);
+}
+
+static void dsi_28nm_8960_msm8227_timing_ctrl(struct msm_dsi_phy *phy)
+{
+	static const u32 timing[] = {
+		0x67, 0x16, 0x0d, 0x00, 0x38, 0x3c,
+		0x12, 0x19, 0x18, 0x03, 0x04, 0xa0,
+	};
+	void __iomem *base = phy->base;
+	int i;
+
+	for (i = 0; i < ARRAY_SIZE(timing); i++)
+		writel(timing[i],
+		       base + REG_DSI_28nm_8960_PHY_TIMING_CTRL_0 + i * 4);
+}
 
 static bool pll_28nm_poll_for_ready(struct dsi_pll_28nm *pll_28nm,
 				    int nb_tries, int timeout_us)
@@ -500,7 +532,8 @@ static void dsi_28nm_phy_regulator_init(struct msm_dsi_phy *phy)
 {
 	void __iomem *base = phy->reg_base;
 
-	writel(0x3, base + REG_DSI_28nm_8960_PHY_MISC_REGULATOR_CTRL_0);
+	writel(dsi_28nm_8960_is_msm8227(phy) ? 0x2 : 0x3,
+	       base + REG_DSI_28nm_8960_PHY_MISC_REGULATOR_CTRL_0);
 	writel(1, base + REG_DSI_28nm_8960_PHY_MISC_REGULATOR_CTRL_1);
 	writel(1, base + REG_DSI_28nm_8960_PHY_MISC_REGULATOR_CTRL_2);
 	writel(0, base + REG_DSI_28nm_8960_PHY_MISC_REGULATOR_CTRL_3);
@@ -510,6 +543,11 @@ static void dsi_28nm_phy_regulator_init(struct msm_dsi_phy *phy)
 static void dsi_28nm_phy_regulator_ctrl(struct msm_dsi_phy *phy)
 {
 	void __iomem *base = phy->reg_base;
+
+	if (dsi_28nm_8960_is_msm8227(phy)) {
+		dsi_28nm_8960_msm8227_regulator_ctrl(phy);
+		return;
+	}
 
 	writel(0x3, base + REG_DSI_28nm_8960_PHY_MISC_REGULATOR_CTRL_0);
 	writel(0xa, base + REG_DSI_28nm_8960_PHY_MISC_REGULATOR_CTRL_1);
@@ -586,7 +624,8 @@ static int dsi_28nm_phy_enable(struct msm_dsi_phy *phy,
 
 	dsi_28nm_phy_regulator_init(phy);
 
-	writel(0x04, base + REG_DSI_28nm_8960_PHY_LDO_CTRL);
+	writel(dsi_28nm_8960_is_msm8227(phy) ? 0x25 : 0x04,
+	       base + REG_DSI_28nm_8960_PHY_LDO_CTRL);
 
 	/* strength control */
 	writel(0xff, base + REG_DSI_28nm_8960_PHY_STRENGTH_0);
@@ -611,6 +650,11 @@ static int dsi_28nm_phy_enable(struct msm_dsi_phy *phy,
 	writel(0x0, base + REG_DSI_28nm_8960_PHY_BIST_CTRL_4);
 
 	dsi_28nm_dphy_set_timing(phy, timing);
+	if (dsi_28nm_8960_is_msm8227(phy)) {
+		dsi_28nm_8960_msm8227_timing_ctrl(phy);
+		DRM_DEV_INFO(&phy->pdev->dev,
+			     "HACK: using msm8227 DSI PHY regulator/timing values\n");
+	}
 
 	return 0;
 }
