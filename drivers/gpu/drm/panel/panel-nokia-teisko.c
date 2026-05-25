@@ -213,10 +213,6 @@ static int teisko_enable(struct drm_panel *panel)
 
 	dev_info(dev, "enable\n");
 
-	ret = teisko_write_brightness(ctx, teisko_current_brightness(ctx));
-	if (ret < 0)
-		return ret;
-
 	ret = mipi_dsi_dcs_set_display_on(ctx->dsi);
 	ret = teisko_log_ret(ctx, "dcs set display on", ret);
 	if (ret < 0)
