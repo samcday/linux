@@ -518,11 +518,16 @@ error:
 
 int dsi_link_clk_set_rate_v2(struct msm_dsi_host *msm_host)
 {
+	struct device *dev = &msm_host->pdev->dev;
 	int ret;
 
 	DBG("Set clk rates: pclk=%lu, byteclk=%lu, esc_clk=%lu, dsi_src_clk=%lu",
 	    msm_host->pixel_clk_rate, msm_host->byte_clk_rate,
 	    msm_host->esc_clk_rate, msm_host->src_clk_rate);
+	dev_info(dev,
+		 "HACK: DSI v2 link set_rate request pixel=%lu byte=%lu esc=%lu src=%lu\n",
+		 msm_host->pixel_clk_rate, msm_host->byte_clk_rate,
+		 msm_host->esc_clk_rate, msm_host->src_clk_rate);
 
 	ret = clk_set_rate(msm_host->byte_clk, msm_host->byte_clk_rate);
 	if (ret) {
@@ -548,11 +553,19 @@ int dsi_link_clk_set_rate_v2(struct msm_dsi_host *msm_host)
 		return ret;
 	}
 
+	dev_info(dev,
+		 "HACK: DSI v2 link after set_rate pixel=%lu byte=%lu esc=%lu src=%lu\n",
+		 clk_get_rate(msm_host->pixel_clk),
+		 clk_get_rate(msm_host->byte_clk),
+		 clk_get_rate(msm_host->esc_clk),
+		 clk_get_rate(msm_host->src_clk));
+
 	return 0;
 }
 
 int dsi_link_clk_enable_v2(struct msm_dsi_host *msm_host)
 {
+	struct device *dev = &msm_host->pdev->dev;
 	int ret;
 
 	ret = clk_prepare_enable(msm_host->byte_clk);
@@ -578,6 +591,13 @@ int dsi_link_clk_enable_v2(struct msm_dsi_host *msm_host)
 		pr_err("%s: Failed to enable dsi pixel clk\n", __func__);
 		goto pixel_clk_err;
 	}
+
+	dev_info(dev,
+		 "HACK: DSI v2 link after enable pixel=%lu byte=%lu esc=%lu src=%lu\n",
+		 clk_get_rate(msm_host->pixel_clk),
+		 clk_get_rate(msm_host->byte_clk),
+		 clk_get_rate(msm_host->esc_clk),
+		 clk_get_rate(msm_host->src_clk));
 
 	return 0;
 
@@ -726,6 +746,8 @@ int dsi_calc_clk_rate_6g(struct msm_dsi_host *msm_host, bool is_bonded_dsi)
 
 int dsi_calc_clk_rate_v2(struct msm_dsi_host *msm_host, bool is_bonded_dsi)
 {
+	struct device *dev = &msm_host->pdev->dev;
+	struct drm_display_mode *mode = msm_host->mode;
 	u32 bpp = mipi_dsi_pixel_format_to_bpp(msm_host->format);
 	unsigned int esc_mhz, esc_div;
 	unsigned long byte_mhz;
@@ -765,6 +787,15 @@ int dsi_calc_clk_rate_v2(struct msm_dsi_host *msm_host, bool is_bonded_dsi)
 
 	DBG("esc=%lu, src=%lu", msm_host->esc_clk_rate,
 		msm_host->src_clk_rate);
+
+	if (mode)
+		dev_info(dev,
+			 "HACK: DSI v2 calc clocks mode=%dx%d clock=%d htotal=%d vtotal=%d lanes=%u bpp=%u pixel=%lu byte=%lu esc=%lu src=%lu flags=%#lx\n",
+			 mode->hdisplay, mode->vdisplay, mode->clock,
+			 mode->htotal, mode->vtotal, msm_host->lanes, bpp,
+			 msm_host->pixel_clk_rate, msm_host->byte_clk_rate,
+			 msm_host->esc_clk_rate, msm_host->src_clk_rate,
+			 msm_host->mode_flags);
 
 	return 0;
 }
@@ -849,6 +880,7 @@ bool msm_dsi_host_is_wide_bus_enabled(struct mipi_dsi_host *host)
 static void dsi_ctrl_enable(struct msm_dsi_host *msm_host,
 			struct msm_dsi_phy_shared_timings *phy_shared_timings, struct msm_dsi_phy *phy)
 {
+	struct device *dev = &msm_host->pdev->dev;
 	u32 flags = msm_host->mode_flags;
 	enum mipi_dsi_pixel_format mipi_fmt = msm_host->format;
 	const struct msm_dsi_cfg_handler *cfg_hnd = msm_host->cfg_hnd;
@@ -965,6 +997,19 @@ static void dsi_ctrl_enable(struct msm_dsi_host *msm_host,
 
 	if (msm_host->cphy_mode)
 		dsi_write(msm_host, REG_DSI_CPHY_MODE_CTRL, BIT(0));
+
+	dev_info(dev,
+		 "HACK: DSI ctrl video flags=%#x lanes=%u fmt=%u vc=%u swap=%u vid0=%#x vid1=%#x trig=%#x clkout=%#x eot=%#x clk=%#x lane_swap=%#x lane_ctrl=%#x ctrl=%#x\n",
+		 flags, msm_host->lanes, mipi_fmt, msm_host->channel,
+		 msm_host->dlane_swap, dsi_read(msm_host, REG_DSI_VID_CFG0),
+		 dsi_read(msm_host, REG_DSI_VID_CFG1),
+		 dsi_read(msm_host, REG_DSI_TRIG_CTRL),
+		 dsi_read(msm_host, REG_DSI_CLKOUT_TIMING_CTRL),
+		 dsi_read(msm_host, REG_DSI_EOT_PACKET_CTRL),
+		 dsi_read(msm_host, REG_DSI_CLK_CTRL),
+		 dsi_read(msm_host, REG_DSI_LANE_SWAP_CTRL),
+		 dsi_read(msm_host, REG_DSI_LANE_CTRL),
+		 dsi_read(msm_host, REG_DSI_CTRL));
 }
 
 static void dsi_update_dsc_timing(struct msm_dsi_host *msm_host, bool is_cmd_mode)

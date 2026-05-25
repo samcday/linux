@@ -78,6 +78,19 @@ static void mdp4_dsi_encoder_mode_set(struct drm_encoder *encoder,
 	mdp4_write(mdp4_kms, REG_MDP4_DSI_BORDER_CLR, 0);
 	mdp4_write(mdp4_kms, REG_MDP4_DSI_ACTIVE_VSTART, 0);
 	mdp4_write(mdp4_kms, REG_MDP4_DSI_ACTIVE_VEND, 0);
+
+	DRM_DEV_INFO(encoder->dev->dev,
+		     "HACK: MDP4 DSI mode clock=%d h=%d/%d/%d/%d v=%d/%d/%d/%d hsync=%#x vperiod=%#x vlen=%#x hctrl=%#x vstart=%#x vend=%#x pol=%#x\n",
+		     mode->clock, mode->hdisplay, mode->hsync_start,
+		     mode->hsync_end, mode->htotal, mode->vdisplay,
+		     mode->vsync_start, mode->vsync_end, mode->vtotal,
+		     mdp4_read(mdp4_kms, REG_MDP4_DSI_HSYNC_CTRL),
+		     mdp4_read(mdp4_kms, REG_MDP4_DSI_VSYNC_PERIOD),
+		     mdp4_read(mdp4_kms, REG_MDP4_DSI_VSYNC_LEN),
+		     mdp4_read(mdp4_kms, REG_MDP4_DSI_DISPLAY_HCTRL),
+		     mdp4_read(mdp4_kms, REG_MDP4_DSI_DISPLAY_VSTART),
+		     mdp4_read(mdp4_kms, REG_MDP4_DSI_DISPLAY_VEND),
+		     mdp4_read(mdp4_kms, REG_MDP4_DSI_CTRL_POLARITY));
 }
 
 static void mdp4_dsi_encoder_disable(struct drm_encoder *encoder)
@@ -123,6 +136,11 @@ static void mdp4_dsi_encoder_enable(struct drm_encoder *encoder)
 	mdp4_crtc_set_intf(encoder->crtc, INTF_DSI_VIDEO, 0);
 
 	mdp4_write(mdp4_kms, REG_MDP4_DSI_ENABLE, 1);
+
+	DRM_DEV_INFO(encoder->dev->dev,
+		     "HACK: MDP4 DSI enable reg=%#x irqmask=%#x\n",
+		     mdp4_read(mdp4_kms, REG_MDP4_DSI_ENABLE),
+		     mdp4_kms->base.cur_irq_mask);
 
 	mdp4_dsi_encoder->enabled = true;
 }
