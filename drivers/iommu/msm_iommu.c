@@ -272,14 +272,17 @@ static void __reset_context(void __iomem *base, int ctx)
 	SET_TLBLKCR(base, ctx, 0);
 }
 
-static void __program_context(void __iomem *base, int ctx,
-			      struct msm_priv *priv)
+static void __program_context(void __iomem *base, int ctx, struct msm_priv *priv,
+			      struct device *dev)
 {
+	dev_info(dev, "HACK: program_context ctx=%d reset\n", ctx);
 	__reset_context(base, ctx);
+	dev_info(dev, "HACK: program_context ctx=%d reset done\n", ctx);
 
 	/* Turn on TEX Remap */
 	SET_TRE(base, ctx, 1);
 	SET_AFE(base, ctx, 1);
+	dev_info(dev, "HACK: program_context ctx=%d tex remap done\n", ctx);
 
 	/* Set up HTW mode */
 	/* TLB miss configuration: perform HTW on miss */
@@ -287,17 +290,24 @@ static void __program_context(void __iomem *base, int ctx,
 
 	/* V2P configuration: HTW for access */
 	SET_V2PCFG(base, ctx, 0x3);
+	dev_info(dev, "HACK: program_context ctx=%d htw done\n", ctx);
 
 	SET_TTBCR(base, ctx, priv->cfg.arm_v7s_cfg.tcr);
 	SET_TTBR0(base, ctx, priv->cfg.arm_v7s_cfg.ttbr);
 	SET_TTBR1(base, ctx, 0);
+	dev_info(dev, "HACK: program_context ctx=%d ttbr=%#x tcr=%#x\n",
+		 ctx, priv->cfg.arm_v7s_cfg.ttbr, priv->cfg.arm_v7s_cfg.tcr);
 
 	/* Set prrr and nmrr */
 	SET_PRRR(base, ctx, priv->cfg.arm_v7s_cfg.prrr);
 	SET_NMRR(base, ctx, priv->cfg.arm_v7s_cfg.nmrr);
+	dev_info(dev, "HACK: program_context ctx=%d prrr=%#x nmrr=%#x\n",
+		 ctx, priv->cfg.arm_v7s_cfg.prrr, priv->cfg.arm_v7s_cfg.nmrr);
 
 	/* Invalidate the TLB for this context */
+	dev_info(dev, "HACK: program_context ctx=%d before tlbiall\n", ctx);
 	SET_CTX_TLBIALL(base, ctx, 0);
+	dev_info(dev, "HACK: program_context ctx=%d after tlbiall\n", ctx);
 
 	/* Set interrupt number to "secure" interrupt */
 	SET_IRPTNDX(base, ctx, 0);
@@ -315,9 +325,13 @@ static void __program_context(void __iomem *base, int ctx,
 
 	/* Turn on BFB prefetch */
 	SET_BFBDFE(base, ctx, 1);
+	dev_info(dev, "HACK: program_context ctx=%d before enable sctlr=%#x\n",
+		 ctx, GET_SCTLR(base, ctx));
 
 	/* Enable the MMU */
 	SET_M(base, ctx, 1);
+	dev_info(dev, "HACK: program_context ctx=%d enabled sctlr=%#x\n",
+		 ctx, GET_SCTLR(base, ctx));
 }
 
 /* Must be called under msm_iommu_lock */
@@ -413,8 +427,11 @@ static int msm_iommu_domain_config(struct msm_priv *priv,
 				   struct msm_iommu_dev *iommu,
 				   struct device *dev)
 {
-	if (priv->iop)
+	if (priv->iop) {
+		dev_info(dev, "HACK: domain_config reuse iommu=%s\n",
+			 dev_name(iommu->dev));
 		return 0;
+	}
 
 	priv->cfg = (struct io_pgtable_cfg) {
 		.pgsize_bitmap = priv->domain.pgsize_bitmap,
@@ -424,11 +441,16 @@ static int msm_iommu_domain_config(struct msm_priv *priv,
 		.iommu_dev = iommu->dev,
 	};
 
+	dev_info(dev, "HACK: domain_config alloc iommu=%s pgsizes=%#lx\n",
+		 dev_name(iommu->dev), priv->domain.pgsize_bitmap);
 	priv->iop = alloc_io_pgtable_ops(ARM_V7S, &priv->cfg, priv);
 	if (!priv->iop) {
 		dev_err(dev, "Failed to allocate pgtable\n");
 		return -EINVAL;
 	}
+	dev_info(dev, "HACK: domain_config done ttbr=%#x tcr=%#x prrr=%#x nmrr=%#x\n",
+		 priv->cfg.arm_v7s_cfg.ttbr, priv->cfg.arm_v7s_cfg.tcr,
+		 priv->cfg.arm_v7s_cfg.prrr, priv->cfg.arm_v7s_cfg.nmrr);
 
 	return 0;
 }
@@ -474,13 +496,22 @@ static int msm_iommu_attach_iommu(struct msm_priv *priv,
 		return -EEXIST;
 	}
 
+	dev_info(dev, "HACK: attach_iommu entry iommu=%s ncb=%d mids=%d\n",
+		 dev_name(iommu->dev), iommu->ncb, master->num_mids);
 	attached = kzalloc_obj(*attached, GFP_ATOMIC);
 	if (!attached)
 		return -ENOMEM;
 
+	dev_info(dev, "HACK: attach_iommu before enable clocks iommu=%s\n",
+		 dev_name(iommu->dev));
 	ret = __enable_clocks(iommu);
-	if (ret)
+	if (ret) {
+		dev_info(dev, "HACK: attach_iommu enable clocks ret=%d iommu=%s\n",
+			 ret, dev_name(iommu->dev));
 		goto err_free;
+	}
+	dev_info(dev, "HACK: attach_iommu clocks enabled iommu=%s\n",
+		 dev_name(iommu->dev));
 
 	ctx = msm_iommu_alloc_ctx(iommu->context_map, 0, iommu->ncb);
 	if (ctx < 0) {
@@ -489,9 +520,17 @@ static int msm_iommu_attach_iommu(struct msm_priv *priv,
 	}
 
 	master->num = ctx;
+	dev_info(dev, "HACK: attach_iommu ctx=%d before config_mids iommu=%s\n",
+		 ctx, dev_name(iommu->dev));
 	config_mids(iommu, master);
-	__program_context(iommu->base, master->num, priv);
+	dev_info(dev, "HACK: attach_iommu ctx=%d after config_mids iommu=%s\n",
+		 ctx, dev_name(iommu->dev));
+	__program_context(iommu->base, master->num, priv, dev);
+	dev_info(dev, "HACK: attach_iommu ctx=%d before disable clocks iommu=%s\n",
+		 ctx, dev_name(iommu->dev));
 	__disable_clocks(iommu);
+	dev_info(dev, "HACK: attach_iommu ctx=%d clocks disabled iommu=%s\n",
+		 ctx, dev_name(iommu->dev));
 
 	attached->iommu = iommu;
 	attached->master = master;
@@ -538,7 +577,10 @@ static int msm_iommu_attach_dev(struct iommu_domain *domain, struct device *dev,
 	if (!iommu)
 		return -ENODEV;
 
+	dev_info(dev, "HACK: attach_dev entry domain=%p old=%p first_iommu=%s\n",
+		 domain, old, dev_name(iommu->dev));
 	ret = msm_iommu_domain_config(priv, iommu, dev);
+	dev_info(dev, "HACK: attach_dev domain_config ret=%d\n", ret);
 	if (ret)
 		return ret;
 
@@ -548,7 +590,11 @@ static int msm_iommu_attach_dev(struct iommu_domain *domain, struct device *dev,
 		if (!master)
 			continue;
 
+		dev_info(dev, "HACK: attach_dev found master iommu=%s mids=%d\n",
+			 dev_name(iommu->dev), master->num_mids);
 		ret = msm_iommu_attach_iommu(priv, iommu, master, dev);
+		dev_info(dev, "HACK: attach_dev attach_iommu ret=%d iommu=%s\n",
+			 ret, dev_name(iommu->dev));
 		if (ret) {
 			msm_iommu_detach_dev(priv, dev, true);
 			break;
@@ -561,6 +607,7 @@ static int msm_iommu_attach_dev(struct iommu_domain *domain, struct device *dev,
 		ret = -ENODEV;
 	spin_unlock_irqrestore(&msm_iommu_lock, flags);
 
+	dev_info(dev, "HACK: attach_dev exit ret=%d attached=%d\n", ret, attached);
 	return ret;
 }
 
@@ -722,6 +769,8 @@ static int insert_iommu_master(struct device *dev,
 		master->of_node = dev->of_node;
 		master->num = -1;
 		list_add(&master->list, &(*iommu)->ctx_list);
+		dev_info(dev, "HACK: of_xlate new master iommu=%s\n",
+			 dev_name((*iommu)->dev));
 	}
 
 	for (sid = 0; sid < master->num_mids; sid++)
@@ -737,6 +786,8 @@ static int insert_iommu_master(struct device *dev,
 	}
 
 	master->mids[master->num_mids++] = spec->args[0];
+	dev_info(dev, "HACK: of_xlate add sid=0x%x iommu=%s mids=%d\n",
+		 spec->args[0], dev_name((*iommu)->dev), master->num_mids);
 	return 0;
 }
 
@@ -747,6 +798,9 @@ static int qcom_iommu_of_xlate(struct device *dev,
 	unsigned long flags;
 	int ret = 0;
 
+	dev_info(dev, "HACK: of_xlate entry np=%pOF args=%d sid=0x%x\n",
+		 spec->np, spec->args_count,
+		 spec->args_count ? spec->args[0] : 0);
 	spin_lock_irqsave(&msm_iommu_lock, flags);
 	list_for_each_entry(iter, &qcom_iommu_devices, dev_node) {
 		if (iter->dev->of_node == spec->np) {
@@ -763,6 +817,7 @@ static int qcom_iommu_of_xlate(struct device *dev,
 	ret = insert_iommu_master(dev, &iommu, spec);
 fail:
 	spin_unlock_irqrestore(&msm_iommu_lock, flags);
+	dev_info(dev, "HACK: of_xlate exit ret=%d np=%pOF\n", ret, spec->np);
 
 	return ret;
 }
@@ -828,10 +883,11 @@ static struct iommu_ops msm_iommu_ops = {
 static int msm_iommu_probe(struct platform_device *pdev)
 {
 	struct resource *r;
-	resource_size_t ioaddr;
+	resource_size_t ioaddr, iosize;
 	struct msm_iommu_dev *iommu;
 	int ret, par, val;
 
+	dev_info(&pdev->dev, "HACK: probe entry\n");
 	iommu = devm_kzalloc(&pdev->dev, sizeof(*iommu), GFP_KERNEL);
 	if (!iommu)
 		return -ENODEV;
@@ -843,11 +899,13 @@ static int msm_iommu_probe(struct platform_device *pdev)
 	if (IS_ERR(iommu->pclk))
 		return dev_err_probe(iommu->dev, PTR_ERR(iommu->pclk),
 				     "could not get smmu_pclk\n");
+	dev_info(iommu->dev, "HACK: probe got smmu_pclk\n");
 
 	iommu->clk = devm_clk_get_prepared(iommu->dev, "iommu_clk");
 	if (IS_ERR(iommu->clk))
 		return dev_err_probe(iommu->dev, PTR_ERR(iommu->clk),
 				     "could not get iommu_clk\n");
+	dev_info(iommu->dev, "HACK: probe got iommu_clk\n");
 
 	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	iommu->base = devm_ioremap_resource(iommu->dev, r);
@@ -856,10 +914,14 @@ static int msm_iommu_probe(struct platform_device *pdev)
 		return ret;
 	}
 	ioaddr = r->start;
+	iosize = resource_size(r);
+	dev_info(iommu->dev, "HACK: probe mapped resource %pa size=%pa\n",
+		 &ioaddr, &iosize);
 
 	iommu->irq = platform_get_irq(pdev, 0);
 	if (iommu->irq < 0)
 		return -ENODEV;
+	dev_info(iommu->dev, "HACK: probe irq=%d\n", iommu->irq);
 
 	ret = of_property_read_u32(iommu->dev->of_node, "qcom,ncb", &val);
 	if (ret) {
@@ -867,23 +929,32 @@ static int msm_iommu_probe(struct platform_device *pdev)
 		return ret;
 	}
 	iommu->ncb = val;
+	dev_info(iommu->dev, "HACK: probe ncb=%d before enable clocks\n",
+		 iommu->ncb);
 
 	ret = __enable_clocks(iommu);
 	if (ret)
 		return dev_err_probe(iommu->dev, ret,
 				     "could not enable clocks\n");
+	dev_info(iommu->dev, "HACK: probe clocks enabled\n");
 
+	dev_info(iommu->dev, "HACK: probe before reset\n");
 	msm_iommu_reset(iommu->base, iommu->ncb);
+	dev_info(iommu->dev, "HACK: probe after reset\n");
 	SET_M(iommu->base, 0, 1);
 	SET_PAR(iommu->base, 0, 0);
 	SET_V2PCFG(iommu->base, 0, 1);
 	SET_V2PPR(iommu->base, 0, 0);
 	mb();
+	dev_info(iommu->dev, "HACK: probe before PAR read\n");
 	par = GET_PAR(iommu->base, 0);
+	dev_info(iommu->dev, "HACK: probe PAR=%#x\n", par);
 	SET_V2PCFG(iommu->base, 0, 0);
 	SET_M(iommu->base, 0, 0);
 	mb();
+	dev_info(iommu->dev, "HACK: probe before disable clocks\n");
 	__disable_clocks(iommu);
+	dev_info(iommu->dev, "HACK: probe clocks disabled\n");
 
 	if (!par) {
 		dev_err(iommu->dev, "Invalid PAR value detected\n");
@@ -899,8 +970,10 @@ static int msm_iommu_probe(struct platform_device *pdev)
 		pr_err("Request IRQ %d failed with ret=%d\n", iommu->irq, ret);
 		return ret;
 	}
+	dev_info(iommu->dev, "HACK: probe irq requested\n");
 
 	list_add(&iommu->dev_node, &qcom_iommu_devices);
+	dev_info(iommu->dev, "HACK: probe added to device list\n");
 
 	ret = iommu_device_sysfs_add(&iommu->iommu, iommu->dev, NULL,
 				     "msm-smmu.%pa", &ioaddr);
@@ -908,12 +981,15 @@ static int msm_iommu_probe(struct platform_device *pdev)
 		pr_err("Could not add msm-smmu at %pa to sysfs\n", &ioaddr);
 		return ret;
 	}
+	dev_info(iommu->dev, "HACK: probe sysfs added\n");
 
+	dev_info(iommu->dev, "HACK: probe before iommu_device_register\n");
 	ret = iommu_device_register(&iommu->iommu, &msm_iommu_ops, &pdev->dev);
 	if (ret) {
 		pr_err("Could not register msm-smmu at %pa\n", &ioaddr);
 		return ret;
 	}
+	dev_info(iommu->dev, "HACK: probe after iommu_device_register\n");
 
 	pr_info("device mapped at %p, irq %d with %d ctx banks\n",
 		iommu->base, iommu->irq, iommu->ncb);
