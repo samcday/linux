@@ -11,12 +11,43 @@
 	chassis-type = "handset";
 
 	aliases {
+		display0 = &mdp;
 		mmc0 = &sdcc1;
 		serial0 = &gsbi5_serial;
 	};
 
 	chosen {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		ranges;
+
 		stdout-path = "serial0:115200n8";
+
+		framebuffer0: framebuffer@80400000 {
+			compatible = "simple-framebuffer";
+			reg = <0x80400000 0x00177000>;
+			width = <480>;
+			height = <800>;
+			stride = <1920>;
+			format = "a8r8g8b8";
+			clocks = <&mmcc MDP_CLK>,
+				 <&mmcc MDP_AHB_CLK>,
+				 <&mmcc MDP_AXI_CLK>,
+				 <&mmcc MDP_LUT_CLK>,
+				 <&mmcc MDP_VSYNC_CLK>,
+				 <&mmcc DSI_M_AHB_CLK>,
+				 <&mmcc DSI_S_AHB_CLK>,
+				 <&mmcc AMP_AHB_CLK>,
+				 <&mmcc DSI_CLK>,
+				 <&mmcc DSI1_BYTE_CLK>,
+				 <&mmcc DSI_PIXEL_CLK>,
+				 <&mmcc DSI1_ESC_CLK>;
+			power-domains = <&mmcc MDP_PD>;
+			vdda-supply = <&pm8038_l2>;
+			avdd-supply = <&pm8038_l8>;
+			vddio-supply = <&pm8038_l11>;
+			display = <&mdp>;
+		};
 	};
 
 	memory@80200000 {
@@ -168,7 +199,7 @@
 	vddio-supply = <&pm8038_l11>;
 	status = "okay";
 
-	panel@0 {
+	panel: panel@0 {
 		compatible = "nokia,teisko";
 		reg = <0>;
 
