@@ -1,3 +1,7 @@
+* Tue May 26 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.1.0-0.rc5.e8c2f9fdadee.35]
+- Linux v7.1.0-0.rc5.e8c2f9fdadee
+Resolves: 
+
 * Mon May 25 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.1.0-0.rc5.34]
 - Enable the drm/accel/qaic driver module for x86 in rhel config. (John Wiele)
 - Update rhel drm/accel configs to match centos-stream-10. (John Wiele)
