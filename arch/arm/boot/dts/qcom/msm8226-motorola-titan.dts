@@ -17,6 +17,7 @@
 
 	aliases {
 		mmc0 = &sdhc_1; /* eMMC */
+		mmc1 = &sdhc_2; /* SD card */
 	};
 
 	chosen {
@@ -248,6 +249,8 @@
 		pm8226_l18: l18 {
 			regulator-min-microvolt = <2950000>;
 			regulator-max-microvolt = <2950000>;
+			regulator-system-load = <200000>;
+			regulator-allow-set-load;
 		};
 
 		pm8226_l19: l19 {
@@ -318,6 +321,17 @@
 	status = "okay";
 };
 
+&sdhc_2 {
+	vmmc-supply = <&pm8226_l18>;
+	vqmmc-supply = <&pm8226_l21>;
+	pinctrl-0 = <&sdhc2_default_state &sdhc2_cd_default>;
+	pinctrl-names = "default";
+	cd-gpios = <&tlmm 38 GPIO_ACTIVE_LOW>;
+	bus-width = <4>;
+
+	status = "okay";
+};
+
 &smbb {
 	qcom,fast-charge-safe-current = <2000000>;
 	qcom,fast-charge-current-limit = <1900000>;
@@ -347,5 +361,12 @@
 		drive-strength = <2>;
 		bias-disable;
 		output-high;
+	};
+
+	sdhc2_cd_default: sdhc2-cd-default-state {
+		pins = "gpio38";
+		function = "gpio";
+		drive-strength = <2>;
+		bias-pull-up;
 	};
 };
