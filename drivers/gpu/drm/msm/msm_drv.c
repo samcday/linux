@@ -175,16 +175,23 @@ static int msm_drm_init(struct device *dev, const struct drm_driver *drv,
 			goto err_msm_uninit;
 	}
 
+	DRM_DEV_INFO(dev, "HACK: msm_drm_init before drm_dev_register");
 	ret = drm_dev_register(ddev, 0);
+	DRM_DEV_INFO(dev, "HACK: msm_drm_init after drm_dev_register ret=%d", ret);
 	if (ret)
 		goto err_msm_uninit;
 
+	DRM_DEV_INFO(dev, "HACK: msm_drm_init before debugfs late init");
 	ret = msm_debugfs_late_init(ddev);
+	DRM_DEV_INFO(dev, "HACK: msm_drm_init after debugfs late init ret=%d", ret);
 	if (ret)
 		goto err_msm_uninit;
 
-	if (priv->kms_init)
+	if (priv->kms_init) {
+		DRM_DEV_INFO(dev, "HACK: msm_drm_init before kms post init");
 		msm_drm_kms_post_init(dev);
+		DRM_DEV_INFO(dev, "HACK: msm_drm_init after kms post init");
+	}
 
 	return 0;
 
@@ -208,12 +215,17 @@ static void load_gpu(struct drm_device *dev)
 	static DEFINE_MUTEX(init_lock);
 	struct msm_drm_private *priv = dev->dev_private;
 
+	DRM_DEV_INFO(dev->dev, "HACK: load_gpu entry gpu=%p gpu_pdev=%p",
+		     priv->gpu, priv->gpu_pdev);
+
 	mutex_lock(&init_lock);
 
 	if (!priv->gpu)
 		priv->gpu = adreno_load_gpu(dev);
 
 	mutex_unlock(&init_lock);
+
+	DRM_DEV_INFO(dev->dev, "HACK: load_gpu exit gpu=%p", priv->gpu);
 }
 
 /**
@@ -252,6 +264,9 @@ static int context_init(struct drm_device *dev, struct drm_file *file)
 {
 	static atomic_t ident = ATOMIC_INIT(0);
 	struct msm_context *ctx;
+	int ret;
+
+	DRM_DEV_INFO(dev->dev, "HACK: context_init entry");
 
 	ctx = kzalloc_obj(*ctx);
 	if (!ctx)
@@ -261,23 +276,34 @@ static int context_init(struct drm_device *dev, struct drm_file *file)
 	rwlock_init(&ctx->queuelock);
 
 	kref_init(&ctx->ref);
-	msm_submitqueue_init(dev, ctx);
+	ret = msm_submitqueue_init(dev, ctx);
+	DRM_DEV_INFO(dev->dev, "HACK: context_init submitqueue ret=%d", ret);
 
 	file->driver_priv = ctx;
 
 	ctx->seqno = atomic_inc_return(&ident);
+
+	DRM_DEV_INFO(dev->dev, "HACK: context_init exit seqno=%u", ctx->seqno);
 
 	return 0;
 }
 
 static int msm_open(struct drm_device *dev, struct drm_file *file)
 {
+	int ret;
+
+	DRM_DEV_INFO(dev->dev, "HACK: msm_open entry");
+
 	/* For now, load gpu on open.. to avoid the requirement of having
 	 * firmware in the initrd.
 	 */
 	load_gpu(dev);
 
-	return context_init(dev, file);
+	DRM_DEV_INFO(dev->dev, "HACK: msm_open before context_init");
+	ret = context_init(dev, file);
+	DRM_DEV_INFO(dev->dev, "HACK: msm_open after context_init ret=%d", ret);
+
+	return ret;
 }
 
 static void context_close(struct msm_context *ctx)

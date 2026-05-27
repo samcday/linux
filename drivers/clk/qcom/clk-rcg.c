@@ -572,7 +572,7 @@ static int clk_rcg_bypass2_set_rate(struct clk_hw *hw, unsigned long rate,
 		return ret;
 
 	src = ns_to_src(&rcg->s, ns);
-	f.pre_div = ns_to_pre_div(&rcg->p, ns) + 1;
+	f.pre_div = 1;
 
 	for (i = 0; i < num_parents; i++) {
 		if (src == rcg->s.parent_map[i].cfg) {

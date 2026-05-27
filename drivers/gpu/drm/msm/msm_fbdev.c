@@ -98,6 +98,12 @@ int msm_fbdev_driver_fbdev_probe(struct drm_fb_helper *helper,
 	uint32_t format;
 	int ret, pitch;
 
+	DRM_DEV_INFO(dev->dev,
+		     "HACK: fbdev_probe entry surface=%ux%u fb=%ux%u bpp=%u depth=%u",
+		     sizes->surface_width, sizes->surface_height,
+		     sizes->fb_width, sizes->fb_height,
+		     sizes->surface_bpp, sizes->surface_depth);
+
 	format = drm_mode_legacy_fb_format(sizes->surface_bpp, sizes->surface_depth);
 
 	DBG("create fbdev: %dx%d@%d (%dx%d)", sizes->surface_width,
@@ -105,6 +111,8 @@ int msm_fbdev_driver_fbdev_probe(struct drm_fb_helper *helper,
 			sizes->fb_width, sizes->fb_height);
 
 	pitch = align_pitch(sizes->surface_width, sizes->surface_bpp);
+	DRM_DEV_INFO(dev->dev, "HACK: fbdev_probe before alloc pitch=%d format=0x%x",
+		     pitch, format);
 	fb = msm_alloc_stolen_fb(dev, sizes->surface_width,
 			sizes->surface_height, pitch, format);
 
@@ -112,6 +120,7 @@ int msm_fbdev_driver_fbdev_probe(struct drm_fb_helper *helper,
 		DRM_DEV_ERROR(dev->dev, "failed to allocate fb\n");
 		return PTR_ERR(fb);
 	}
+	DRM_DEV_INFO(dev->dev, "HACK: fbdev_probe after alloc fb=%p", fb);
 
 	bo = msm_framebuffer_bo(fb, 0);
 
@@ -120,7 +129,10 @@ int msm_fbdev_driver_fbdev_probe(struct drm_fb_helper *helper,
 	 * in panic (ie. lock-safe, etc) we could avoid pinning the
 	 * buffer now:
 	 */
+	DRM_DEV_INFO(dev->dev, "HACK: fbdev_probe before pin_iova");
 	ret = msm_gem_get_and_pin_iova(bo, priv->kms->vm, &paddr);
+	DRM_DEV_INFO(dev->dev, "HACK: fbdev_probe after pin_iova ret=%d paddr=0x%llx",
+		     ret, paddr);
 	if (ret) {
 		DRM_DEV_ERROR(dev->dev, "failed to get buffer obj iova: %d\n", ret);
 		goto fail;
@@ -133,9 +145,14 @@ int msm_fbdev_driver_fbdev_probe(struct drm_fb_helper *helper,
 
 	fbi->fbops = &msm_fb_ops;
 
+	DRM_DEV_INFO(dev->dev, "HACK: fbdev_probe before fill_info");
 	drm_fb_helper_fill_info(fbi, helper, sizes);
+	DRM_DEV_INFO(dev->dev, "HACK: fbdev_probe after fill_info");
 
+	DRM_DEV_INFO(dev->dev, "HACK: fbdev_probe before get_vaddr");
 	fbi->screen_buffer = msm_gem_get_vaddr(bo);
+	DRM_DEV_INFO(dev->dev, "HACK: fbdev_probe after get_vaddr screen=%p",
+		     fbi->screen_buffer);
 	if (IS_ERR(fbi->screen_buffer)) {
 		ret = PTR_ERR(fbi->screen_buffer);
 		goto fail;
@@ -147,9 +164,13 @@ int msm_fbdev_driver_fbdev_probe(struct drm_fb_helper *helper,
 	DBG("par=%p, %dx%d", fbi->par, fbi->var.xres, fbi->var.yres);
 	DBG("allocated %dx%d fb", fb->width, fb->height);
 
+	DRM_DEV_INFO(dev->dev, "HACK: fbdev_probe exit smem=0x%lx len=%u",
+		     fbi->fix.smem_start, fbi->fix.smem_len);
+
 	return 0;
 
 fail:
+	DRM_DEV_INFO(dev->dev, "HACK: fbdev_probe fail ret=%d", ret);
 	drm_framebuffer_remove(fb);
 	return ret;
 }

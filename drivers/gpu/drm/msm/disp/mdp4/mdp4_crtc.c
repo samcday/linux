@@ -65,6 +65,42 @@ static struct mdp4_kms *get_kms(struct drm_crtc *crtc)
 	return to_mdp4_kms(to_mdp_kms(priv->kms));
 }
 
+static void mdp4_crtc_dump_state(struct drm_crtc *crtc, const char *tag)
+{
+	struct drm_device *dev = crtc->dev;
+	struct mdp4_crtc *mdp4_crtc = to_mdp4_crtc(crtc);
+	struct mdp4_kms *mdp4_kms = get_kms(crtc);
+	enum mdp4_dma dma = mdp4_crtc->dma;
+
+	dev_warn(dev->dev,
+		 "HACK: MDP4 %s crtc=%s dma=%d flushed=%#x flush=%#x irq_en=%#x irq_status=%#x intf_sel=%#x dsi_en=%#x dma_cfg=%#x dma_src_size=%#x dma_src_base=%#x dma_src_stride=%#x dma_dst_size=%#x dma_p_op=%#x\n",
+		 tag, mdp4_crtc->base.name, dma, mdp4_crtc->flushed_mask,
+		 mdp4_read(mdp4_kms, REG_MDP4_OVERLAY_FLUSH),
+		 mdp4_read(mdp4_kms, REG_MDP4_INTR_ENABLE),
+		 mdp4_read(mdp4_kms, REG_MDP4_INTR_STATUS),
+		 mdp4_read(mdp4_kms, REG_MDP4_DISP_INTF_SEL),
+		 mdp4_read(mdp4_kms, REG_MDP4_DSI_ENABLE),
+		 mdp4_read(mdp4_kms, REG_MDP4_DMA_CONFIG(dma)),
+		 mdp4_read(mdp4_kms, REG_MDP4_DMA_SRC_SIZE(dma)),
+		 mdp4_read(mdp4_kms, REG_MDP4_DMA_SRC_BASE(dma)),
+		 mdp4_read(mdp4_kms, REG_MDP4_DMA_SRC_STRIDE(dma)),
+		 mdp4_read(mdp4_kms, REG_MDP4_DMA_DST_SIZE(dma)),
+		 mdp4_read(mdp4_kms, REG_MDP4_DMA_P_OP_MODE));
+	dev_warn(dev->dev,
+		 "HACK: MDP4 %s dsi hsync=%#x vperiod=%#x vlen=%#x hctrl=%#x vstart=%#x vend=%#x active_h=%#x active_vs=%#x active_ve=%#x underflow=%#x polarity=%#x\n",
+		 tag, mdp4_read(mdp4_kms, REG_MDP4_DSI_HSYNC_CTRL),
+		 mdp4_read(mdp4_kms, REG_MDP4_DSI_VSYNC_PERIOD),
+		 mdp4_read(mdp4_kms, REG_MDP4_DSI_VSYNC_LEN),
+		 mdp4_read(mdp4_kms, REG_MDP4_DSI_DISPLAY_HCTRL),
+		 mdp4_read(mdp4_kms, REG_MDP4_DSI_DISPLAY_VSTART),
+		 mdp4_read(mdp4_kms, REG_MDP4_DSI_DISPLAY_VEND),
+		 mdp4_read(mdp4_kms, REG_MDP4_DSI_ACTIVE_HCTL),
+		 mdp4_read(mdp4_kms, REG_MDP4_DSI_ACTIVE_VSTART),
+		 mdp4_read(mdp4_kms, REG_MDP4_DSI_ACTIVE_VEND),
+		 mdp4_read(mdp4_kms, REG_MDP4_DSI_UNDERFLOW_CLR),
+		 mdp4_read(mdp4_kms, REG_MDP4_DSI_CTRL_POLARITY));
+}
+
 static void request_pending(struct drm_crtc *crtc, uint32_t pending)
 {
 	struct mdp4_crtc *mdp4_crtc = to_mdp4_crtc(crtc);
@@ -77,6 +113,7 @@ static void crtc_flush(struct drm_crtc *crtc)
 {
 	struct mdp4_crtc *mdp4_crtc = to_mdp4_crtc(crtc);
 	struct mdp4_kms *mdp4_kms = get_kms(crtc);
+	struct drm_device *dev = crtc->dev;
 	struct drm_plane *plane;
 	uint32_t flush = 0;
 
@@ -92,6 +129,14 @@ static void crtc_flush(struct drm_crtc *crtc)
 	mdp4_crtc->flushed_mask = flush;
 
 	mdp4_write(mdp4_kms, REG_MDP4_OVERLAY_FLUSH, flush);
+	dev_info(dev->dev,
+		 "HACK: MDP4 flush crtc=%s mask=%#x now=%#x irq_en=%#x irq_status=%#x intf_sel=%#x dsi_en=%#x\n",
+		 mdp4_crtc->base.name, flush,
+		 mdp4_read(mdp4_kms, REG_MDP4_OVERLAY_FLUSH),
+		 mdp4_read(mdp4_kms, REG_MDP4_INTR_ENABLE),
+		 mdp4_read(mdp4_kms, REG_MDP4_INTR_STATUS),
+		 mdp4_read(mdp4_kms, REG_MDP4_DISP_INTF_SEL),
+		 mdp4_read(mdp4_kms, REG_MDP4_DSI_ENABLE));
 }
 
 /* if file!=NULL, this is preclose potential cancel-flip path */
@@ -245,7 +290,7 @@ static void mdp4_crtc_mode_set_nofb(struct drm_crtc *crtc)
 			MDP4_OVLP_SIZE_HEIGHT(mode->vdisplay));
 	mdp4_write(mdp4_kms, REG_MDP4_OVLP_STRIDE(ovlp), 0);
 
-	mdp4_write(mdp4_kms, REG_MDP4_OVLP_CFG(ovlp), 1);
+	mdp4_write(mdp4_kms, REG_MDP4_OVLP_CFG(ovlp), 3);
 
 	if (dma == DMA_E) {
 		mdp4_write(mdp4_kms, REG_MDP4_DMA_E_QUANT(0), 0x00ff0000);
@@ -538,8 +583,10 @@ static void mdp4_crtc_wait_for_flush_done(struct drm_crtc *crtc)
 		!(mdp4_read(mdp4_kms, REG_MDP4_OVERLAY_FLUSH) &
 			mdp4_crtc->flushed_mask),
 		msecs_to_jiffies(50));
-	if (ret <= 0)
+	if (ret <= 0) {
 		dev_warn(dev->dev, "vblank time out, crtc=%s\n", mdp4_crtc->base.name);
+		mdp4_crtc_dump_state(crtc, "flush timeout");
+	}
 
 	mdp4_crtc->flushed_mask = 0;
 

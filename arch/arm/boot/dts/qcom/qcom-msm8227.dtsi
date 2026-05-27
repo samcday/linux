@@ -342,9 +342,27 @@
 				      "pxo";
 			#clock-cells = <0>;
 			iommus = <&mdp_port0 0>,
+				 <&mdp_port0 1>,
 				 <&mdp_port0 2>,
+				 <&mdp_port0 3>,
+				 <&mdp_port0 4>,
+				 <&mdp_port0 5>,
+				 <&mdp_port0 6>,
+				 <&mdp_port0 7>,
+				 <&mdp_port0 8>,
+				 <&mdp_port0 9>,
+				 <&mdp_port0 10>,
 				 <&mdp_port1 0>,
-				 <&mdp_port1 2>;
+				 <&mdp_port1 1>,
+				 <&mdp_port1 2>,
+				 <&mdp_port1 3>,
+				 <&mdp_port1 4>,
+				 <&mdp_port1 5>,
+				 <&mdp_port1 6>,
+				 <&mdp_port1 7>,
+				 <&mdp_port1 8>,
+				 <&mdp_port1 9>,
+				 <&mdp_port1 10>;
 
 			status = "disabled";
 

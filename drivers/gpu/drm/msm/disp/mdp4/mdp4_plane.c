@@ -197,6 +197,8 @@ static int mdp4_plane_mode_set(struct drm_plane *plane,
 	struct mdp4_kms *mdp4_kms = get_kms(plane);
 	enum mdp4_pipe pipe = mdp4_plane->pipe;
 	const struct msm_format *format;
+	uint64_t iova;
+	uint32_t src_format;
 	uint32_t op_mode = 0;
 	uint32_t phasex_step = MDP4_VG_PHASE_STEP_DEFAULT;
 	uint32_t phasey_step = MDP4_VG_PHASE_STEP_DEFAULT;
@@ -292,19 +294,20 @@ static int mdp4_plane_mode_set(struct drm_plane *plane,
 
 	mdp4_plane_set_scanout(plane, fb);
 
-	mdp4_write(mdp4_kms, REG_MDP4_PIPE_SRC_FORMAT(pipe),
-			MDP4_PIPE_SRC_FORMAT_A_BPC(format->bpc_a) |
-			MDP4_PIPE_SRC_FORMAT_R_BPC(format->bpc_r_cr) |
-			MDP4_PIPE_SRC_FORMAT_G_BPC(format->bpc_g_y) |
-			MDP4_PIPE_SRC_FORMAT_B_BPC(format->bpc_b_cb) |
-			COND(format->alpha_enable, MDP4_PIPE_SRC_FORMAT_ALPHA_ENABLE) |
-			MDP4_PIPE_SRC_FORMAT_CPP(format->bpp - 1) |
-			MDP4_PIPE_SRC_FORMAT_UNPACK_COUNT(format->unpack_count - 1) |
-			MDP4_PIPE_SRC_FORMAT_FETCH_PLANES(format->fetch_type) |
-			MDP4_PIPE_SRC_FORMAT_CHROMA_SAMP(format->chroma_sample) |
-			MDP4_PIPE_SRC_FORMAT_FRAME_FORMAT(frame_type) |
-			COND(format->flags & MSM_FORMAT_FLAG_UNPACK_TIGHT,
-			     MDP4_PIPE_SRC_FORMAT_UNPACK_TIGHT));
+	src_format = MDP4_PIPE_SRC_FORMAT_A_BPC(format->bpc_a) |
+		     MDP4_PIPE_SRC_FORMAT_R_BPC(format->bpc_r_cr) |
+		     MDP4_PIPE_SRC_FORMAT_G_BPC(format->bpc_g_y) |
+		     MDP4_PIPE_SRC_FORMAT_B_BPC(format->bpc_b_cb) |
+		     COND(format->alpha_enable, MDP4_PIPE_SRC_FORMAT_ALPHA_ENABLE) |
+		     MDP4_PIPE_SRC_FORMAT_CPP(format->bpp - 1) |
+		     MDP4_PIPE_SRC_FORMAT_UNPACK_COUNT(format->unpack_count - 1) |
+		     MDP4_PIPE_SRC_FORMAT_FETCH_PLANES(format->fetch_type) |
+		     MDP4_PIPE_SRC_FORMAT_CHROMA_SAMP(format->chroma_sample) |
+		     MDP4_PIPE_SRC_FORMAT_FRAME_FORMAT(frame_type) |
+		     COND(format->flags & MSM_FORMAT_FLAG_UNPACK_TIGHT,
+			  MDP4_PIPE_SRC_FORMAT_UNPACK_TIGHT);
+
+	mdp4_write(mdp4_kms, REG_MDP4_PIPE_SRC_FORMAT(pipe), src_format);
 
 	mdp4_write(mdp4_kms, REG_MDP4_PIPE_SRC_UNPACK(pipe),
 			MDP4_PIPE_SRC_UNPACK_ELEM0(format->element[0]) |
@@ -323,6 +326,22 @@ static int mdp4_plane_mode_set(struct drm_plane *plane,
 	mdp4_write(mdp4_kms, REG_MDP4_PIPE_OP_MODE(pipe), op_mode);
 	mdp4_write(mdp4_kms, REG_MDP4_PIPE_PHASEX_STEP(pipe), phasex_step);
 	mdp4_write(mdp4_kms, REG_MDP4_PIPE_PHASEY_STEP(pipe), phasey_step);
+	iova = msm_framebuffer_iova(fb, 0);
+	DRM_DEV_INFO(dev->dev,
+		     "HACK: MDP4 plane %s fb=%u fmt=%#x iova0=%#llx pitch=%u src=%ux%u dst=%ux%u src_base=%#x src_stride=%#x src_format=%#x unpack=%#x op=%#x fetch=%#x solid=%#x lm_update=%#x lm_cfg=%#x ovlp0_cfg=%#x\n",
+		     mdp4_plane->name, fb->base.id, fb->format->format,
+		     (unsigned long long)iova, fb->pitches[0], src_w, src_h,
+		     crtc_w, crtc_h,
+		     mdp4_read(mdp4_kms, REG_MDP4_PIPE_SRCP0_BASE(pipe)),
+		     mdp4_read(mdp4_kms, REG_MDP4_PIPE_SRC_STRIDE_A(pipe)),
+		     mdp4_read(mdp4_kms, REG_MDP4_PIPE_SRC_FORMAT(pipe)),
+		     mdp4_read(mdp4_kms, REG_MDP4_PIPE_SRC_UNPACK(pipe)),
+		     mdp4_read(mdp4_kms, REG_MDP4_PIPE_OP_MODE(pipe)),
+		     mdp4_read(mdp4_kms, REG_MDP4_PIPE_FETCH_CONFIG(pipe)),
+		     mdp4_read(mdp4_kms, REG_MDP4_PIPE_SOLID_COLOR(pipe)),
+		     mdp4_read(mdp4_kms, REG_MDP4_LAYERMIXER_IN_CFG_UPDATE_METHOD),
+		     mdp4_read(mdp4_kms, REG_MDP4_LAYERMIXER_IN_CFG),
+		     mdp4_read(mdp4_kms, REG_MDP4_OVLP_CFG(0)));
 
 	if (frame_type != FRAME_LINEAR)
 		mdp4_write(mdp4_kms, REG_MDP4_PIPE_SSTILE_FRAME_SIZE(pipe),

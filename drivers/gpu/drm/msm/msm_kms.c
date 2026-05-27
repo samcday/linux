@@ -389,6 +389,11 @@ void msm_drm_kms_post_init(struct device *dev)
 	struct msm_drm_private *priv = platform_get_drvdata(pdev);
 	struct drm_device *ddev = priv->dev;
 
+	DRM_DEV_INFO(dev, "HACK: kms_post_init entry");
+	DRM_DEV_INFO(dev, "HACK: kms_post_init before poll_init");
 	drm_kms_helper_poll_init(ddev);
+	DRM_DEV_INFO(dev, "HACK: kms_post_init after poll_init");
+	DRM_DEV_INFO(dev, "HACK: kms_post_init before drm_client_setup");
 	drm_client_setup(ddev, NULL);
+	DRM_DEV_INFO(dev, "HACK: kms_post_init after drm_client_setup");
 }

@@ -36,6 +36,13 @@ static int mdp4_hw_init(struct msm_kms *kms)
 	/* max read pending cmd config, 3 pending requests: */
 	mdp4_write(mdp4_kms, REG_MDP4_READ_CNFG, 0x02222);
 
+	DRM_DEV_INFO(dev->dev,
+		     "HACK: MDP4 hw init globals cs0=%#x cs1=%#x portmap=%#x read_cnfg=%#x\n",
+		     mdp4_read(mdp4_kms, REG_MDP4_CS_CONTROLLER0),
+		     mdp4_read(mdp4_kms, REG_MDP4_CS_CONTROLLER1),
+		     mdp4_read(mdp4_kms, REG_MDP4_PORTMAP_MODE),
+		     mdp4_read(mdp4_kms, REG_MDP4_READ_CNFG));
+
 	clk = clk_get_rate(mdp4_kms->clk);
 
 	if ((mdp4_kms->rev >= 1) || (clk >= 90000000)) {

@@ -1524,6 +1524,42 @@ int dsi_dma_base_get_v2(struct msm_dsi_host *msm_host, uint64_t *dma_base)
 	return 0;
 }
 
+static void dsi_dump_cmd_dma_state(struct msm_dsi_host *msm_host,
+				   const char *tag, int len, u64 dma_base)
+{
+	struct device *dev = &msm_host->pdev->dev;
+
+	dev_err(dev,
+		"HACK: DSI cmd %s len=%d dma=%#llx ctrl=%#x status0=%#x fifo=%#x intr=%#x cmd_dma=%#x trig_ctrl=%#x trig_dma=%#x\n",
+		tag, len, (unsigned long long)dma_base,
+		dsi_read(msm_host, REG_DSI_CTRL),
+		dsi_read(msm_host, REG_DSI_STATUS0),
+		dsi_read(msm_host, REG_DSI_FIFO_STATUS),
+		dsi_read(msm_host, REG_DSI_INTR_CTRL),
+		dsi_read(msm_host, REG_DSI_CMD_DMA_CTRL),
+		dsi_read(msm_host, REG_DSI_TRIG_CTRL),
+		dsi_read(msm_host, REG_DSI_TRIG_DMA));
+	dev_err(dev,
+		"HACK: DSI cmd %s regs dma_base=%#x dma_len=%#x clk_ctrl=%#x clk_status=%#x ack=%#x timeout=%#x dln0=%#x\n",
+		tag, dsi_read(msm_host, REG_DSI_DMA_BASE),
+		dsi_read(msm_host, REG_DSI_DMA_LEN),
+		dsi_read(msm_host, REG_DSI_CLK_CTRL),
+		dsi_read(msm_host, REG_DSI_CLK_STATUS),
+		dsi_read(msm_host, REG_DSI_ACK_ERR_STATUS),
+		dsi_read(msm_host, REG_DSI_TIMEOUT_STATUS),
+		dsi_read(msm_host, REG_DSI_DLN0_PHY_ERR));
+	dev_err(dev,
+		"HACK: DSI cmd %s lanes lane_status=%#x lane_ctrl=%#x lane_swap=%#x phy_reset=%#x vid0=%#x vid1=%#x clkout=%#x eot=%#x\n",
+		tag, dsi_read(msm_host, REG_DSI_LANE_STATUS),
+		dsi_read(msm_host, REG_DSI_LANE_CTRL),
+		dsi_read(msm_host, REG_DSI_LANE_SWAP_CTRL),
+		dsi_read(msm_host, REG_DSI_PHY_RESET),
+		dsi_read(msm_host, REG_DSI_VID_CFG0),
+		dsi_read(msm_host, REG_DSI_VID_CFG1),
+		dsi_read(msm_host, REG_DSI_CLKOUT_TIMING_CTRL),
+		dsi_read(msm_host, REG_DSI_EOT_PACKET_CTRL));
+}
+
 static int dsi_cmd_dma_tx(struct msm_dsi_host *msm_host, int len)
 {
 	const struct msm_dsi_cfg_handler *cfg_hnd = msm_host->cfg_hnd;
@@ -1547,10 +1583,13 @@ static int dsi_cmd_dma_tx(struct msm_dsi_host *msm_host, int len)
 		ret = wait_for_completion_timeout(&msm_host->dma_comp,
 					msecs_to_jiffies(200));
 		DBG("ret=%d", ret);
-		if (ret == 0)
+		if (ret == 0) {
+			dsi_dump_cmd_dma_state(msm_host, "timeout", len,
+					       dma_base);
 			ret = -ETIMEDOUT;
-		else
+		} else {
 			ret = len;
+		}
 	} else {
 		ret = len;
 	}
@@ -1781,6 +1820,14 @@ static irqreturn_t dsi_host_irq(int irq, void *ptr)
 	spin_unlock_irqrestore(&msm_host->intr_lock, flags);
 
 	DBG("isr=0x%x, id=%d", isr, msm_host->id);
+
+	if (isr & (DSI_IRQ_ERROR | DSI_IRQ_CMD_DMA_DONE))
+		dev_info(&msm_host->pdev->dev,
+			 "HACK: DSI irq isr=%#x status0=%#x fifo=%#x intr=%#x clk_status=%#x\n",
+			 isr, dsi_read(msm_host, REG_DSI_STATUS0),
+			 dsi_read(msm_host, REG_DSI_FIFO_STATUS),
+			 dsi_read(msm_host, REG_DSI_INTR_CTRL),
+			 dsi_read(msm_host, REG_DSI_CLK_STATUS));
 
 	if (isr & DSI_IRQ_ERROR)
 		dsi_error(msm_host);
@@ -2272,6 +2319,16 @@ int msm_dsi_host_xfer_prepare(struct mipi_dsi_host *host,
 		DSI_CTRL_CMD_MODE_EN |
 		DSI_CTRL_ENABLE);
 	dsi_intr_ctrl(msm_host, DSI_IRQ_MASK_CMD_DMA_DONE, 1);
+	dev_info(&msm_host->pdev->dev,
+		 "HACK: DSI xfer prepare type=%#x flags=%#x tx_len=%zu ctrl_restore=%#x ctrl=%#x intr=%#x status0=%#x cmd_dma=%#x clk_ctrl=%#x clk_status=%#x\n",
+		 msg->type, msg->flags, msg->tx_len,
+		 msm_host->dma_cmd_ctrl_restore,
+		 dsi_read(msm_host, REG_DSI_CTRL),
+		 dsi_read(msm_host, REG_DSI_INTR_CTRL),
+		 dsi_read(msm_host, REG_DSI_STATUS0),
+		 dsi_read(msm_host, REG_DSI_CMD_DMA_CTRL),
+		 dsi_read(msm_host, REG_DSI_CLK_CTRL),
+		 dsi_read(msm_host, REG_DSI_CLK_STATUS));
 
 	return 0;
 }
@@ -2448,6 +2505,14 @@ void msm_dsi_host_cmd_xfer_commit(struct mipi_dsi_host *host, u32 dma_base,
 	dsi_write(msm_host, REG_DSI_DMA_BASE, dma_base);
 	dsi_write(msm_host, REG_DSI_DMA_LEN, len);
 	dsi_write(msm_host, REG_DSI_TRIG_DMA, 1);
+	dev_info(&msm_host->pdev->dev,
+		 "HACK: DSI cmd trigger dma=%#x len=%u ctrl=%#x status0=%#x intr=%#x cmd_dma=%#x clk_status=%#x fifo=%#x\n",
+		 dma_base, len, dsi_read(msm_host, REG_DSI_CTRL),
+		 dsi_read(msm_host, REG_DSI_STATUS0),
+		 dsi_read(msm_host, REG_DSI_INTR_CTRL),
+		 dsi_read(msm_host, REG_DSI_CMD_DMA_CTRL),
+		 dsi_read(msm_host, REG_DSI_CLK_STATUS),
+		 dsi_read(msm_host, REG_DSI_FIFO_STATUS));
 
 	/* Make sure trigger happens */
 	wmb();

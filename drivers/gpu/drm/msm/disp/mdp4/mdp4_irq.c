@@ -81,6 +81,13 @@ irqreturn_t mdp4_irq(struct msm_kms *kms)
 	mdp4_write(mdp4_kms, REG_MDP4_INTR_CLEAR, status);
 
 	VERB("status=%08x", status);
+	if (status)
+		dev_info_ratelimited(dev->dev,
+				     "HACK: MDP4 irq status=%#x enable=%#x flush=%#x intf_sel=%#x dsi_en=%#x\n",
+				     status, enable,
+				     mdp4_read(mdp4_kms, REG_MDP4_OVERLAY_FLUSH),
+				     mdp4_read(mdp4_kms, REG_MDP4_DISP_INTF_SEL),
+				     mdp4_read(mdp4_kms, REG_MDP4_DSI_ENABLE));
 
 	mdp_dispatch_irqs(mdp_kms, status);
 

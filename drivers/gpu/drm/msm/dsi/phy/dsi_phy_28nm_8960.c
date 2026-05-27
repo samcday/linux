@@ -120,6 +120,25 @@ static bool pll_28nm_poll_for_ready(struct dsi_pll_28nm *pll_28nm,
 	return pll_locked;
 }
 
+static void dsi_pll_28nm_dump(struct dsi_pll_28nm *pll_28nm, const char *tag)
+{
+	struct device *dev = &pll_28nm->phy->pdev->dev;
+	void __iomem *base = pll_28nm->phy->pll_base;
+
+	DRM_DEV_INFO(dev,
+		     "HACK: DSI PLL %s ctrl0=%#x ctrl1=%#x ctrl2=%#x ctrl3=%#x ctrl6=%#x ctrl8=%#x ctrl9=%#x ctrl10=%#x rdy=%#x\n",
+		     tag,
+		     readl(base + REG_DSI_28nm_8960_PHY_PLL_CTRL_0),
+		     readl(base + REG_DSI_28nm_8960_PHY_PLL_CTRL_1),
+		     readl(base + REG_DSI_28nm_8960_PHY_PLL_CTRL_2),
+		     readl(base + REG_DSI_28nm_8960_PHY_PLL_CTRL_3),
+		     readl(base + REG_DSI_28nm_8960_PHY_PLL_CTRL_6),
+		     readl(base + REG_DSI_28nm_8960_PHY_PLL_CTRL_8),
+		     readl(base + REG_DSI_28nm_8960_PHY_PLL_CTRL_9),
+		     readl(base + REG_DSI_28nm_8960_PHY_PLL_CTRL_10),
+		     readl(base + REG_DSI_28nm_8960_PHY_PLL_RDY));
+}
+
 /*
  * Clock Callbacks
  */
@@ -139,22 +158,22 @@ static int dsi_pll_28nm_clk_set_rate(struct clk_hw *hw, unsigned long rate,
 	writel(fb_divider & 0xff, base + REG_DSI_28nm_8960_PHY_PLL_CTRL_1);
 
 	val = readl(base + REG_DSI_28nm_8960_PHY_PLL_CTRL_2);
-
+	val &= ~0x07;
 	val |= (fb_divider >> 8) & 0x07;
-
 	writel(val, base + REG_DSI_28nm_8960_PHY_PLL_CTRL_2);
 
 	val = readl(base + REG_DSI_28nm_8960_PHY_PLL_CTRL_3);
-
+	val &= ~0x3f;
 	val |= (VCO_PREF_DIV_RATIO - 1) & 0x3f;
-
 	writel(val, base + REG_DSI_28nm_8960_PHY_PLL_CTRL_3);
 
 	writel(0xf, base + REG_DSI_28nm_8960_PHY_PLL_CTRL_6);
 
 	val = readl(base + REG_DSI_28nm_8960_PHY_PLL_CTRL_8);
+	val &= ~(0x0f << 4);
 	val |= 0x7 << 4;
 	writel(val, base + REG_DSI_28nm_8960_PHY_PLL_CTRL_8);
+	dsi_pll_28nm_dump(pll_28nm, "set_rate");
 
 	return 0;
 }
@@ -224,13 +243,14 @@ static int dsi_pll_28nm_vco_prepare(struct clk_hw *hw)
 	 * 3: write it to POSTDIV1
 	 */
 	val = readl(base + REG_DSI_28nm_8960_PHY_PLL_CTRL_9);
-	byte_div = val + 1;
+	byte_div = (val & 0xff) + 1;
 	bit_div = byte_div / 8;
 
 	val = readl(base + REG_DSI_28nm_8960_PHY_PLL_CTRL_8);
 	val &= ~0xf;
 	val |= (bit_div - 1);
 	writel(val, base + REG_DSI_28nm_8960_PHY_PLL_CTRL_8);
+	dsi_pll_28nm_dump(pll_28nm, "before enable");
 
 	/* enable the PLL */
 	writel(DSI_28nm_8960_PHY_PLL_CTRL_0_ENABLE,
@@ -245,6 +265,7 @@ static int dsi_pll_28nm_vco_prepare(struct clk_hw *hw)
 
 	DBG("DSI PLL lock success");
 	pll_28nm->phy->pll_on = true;
+	dsi_pll_28nm_dump(pll_28nm, "locked");
 
 	return 0;
 }
@@ -352,6 +373,7 @@ static int clk_bytediv_set_rate(struct clk_hw *hw, unsigned long rate,
 	factor = get_vco_mul_factor(rate);
 
 	val = readl(bytediv->reg);
+	val &= ~0xff;
 	val |= (factor - 1) & 0xff;
 	writel(val, bytediv->reg);
 

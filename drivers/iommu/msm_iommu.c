@@ -952,9 +952,7 @@ static int msm_iommu_probe(struct platform_device *pdev)
 	SET_V2PCFG(iommu->base, 0, 0);
 	SET_M(iommu->base, 0, 0);
 	mb();
-	dev_info(iommu->dev, "HACK: probe before disable clocks\n");
-	__disable_clocks(iommu);
-	dev_info(iommu->dev, "HACK: probe clocks disabled\n");
+	dev_info(iommu->dev, "HACK: probe keeping self-test clocks enabled\n");
 
 	if (!par) {
 		dev_err(iommu->dev, "Invalid PAR value detected\n");

@@ -20,6 +20,11 @@ struct mdp4_dsi_encoder {
 };
 #define to_mdp4_dsi_encoder(x) container_of(x, struct mdp4_dsi_encoder, base)
 
+#define FAME_DSI_DMA_P_CONFIG		0x0400213f
+#define FAME_DSI_DMA_P_FETCH_CONFIG	0x43
+#define FAME_DSI_INTF_SEL_MASK		0x000000cb
+#define FAME_DSI_INTF_SEL		0x00000041
+
 static struct mdp4_kms *get_kms(struct drm_encoder *encoder)
 {
 	struct msm_drm_private *priv = encoder->dev->dev_private;
@@ -68,9 +73,7 @@ static void mdp4_dsi_encoder_mode_set(struct drm_encoder *encoder,
 	mdp4_write(mdp4_kms, REG_MDP4_DSI_DISPLAY_VEND, display_v_end);
 
 	mdp4_write(mdp4_kms, REG_MDP4_DSI_CTRL_POLARITY, ctrl_pol);
-	mdp4_write(mdp4_kms, REG_MDP4_DSI_UNDERFLOW_CLR,
-			MDP4_DSI_UNDERFLOW_CLR_ENABLE_RECOVERY |
-			MDP4_DSI_UNDERFLOW_CLR_COLOR(0xff));
+	mdp4_write(mdp4_kms, REG_MDP4_DSI_UNDERFLOW_CLR, 0);
 	mdp4_write(mdp4_kms, REG_MDP4_DSI_ACTIVE_HCTL,
 			MDP4_DSI_ACTIVE_HCTL_START(0) |
 			MDP4_DSI_ACTIVE_HCTL_END(0));
@@ -120,27 +123,35 @@ static void mdp4_dsi_encoder_enable(struct drm_encoder *encoder)
 {
 	struct mdp4_dsi_encoder *mdp4_dsi_encoder = to_mdp4_dsi_encoder(encoder);
 	struct mdp4_kms *mdp4_kms = get_kms(encoder);
+	u32 intf_sel;
 
 	if (mdp4_dsi_encoder->enabled)
 		return;
 
-	mdp4_crtc_set_config(encoder->crtc,
-			MDP4_DMA_CONFIG_PACK_ALIGN_MSB |
-			MDP4_DMA_CONFIG_DEFLKR_EN |
-			MDP4_DMA_CONFIG_DITHER_EN |
-			MDP4_DMA_CONFIG_R_BPC(BPC8) |
-			MDP4_DMA_CONFIG_G_BPC(BPC8) |
-			MDP4_DMA_CONFIG_B_BPC(BPC8) |
-			MDP4_DMA_CONFIG_PACK(0x21));
+	mdp4_crtc_set_config(encoder->crtc, FAME_DSI_DMA_P_CONFIG);
+	mdp4_write(mdp4_kms, REG_MDP4_DMA_FETCH_CONFIG(DMA_P),
+		   FAME_DSI_DMA_P_FETCH_CONFIG);
 
 	mdp4_crtc_set_intf(encoder->crtc, INTF_DSI_VIDEO, 0);
+
+	intf_sel = mdp4_read(mdp4_kms, REG_MDP4_DISP_INTF_SEL);
+	intf_sel &= ~FAME_DSI_INTF_SEL_MASK;
+	intf_sel |= FAME_DSI_INTF_SEL;
+	mdp4_write(mdp4_kms, REG_MDP4_DISP_INTF_SEL, intf_sel);
 
 	mdp4_write(mdp4_kms, REG_MDP4_DSI_ENABLE, 1);
 
 	DRM_DEV_INFO(encoder->dev->dev,
-		     "HACK: MDP4 DSI enable reg=%#x irqmask=%#x\n",
+		     "HACK: MDP4 DSI enable reg=%#x irqmask=%#x irq_en=%#x irq_status=%#x intf_sel=%#x dma_cfg=%#x dma_fetch=%#x flush=%#x underflow=%#x\n",
 		     mdp4_read(mdp4_kms, REG_MDP4_DSI_ENABLE),
-		     mdp4_kms->base.cur_irq_mask);
+		     mdp4_kms->base.cur_irq_mask,
+		     mdp4_read(mdp4_kms, REG_MDP4_INTR_ENABLE),
+		     mdp4_read(mdp4_kms, REG_MDP4_INTR_STATUS),
+		     mdp4_read(mdp4_kms, REG_MDP4_DISP_INTF_SEL),
+		     mdp4_read(mdp4_kms, REG_MDP4_DMA_CONFIG(DMA_P)),
+		     mdp4_read(mdp4_kms, REG_MDP4_DMA_FETCH_CONFIG(DMA_P)),
+		     mdp4_read(mdp4_kms, REG_MDP4_OVERLAY_FLUSH),
+		     mdp4_read(mdp4_kms, REG_MDP4_DSI_UNDERFLOW_CLR));
 
 	mdp4_dsi_encoder->enabled = true;
 }
