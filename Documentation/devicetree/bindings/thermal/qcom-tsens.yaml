@@ -23,6 +23,7 @@ properties:
         items:
           - enum:
               - qcom,ipq8064-tsens
+              - qcom,msm8930-tsens
               - qcom,msm8960-tsens
 
       - description: v0.1 of TSENS
@@ -267,6 +268,7 @@ allOf:
             enum:
               - qcom,ipq5018-tsens
               - qcom,ipq8064-tsens
+              - qcom,msm8930-tsens
               - qcom,msm8960-tsens
               - qcom,tsens-v0_1
               - qcom,tsens-v1
