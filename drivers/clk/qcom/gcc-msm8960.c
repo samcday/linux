@@ -3678,7 +3678,7 @@ static const struct regmap_config gcc_msm8960_regmap_config = {
 	.reg_bits	= 32,
 	.reg_stride	= 4,
 	.val_bits	= 32,
-	.max_register	= 0x3660,
+	.max_register	= 0x3678,
 	.fast_io	= true,
 };
 
