@@ -103,6 +103,11 @@ properties:
 
       - items:
           - enum:
+              - nokia,fame
+          - const: qcom,msm8227
+
+      - items:
+          - enum:
               - wingtech,wt82918hd
           - const: qcom,msm8929
 
