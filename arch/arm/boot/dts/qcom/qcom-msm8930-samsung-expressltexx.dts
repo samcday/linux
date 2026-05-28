@@ -1,0 +1,417 @@
+// SPDX-License-Identifier: GPL-2.0
+/dts-v1/;
+
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/input/gpio-keys.h>
+#include <dt-bindings/input/input.h>
+
+#include "qcom-msm8930.dtsi"
+#include "pm8917.dtsi"
+
+/ {
+	model = "Samsung Galaxy Express GT-I8730";
+	compatible = "samsung,expressltexx", "qcom,msm8930";
+	chassis-type = "handset";
+
+	aliases {
+		display0 = &framebuffer0;
+		mmc0 = &sdcc1;
+		mmc1 = &sdcc3;
+		serial0 = &gsbi5_serial;
+	};
+
+	chosen {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		ranges;
+		stdout-path = "serial0:115200n8";
+
+		framebuffer0: framebuffer@88a00000 {
+			compatible = "simple-framebuffer";
+			reg = <0x88a00000 0x119400>;
+			width = <480>;
+			height = <800>;
+			stride = <1440>;
+			format = "r8g8b8";
+			clocks = <&mmcc MDP_AHB_CLK>,
+				 <&mmcc MDP_AXI_CLK>,
+				 <&mmcc MDP_CLK>,
+				 <&mmcc MDP_LUT_CLK>,
+				 <&mmcc MDP_VSYNC_CLK>,
+				 <&mmcc DSI_M_AHB_CLK>,
+				 <&mmcc DSI_S_AHB_CLK>,
+				 <&mmcc AMP_AHB_CLK>,
+				 <&mmcc DSI_CLK>,
+				 <&mmcc DSI1_BYTE_CLK>,
+				 <&mmcc DSI_PIXEL_CLK>,
+				 <&mmcc DSI1_ESC_CLK>;
+			power-domains = <&mmcc MDP_PD>;
+		};
+	};
+
+	reserved-memory {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		ranges;
+
+		framebuffer@88a00000 {
+			reg = <0x88a00000 0x119400>;
+			no-map;
+		};
+	};
+
+	gpio-keys {
+		compatible = "gpio-keys";
+		pinctrl-0 = <&gpio_keys_default_state>;
+		pinctrl-names = "default";
+
+		key-home {
+			label = "Home";
+			gpios = <&tlmm 35 GPIO_ACTIVE_LOW>;
+			linux,code = <KEY_HOMEPAGE>;
+			debounce-interval = <5>;
+			wakeup-event-action = <EV_ACT_ASSERTED>;
+			wakeup-source;
+		};
+
+		key-volume-down {
+			label = "Volume Down";
+			gpios = <&tlmm 81 GPIO_ACTIVE_LOW>;
+			linux,code = <KEY_VOLUMEDOWN>;
+			debounce-interval = <5>;
+		};
+
+		key-volume-up {
+			label = "Volume Up";
+			gpios = <&tlmm 50 GPIO_ACTIVE_LOW>;
+			linux,code = <KEY_VOLUMEUP>;
+			debounce-interval = <5>;
+		};
+	};
+
+	i2c-touchkey {
+		compatible = "i2c-gpio";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		sda-gpios = <&tlmm 24 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
+		scl-gpios = <&tlmm 25 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
+		i2c-gpio,delay-us = <2>;
+		pinctrl-0 = <&touchkey_i2c_state>;
+		pinctrl-names = "default";
+
+		touchkey@20 {
+			compatible = "cypress,midas-touchkey";
+			reg = <0x20>;
+			interrupt-parent = <&tlmm>;
+			interrupts = <65 IRQ_TYPE_EDGE_FALLING>;
+			linux,keycodes = <KEY_MENU KEY_BACK>;
+			vcc-supply = <&pm8917_l30>;
+			vdd-supply = <&pm8917_l33>;
+			vddio-supply = <&pm8917_lvs5>;
+			pinctrl-0 = <&touchkey_irq_state>;
+			pinctrl-names = "default";
+		};
+	};
+};
+
+&gsbi5 {
+	qcom,mode = <GSBI_PROT_I2C_UART>;
+	status = "okay";
+};
+
+&gsbi5_serial {
+	pinctrl-0 = <&gsbi5_uart_default_state>;
+	pinctrl-names = "default";
+	status = "okay";
+};
+
+&gsbi3 {
+	qcom,mode = <GSBI_PROT_I2C>;
+	status = "okay";
+};
+
+&gsbi3_i2c {
+	pinctrl-0 = <&gsbi3_i2c_default_state>;
+	pinctrl-1 = <&gsbi3_i2c_sleep_state>;
+	pinctrl-names = "default", "sleep";
+	status = "okay";
+
+	touchscreen@4a {
+		compatible = "atmel,maxtouch";
+		reg = <0x4a>;
+		interrupt-parent = <&tlmm>;
+		interrupts = <11 IRQ_TYPE_LEVEL_LOW>;
+		pinctrl-0 = <&touchscreen_irq_state>;
+		pinctrl-names = "default";
+		touchscreen-size-x = <480>;
+		touchscreen-size-y = <800>;
+		vdda-supply = <&pm8917_l31>;
+		vdd-supply = <&pm8917_lvs6>;
+	};
+};
+
+&rpm {
+	regulators {
+		compatible = "qcom,rpm-pm8917-regulators";
+
+		pm8917_s4: s4 {
+			regulator-always-on;
+			regulator-boot-on;
+			regulator-min-microvolt = <1800000>;
+			regulator-max-microvolt = <1800000>;
+			qcom,switch-mode-frequency = <1600000>;
+			bias-pull-down;
+		};
+
+		pm8917_l3: l3 {
+			regulator-min-microvolt = <3075000>;
+			regulator-max-microvolt = <3075000>;
+			bias-pull-down;
+		};
+
+		pm8917_l4: l4 {
+			regulator-always-on;
+			regulator-boot-on;
+			regulator-min-microvolt = <1800000>;
+			regulator-max-microvolt = <1800000>;
+			bias-pull-down;
+		};
+
+		pm8917_l5: l5 {
+			regulator-always-on;
+			regulator-boot-on;
+			regulator-min-microvolt = <2950000>;
+			regulator-max-microvolt = <2950000>;
+			bias-pull-down;
+		};
+
+		pm8917_l6: l6 {
+			regulator-min-microvolt = <2950000>;
+			regulator-max-microvolt = <2950000>;
+			bias-pull-down;
+		};
+
+		pm8917_l7: l7 {
+			regulator-always-on;
+			regulator-boot-on;
+			regulator-min-microvolt = <1850000>;
+			regulator-max-microvolt = <2950000>;
+			bias-pull-down;
+		};
+
+		pm8917_lvs5: lvs5 {
+			bias-pull-down;
+		};
+
+		pm8917_lvs6: lvs6 {
+			bias-pull-down;
+		};
+	};
+};
+
+&pm8917 {
+	interrupts-extended = <&tlmm 104 IRQ_TYPE_LEVEL_LOW>;
+
+	regulators {
+		compatible = "qcom,pm8917-direct-regulators";
+
+		pm8917_l30: l30 {
+			regulator-min-microvolt = <2800000>;
+			regulator-max-microvolt = <2800000>;
+			bias-pull-down;
+		};
+
+		pm8917_l31: l31 {
+			regulator-min-microvolt = <3300000>;
+			regulator-max-microvolt = <3300000>;
+			bias-pull-down;
+		};
+
+		pm8917_l33: l33 {
+			regulator-min-microvolt = <3300000>;
+			regulator-max-microvolt = <3300000>;
+			bias-pull-down;
+		};
+	};
+};
+
+&sdcc1 {
+	pinctrl-0 = <&sdcc1_default_state>;
+	pinctrl-1 = <&sdcc1_sleep_state>;
+	pinctrl-names = "default", "sleep";
+	vmmc-supply = <&pm8917_l5>;
+	vqmmc-supply = <&pm8917_s4>;
+	status = "okay";
+};
+
+&sdcc3 {
+	cd-gpios = <&tlmm 39 GPIO_ACTIVE_LOW>;
+	disable-wp;
+	pinctrl-0 = <&sdcc3_default_state>, <&sdcc3_cd_state>;
+	pinctrl-1 = <&sdcc3_sleep_state>, <&sdcc3_cd_state>;
+	pinctrl-names = "default", "sleep";
+	vmmc-supply = <&pm8917_l6>;
+	vqmmc-supply = <&pm8917_l7>;
+	status = "okay";
+};
+
+&tlmm {
+	gpio_keys_default_state: gpio-keys-default-state {
+		pins = "gpio35", "gpio50", "gpio81";
+		function = "gpio";
+		drive-strength = <8>;
+		bias-pull-up;
+	};
+
+	gsbi5_uart_default_state: gsbi5-uart-default-state {
+		uart-pins {
+			pins = "gpio22", "gpio23";
+			function = "gsbi5";
+			drive-strength = <8>;
+			bias-disable;
+		};
+	};
+
+	gsbi3_i2c_default_state: gsbi3-i2c-default-state {
+		i2c-pins {
+			pins = "gpio16", "gpio17";
+			function = "gsbi3";
+			drive-strength = <8>;
+			bias-disable;
+		};
+	};
+
+	gsbi3_i2c_sleep_state: gsbi3-i2c-sleep-state {
+		i2c-pins {
+			pins = "gpio16", "gpio17";
+			function = "gpio";
+			drive-strength = <2>;
+			bias-bus-hold;
+		};
+	};
+
+	touchscreen_irq_state: touchscreen-irq-state {
+		pins = "gpio11";
+		function = "gpio";
+		drive-strength = <2>;
+		bias-disable;
+	};
+
+	touchkey_i2c_state: touchkey-i2c-state {
+		pins = "gpio24", "gpio25";
+		function = "gpio";
+		drive-strength = <2>;
+		bias-pull-up;
+	};
+
+	touchkey_irq_state: touchkey-irq-state {
+		pins = "gpio65";
+		function = "gpio";
+		drive-strength = <2>;
+		bias-pull-up;
+	};
+
+	sdcc1_default_state: sdcc1-default-state {
+		clk-pins {
+			pins = "sdc1_clk";
+			drive-strength = <16>;
+			bias-disable;
+		};
+
+		cmd-pins {
+			pins = "sdc1_cmd";
+			drive-strength = <10>;
+			bias-pull-up;
+		};
+
+		data-pins {
+			pins = "sdc1_data";
+			drive-strength = <10>;
+			bias-pull-up;
+		};
+	};
+
+	sdcc1_sleep_state: sdcc1-sleep-state {
+		clk-pins {
+			pins = "sdc1_clk";
+			drive-strength = <2>;
+			bias-disable;
+		};
+
+		cmd-pins {
+			pins = "sdc1_cmd";
+			drive-strength = <2>;
+			bias-pull-up;
+		};
+
+		data-pins {
+			pins = "sdc1_data";
+			drive-strength = <2>;
+			bias-pull-up;
+		};
+	};
+
+	sdcc3_cd_state: sdcc3-cd-state {
+		pins = "gpio39";
+		function = "gpio";
+		drive-strength = <2>;
+		bias-pull-up;
+	};
+
+	sdcc3_default_state: sdcc3-default-state {
+		clk-pins {
+			pins = "sdc3_clk";
+			drive-strength = <8>;
+			bias-disable;
+		};
+
+		cmd-pins {
+			pins = "sdc3_cmd";
+			drive-strength = <8>;
+			bias-pull-up;
+		};
+
+		data-pins {
+			pins = "sdc3_data";
+			drive-strength = <8>;
+			bias-pull-up;
+		};
+	};
+
+	sdcc3_sleep_state: sdcc3-sleep-state {
+		clk-pins {
+			pins = "sdc3_clk";
+			drive-strength = <2>;
+			bias-disable;
+		};
+
+		cmd-pins {
+			pins = "sdc3_cmd";
+			drive-strength = <2>;
+			bias-pull-down;
+		};
+
+		data-pins {
+			pins = "sdc3_data";
+			drive-strength = <2>;
+			bias-pull-down;
+		};
+	};
+};
+
+&usb1 {
+	dr_mode = "peripheral";
+	status = "okay";
+};
+
+&usb_hs1_phy {
+	v1p8-supply = <&pm8917_l4>;
+	v3p3-supply = <&pm8917_l3>;
+
+	qcom,init-seq = /bits/ 8 <
+		0x44 0x80
+		0x5f 0x81
+		0x3c 0x82
+		0x13 0x83
+	>;
+};
