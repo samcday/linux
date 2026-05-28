@@ -136,4 +136,8 @@
 #define DSI2_PIXEL_LVDS_SRC				127
 #define LVDS_CLK					128
 
+/* Power domain IDs */
+#define GFX3D_PD					2
+#define MDP_PD						4
+
 #endif
