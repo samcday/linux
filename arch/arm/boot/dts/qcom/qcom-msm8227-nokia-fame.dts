@@ -1,0 +1,185 @@
+// SPDX-License-Identifier: GPL-2.0
+/dts-v1/;
+
+#include <dt-bindings/gpio/gpio.h>
+
+#include "qcom-msm8227.dtsi"
+#include "pm8038.dtsi"
+
+/ {
+	model = "Nokia Lumia 520";
+	compatible = "nokia,fame", "qcom,msm8227";
+	chassis-type = "handset";
+
+	aliases {
+		display0 = &framebuffer0;
+		mmc0 = &sdcc1;
+		serial0 = &gsbi5_serial;
+	};
+
+	chosen {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		ranges;
+		stdout-path = "serial0:115200n8";
+
+		framebuffer0: framebuffer@80400000 {
+			compatible = "simple-framebuffer";
+			reg = <0x80400000 0x177000>;
+			width = <480>;
+			height = <800>;
+			stride = <1920>;
+			format = "a8r8g8b8";
+			clocks = <&mmcc MDP_CLK>,
+				 <&mmcc MDP_AHB_CLK>,
+				 <&mmcc MDP_AXI_CLK>,
+				 <&mmcc MDP_LUT_CLK>,
+				 <&mmcc MDP_VSYNC_CLK>,
+				 <&mmcc DSI_M_AHB_CLK>,
+				 <&mmcc DSI_S_AHB_CLK>,
+				 <&mmcc AMP_AHB_CLK>,
+				 <&mmcc DSI_CLK>,
+				 <&mmcc DSI1_BYTE_CLK>,
+				 <&mmcc DSI_PIXEL_CLK>,
+				 <&mmcc DSI1_ESC_CLK>;
+			power-domains = <&mmcc MDP_PD>;
+		};
+	};
+
+	memory@80200000 {
+		device_type = "memory";
+		reg = <0x80200000 0x08c00000>,
+		      <0x90000000 0x10000000>;
+	};
+
+	reserved-memory {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		ranges;
+
+		framebuffer@80400000 {
+			reg = <0x80400000 0x177000>;
+			no-map;
+		};
+	};
+};
+
+&gsbi5 {
+	qcom,mode = <GSBI_PROT_I2C_UART>;
+	status = "okay";
+};
+
+&gsbi5_serial {
+	pinctrl-0 = <&gsbi5_uart_default_state>;
+	pinctrl-names = "default";
+	status = "okay";
+};
+
+&rpm {
+	regulators {
+		compatible = "qcom,rpm-pm8038-regulators";
+
+		pm8038_l3: l3 {
+			regulator-min-microvolt = <3075000>;
+			regulator-max-microvolt = <3075000>;
+			bias-pull-down;
+		};
+
+		pm8038_l4: l4 {
+			regulator-min-microvolt = <1800000>;
+			regulator-max-microvolt = <1800000>;
+			bias-pull-down;
+		};
+
+		pm8038_l5: l5 {
+			regulator-always-on;
+			regulator-boot-on;
+			regulator-min-microvolt = <2950000>;
+			regulator-max-microvolt = <2950000>;
+			bias-pull-down;
+		};
+
+		pm8038_l11: l11 {
+			regulator-always-on;
+			regulator-boot-on;
+			regulator-min-microvolt = <1800000>;
+			regulator-max-microvolt = <1800000>;
+			bias-pull-down;
+		};
+	};
+};
+
+&pm8038 {
+	interrupts-extended = <&tlmm 104 IRQ_TYPE_LEVEL_LOW>;
+};
+
+&sdcc1 {
+	pinctrl-0 = <&sdcc1_default_state>;
+	pinctrl-1 = <&sdcc1_sleep_state>;
+	pinctrl-names = "default", "sleep";
+	vmmc-supply = <&pm8038_l5>;
+	vqmmc-supply = <&pm8038_l11>;
+	status = "okay";
+};
+
+&tlmm {
+	gsbi5_uart_default_state: gsbi5-uart-default-state {
+		uart-pins {
+			pins = "gpio22", "gpio23";
+			function = "gsbi5";
+			drive-strength = <8>;
+			bias-disable;
+		};
+	};
+
+	sdcc1_default_state: sdcc1-default-state {
+		clk-pins {
+			pins = "sdc1_clk";
+			drive-strength = <16>;
+			bias-disable;
+		};
+
+		cmd-pins {
+			pins = "sdc1_cmd";
+			drive-strength = <10>;
+			bias-pull-up;
+		};
+
+		data-pins {
+			pins = "sdc1_data";
+			drive-strength = <10>;
+			bias-pull-up;
+		};
+	};
+
+	sdcc1_sleep_state: sdcc1-sleep-state {
+		clk-pins {
+			pins = "sdc1_clk";
+			drive-strength = <2>;
+			bias-disable;
+		};
+
+		cmd-pins {
+			pins = "sdc1_cmd";
+			drive-strength = <2>;
+			bias-pull-up;
+		};
+
+		data-pins {
+			pins = "sdc1_data";
+			drive-strength = <2>;
+			bias-pull-up;
+		};
+	};
+};
+
+&usb1 {
+	dr_mode = "peripheral";
+	status = "okay";
+};
+
+&usb_hs1_phy {
+	v1p8-supply = <&pm8038_l4>;
+	v3p3-supply = <&pm8038_l3>;
+	qcom,init-seq = /bits/ 8 <0x01 0x38 0x02 0x14>;
+};
