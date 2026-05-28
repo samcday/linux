@@ -1,0 +1,442 @@
+// SPDX-License-Identifier: GPL-2.0
+/dts-v1/;
+
+#include <dt-bindings/clock/qcom,gcc-msm8960.h>
+#include <dt-bindings/clock/qcom,lcc-msm8960.h>
+#include <dt-bindings/clock/qcom,mmcc-msm8960.h>
+#include <dt-bindings/interrupt-controller/arm-gic.h>
+#include <dt-bindings/reset/qcom,gcc-msm8960.h>
+#include <dt-bindings/soc/qcom,gsbi.h>
+
+/ {
+	#address-cells = <1>;
+	#size-cells = <1>;
+	interrupt-parent = <&intc>;
+
+	clocks {
+		cxo_board: cxo_board {
+			compatible = "fixed-clock";
+			#clock-cells = <0>;
+			clock-frequency = <19200000>;
+			clock-output-names = "cxo_board";
+		};
+
+		pxo_board: pxo_board {
+			compatible = "fixed-clock";
+			#clock-cells = <0>;
+			clock-frequency = <27000000>;
+			clock-output-names = "pxo_board";
+		};
+
+		sleep_clk: sleep_clk {
+			compatible = "fixed-clock";
+			#clock-cells = <0>;
+			clock-frequency = <32768>;
+			clock-output-names = "sleep_clk";
+		};
+	};
+
+	cpu-pmu {
+		compatible = "qcom,krait-pmu";
+		interrupts = <GIC_PPI 10 (GIC_CPU_MASK_SIMPLE(2) | IRQ_TYPE_LEVEL_HIGH)>;
+		qcom,no-pc-write;
+	};
+
+	thermal-zones {
+		cpu-thermal {
+			polling-delay-passive = <250>;
+			polling-delay = <1000>;
+			thermal-sensors = <&tsens 9>;
+
+			trips {
+				cpu_alert0: trip0 {
+					temperature = <60000>;
+					hysteresis = <10000>;
+					type = "passive";
+				};
+
+				cpu_crit0: trip1 {
+					temperature = <95000>;
+					hysteresis = <1000>;
+					type = "critical";
+				};
+			};
+		};
+	};
+
+	cpus {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		interrupts = <GIC_PPI 14 (GIC_CPU_MASK_SIMPLE(2) | IRQ_TYPE_LEVEL_HIGH)>;
+
+		cpu@0 {
+			compatible = "qcom,krait";
+			reg = <0>;
+			enable-method = "qcom,kpss-acc-v1";
+			device_type = "cpu";
+			next-level-cache = <&l2>;
+			qcom,acc = <&acc0>;
+			qcom,saw = <&saw0>;
+		};
+
+		cpu@1 {
+			compatible = "qcom,krait";
+			reg = <1>;
+			enable-method = "qcom,kpss-acc-v1";
+			device_type = "cpu";
+			next-level-cache = <&l2>;
+			qcom,acc = <&acc1>;
+			qcom,saw = <&saw1>;
+		};
+
+		l2: l2-cache {
+			compatible = "cache";
+			cache-level = <2>;
+			cache-unified;
+		};
+	};
+
+	memory@80200000 {
+		device_type = "memory";
+		reg = <0x80200000 0>;
+	};
+
+	reserved-memory {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		ranges;
+
+		smem@80000000 {
+			compatible = "qcom,smem";
+			reg = <0x80000000 0x200000>;
+			hwlocks = <&sfpb_mutex 3>;
+			no-map;
+		};
+	};
+
+	soc: soc {
+		compatible = "simple-bus";
+		#address-cells = <1>;
+		#size-cells = <1>;
+		ranges;
+
+		rpm: rpm@108000 {
+			compatible = "qcom,rpm-msm8930";
+			reg = <0x00108000 0x1000>;
+			qcom,ipc = <&l2cc 0x8 2>;
+
+			interrupts = <GIC_SPI 19 IRQ_TYPE_EDGE_RISING>,
+				     <GIC_SPI 21 IRQ_TYPE_EDGE_RISING>,
+				     <GIC_SPI 22 IRQ_TYPE_EDGE_RISING>;
+			interrupt-names = "ack", "err", "wakeup";
+		};
+
+		ssbi: ssbi@500000 {
+			compatible = "qcom,ssbi";
+			reg = <0x00500000 0x1000>;
+			qcom,controller-type = "pmic-arbiter";
+		};
+
+		qfprom: efuse@700000 {
+			compatible = "qcom,msm8930-qfprom", "qcom,qfprom";
+			reg = <0x00700000 0x1000>;
+			#address-cells = <1>;
+			#size-cells = <1>;
+
+			tsens_calib: calib@404 {
+				reg = <0x404 0x10>;
+			};
+
+			tsens_backup: backup-calib@414 {
+				reg = <0x414 0x10>;
+			};
+		};
+
+		intc: interrupt-controller@2000000 {
+			compatible = "qcom,msm-qgic2";
+			reg = <0x02000000 0x1000>,
+			      <0x02002000 0x1000>;
+			interrupt-controller;
+			#interrupt-cells = <3>;
+		};
+
+		timer@200a000 {
+			compatible = "qcom,kpss-wdt-msm8960", "qcom,kpss-timer", "qcom,msm-timer";
+			reg = <0x0200a000 0x100>;
+			interrupts = <GIC_PPI 1 (GIC_CPU_MASK_SIMPLE(2) | IRQ_TYPE_EDGE_RISING)>,
+				     <GIC_PPI 2 (GIC_CPU_MASK_SIMPLE(2) | IRQ_TYPE_EDGE_RISING)>,
+				     <GIC_PPI 3 (GIC_CPU_MASK_SIMPLE(2) | IRQ_TYPE_EDGE_RISING)>;
+			clock-frequency = <27000000>;
+			clocks = <&sleep_clk>;
+			clock-names = "sleep";
+			cpu-offset = <0x80000>;
+		};
+
+		l2cc: clock-controller@2011000 {
+			compatible = "qcom,kpss-gcc-msm8960", "qcom,kpss-gcc", "syscon";
+			reg = <0x02011000 0x1000>;
+			clocks = <&gcc PLL8_VOTE>, <&pxo_board>;
+			clock-names = "pll8_vote", "pxo";
+			#clock-cells = <0>;
+		};
+
+		acc0: clock-controller@2088000 {
+			compatible = "qcom,kpss-acc-v1";
+			reg = <0x02088000 0x1000>, <0x02008000 0x1000>;
+			clocks = <&gcc PLL8_VOTE>, <&pxo_board>;
+			clock-names = "pll8_vote", "pxo";
+			clock-output-names = "acpu0_aux";
+			#clock-cells = <0>;
+		};
+
+		saw0: power-manager@2089000 {
+			compatible = "qcom,msm8960-saw2-cpu", "qcom,saw2";
+			reg = <0x02089000 0x1000>, <0x02009000 0x1000>;
+		};
+
+		acc1: clock-controller@2098000 {
+			compatible = "qcom,kpss-acc-v1";
+			reg = <0x02098000 0x1000>, <0x02008000 0x1000>;
+			clocks = <&gcc PLL8_VOTE>, <&pxo_board>;
+			clock-names = "pll8_vote", "pxo";
+			clock-output-names = "acpu1_aux";
+			#clock-cells = <0>;
+		};
+
+		saw1: power-manager@2099000 {
+			compatible = "qcom,msm8960-saw2-cpu", "qcom,saw2";
+			reg = <0x02099000 0x1000>, <0x02009000 0x1000>;
+		};
+
+		gcc: clock-controller@900000 {
+			compatible = "qcom,gcc-msm8960", "syscon";
+			reg = <0x00900000 0x4000>;
+			#clock-cells = <1>;
+			#reset-cells = <1>;
+			clocks = <&cxo_board>,
+				 <&pxo_board>,
+				 <&lcc PLL4>;
+			clock-names = "cxo",
+				      "pxo",
+				      "pll4";
+
+			tsens: thermal-sensor {
+				compatible = "qcom,msm8930-tsens";
+
+				nvmem-cells = <&tsens_calib>, <&tsens_backup>;
+				nvmem-cell-names = "calib", "calib_backup";
+				interrupts = <GIC_SPI 178 IRQ_TYPE_LEVEL_HIGH>;
+				interrupt-names = "uplow";
+
+				#qcom,sensors = <10>;
+				#thermal-sensor-cells = <1>;
+			};
+		};
+
+		mmcc: clock-controller@4000000 {
+			compatible = "qcom,mmcc-msm8930";
+			reg = <0x04000000 0x1000>;
+			#clock-cells = <1>;
+			#power-domain-cells = <1>;
+			#reset-cells = <1>;
+			clocks = <&pxo_board>,
+				 <&gcc PLL3>,
+				 <&gcc PLL8_VOTE>,
+				 <0>,
+				 <0>,
+				 <0>,
+				 <0>,
+				 <0>;
+			clock-names = "pxo",
+				      "pll3",
+				      "pll8_vote",
+				      "dsi1pll",
+				      "dsi1pllbyte",
+				      "dsi2pll",
+				      "dsi2pllbyte",
+				      "hdmipll";
+		};
+
+		sfpb_mutex: hwlock@1200600 {
+			compatible = "qcom,sfpb-mutex";
+			reg = <0x01200600 0x84>;
+			#hwlock-cells = <1>;
+		};
+
+		tlmm: pinctrl@800000 {
+			compatible = "qcom,msm8960-pinctrl";
+			reg = <0x00800000 0x4000>;
+			gpio-controller;
+			gpio-ranges = <&tlmm 0 0 152>;
+			#gpio-cells = <2>;
+			interrupts = <GIC_SPI 16 IRQ_TYPE_LEVEL_HIGH>;
+			interrupt-controller;
+			#interrupt-cells = <2>;
+		};
+
+		lcc: clock-controller@28000000 {
+			compatible = "qcom,lcc-msm8960";
+			reg = <0x28000000 0x1000>;
+			#clock-cells = <1>;
+			#reset-cells = <1>;
+			clocks = <&pxo_board>,
+				 <&gcc PLL4_VOTE>,
+				 <0>,
+				 <0>, <0>,
+				 <0>, <0>,
+				 <0>;
+			clock-names = "pxo",
+				      "pll4_vote",
+				      "mi2s_codec_clk",
+				      "codec_i2s_mic_codec_clk",
+					      "spare_i2s_mic_codec_clk",
+					      "codec_i2s_spkr_codec_clk",
+					      "spare_i2s_spkr_codec_clk",
+					      "pcm_codec_clk";
+		};
+
+		gsbi3: gsbi@16200000 {
+			compatible = "qcom,gsbi-v1.0.0";
+			reg = <0x16200000 0x100>;
+			ranges;
+			cell-index = <3>;
+			clocks = <&gcc GSBI3_H_CLK>;
+			clock-names = "iface";
+			#address-cells = <1>;
+			#size-cells = <1>;
+			syscon-tcsr = <&tcsr>;
+
+			status = "disabled";
+
+			gsbi3_i2c: i2c@16280000 {
+				compatible = "qcom,i2c-qup-v1.1.1";
+				reg = <0x16280000 0x1000>;
+				interrupts = <GIC_SPI 151 IRQ_TYPE_LEVEL_HIGH>;
+				clocks = <&gcc GSBI3_QUP_CLK>, <&gcc GSBI3_H_CLK>;
+				clock-names = "core", "iface";
+				#address-cells = <1>;
+				#size-cells = <0>;
+
+				status = "disabled";
+			};
+		};
+
+		sdcc1: mmc@12400000 {
+			compatible = "arm,pl18x", "arm,primecell";
+			reg = <0x12400000 0x2000>;
+			arm,primecell-periphid = <0x00051180>;
+			interrupts = <GIC_SPI 104 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&gcc SDC1_CLK>, <&gcc SDC1_H_CLK>;
+			clock-names = "mclk", "apb_pclk";
+			bus-width = <8>;
+			max-frequency = <96000000>;
+			non-removable;
+			cap-mmc-highspeed;
+			dmas = <&sdcc1bam 2>, <&sdcc1bam 1>;
+			dma-names = "tx", "rx";
+
+			status = "disabled";
+		};
+
+		sdcc1bam: dma-controller@12402000 {
+			compatible = "qcom,bam-v1.3.0";
+			reg = <0x12402000 0x4000>;
+			interrupts = <GIC_SPI 98 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&gcc SDC1_H_CLK>;
+			clock-names = "bam_clk";
+			#dma-cells = <1>;
+			qcom,ee = <0>;
+		};
+
+		sdcc3: mmc@12180000 {
+			compatible = "arm,pl18x", "arm,primecell";
+			reg = <0x12180000 0x2000>;
+			arm,primecell-periphid = <0x00051180>;
+			interrupts = <GIC_SPI 102 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&gcc SDC3_CLK>, <&gcc SDC3_H_CLK>;
+			clock-names = "mclk", "apb_pclk";
+			bus-width = <4>;
+			cap-sd-highspeed;
+			cap-mmc-highspeed;
+			max-frequency = <192000000>;
+			no-1-8-v;
+			dmas = <&sdcc3bam 2>, <&sdcc3bam 1>;
+			dma-names = "tx", "rx";
+
+			status = "disabled";
+		};
+
+		sdcc3bam: dma-controller@12182000 {
+			compatible = "qcom,bam-v1.3.0";
+			reg = <0x12182000 0x4000>;
+			interrupts = <GIC_SPI 96 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&gcc SDC3_H_CLK>;
+			clock-names = "bam_clk";
+			#dma-cells = <1>;
+			qcom,ee = <0>;
+		};
+
+		gsbi5: gsbi@16400000 {
+			compatible = "qcom,gsbi-v1.0.0";
+			reg = <0x16400000 0x100>;
+			ranges;
+			cell-index = <5>;
+			clocks = <&gcc GSBI5_H_CLK>;
+			clock-names = "iface";
+			#address-cells = <1>;
+			#size-cells = <1>;
+			syscon-tcsr = <&tcsr>;
+
+			status = "disabled";
+
+			gsbi5_serial: serial@16440000 {
+				compatible = "qcom,msm-uartdm-v1.3", "qcom,msm-uartdm";
+				reg = <0x16440000 0x1000>,
+				      <0x16400000 0x1000>;
+				interrupts = <GIC_SPI 154 IRQ_TYPE_LEVEL_HIGH>;
+				clocks = <&gcc GSBI5_UART_CLK>,
+					 <&gcc GSBI5_H_CLK>;
+				clock-names = "core", "iface";
+
+				status = "disabled";
+			};
+		};
+
+		tcsr: syscon@1a400000 {
+			compatible = "qcom,tcsr-msm8960", "syscon";
+			reg = <0x1a400000 0x100>;
+		};
+
+		usb1: usb@12500000 {
+			compatible = "qcom,ci-hdrc";
+			reg = <0x12500000 0x200>,
+			      <0x12500200 0x200>;
+			interrupts = <GIC_SPI 100 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&gcc USB_HS1_XCVR_CLK>, <&gcc USB_HS1_H_CLK>;
+			clock-names = "core", "iface";
+			assigned-clocks = <&gcc USB_HS1_XCVR_CLK>;
+			assigned-clock-rates = <60000000>;
+			resets = <&gcc USB_HS1_RESET>;
+			reset-names = "core";
+			phy_type = "ulpi";
+			ahb-burst-config = <0>;
+			phys = <&usb_hs1_phy>;
+			phy-names = "usb-phy";
+			#reset-cells = <1>;
+
+			status = "disabled";
+
+			ulpi {
+				usb_hs1_phy: phy {
+					compatible = "qcom,usb-hs-phy-msm8960",
+						     "qcom,usb-hs-phy";
+					clocks = <&sleep_clk>, <&cxo_board>;
+					clock-names = "sleep", "ref";
+					resets = <&usb1 0>;
+					reset-names = "por";
+					#phy-cells = <0>;
+				};
+			};
+		};
+	};
+};
