@@ -21,6 +21,7 @@ properties:
       - items:
           - enum:
               - qcom,pm8018-pwrkey
+              - qcom,pm8038-pwrkey
           - const: qcom,pm8921-pwrkey
 
   reg:

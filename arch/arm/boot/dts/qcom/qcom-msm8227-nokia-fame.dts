@@ -2,8 +2,12 @@
 /dts-v1/;
 
 #include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/input/input.h>
+#include <dt-bindings/interrupt-controller/irq.h>
+#include <dt-bindings/pinctrl/qcom,pmic-gpio.h>
 
 #include "qcom-msm8227.dtsi"
+#include "pm8038.dtsi"
 
 / {
 	model = "Nokia Lumia 520";
@@ -50,6 +54,43 @@
 		};
 	};
 
+	gpio-keys {
+		compatible = "gpio-keys";
+		pinctrl-0 = <&gpio_keys_default_state>;
+		pinctrl-names = "default";
+
+		key-volume-up {
+			label = "Volume Up";
+			gpios = <&pm8038_gpio 3 GPIO_ACTIVE_LOW>;
+			debounce-interval = <62>;
+			linux,code = <KEY_VOLUMEUP>;
+			wakeup-source;
+		};
+
+		key-volume-down {
+			label = "Volume Down";
+			gpios = <&pm8038_gpio 8 GPIO_ACTIVE_LOW>;
+			debounce-interval = <62>;
+			linux,code = <KEY_VOLUMEDOWN>;
+			wakeup-source;
+		};
+
+		key-camera-focus {
+			label = "Camera Focus";
+			gpios = <&pm8038_gpio 11 GPIO_ACTIVE_LOW>;
+			debounce-interval = <62>;
+			linux,code = <KEY_CAMERA_FOCUS>;
+		};
+
+		key-camera {
+			label = "Camera Snapshot";
+			gpios = <&pm8038_gpio 10 GPIO_ACTIVE_LOW>;
+			debounce-interval = <62>;
+			linux,code = <KEY_CAMERA>;
+			wakeup-source;
+		};
+	};
+
 	memory@80200000 {
 		device_type = "memory";
 		reg = <0x80200000 0x08c00000>,
@@ -64,6 +105,22 @@
 
 &gsbi5_serial {
 	status = "okay";
+};
+
+&pm8038 {
+	interrupts-extended = <&tlmm 104 IRQ_TYPE_LEVEL_LOW>;
+};
+
+&pm8038_gpio {
+	gpio_keys_default_state: gpio-keys-default-state {
+		pins = "gpio3", "gpio8", "gpio10", "gpio11";
+		function = PMIC_GPIO_FUNC_NORMAL;
+		input-enable;
+		bias-pull-up;
+		drive-push-pull;
+		power-source = <PM8038_GPIO_L11>;
+		qcom,drive-strength = <PMIC_GPIO_STRENGTH_NO>;
+	};
 };
 
 &rpm {
