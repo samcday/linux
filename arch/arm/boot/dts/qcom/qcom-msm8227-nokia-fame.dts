@@ -90,13 +90,6 @@
 			wakeup-source;
 		};
 	};
-
-	memory@80200000 {
-		device_type = "memory";
-		reg = <0x80200000 0x08c00000>,
-		      <0x90000000 0x10000000>;
-	};
-
 };
 
 &gsbi5 {
