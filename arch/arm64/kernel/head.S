@@ -38,6 +38,19 @@
 
 #include "efi-header.S"
 
+#ifdef CONFIG_J7XELTE_EARLY_BOOT_TRACE
+	.macro	j7xelte_trace_marker, val
+	mov_q	x4, 0x46e00004
+	mov_q	x5, \val
+	str	w5, [x4]
+	dc	cvac, x4
+	dsb	sy
+	.endm
+#else
+	.macro	j7xelte_trace_marker, val
+	.endm
+#endif
+
 #if (PAGE_OFFSET & 0x1fffff) != 0
 #error PAGE_OFFSET must be at least 2MB aligned
 #endif
@@ -83,8 +96,11 @@
 	 *  x21        primary_entry() .. start_kernel()        FDT pointer passed at boot in x0
 	 */
 SYM_CODE_START(primary_entry)
+	j7xelte_trace_marker 0x4a372fff
 	bl	record_mmu_state
+	j7xelte_trace_marker 0x4a373000
 	bl	preserve_boot_args
+	j7xelte_trace_marker 0x4a373001
 
 	adrp	x1, early_init_stack
 	mov	sp, x1
@@ -92,6 +108,7 @@ SYM_CODE_START(primary_entry)
 	adrp	x0, __pi_init_idmap_pg_dir
 	mov	x1, xzr
 	bl	__pi_create_init_idmap
+	j7xelte_trace_marker 0x4a373002
 
 	/*
 	 * If the page tables have been populated with non-cacheable
@@ -116,9 +133,11 @@ SYM_CODE_START(primary_entry)
 	adr_l	x2, dcache_clean_poc
 	blr	x2
 
-1:	mov	x0, x19
+1:	j7xelte_trace_marker 0x4a373003
+	mov	x0, x19
 	bl	init_kernel_el			// w0=cpu_boot_mode
 	mov	x20, x0
+	j7xelte_trace_marker 0x4a373004
 
 	/*
 	 * The following calls CPU setup code, see arch/arm64/mm/proc.S for
@@ -127,6 +146,7 @@ SYM_CODE_START(primary_entry)
 	 * the TCR will have been set.
 	 */
 	bl	__cpu_setup			// initialise processor
+	j7xelte_trace_marker 0x4a373005
 	b	__primary_switch
 SYM_CODE_END(primary_entry)
 

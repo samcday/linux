@@ -20,4 +20,20 @@ config ARM64_RELOC_TEST
 	depends on m
 	tristate "Relocation testing module"
 
+config J7XELTE_EARLY_BOOT_TRACE
+	bool "Write j7xelte early boot breadcrumbs to persistent RAM"
+	depends on ARCH_EXYNOS
+	help
+	  Write simple magic values to the j7xelte ramoops window during the
+	  earliest arm64 boot path. This is a bring-up aid for debugging resets
+	  before pstore/ramoops can initialize.
+
+config J7XELTE_LATE_PANIC
+	bool "Allow j7xelte late-init controlled panic"
+	depends on ARCH_EXYNOS
+	help
+	  Add a bring-up-only late initcall that panics when the kernel command
+	  line contains j7xelte.late_panic=1. This lets early board boot tests
+	  verify panic reboot and pstore/ramoops after pstore has registered.
+
 source "drivers/hwtracing/coresight/Kconfig"
