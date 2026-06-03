@@ -93,8 +93,8 @@
 		ramoops@46e00000 {
 			compatible = "ramoops";
 			reg = <0x0 0x46e00000 0x8000>;
+			record-size = <0x4000>;
 			console-size = <0x4000>;
-			pmsg-size = <0x4000>;
 		};
 
 		cont_splash_mem: framebuffer@67000000 {
