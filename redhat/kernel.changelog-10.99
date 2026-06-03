@@ -1,3 +1,9 @@
+* Wed Jun 03 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.1.0-0.rc6.ba3e43a9e601.41]
+- fedora: aarch64: Disable QCom QCE driver (Peter Robinson)
+- fedora: Updates for the 7.1 merge window (Peter Robinson)
+- Linux v7.1.0-0.rc6.ba3e43a9e601
+Resolves: 
+
 * Tue Jun 02 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.1.0-0.rc6.6f3ed7fec72f.40]
 - Linux v7.1.0-0.rc6.6f3ed7fec72f
 Resolves: 
