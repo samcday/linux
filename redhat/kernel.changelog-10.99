@@ -1,3 +1,8 @@
+* Tue Jun 09 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.1.0-0.rc7.2d3090a8aeb5.47]
+- redhat: CONFIG_MODPROBE_PATH: use upstream default (Scott Weaver)
+- Linux v7.1.0-0.rc7.2d3090a8aeb5
+Resolves: 
+
 * Mon Jun 08 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.1.0-0.rc7.46]
 - Linux v7.1.0-0.rc7
 Resolves: 
