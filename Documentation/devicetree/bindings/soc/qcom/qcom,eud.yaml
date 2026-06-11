@@ -15,12 +15,17 @@ description:
 
 properties:
   compatible:
-    items:
-      - enum:
-          - qcom,sc7280-eud
-      - const: qcom,eud
+    oneOf:
+      - items:
+          - enum:
+              - qcom,sc7280-eud
+          - const: qcom,eud
+      - items:
+          - const: qcom,sdm845-eud
+          - const: qcom,eud
 
   reg:
+    minItems: 1
     items:
       - description: EUD Base Register Region
       - description: EUD Mode Manager Register
@@ -48,7 +53,29 @@ properties:
 required:
   - compatible
   - reg
-  - ports
+
+allOf:
+  - if:
+      properties:
+        compatible:
+          contains:
+            const: qcom,sc7280-eud
+    then:
+      properties:
+        reg:
+          minItems: 2
+          maxItems: 2
+      required:
+        - ports
+  - if:
+      properties:
+        compatible:
+          contains:
+            const: qcom,sdm845-eud
+    then:
+      properties:
+        reg:
+          maxItems: 1
 
 additionalProperties: false
 
@@ -76,4 +103,10 @@ examples:
                 };
             };
         };
+    };
+
+  - |
+    eud@88e0000 {
+        compatible = "qcom,sdm845-eud", "qcom,eud";
+        reg = <0x88e0000 0x2000>;
     };
