@@ -912,6 +912,26 @@ config SERIAL_MSM_CONSOLE
 	select SERIAL_CORE_CONSOLE
 	select SERIAL_EARLYCON
 
+config SERIAL_QCOM_EUD
+	tristate "Qualcomm SDM845 EUD COM serial port support"
+	depends on ARCH_QCOM || COMPILE_TEST
+	select SERIAL_CORE
+	help
+	  This driver provides transmit-only serial support for the COM
+	  interface of the Qualcomm SDM845 Embedded USB Debugger.
+
+	  To compile this driver as a module, choose M here: the module
+	  will be called qcom_eud_serial.
+
+config SERIAL_QCOM_EUD_EARLYCON
+	bool "Qualcomm SDM845 EUD COM early console support"
+	depends on SERIAL_QCOM_EUD=y
+	select SERIAL_CORE_CONSOLE
+	select SERIAL_EARLYCON
+	help
+	  Support for using the SDM845 EUD COM interface as a write-only
+	  early console with "earlycon=qcom_eud,mmio,<addr>".
+
 config SERIAL_QCOM_GENI
 	tristate "Qualcomm on-chip GENI based serial port support"
 	depends on ARCH_QCOM || COMPILE_TEST
