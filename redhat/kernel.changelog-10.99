@@ -1,3 +1,16 @@
+* Thu Jun 11 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.1.0-0.rc7.9716c086c8e8.49]
+- redhat/configs: set NXP storage driver to built-in for boot speed (Ed Chong)
+- kernel.spec.template: add tcp_ao kselftests (Davide Caratti) [RHEL-142637]
+- redhat/configs: Enable CONFIG_SMC_HS_CTRL_BPF for s390x debug kernel (Jan Polensky)
+- redhat/configs: Enable CONFIG_SMC_HS_CTRL_BPF for s390x architecture (Jan Polensky)
+- redhat/configs: Enable CONFIG_DIBS built-in for s390x zfcpdump (Jan Polensky)
+- redhat/configs: Disable CONFIG_DIBS_LO for s390x architecture (Jan Polensky)
+- redhat/configs: Enable CONFIG_DIBS for s390x architecture (Jan Polensky)
+- redhat/kernel.spec: make module and modules-core provides use variant (Jan Stancek)
+- redhat/configs: automotive: enable NXP_SAR_ADC as a module (Jared Kangas)
+- Linux v7.1.0-0.rc7.9716c086c8e8
+Resolves: RHEL-142637
+
 * Wed Jun 10 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.1.0-0.rc7.acb7500801e9.48]
 - Linux v7.1.0-0.rc7.acb7500801e9
 Resolves: 
