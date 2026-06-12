@@ -1,3 +1,9 @@
+* Fri Jun 12 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.1.0-0.rc7.2b414a95b8f7.50]
+- redhat/configs: rhel: Enable SpacemiT drivers for RISC-V (Jennifer Berringer)
+- Disable TPM as hwrng source on aarch64 (Štěpán Horáček)
+- Linux v7.1.0-0.rc7.2b414a95b8f7
+Resolves: 
+
 * Thu Jun 11 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.1.0-0.rc7.9716c086c8e8.49]
 - redhat/configs: set NXP storage driver to built-in for boot speed (Ed Chong)
 - kernel.spec.template: add tcp_ao kselftests (Davide Caratti) [RHEL-142637]
