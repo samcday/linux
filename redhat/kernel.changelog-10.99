@@ -1,3 +1,7 @@
+* Sat Jun 13 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.1.0-0.rc7.062871f1371b.51]
+- Linux v7.1.0-0.rc7.062871f1371b
+Resolves: 
+
 * Fri Jun 12 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.1.0-0.rc7.2b414a95b8f7.50]
 - redhat/configs: rhel: Enable SpacemiT drivers for RISC-V (Jennifer Berringer)
 - Disable TPM as hwrng source on aarch64 (Štěpán Horáček)
