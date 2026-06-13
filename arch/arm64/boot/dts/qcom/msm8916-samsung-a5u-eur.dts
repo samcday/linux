@@ -9,6 +9,41 @@
 	compatible = "samsung,a5u-eur", "qcom,msm8916";
 	chassis-type = "handset";
 
+	chosen {
+		framebuffer@8e000000 {
+			compatible = "simple-framebuffer";
+			memory-region = <&cont_splash_mem>;
+			width = <720>;
+			height = <1280>;
+			stride = <(720 * 3)>;
+			format = "r8g8b8";
+
+			clocks = <&gcc GCC_MDSS_AHB_CLK>,
+				 <&gcc GCC_MDSS_AXI_CLK>,
+				 <&gcc GCC_MDSS_VSYNC_CLK>,
+				 <&gcc GCC_MDSS_MDP_CLK>,
+				 <&gcc GCC_MDSS_BYTE0_CLK>,
+				 <&gcc GCC_MDSS_PCLK0_CLK>,
+				 <&gcc GCC_MDSS_ESC0_CLK>;
+
+			power-domains = <&gcc MDSS_GDSC>;
+
+			vci-supply = <&reg_vlcd_vci>;
+			vdd3-supply = <&reg_vlcd_vdd3>;
+		};
+	};
+
+	reserved-memory {
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+		cont_splash_mem: framebuffer@8e000000 {
+			reg = <0x0 0x8e000000 0x0 (1280 * 720 * 3)>;
+			no-map;
+		};
+	};
+
 	reg_vlcd_vdd3: regulator-vlcd-vdd3 {
 		compatible = "regulator-fixed";
 		regulator-name = "vlcd_vdd3";
