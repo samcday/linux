@@ -1,3 +1,8 @@
+* Mon Jun 15 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.1.0-0.rc7.e21ee273e6fa.53]
+- redhat/kernel.spec.template: Move UKI addons to extras/ (Vitaly Kuznetsov)
+- redhat/kernel.spec.template: fixes for using with_rtonly (Clark Williams)
+Resolves: 
+
 * Sun Jun 14 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.1.0-0.rc7.e21ee273e6fa.52]
 - Linux v7.1.0-0.rc7.e21ee273e6fa
 Resolves: 
