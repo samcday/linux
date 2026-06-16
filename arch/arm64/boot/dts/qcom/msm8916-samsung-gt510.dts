@@ -65,6 +65,7 @@
 	reg_lcd_vmipi: regulator-lcd-vmipi {
 		compatible = "regulator-fixed";
 		regulator-name = "lcd_vmipi";
+		regulator-boot-on;
 		regulator-min-microvolt = <1800000>;
 		regulator-max-microvolt = <1800000>;
 
@@ -114,6 +115,7 @@
 	reg_vlcd_5p4v: regulator-vlcd-5p4v {
 		compatible = "regulator-fixed";
 		regulator-name = "vlcd_5p4v";
+		regulator-boot-on;
 		regulator-min-microvolt = <5400000>;
 		regulator-max-microvolt = <5400000>;
 
