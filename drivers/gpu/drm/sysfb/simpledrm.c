@@ -395,6 +395,7 @@ static int simpledrm_device_init_regulators(struct simpledrm_device *sdev)
 	if (!sdev->regulators)
 		return -ENOMEM;
 
+	/* Get all regulators first; only enable once none will defer. */
 	for_each_property_of_node(of_node, prop) {
 		char name[32]; /* 32 is max size of property name */
 		size_t len;
@@ -415,17 +416,21 @@ static int simpledrm_device_init_regulators(struct simpledrm_device *sdev)
 			continue;
 		}
 
+		sdev->regulators[i++] = regulator;
+	}
+	sdev->regulator_count = i;
+
+	for (i = 0; i < sdev->regulator_count; ++i) {
+		regulator = sdev->regulators[i];
 		ret = regulator_enable(regulator);
 		if (ret) {
 			drm_err(dev, "failed to enable regulator %u: %d\n",
 				i, ret);
 			regulator_put(regulator);
+			sdev->regulators[i] = NULL;
 			continue;
 		}
-
-		sdev->regulators[i++] = regulator;
 	}
-	sdev->regulator_count = i;
 
 	return devm_add_action_or_reset(&pdev->dev,
 					simpledrm_device_release_regulators,
@@ -434,10 +439,8 @@ static int simpledrm_device_init_regulators(struct simpledrm_device *sdev)
 err:
 	while (i) {
 		--i;
-		if (sdev->regulators[i]) {
-			regulator_disable(sdev->regulators[i]);
+		if (sdev->regulators[i])
 			regulator_put(sdev->regulators[i]);
-		}
 	}
 	return ret;
 }
@@ -622,10 +625,10 @@ static struct simpledrm_device *simpledrm_device_create(struct drm_driver *drv,
 	 * Hardware settings
 	 */
 
-	ret = simpledrm_device_init_clocks(sdev);
+	ret = simpledrm_device_init_regulators(sdev);
 	if (ret)
 		return ERR_PTR(ret);
-	ret = simpledrm_device_init_regulators(sdev);
+	ret = simpledrm_device_init_clocks(sdev);
 	if (ret)
 		return ERR_PTR(ret);
 	ret = simpledrm_device_attach_genpd(sdev);
