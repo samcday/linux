@@ -110,7 +110,7 @@ struct crypto_rng *crypto_alloc_rng(const char *alg_name, u32 type, u32 mask)
 }
 EXPORT_SYMBOL_GPL(crypto_alloc_rng);
 
-static int crypto_get_default_rng(void)
+static int crypto_get_rng(struct crypto_rng **rngp)
 {
 	struct crypto_rng *rng;
 	int err;
@@ -133,7 +133,7 @@ static int crypto_get_default_rng(void)
 	return 0;
 }
 
-int crypto_get_default_rng(void)
+static int crypto_get_default_rng(void)
 {
 	int err;
 
