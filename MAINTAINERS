@@ -21885,6 +21885,7 @@ L:	linux-arm-msm@vger.kernel.org
 S:	Maintained
 F:	Documentation/ABI/testing/sysfs-driver-eud
 F:	Documentation/devicetree/bindings/soc/qcom/qcom,eud.yaml
+F:	drivers/tty/serial/qcom_eud_serial.c
 F:	drivers/usb/misc/qcom_eud.c
 
 QCOM IPA DRIVER

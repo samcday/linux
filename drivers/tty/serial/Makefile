@@ -65,6 +65,7 @@ obj-$(CONFIG_SERIAL_PCH_UART)		+= pch_uart.o
 obj-$(CONFIG_SERIAL_PIC32)		+= pic32_uart.o
 obj-$(CONFIG_SERIAL_PXA_NON8250)	+= pxa.o
 obj-$(CONFIG_SERIAL_PMACZILOG)		+= pmac_zilog.o
+obj-$(CONFIG_SERIAL_QCOM_EUD)		+= qcom_eud_serial.o
 obj-$(CONFIG_SERIAL_QCOM_GENI)		+= qcom_geni_serial.o
 obj-$(CONFIG_SERIAL_QE)			+= ucc_uart.o
 obj-$(CONFIG_SERIAL_RDA)		+= rda-uart.o
