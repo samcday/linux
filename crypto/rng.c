@@ -337,15 +337,8 @@ static const struct random_extrng crypto_devrandom_rng = {
 
 static int __init crypto_rng_init(void)
 {
-	int err;
-
-	if (fips_enabled) {
-		err = crypto_get_default_rng();
-		if (err)
-			return err;
-		crypto_put_default_rng();
+	if (fips_enabled)
 		random_register_extrng(&crypto_devrandom_rng);
-	}
 	return 0;
 }
 
