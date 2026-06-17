@@ -29,7 +29,8 @@
 static ____cacheline_aligned_in_smp DEFINE_MUTEX(crypto_reseed_rng_lock);
 static struct crypto_rng *crypto_reseed_rng;
 static ____cacheline_aligned_in_smp DEFINE_MUTEX(crypto_default_rng_lock);
-static struct crypto_rng *crypto_default_rng;
+struct crypto_rng *crypto_default_rng;
+EXPORT_SYMBOL_GPL(crypto_default_rng);
 static int crypto_default_rng_refcnt;
 
 int crypto_rng_reset(struct crypto_rng *tfm, const u8 *seed, unsigned int slen)
