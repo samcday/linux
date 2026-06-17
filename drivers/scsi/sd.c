@@ -119,7 +119,6 @@ static const char *sd_cache_types[] = {
 	"write back, no read (daft)"
 };
 
-<<<<<<< HEAD
 static int sd_large_pool_create(void)
 {
 	mutex_lock(&sd_mutex_lock);
