@@ -1,0 +1,18 @@
+# ~~~
+# Symbol: GPIO_WAVESHARE_DSI_TOUCH [=n]
+# Type  : tristate
+# Defined at drivers/gpio/Kconfig:817
+#   Prompt: Waveshare GPIO controller for DSI panels
+#   Depends on: GPIOLIB [=y] && HAS_IOMEM [=y] && BACKLIGHT_CLASS_DEVICE [=y] && I2C [=y]
+#   Location:
+#     -> Device Drivers
+#       -> GPIO Support (GPIOLIB [=y])
+#         -> Memory mapped GPIO drivers
+#           -> Waveshare GPIO controller for DSI panels (GPIO_WAVESHARE_DSI_TOUCH [=n])
+# Selects: REGMAP_I2C [=m]
+# 
+# 
+# 
+# ~~~
+# Commit: 79f44c8acfe6 (gpio: add GPIO controller found on Waveshare DSI TOUCH panels)
+# CONFIG_GPIO_WAVESHARE_DSI_TOUCH is not set

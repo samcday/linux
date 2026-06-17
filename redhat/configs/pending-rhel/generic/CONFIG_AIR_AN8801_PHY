@@ -1,0 +1,18 @@
+# ~~~
+# Symbol: AIR_AN8801_PHY [=n]
+# Type  : tristate
+# Defined at drivers/net/phy/Kconfig:93
+#   Prompt: Airoha AN8801 Gigabit PHY
+#   Depends on: NETDEVICES [=y] && PHYLIB [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Network device support (NETDEVICES [=y])
+#         -> PHY Device support and infrastructure (PHYLIB [=y])
+#           -> Airoha AN8801 Gigabit PHY (AIR_AN8801_PHY [=n])
+# Selects: AIR_NET_PHYLIB [=m]
+# 
+# 
+# 
+# ~~~
+# Commit: fdb9bf7f1658 (net: phy: Introduce Airoha AN8801R Gigabit Ethernet PHY driver)
+# CONFIG_AIR_AN8801_PHY is not set

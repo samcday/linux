@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: SENSORS_D1U74T [=n]
+# Type  : tristate
+# Defined at drivers/hwmon/pmbus/Kconfig:116
+#   Prompt: Murata D1U74T Power Supply
+#   Depends on: HWMON [=y] && PMBUS [=m]
+#   Location:
+#     -> Device Drivers
+#       -> Hardware Monitoring support (HWMON [=y])
+#         -> PMBus support (PMBUS [=m])
+#           -> Murata D1U74T Power Supply (SENSORS_D1U74T [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: ef68b3dbbe39 (hwmon: (pmbus/d1u74t) Add Murata D1U74T PSU driver)
+# CONFIG_SENSORS_D1U74T is not set

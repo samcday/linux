@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: SENSORS_MAX20830 [=n]
+# Type  : tristate
+# Defined at drivers/hwmon/pmbus/Kconfig:396
+#   Prompt: Analog Devices MAX20830
+#   Depends on: HWMON [=y] && PMBUS [=m]
+#   Location:
+#     -> Device Drivers
+#       -> Hardware Monitoring support (HWMON [=y])
+#         -> PMBus support (PMBUS [=m])
+#           -> Analog Devices MAX20830 (SENSORS_MAX20830 [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: dfd47a3c885b (hwmon: (pmbus/max20830) add driver for max20830)
+# CONFIG_SENSORS_MAX20830 is not set

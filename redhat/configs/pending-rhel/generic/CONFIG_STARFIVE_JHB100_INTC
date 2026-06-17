@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: STARFIVE_JHB100_INTC [=y]
+# Type  : bool
+# Defined at drivers/irqchip/Kconfig:674
+#   Prompt: StarFive JHB100 External Interrupt Controller
+#   Depends on: ARCH_STARFIVE [=y] || COMPILE_TEST [=n]
+#   Location:
+#     -> Device Drivers
+#       -> IRQ chip support
+#         -> StarFive JHB100 External Interrupt Controller (STARFIVE_JHB100_INTC [=y])
+# Selects: IRQ_DOMAIN_HIERARCHY [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: ac2005bba8d9 (irqchip/starfive: Rename jh8100 to jhb100)
+CONFIG_STARFIVE_JHB100_INTC=y
