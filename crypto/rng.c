@@ -304,20 +304,20 @@ static ssize_t crypto_devrandom_read_iter(struct iov_iter *iter, bool reseed)
 		i = min_t(size_t, iov_iter_count(iter), sizeof(tmp));
 		err = crypto_rng_get_bytes(rng, tmp, i);
 		if (err) {
-			ret = ret ?: err;
+			ret = err;
 			break;
 		}
 
 		copied = copy_to_iter(tmp, i, iter);
 		ret += copied;
-		if (!iov_iter_count(iter) || copied != i)
+
+		if (!iov_iter_count(iter))
 			break;
 
-		BUILD_BUG_ON(PAGE_SIZE % sizeof(tmp) != 0);
-		if (ret % PAGE_SIZE == 0) {
+		if (need_resched()) {
 			if (signal_pending(current))
 				break;
-			cond_resched();
+			schedule();
 		}
 	}
 
@@ -326,7 +326,8 @@ static ssize_t crypto_devrandom_read_iter(struct iov_iter *iter, bool reseed)
 	else
 		crypto_put_default_rng();
 	memzero_explicit(tmp, sizeof(tmp));
-	return ret ? ret : -EFAULT;
+
+	return ret;
 }
 
 static const struct random_extrng crypto_devrandom_rng = {
