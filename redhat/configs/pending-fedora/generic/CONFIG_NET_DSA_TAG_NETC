@@ -1,0 +1,20 @@
+# ~~~
+# Symbol: NET_DSA_TAG_NETC [=n]
+# Type  : tristate
+# Defined at net/dsa/Kconfig:128
+#   Prompt: Tag driver for NXP NETC switches
+#   Depends on: NET [=y] && NET_DSA [=m]
+#   Location:
+#     -> Networking support (NET [=y])
+#       -> Networking options
+#         -> 802.1d Ethernet Bridging (BRIDGE [=m])
+#           -> Distributed Switch Architecture (NET_DSA [=m])
+#             -> Tag driver for NXP NETC switches (NET_DSA_TAG_NETC [=n])
+# Selected by [n]:
+#   - NET_DSA_NETC_SWITCH [=n] && NETDEVICES [=y] && (ARM64 || COMPILE_TEST [=n]) && NET_DSA [=m] && PCI [=y] && NET_VENDOR_FREESCALE [=n]
+# 
+# 
+# 
+# ~~~
+# Commit: 0850005c26d2 (net: dsa: add NETC switch tag support)
+# CONFIG_NET_DSA_TAG_NETC is not set

@@ -1,0 +1,18 @@
+# ~~~
+# Symbol: CAN_VIRTIO_CAN [=n]
+# Type  : tristate
+# Defined at drivers/net/can/Kconfig:229
+#   Prompt: Virtio CAN device support
+#   Depends on: NETDEVICES [=y] && CAN_DEV [=y] && CAN_NETLINK [=y] && VIRTIO [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Network device support (NETDEVICES [=y])
+#         -> CAN Device Drivers (CAN_DEV [=y])
+#           -> CAN device drivers with Netlink support (CAN_NETLINK [=y])
+#             -> Virtio CAN device support (CAN_VIRTIO_CAN [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: 083082a4e6d8 (can: virtio: Add virtio CAN driver)
+# CONFIG_CAN_VIRTIO_CAN is not set

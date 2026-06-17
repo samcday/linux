@@ -1,0 +1,19 @@
+# ~~~
+# Symbol: DRM_PANEL_NOVATEK_NT35532 [=n]
+# Type  : tristate
+# Defined at drivers/gpu/drm/panel/Kconfig:580
+#   Prompt: Novatek NT35532-based DSI video mode panel
+#   Depends on: HAS_IOMEM [=y] && DRM [=y] && DRM_PANEL [=y] && OF [=y] && DRM_MIPI_DSI [=y] && BACKLIGHT_CLASS_DEVICE [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Graphics support
+#         -> Direct Rendering Manager (XFree86 4.1.0 and higher DRI support) (DRM [=y])
+#           -> Display Panels
+#             -> Novatek NT35532-based DSI video mode panel (DRM_PANEL_NOVATEK_NT35532 [=n])
+# Selects: DRM_KMS_HELPER [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: 7a0dd1b5c55f (drm/panel: Add driver for Novatek NT35532)
+# CONFIG_DRM_PANEL_NOVATEK_NT35532 is not set
