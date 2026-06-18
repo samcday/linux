@@ -42,6 +42,12 @@ static inline struct qcom_eud_port *to_eud_port(struct uart_port *port)
 	return container_of(port, struct qcom_eud_port, port);
 }
 
+static void qcom_eud_enable(struct uart_port *port)
+{
+	writel(EUD_ENABLE, port->membase + EUD_REG_CSR_EUD_EN);
+	readl(port->membase + EUD_REG_CSR_EUD_EN);
+}
+
 static int qcom_eud_write_frame(void __iomem *base, const unsigned char *buf,
 				unsigned int count)
 {
@@ -177,7 +183,7 @@ static void qcom_eud_stop_rx(struct uart_port *port)
 
 static int qcom_eud_startup(struct uart_port *port)
 {
-	writel(EUD_ENABLE, port->membase + EUD_REG_CSR_EUD_EN);
+	qcom_eud_enable(port);
 
 	return 0;
 }
@@ -281,6 +287,117 @@ OF_EARLYCON_DECLARE(qcom_eud, "qcom,sdm845-eud",
 		    qcom_eud_earlycon_setup);
 #endif
 
+#ifdef CONFIG_SERIAL_QCOM_EUD_CONSOLE
+static struct uart_port *qcom_eud_console_port;
+
+static bool qcom_eud_console_flush(struct uart_port *port,
+				   const unsigned char *buf,
+				   unsigned int count)
+{
+	if (qcom_eud_write_frame(port->membase, buf, count))
+		return false;
+
+	udelay(EUD_FRAME_DELAY_US);
+
+	return true;
+}
+
+static void qcom_eud_console_write(struct console *co, const char *s,
+				   unsigned int count)
+{
+	struct uart_port *port = qcom_eud_console_port;
+	unsigned char buf[EUD_FIFO_SIZE];
+	unsigned long flags;
+	unsigned int i;
+	unsigned int len = 0;
+	bool locked = true;
+
+	if (!port || !port->membase)
+		return;
+
+	if (oops_in_progress)
+		locked = uart_port_trylock_irqsave(port, &flags);
+	else
+		uart_port_lock_irqsave(port, &flags);
+
+	for (i = 0; i < count; i++) {
+		if (s[i] == '\n') {
+			buf[len++] = '\r';
+			if (len == sizeof(buf)) {
+				if (!qcom_eud_console_flush(port, buf, len))
+					goto out_unlock;
+				len = 0;
+			}
+		}
+
+		buf[len++] = s[i];
+		if (len == sizeof(buf)) {
+			if (!qcom_eud_console_flush(port, buf, len))
+				goto out_unlock;
+			len = 0;
+		}
+	}
+
+	if (len)
+		qcom_eud_console_flush(port, buf, len);
+
+out_unlock:
+	if (locked)
+		uart_port_unlock_irqrestore(port, flags);
+}
+
+static int qcom_eud_console_setup(struct console *co, char *options)
+{
+	struct uart_port *port = qcom_eud_console_port;
+	int baud = 115200;
+	int parity = 'n';
+	int bits = 8;
+	int flow = 'n';
+
+	if (co->index < 0)
+		co->index = 0;
+	if (co->index >= EUD_NR_PORTS)
+		return -ENXIO;
+	if (!port || !port->membase || port->line != co->index)
+		return -ENODEV;
+
+	qcom_eud_enable(port);
+
+	if (options)
+		uart_parse_options(options, &baud, &parity, &bits, &flow);
+
+	return uart_set_options(port, co, baud, parity, bits, flow);
+}
+
+static struct console qcom_eud_console = {
+	.name	= "ttyEUD",
+	.write	= qcom_eud_console_write,
+	.device	= uart_console_device,
+	.setup	= qcom_eud_console_setup,
+	.flags	= CON_PRINTBUFFER,
+	.index	= -1,
+	.data	= &qcom_eud_uart_driver,
+};
+
+static void qcom_eud_add_console_port(struct uart_port *port)
+{
+	qcom_eud_console_port = port;
+}
+
+static void qcom_eud_remove_console_port(struct uart_port *port)
+{
+	if (qcom_eud_console_port == port)
+		qcom_eud_console_port = NULL;
+}
+
+#define QCOM_EUD_CONSOLE	(&qcom_eud_console)
+#else
+static inline void qcom_eud_add_console_port(struct uart_port *port) { }
+static inline void qcom_eud_remove_console_port(struct uart_port *port) { }
+
+#define QCOM_EUD_CONSOLE	NULL
+#endif
+
 static int qcom_eud_probe(struct platform_device *pdev)
 {
 	struct qcom_eud_port *eud;
@@ -322,9 +439,13 @@ static int qcom_eud_probe(struct platform_device *pdev)
 
 	platform_set_drvdata(pdev, eud);
 
+	qcom_eud_add_console_port(port);
+
 	ret = uart_add_one_port(&qcom_eud_uart_driver, port);
-	if (ret)
+	if (ret) {
+		qcom_eud_remove_console_port(port);
 		return ret;
+	}
 
 	return 0;
 }
@@ -334,6 +455,7 @@ static void qcom_eud_remove(struct platform_device *pdev)
 	struct qcom_eud_port *eud = platform_get_drvdata(pdev);
 
 	uart_remove_one_port(&qcom_eud_uart_driver, &eud->port);
+	qcom_eud_remove_console_port(&eud->port);
 	cancel_work_sync(&eud->tx_work);
 }
 
@@ -357,6 +479,7 @@ static struct uart_driver qcom_eud_uart_driver = {
 	.driver_name	= "qcom_eud_serial",
 	.dev_name	= "ttyEUD",
 	.nr		= EUD_NR_PORTS,
+	.cons		= QCOM_EUD_CONSOLE,
 };
 
 static int __init qcom_eud_init(void)

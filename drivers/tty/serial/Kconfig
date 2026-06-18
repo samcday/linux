@@ -932,6 +932,16 @@ config SERIAL_QCOM_EUD_EARLYCON
 	  Support for using the SDM845 EUD COM interface as a write-only
 	  early console with "earlycon=qcom_eud,mmio,<addr>".
 
+config SERIAL_QCOM_EUD_CONSOLE
+	bool "Qualcomm SDM845 EUD COM console support"
+	depends on SERIAL_QCOM_EUD=y
+	select SERIAL_CORE_CONSOLE
+	help
+	  The SDM845 EUD COM interface is a debug transport exposed through
+	  the Qualcomm EUD virtual USB hub. Enable this to let printk bind to
+	  ttyEUD0 via "console=ttyEUD0" after the platform driver probes.
+	  This does not provide receive-side console input.
+
 config SERIAL_QCOM_GENI
 	tristate "Qualcomm on-chip GENI based serial port support"
 	depends on ARCH_QCOM || COMPILE_TEST
