@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: DM_INLINECRYPT [=n]
+# Type  : tristate
+# Defined at drivers/md/Kconfig:318
+#   Prompt: Inline encryption target support
+#   Depends on: MD [=y] && BLK_DEV_DM [=y] && BLK_INLINE_ENCRYPTION [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Multiple devices driver support (RAID and LVM) (MD [=y])
+#         -> Device mapper support (BLK_DEV_DM [=y])
+#           -> Inline encryption target support (DM_INLINECRYPT [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: e7f57d2c47e2 (dm-inlinecrypt: add target for inline block device encryption)
+# CONFIG_DM_INLINECRYPT is not set

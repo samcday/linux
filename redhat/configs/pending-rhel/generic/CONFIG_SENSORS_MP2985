@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: SENSORS_MP2985 [=n]
+# Type  : tristate
+# Defined at drivers/hwmon/pmbus/Kconfig:515
+#   Prompt: MPS MP2985
+#   Depends on: HWMON [=y] && PMBUS [=m]
+#   Location:
+#     -> Device Drivers
+#       -> Hardware Monitoring support (HWMON [=y])
+#         -> PMBus support (PMBUS [=m])
+#           -> MPS MP2985 (SENSORS_MP2985 [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: e656735fe32c (hwmon: add MP2985 driver)
+# CONFIG_SENSORS_MP2985 is not set

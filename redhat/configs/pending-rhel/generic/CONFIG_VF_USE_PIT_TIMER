@@ -1,0 +1,18 @@
+# ~~~
+# Symbol: VF_USE_PIT_TIMER [=n]
+# Type  : bool
+# Defined at drivers/clocksource/Kconfig:812
+#   Prompt: Use NXP PIT timer
+#   Depends on: GENERIC_CLOCKEVENTS [=y] && (SOC_VF610 || ARCH_S32 [=y])
+#   Location:
+#     -> Device Drivers
+#       -> Clock Source drivers
+#         -> NXP clocksource for scheduler clock (<choice> [=n])
+#           -> Use NXP PIT timer (VF_USE_PIT_TIMER [=n])
+# Selects: NXP_PIT_TIMER [=n]
+# 
+# 
+# 
+# ~~~
+# Commit: a9ac745bc320 (clocksource: move NXP timer selection to drivers/clocksource)
+# CONFIG_VF_USE_PIT_TIMER is not set

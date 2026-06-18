@@ -151,7 +151,6 @@
 #define CRYPTO_TFM_REQ_MAY_SLEEP	0x00000200
 #define CRYPTO_TFM_REQ_MAY_BACKLOG	0x00000400
 #define CRYPTO_TFM_REQ_ON_STACK		0x00000800
-#define CRYPTO_TFM_REQ_NEED_RESEED	0x00001000
 
 #define CRYPTO_TFM_FIPS_COMPLIANCE	0x80000000
 
@@ -412,7 +411,6 @@ int crypto_has_alg(const char *name, u32 type, u32 mask);
  */
 
 struct crypto_tfm {
-	refcount_t refcnt;
 
 	u32 crt_flags;
 

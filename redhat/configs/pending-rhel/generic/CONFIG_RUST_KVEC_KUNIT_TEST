@@ -1,0 +1,18 @@
+# ~~~
+# Symbol: RUST_KVEC_KUNIT_TEST [=y]
+# Type  : bool
+# Defined at rust/kernel/Kconfig.test:26
+#   Prompt: KUnit tests for Rust KVec API
+#   Depends on: RUST_KUNIT_TESTS [=y]
+#   Visible if: RUST_KUNIT_TESTS [=y] && !KUNIT_ALL_TESTS [=m]
+#   Location:
+#     -> General setup
+#       -> Rust support (RUST [=y])
+#         -> Rust KUnit tests (RUST_KUNIT_TESTS [=y])
+#           -> KUnit tests for Rust KVec API (RUST_KVEC_KUNIT_TEST [=y])
+# 
+# 
+# 
+# ~~~
+# Commit: e74b7a3f5aee (rust: tests: add Kconfig for KUnit test)
+CONFIG_RUST_KVEC_KUNIT_TEST=y

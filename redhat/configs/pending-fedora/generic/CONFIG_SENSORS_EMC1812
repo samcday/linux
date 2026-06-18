@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: SENSORS_EMC1812 [=n]
+# Type  : tristate
+# Defined at drivers/hwmon/Kconfig:2071
+#   Prompt: Microchip Technology EMC1812 driver
+#   Depends on: HWMON [=y] && I2C [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Hardware Monitoring support (HWMON [=y])
+#         -> Microchip Technology EMC1812 driver (SENSORS_EMC1812 [=n])
+# Selects: REGMAP_I2C [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: 54b15c59a46f (hwmon: temperature: add support for EMC1812)
+# CONFIG_SENSORS_EMC1812 is not set

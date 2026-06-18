@@ -1,0 +1,18 @@
+# ~~~
+# Symbol: HW_RANDOM_XILINX [=n]
+# Type  : tristate
+# Defined at drivers/char/hw_random/Kconfig:628
+#   Prompt: Support for Xilinx True Random Generator
+#   Depends on: HW_RANDOM [=y] && (ZYNQMP_FIRMWARE [=y] || COMPILE_TEST [=n])
+#   Location:
+#     -> Device Drivers
+#       -> Character devices
+#         -> Hardware Random Number Generator Core support (HW_RANDOM [=y])
+#           -> Support for Xilinx True Random Generator (HW_RANDOM_XILINX [=n])
+# Selects: CRYPTO_LIB_SHA512 [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: be6498ca1cca (hwrng: xilinx - Move xilinx-rng into drivers/char/hw_random/)
+# CONFIG_HW_RANDOM_XILINX is not set

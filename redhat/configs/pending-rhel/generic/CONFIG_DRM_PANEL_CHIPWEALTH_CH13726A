@@ -1,0 +1,19 @@
+# ~~~
+# Symbol: DRM_PANEL_CHIPWEALTH_CH13726A [=n]
+# Type  : tristate
+# Defined at drivers/gpu/drm/panel/Kconfig:108
+#   Prompt: CHIPWEALTH CH13726A-based DSI panel
+#   Depends on: HAS_IOMEM [=y] && DRM [=y] && DRM_PANEL [=y] && OF [=y] && DRM_MIPI_DSI [=y] && BACKLIGHT_CLASS_DEVICE [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Graphics support
+#         -> Direct Rendering Manager (XFree86 4.1.0 and higher DRI support) (DRM [=y])
+#           -> Display Panels
+#             -> CHIPWEALTH CH13726A-based DSI panel (DRM_PANEL_CHIPWEALTH_CH13726A [=n])
+# Selects: DRM_DISPLAY_DP_HELPER [=y] && DRM_DISPLAY_HELPER [=m]
+# 
+# 
+# 
+# ~~~
+# Commit: 3ee01b8647b5 (drm/panel: Add panel driver for ChipWealth CH13726A based panels)
+# CONFIG_DRM_PANEL_CHIPWEALTH_CH13726A is not set

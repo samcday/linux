@@ -1,0 +1,20 @@
+# ~~~
+# Symbol: DRM_AMD_DC_KUNIT_TEST [=m]
+# Type  : tristate
+# Defined at drivers/gpu/drm/amd/display/Kconfig:59
+#   Prompt: KUnit tests for the AMD DC display driver
+#   Depends on: HAS_IOMEM [=y] && DRM [=y] && DRM_AMDGPU [=m] && DRM_AMD_DC [=y] && KUNIT [=m] && DEBUG_FS [=y] && DRM_KUNIT_TEST_HELPERS [=m]
+#   Visible if: HAS_IOMEM [=y] && DRM [=y] && DRM_AMDGPU [=m] && DRM_AMD_DC [=y] && KUNIT [=m] && DEBUG_FS [=y] && DRM_KUNIT_TEST_HELPERS [=m] && !KUNIT_ALL_TESTS [=m]
+#   Location:
+#     -> Device Drivers
+#       -> Graphics support
+#         -> Direct Rendering Manager (XFree86 4.1.0 and higher DRI support) (DRM [=y])
+#           -> AMD GPU (DRM_AMDGPU [=m])
+#             -> Display Engine Configuration
+#               -> KUnit tests for the AMD DC display driver (DRM_AMD_DC_KUNIT_TEST [=m])
+# 
+# 
+# 
+# ~~~
+# Commit: d28859a47058 (drm/amd/display: Add KUnit test for CRC function)
+CONFIG_DRM_AMD_DC_KUNIT_TEST=m

@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: CMA_SIZE_PERNUMA [=y]
+# Type  : bool
+# Defined at kernel/dma/Kconfig:186
+#   Prompt: Default CMA area per NUMA node
+#   Depends on: DMA_CMA [=y] && DMA_NUMA_CMA [=y]
+#   Location:
+#     -> Library routines
+#       -> DMA Contiguous Memory Allocator (DMA_CMA [=y])
+#         -> Enable separate DMA Contiguous Memory Area for NUMA Node (DMA_NUMA_CMA [=y])
+#           -> Default CMA area per NUMA node (CMA_SIZE_PERNUMA [=y])
+# 
+# 
+# 
+# ~~~
+# Commit: 7e6ace2535d0 (dma-contiguous: add kconfig option to setup numa cma area if not configured explicitly)
+CONFIG_CMA_SIZE_PERNUMA=y

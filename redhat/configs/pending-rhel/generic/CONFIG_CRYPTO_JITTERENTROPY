@@ -1,0 +1,19 @@
+# ~~~
+# Symbol: CRYPTO_JITTERENTROPY [=n]
+# Type  : tristate
+# Defined at crypto/Kconfig:1109
+#   Prompt: CPU Jitter Non-Deterministic RNG (Random Number Generator)
+#   Depends on: CRYPTO [=y]
+#   Location:
+#     -> Cryptographic API (CRYPTO [=y])
+#       -> Random number generation
+#         -> CPU Jitter Non-Deterministic RNG (Random Number Generator) (CRYPTO_JITTERENTROPY [=n])
+# Selects: CRYPTO_LIB_SHA3 [=y] && CRYPTO_RNG [=y]
+# Selected by [n]:
+#   - CRYPTO_DRBG [=n] && CRYPTO [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: bb5530e40824 (crypto: jitterentropy - add jitterentropy RNG)
+# CONFIG_CRYPTO_JITTERENTROPY is not set

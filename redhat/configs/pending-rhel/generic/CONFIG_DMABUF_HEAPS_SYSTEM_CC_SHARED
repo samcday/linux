@@ -1,0 +1,18 @@
+# ~~~
+# Symbol: DMABUF_HEAPS_SYSTEM_CC_SHARED [=n]
+# Type  : bool
+# Defined at drivers/dma-buf/heaps/Kconfig:8
+#   Prompt: DMA-BUF System Heap for decrypted CoCo VMs
+#   Depends on: DMABUF_HEAPS [=y] && ARCH_HAS_MEM_ENCRYPT [=y] && DMABUF_HEAPS_SYSTEM [=y]=y [=y]
+#   Location:
+#     -> Device Drivers
+#       -> DMABUF options
+#         -> DMA-BUF Userland Memory Heaps (DMABUF_HEAPS [=y])
+#           -> DMA-BUF System Heap (DMABUF_HEAPS_SYSTEM [=y])
+#             -> DMA-BUF System Heap for decrypted CoCo VMs (DMABUF_HEAPS_SYSTEM_CC_SHARED [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: f7606400f19c (dma-buf: move system_cc_shared heap under separate Kconfig)
+# CONFIG_DMABUF_HEAPS_SYSTEM_CC_SHARED is not set
