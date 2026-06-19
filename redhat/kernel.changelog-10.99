@@ -1,3 +1,7 @@
+* Fri Jun 19 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.2.0-0.rc0.9ecfb2f7287a.2]
+- Linux v7.2.0-0.rc0.9ecfb2f7287a
+Resolves: 
+
 * Thu Jun 18 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.2.0-0.rc0.e771677c937d.1]
 - Reset RHEL_RELEASE for the 7.2 cycle (Scott Weaver)
 - Revert "crypto: rng - Override drivers/char/random in FIPS mode" (Patrick Talbert)
