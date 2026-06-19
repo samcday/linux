@@ -1,0 +1,18 @@
+# ~~~
+# Symbol: HID_OXP [=n]
+# Type  : tristate
+# Defined at drivers/hid/Kconfig:908
+#   Prompt: OneXPlayer handheld controller configuration support
+#   Depends on: HID_SUPPORT [=y] && HID [=y] && USB_HID [=y] && LEDS_CLASS [=y] && LEDS_CLASS_MULTICOLOR [=m] && DMI [=y]
+#   Location:
+#     -> Device Drivers
+#       -> HID bus support (HID_SUPPORT [=y])
+#         -> HID bus core support (HID [=y])
+#           -> Special HID drivers
+#             -> OneXPlayer handheld controller configuration support (HID_OXP [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: 84910c459d65 (HID: hid-oxp: Add OneXPlayer configuration driver)
+# CONFIG_HID_OXP is not set
