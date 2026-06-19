@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: PINCTRL_TEGRA238 [=n]
+# Type  : tristate
+# Defined at drivers/pinctrl/tegra/Kconfig:40
+#   Prompt: NVIDIA Tegra238 pinctrl driver
+#   Depends on: PINCTRL [=y] && (ARCH_TEGRA [=y] || COMPILE_TEST [=n])
+#   Location:
+#     -> Device Drivers
+#       -> Pin controllers (PINCTRL [=y])
+#         -> NVIDIA Tegra238 pinctrl driver (PINCTRL_TEGRA238 [=n])
+# Selects: PINCTRL_TEGRA [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: 25cac7292d49 (pinctrl: tegra: Add Tegra238 pinmux driver)
+# CONFIG_PINCTRL_TEGRA238 is not set

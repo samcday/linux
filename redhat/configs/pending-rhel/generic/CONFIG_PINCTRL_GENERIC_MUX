@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: PINCTRL_GENERIC_MUX [=n]
+# Type  : tristate
+# Defined at drivers/pinctrl/Kconfig:275
+#   Prompt: Generic Pinctrl driver by using multiplexer
+#   Depends on: PINCTRL [=y] && MULTIPLEXER [=y] && OF [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Pin controllers (PINCTRL [=y])
+#         -> Generic Pinctrl driver by using multiplexer (PINCTRL_GENERIC_MUX [=n])
+# Selects: PINMUX [=y] && GENERIC_PINCTRL [=n]
+# 
+# 
+# 
+# ~~~
+# Commit: 34acc5a8adfb (pinctrl: add generic board-level pinctrl driver using mux framework)
+# CONFIG_PINCTRL_GENERIC_MUX is not set
