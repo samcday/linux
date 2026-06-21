@@ -25,6 +25,12 @@ properties:
       GPIO connected to the CE (chip enable) pin of the chip (active high)
     maxItems: 1
 
+  vdd-supply:
+    description: Power supply to the chip
+
+  vddio-supply:
+    description: I/O power supply to the chip
+
 required:
   - compatible
   - reg
@@ -47,6 +53,7 @@ examples:
 
             interrupts-extended = <&tlmm 13 IRQ_TYPE_EDGE_FALLING>;
             ce-gpios = <&tlmm 12 GPIO_ACTIVE_HIGH>;
+            vdd-supply = <&vreg_l22a>;
 
             pinctrl-0 = <&touchscreen_default>;
             pinctrl-names = "default";

@@ -374,6 +374,7 @@
 	touchscreen@48 {
 		compatible = "melfas,mip4_ts";
 		reg = <0x48>;
+		vdd-supply = <&vdd_ldo34>;
 
 		interrupt-parent = <&gpc3>;
 		interrupts = <2 IRQ_TYPE_EDGE_FALLING>;

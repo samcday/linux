@@ -17,6 +17,7 @@
 #include <linux/interrupt.h>
 #include <linux/module.h>
 #include <linux/of.h>
+#include <linux/regulator/consumer.h>
 #include <linux/slab.h>
 #include <linux/unaligned.h>
 
@@ -148,6 +149,8 @@ struct mip4_ts {
 	struct i2c_client *client;
 	struct input_dev *input;
 	struct gpio_desc *gpio_ce;
+	struct regulator *vdd;
+	struct regulator *vddio;
 
 	char phys[32];
 	char product_name[16];
@@ -172,9 +175,41 @@ struct mip4_ts {
 	unsigned short key_code[MIP4_MAX_KEYS];
 
 	bool wake_irq_enabled;
+	bool powered;
 
 	u8 buf[MIP4_BUF_SIZE];
 };
+
+static int mip4_get_optional_regulator(struct device *dev,
+				       struct regulator **regulator,
+				       const char *supply)
+{
+	struct regulator *reg;
+
+	reg = devm_regulator_get_optional(dev, supply);
+	if (IS_ERR(reg)) {
+		if (PTR_ERR(reg) == -ENODEV)
+			return 0;
+
+		return dev_err_probe(dev, PTR_ERR(reg),
+				     "Failed to get %s regulator\n", supply);
+	}
+
+	*regulator = reg;
+	return 0;
+}
+
+static int mip4_init_regulators(struct mip4_ts *ts)
+{
+	struct device *dev = &ts->client->dev;
+	int error;
+
+	error = mip4_get_optional_regulator(dev, &ts->vdd, "vdd");
+	if (error)
+		return error;
+
+	return mip4_get_optional_regulator(dev, &ts->vddio, "vddio");
+}
 
 static int mip4_i2c_xfer(struct mip4_ts *ts,
 			 char *write_buf, unsigned int write_len,
@@ -365,20 +400,68 @@ static int mip4_query_device(struct mip4_ts *ts)
 
 static int mip4_power_on(struct mip4_ts *ts)
 {
+	int error;
+
+	if (ts->powered)
+		return 0;
+
+	if (ts->vdd) {
+		error = regulator_enable(ts->vdd);
+		if (error)
+			return error;
+	}
+
+	if (ts->vddio) {
+		error = regulator_enable(ts->vddio);
+		if (error)
+			goto disable_vdd;
+	}
+
 	if (ts->gpio_ce) {
 		gpiod_set_value_cansleep(ts->gpio_ce, 1);
 
 		/* Booting delay : 200~300ms */
 		usleep_range(200 * 1000, 300 * 1000);
+	} else if (ts->vdd || ts->vddio) {
+		msleep(50);
 	}
 
+	ts->powered = true;
+
 	return 0;
+
+disable_vdd:
+	if (ts->vdd)
+		regulator_disable(ts->vdd);
+
+	return error;
 }
 
 static void mip4_power_off(struct mip4_ts *ts)
 {
+	int error;
+
+	if (!ts->powered)
+		return;
+
 	if (ts->gpio_ce)
 		gpiod_set_value_cansleep(ts->gpio_ce, 0);
+
+	if (ts->vddio) {
+		error = regulator_disable(ts->vddio);
+		if (error)
+			dev_warn(&ts->client->dev,
+				 "Failed to disable vddio regulator: %d\n", error);
+	}
+
+	if (ts->vdd) {
+		error = regulator_disable(ts->vdd);
+		if (error)
+			dev_warn(&ts->client->dev,
+				 "Failed to disable vdd regulator: %d\n", error);
+	}
+
+	ts->powered = false;
 }
 
 /*
@@ -1421,6 +1504,10 @@ static int mip4_probe(struct i2c_client *client)
 					      "ce", GPIOD_OUT_LOW);
 	if (IS_ERR(ts->gpio_ce))
 		return dev_err_probe(&client->dev, PTR_ERR(ts->gpio_ce), "Failed to get gpio\n");
+
+	error = mip4_init_regulators(ts);
+	if (error)
+		return error;
 
 	error = mip4_power_on(ts);
 	if (error)
