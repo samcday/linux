@@ -25,6 +25,15 @@
 		serial2 = &serial2;
 	};
 
+	battery: battery {
+		compatible = "simple-battery";
+
+		device-chemistry = "lithium-ion";
+		charge-full-design-microamp-hours = <3300000>;
+		voltage-min-design-microvolt = <3400000>;
+		voltage-max-design-microvolt = <4380000>;
+	};
+
 	chosen {
 		#address-cells = <2>;
 		#size-cells = <1>;
@@ -333,6 +342,29 @@
 	};
 };
 
+&i2c0 {
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	samsung,i2c-sda-delay = <100>;
+	samsung,i2c-max-bus-freq = <400000>;
+
+	status = "okay";
+
+	fuel-gauge@3b {
+		compatible = "samsung,s2mu005-fuel-gauge";
+		reg = <0x3b>;
+
+		interrupt-parent = <&gpa0>;
+		interrupts = <3 IRQ_TYPE_EDGE_FALLING>;
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&fuel_irq>;
+
+		monitored-battery = <&battery>;
+	};
+};
+
 &i2c1 {
 	samsung,i2c-sda-delay = <100>;
 	samsung,i2c-max-bus-freq = <400000>;
@@ -348,6 +380,45 @@
 
 		pinctrl-names = "default";
 		pinctrl-0 = <&touch_irq>;
+	};
+};
+
+&i2c4 {
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	samsung,i2c-sda-delay = <100>;
+	samsung,i2c-max-bus-freq = <400000>;
+
+	status = "okay";
+
+	pmic@3d {
+		compatible = "samsung,s2mu005-pmic";
+		reg = <0x3d>;
+
+		interrupt-parent = <&gpa2>;
+		interrupts = <7 IRQ_TYPE_LEVEL_LOW>;
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&mfd_irq>;
+
+		monitored-battery = <&battery>;
+
+		muic {
+			compatible = "samsung,s2mu005-muic";
+
+			connector {
+				compatible = "usb-b-connector";
+				label = "micro-USB";
+				type = "micro";
+			};
+
+			port {
+				muic_to_usb: endpoint {
+					remote-endpoint = <&usb_to_muic>;
+				};
+			};
+		};
 	};
 };
 
@@ -467,6 +538,13 @@
 		samsung,pin-drv = <EXYNOS5433_PIN_DRV_FAST_SR1>;
 	};
 
+	mfd_irq: mfd-irq-pins {
+		samsung,pins = "gpa2-7";
+		samsung,pin-function = <EXYNOS_PIN_FUNC_INPUT>;
+		samsung,pin-pud = <EXYNOS_PIN_PULL_NONE>;
+		samsung,pin-drv = <EXYNOS5433_PIN_DRV_FAST_SR1>;
+	};
+
 	pmic_irq: pmic-irq-pins {
 		samsung,pins = "gpa0-2";
 		samsung,pin-pud = <EXYNOS_PIN_PULL_UP>;
@@ -491,4 +569,12 @@
 	vdd33-supply = <&vdd_ldo8>;
 
 	status = "okay";
+};
+
+&usbdrd_phy {
+	port {
+		usb_to_muic: endpoint {
+			remote-endpoint = <&muic_to_usb>;
+		};
+	};
 };
