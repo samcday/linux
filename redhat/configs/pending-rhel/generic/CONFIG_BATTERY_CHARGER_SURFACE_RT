@@ -1,0 +1,16 @@
+# ~~~
+# Symbol: BATTERY_CHARGER_SURFACE_RT [=n]
+# Type  : tristate
+# Defined at drivers/power/supply/Kconfig:1148
+#   Prompt: Battery & Charger driver for Microsoft Surface RT
+#   Depends on: POWER_SUPPLY [=y] && I2C [=y] && GPIOLIB [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Power supply class support (POWER_SUPPLY [=y])
+#         -> Battery & Charger driver for Microsoft Surface RT (BATTERY_CHARGER_SURFACE_RT [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: 3d6529b837de (power: supply: Add support for Surface RT battery and charger)
+# CONFIG_BATTERY_CHARGER_SURFACE_RT is not set
