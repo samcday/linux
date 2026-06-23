@@ -51,6 +51,10 @@
 			compatible = "simple-framebuffer";
 			memory-region = <&cont_splash_mem>;
 
+			vddio-supply = <&vreg_l14a_1p8>;
+			vddpos-supply = <&lab>;
+			vddneg-supply = <&ibb>;
+
 			format = "a8r8g8b8";
 			stride = <(1080 * 4)>;
 			height = <2246>;
