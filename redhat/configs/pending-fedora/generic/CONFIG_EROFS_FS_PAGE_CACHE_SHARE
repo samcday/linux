@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: EROFS_FS_PAGE_CACHE_SHARE [=n]
+# Type  : bool
+# Defined at fs/erofs/Kconfig:189
+#   Prompt: EROFS page cache share support (experimental)
+#   Depends on: MISC_FILESYSTEMS [=y] && EROFS_FS [=m] && EROFS_FS_XATTR [=y]
+#   Location:
+#     -> File systems
+#       -> Miscellaneous filesystems (MISC_FILESYSTEMS [=y])
+#         -> EROFS filesystem support (EROFS_FS [=m])
+#           -> EROFS page cache share support (experimental) (EROFS_FS_PAGE_CACHE_SHARE [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: e0bf7d1c074d (erofs: support user-defined fingerprint name)
+# CONFIG_EROFS_FS_PAGE_CACHE_SHARE is not set

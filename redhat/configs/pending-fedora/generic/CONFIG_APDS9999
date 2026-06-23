@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: APDS9999 [=n]
+# Type  : tristate
+# Defined at drivers/iio/light/Kconfig:122
+#   Prompt: Broadcom APDS9999 ALS, RGB and proximity sensor
+#   Depends on: IIO [=m] && I2C [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Industrial I/O support (IIO [=m])
+#         -> Light sensors
+#           -> Broadcom APDS9999 ALS, RGB and proximity sensor (APDS9999 [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: 5f9363e52300 (iio: light: add support for APDS9999 sensor)
+# CONFIG_APDS9999 is not set

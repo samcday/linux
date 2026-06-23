@@ -1,0 +1,16 @@
+# ~~~
+# Symbol: SENSORS_PROM21_XHCI [=n]
+# Type  : tristate
+# Defined at drivers/hwmon/Kconfig:966
+#   Prompt: AMD Promontory 21 xHCI temperature sensor
+#   Depends on: HWMON [=y] && USB_XHCI_PCI [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Hardware Monitoring support (HWMON [=y])
+#         -> AMD Promontory 21 xHCI temperature sensor (SENSORS_PROM21_XHCI [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: 7e9169146666 (hwmon: add AMD Promontory 21 xHCI temperature sensor support)
+# CONFIG_SENSORS_PROM21_XHCI is not set
