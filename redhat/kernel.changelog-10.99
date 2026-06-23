@@ -1,3 +1,9 @@
+* Tue Jun 23 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.2.0-0.rc0.502d801f0ab0.6]
+- redhat/kernel.spec: set also HOST_EXTRACFLAGS for BPF bootstrap build (Jan Stancek)
+- Trim changelog duplicates after rebase (Justin M. Forbes)
+- Linux v7.2.0-0.rc0.502d801f0ab0
+Resolves: 
+
 * Mon Jun 22 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.2.0-0.rc0.ef0c9f75a195.5]
 - redhat/configs: do not disable PCIEPORTBUS on ppc64le (Dan Horák)
 - Linux v7.2.0-0.rc0.ef0c9f75a195
