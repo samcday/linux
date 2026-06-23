@@ -23,7 +23,6 @@
 
 		interrupts-extended = <&tlmm 31 IRQ_TYPE_EDGE_RISING>;
 		reset-gpios = <&tlmm 32 GPIO_ACTIVE_LOW>;
-		panel = <&display_panel>;
 
 		iovcc-supply = <&vreg_l14a_1p8>;
 		vcc-supply = <&lab>;
