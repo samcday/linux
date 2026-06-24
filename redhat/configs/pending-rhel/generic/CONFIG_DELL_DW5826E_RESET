@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: DELL_DW5826E_RESET [=n]
+# Type  : tristate
+# Defined at drivers/platform/x86/dell/Kconfig:279
+#   Prompt: Dell DW5826e PLDR reset support
+#   Depends on: X86_PLATFORM_DEVICES [=y] && X86_PLATFORM_DRIVERS_DELL [=y] && ACPI [=y]
+#   Location:
+#     -> Device Drivers
+#       -> X86 Platform Specific Device Drivers (X86_PLATFORM_DEVICES [=y])
+#         -> Dell X86 Platform Specific Device Drivers (X86_PLATFORM_DRIVERS_DELL [=y])
+#           -> Dell DW5826e PLDR reset support (DELL_DW5826E_RESET [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: 1ab843135a77 (platform/x86: dell-dw5826e: Add reset driver for DW5826e)
+# CONFIG_DELL_DW5826E_RESET is not set
