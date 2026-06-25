@@ -1,3 +1,8 @@
+* Thu Jun 25 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.2.0-0.rc0.ab9de95c9cf9.9]
+- Revert "Input: rmi4 - remove the need for artificial IRQ in case of HID" (Justin M. Forbes)
+- Linux v7.2.0-0.rc0.ab9de95c9cf9
+Resolves: 
+
 * Thu Jun 25 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.2.0-0.rc0.840ef6c78e6a.8]
 - Increase the s390x kernel baseline (Justin M. Forbes)
 - redhat/kspdx: remove redundant OR terms from joint license expression (Jan Stancek)
