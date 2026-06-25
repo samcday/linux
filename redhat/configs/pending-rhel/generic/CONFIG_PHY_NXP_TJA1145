@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: PHY_NXP_TJA1145 [=n]
+# Type  : tristate
+# Defined at drivers/phy/Kconfig:139
+#   Prompt: NXP TJA1145 CAN transceiver PHY
+#   Depends on: SPI [=y]
+#   Location:
+#     -> Device Drivers
+#       -> PHY Subsystem
+#         -> NXP TJA1145 CAN transceiver PHY (PHY_NXP_TJA1145 [=n])
+# Selects: GENERIC_PHY [=n] && REGMAP_SPI [=m]
+# 
+# 
+# 
+# ~~~
+# Commit: e5a9c1c917b5 (phy: add basic support for NXPs TJA1145 CAN transceiver)
+# CONFIG_PHY_NXP_TJA1145 is not set

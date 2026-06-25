@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: PHY_FSL_LYNX_10G [=n]
+# Type  : tristate
+# Defined at drivers/phy/freescale/Kconfig:57
+#   Prompt: Freescale Layerscape Lynx 10G SerDes PHY support
+#   Depends on: OF [=y] && (ARCH_LAYERSCAPE [=y] || COMPILE_TEST [=n])
+#   Location:
+#     -> Device Drivers
+#       -> PHY Subsystem
+#         -> Freescale Layerscape Lynx 10G SerDes PHY support (PHY_FSL_LYNX_10G [=n])
+# Selects: GENERIC_PHY [=y] && PHY_FSL_LYNX_CORE [=m]
+# 
+# 
+# 
+# ~~~
+# Commit: 6dc92ba487a2 (phy: lynx-10g: new driver)
+# CONFIG_PHY_FSL_LYNX_10G is not set
