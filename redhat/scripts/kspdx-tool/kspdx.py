@@ -162,6 +162,32 @@ def unique_licenses(licenses):
         res.append(license)
     return sorted(res)
 
+def remove_redundant_or_terms(licenses):
+    """Remove OR terms where every option is already required as a standalone AND term.
+    e.g. if both "MIT" and "GPL-2.0-only" are standalone, then "MIT OR GPL-2.0-only"
+    adds no choice - the user must accept both licenses regardless."""
+    standalone = set()
+    for l in licenses:
+        if ' OR ' not in l:
+            standalone.add(l.upper())
+
+    res = []
+    for l in licenses:
+        if ' OR ' in l:
+            # Strip matched parens from parts, e.g. "(GPL-2.0-only WITH Linux-syscall-note)"
+            # so they can be compared against standalone terms stored without parens.
+            parts = []
+            for p in l.split(' OR '):
+                p = p.strip()
+                if p.startswith('(') and p.endswith(')'):
+                    p = p[1:-1]
+                parts.append(p)
+            if all(p.upper() in standalone for p in parts):
+                print("Removing redundant OR term: %s (all options are standalone)" % l, file=sys.stderr)
+                continue
+        res.append(l)
+    return res
+
 def license_andlist(unique):
     s = ""
     for i in range(len(unique)):
@@ -222,10 +248,11 @@ if __name__ == '__main__':
             print("%s: %s" % (fpath, license_andlist(unique)))
 
     if not args.itemized:
+        unique = remove_redundant_or_terms(sorted(set(licenses)))
         if not args.joint:
-            for license in sorted(set(licenses)):
+            for license in unique:
                 print(license)
         else:
-            print(license_andlist(sorted(set(licenses))))
+            print(license_andlist(unique))
 
     sys.exit(0)
