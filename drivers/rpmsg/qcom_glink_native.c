@@ -140,6 +140,7 @@ enum {
  * @rpdev:	rpdev reference, only used for primary endpoints
  * @ept:	rpmsg endpoint this channel is associated with
  * @glink:	qcom_glink context handle
+ * @sent_close_req: true after a close request has been sent
  * @refcount:	refcount for the channel object
  * @recv_lock:	guard for @ept.cb
  * @name:	unique channel name/identifier
@@ -165,6 +166,7 @@ struct glink_channel {
 
 	struct rpmsg_device *rpdev;
 	struct qcom_glink *glink;
+	bool sent_close_req;
 
 	struct kref refcount;
 
@@ -525,6 +527,11 @@ static void qcom_glink_send_close_req(struct qcom_glink *glink,
 				      struct glink_channel *channel)
 {
 	struct glink_msg req;
+
+	if (!channel->lcid || channel->sent_close_req)
+		return;
+
+	channel->sent_close_req = true;
 
 	req.cmd = cpu_to_le16(GLINK_CMD_CLOSE);
 	req.param1 = cpu_to_le16(channel->lcid);
@@ -1395,17 +1402,18 @@ static int qcom_glink_announce_create(struct rpmsg_device *rpdev)
 	return 0;
 }
 
-static void qcom_glink_remove_rpmsg_device(struct qcom_glink *glink, struct glink_channel *channel)
+static void qcom_glink_remove_rpmsg_device(struct glink_channel *channel)
 {
-	struct rpmsg_channel_info chinfo;
+	struct rpmsg_device *rpdev = channel->rpdev;
 
-	if (channel->rpdev) {
-		strscpy_pad(chinfo.name, channel->name, sizeof(chinfo.name));
-		chinfo.src = RPMSG_ADDR_ANY;
-		chinfo.dst = RPMSG_ADDR_ANY;
-		rpmsg_unregister_device(glink->dev, &chinfo);
-	}
+	if (!rpdev)
+		return;
+
+	qcom_glink_send_close_req(channel->glink, channel);
+
+	/* device_unregister() destroys rpdev->ept; avoid duplicate removal. */
 	channel->rpdev = NULL;
+	device_unregister(&rpdev->dev);
 }
 
 static void qcom_glink_destroy_ept(struct rpmsg_endpoint *ept)
@@ -1417,9 +1425,6 @@ static void qcom_glink_destroy_ept(struct rpmsg_endpoint *ept)
 	spin_lock_irqsave(&channel->recv_lock, flags);
 	channel->ept.cb = NULL;
 	spin_unlock_irqrestore(&channel->recv_lock, flags);
-
-	/* Decouple the potential rpdev from the channel */
-	qcom_glink_remove_rpmsg_device(glink, channel);
 
 	qcom_glink_send_close_req(glink, channel);
 }
@@ -1727,7 +1732,7 @@ static void qcom_glink_rx_close(struct qcom_glink *glink, unsigned int rcid)
 	/* cancel pending rx_done work */
 	cancel_work_sync(&channel->intent_work);
 
-	qcom_glink_remove_rpmsg_device(glink, channel);
+	qcom_glink_remove_rpmsg_device(channel);
 
 	qcom_glink_send_close_ack(glink, channel);
 
@@ -1762,7 +1767,7 @@ static void qcom_glink_rx_close_ack(struct qcom_glink *glink, unsigned int lcid)
 	spin_unlock_irqrestore(&glink->idr_lock, flags);
 
 	/* Decouple the potential rpdev from the channel */
-	qcom_glink_remove_rpmsg_device(glink, channel);
+	qcom_glink_remove_rpmsg_device(channel);
 
 	kref_put(&channel->refcount, qcom_glink_channel_release);
 }
