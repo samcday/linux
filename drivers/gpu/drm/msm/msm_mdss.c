@@ -11,6 +11,7 @@
 #include <linux/irqchip.h>
 #include <linux/irqdesc.h>
 #include <linux/irqchip/chained_irq.h>
+#include <linux/moduleparam.h>
 #include <linux/of_platform.h>
 #include <linux/platform_device.h>
 #include <linux/pm_runtime.h>
@@ -23,6 +24,11 @@
 #include <generated/mdss.xml.h>
 
 #define MIN_IB_BW	400000000UL /* Min ib vote 400MB */
+
+static bool sdm845_hwe_preserve_mdss_mdp1 = true;
+module_param(sdm845_hwe_preserve_mdss_mdp1, bool, 0644);
+MODULE_PARM_DESC(sdm845_hwe_preserve_mdss_mdp1,
+		 "Preserve SDM845 MDSS parent mdp1-mem ICC vote during runtime suspend");
 
 struct msm_mdss_data {
 	u32 reg_bus_bw;
@@ -280,12 +286,19 @@ static int msm_mdss_enable(struct msm_mdss *msm_mdss)
 
 static int msm_mdss_disable(struct msm_mdss *msm_mdss)
 {
+	bool preserve_mdp1 = sdm845_hwe_preserve_mdss_mdp1 &&
+			     of_device_is_compatible(msm_mdss->dev->of_node,
+						     "qcom,sdm845-mdss");
 	int i;
 
 	clk_bulk_disable_unprepare(msm_mdss->num_clocks, msm_mdss->clocks);
 
-	for (i = 0; i < msm_mdss->num_mdp_paths; i++)
+	for (i = 0; i < msm_mdss->num_mdp_paths; i++) {
+		if (preserve_mdp1 && i == 1)
+			continue;
+
 		icc_set_bw(msm_mdss->mdp_path[i], 0, 0);
+	}
 
 	if (msm_mdss->reg_bus_path)
 		icc_set_bw(msm_mdss->reg_bus_path, 0, 0);
