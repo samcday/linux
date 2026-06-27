@@ -1,3 +1,10 @@
+* Sat Jun 27 2026 Justin M. Forbes <jforbes@fedoraproject.org> [7.1.2-0]
+- Revert "Input: rmi4 - remove the need for artificial IRQ in case of HID" (Justin M. Forbes)
+- drm/i915/mtl+: Enable PPS before PLL (Imre Deak)
+- ASoC: rt722-sdca: add FU06 Playback Switch for speaker mute control (Aaron Ma)
+- Linux v7.1.2
+Resolves: 
+
 * Mon Jun 22 2026 Justin M. Forbes <jforbes@fedoraproject.org> [7.1.1-0]
 - New config setting for ARM64 Erratum (Justin M. Forbes)
 - Initial setup for stable Fedora release (Justin M. Forbes)
