@@ -1,3 +1,7 @@
+* Sun Jun 28 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.2.0-0.rc0.780d569e6c4b.13]
+- Linux v7.2.0-0.rc0.780d569e6c4b
+Resolves: 
+
 * Sat Jun 27 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.2.0-0.rc0.5a66900afbd6.12]
 - redhat: configs: Enable USB4STREAM protocol (Dennis Chen) [RHEL-186934]
 - Linux v7.2.0-0.rc0.5a66900afbd6
