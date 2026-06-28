@@ -1,0 +1,13 @@
+# Minimal Fedora-capable Google Pixel 3a profile: boot, eMMC storage, SELinux,
+# USB recovery/debug, input, battery, and basic userspace.  No display/GPU,
+# wireless, remoteproc, or audio modules beyond board basics.
+pocketfed-configs/arch/arm64-base.config
+pocketfed-configs/policy/fedora-userspace.config
+pocketfed-configs/policy/fedora-selinux.config
+pocketfed-configs/policy/fedora-storage.config
+pocketfed-configs/policy/fedora-networking.config
+pocketfed-configs/policy/containers.config
+pocketfed-configs/policy/zram.config
+pocketfed-configs/policy/usb-gadget.config
+pocketfed-configs/soc/qcom-sdm670-core.config
+pocketfed-configs/device/google-sargo.config

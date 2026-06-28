@@ -1,0 +1,17 @@
+# Fuller Fedora phone profile for OnePlus 6T.  Core platform support is built
+# in; large phone features are modular.
+pocketfed-configs/arch/arm64-base.config
+pocketfed-configs/policy/fedora-userspace.config
+pocketfed-configs/policy/fedora-selinux.config
+pocketfed-configs/policy/fedora-storage.config
+pocketfed-configs/policy/fedora-networking.config
+pocketfed-configs/policy/containers.config
+pocketfed-configs/policy/zram.config
+pocketfed-configs/policy/usb-gadget.config
+pocketfed-configs/soc/qcom-sdm845-core.config
+pocketfed-configs/soc/qcom-sdm845-display.config
+pocketfed-configs/device/oneplus-fajita-display.config
+pocketfed-configs/soc/qcom-sdm845-remoteproc.config
+pocketfed-configs/soc/qcom-sdm845-wireless.config
+pocketfed-configs/soc/qcom-sdm845-audio.config
+pocketfed-configs/device/oneplus-fajita.config

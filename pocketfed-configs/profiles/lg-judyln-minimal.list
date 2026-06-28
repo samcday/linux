@@ -1,0 +1,13 @@
+# Minimal Fedora-capable LG G7 ThinQ profile: boot, UFS storage, SELinux, USB
+# recovery/debug, input, battery, removable microSD, and basic userspace.  No
+# display/GPU, wireless, remoteproc, or audio modules beyond board basics.
+pocketfed-configs/arch/arm64-base.config
+pocketfed-configs/policy/fedora-userspace.config
+pocketfed-configs/policy/fedora-selinux.config
+pocketfed-configs/policy/fedora-storage.config
+pocketfed-configs/policy/fedora-networking.config
+pocketfed-configs/policy/containers.config
+pocketfed-configs/policy/zram.config
+pocketfed-configs/policy/usb-gadget.config
+pocketfed-configs/soc/qcom-sdm845-core.config
+pocketfed-configs/device/lg-judyln.config

@@ -1,0 +1,15 @@
+# Fuller Fedora phone profile for Google Pixel 3a.  Core platform support is
+# built in; display/GPU and the panel are modular.  Wireless, remoteproc, and
+# audio nodes are not present in this source tree's live SDM670 device tree yet.
+pocketfed-configs/arch/arm64-base.config
+pocketfed-configs/policy/fedora-userspace.config
+pocketfed-configs/policy/fedora-selinux.config
+pocketfed-configs/policy/fedora-storage.config
+pocketfed-configs/policy/fedora-networking.config
+pocketfed-configs/policy/containers.config
+pocketfed-configs/policy/zram.config
+pocketfed-configs/policy/usb-gadget.config
+pocketfed-configs/soc/qcom-sdm670-core.config
+pocketfed-configs/soc/qcom-sdm670-display.config
+pocketfed-configs/device/google-sargo-display.config
+pocketfed-configs/device/google-sargo.config
