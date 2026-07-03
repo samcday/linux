@@ -543,7 +543,7 @@ static int drv2624_parse_dt(struct device *dev, struct drv2624_data *drv2624)
 	unsigned int value;
 
 	pdata->gpio_nrst = devm_gpiod_get(dev, "reset", 0);
-	if (!IS_ERR(pdata->gpio_nrst)) {
+	if (IS_ERR(pdata->gpio_nrst)) {
 		ret = PTR_ERR(pdata->gpio_nrst);
 		dev_err(drv2624->dev, "failed to get reset GPIO: %d\n", ret);
 		goto drv2624_parse_dt_out;
