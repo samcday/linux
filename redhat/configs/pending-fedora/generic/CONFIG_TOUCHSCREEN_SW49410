@@ -1,0 +1,18 @@
+# ~~~
+# Symbol: TOUCHSCREEN_SW49410 [=n]
+# Type  : tristate
+# Defined at drivers/input/touchscreen/Kconfig:1302
+#   Prompt: LGE / SiliconWorks SW49410 SPI touchscreen
+#   Depends on: INPUT [=y] && INPUT_TOUCHSCREEN [=y] && SPI [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Input device support
+#         -> Generic input layer (needed for keyboard, mouse, ...) (INPUT [=y])
+#           -> Touchscreens (INPUT_TOUCHSCREEN [=y])
+#             -> LGE / SiliconWorks SW49410 SPI touchscreen (TOUCHSCREEN_SW49410 [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: e465f97e9b24 (input: touchscreen: sw49410-ts-spi: New driver for SW49410 touch)
+# CONFIG_TOUCHSCREEN_SW49410 is not set
