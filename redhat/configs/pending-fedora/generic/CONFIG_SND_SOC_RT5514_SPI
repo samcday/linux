@@ -1,0 +1,21 @@
+# ~~~
+# Symbol: SND_SOC_RT5514_SPI [=n]
+# Type  : tristate
+# Defined at sound/soc/codecs/Kconfig:1813
+#   Prompt: Realtek RT5514 Codec - SPI
+#   Depends on: SOUND [=m] && SND [=m] && SND_SOC [=m] && SPI_MASTER [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Sound card support (SOUND [=m])
+#         -> Advanced Linux Sound Architecture (SND [=m])
+#           -> ALSA for SoC audio support (SND_SOC [=m])
+#             -> CODEC drivers
+#               -> Realtek RT5514 Codec - SPI (SND_SOC_RT5514_SPI [=n])
+# Selected by [n]:
+#   - SND_SOC_RK3399_GRU_SOUND [=n] && SOUND [=m] && SND [=m] && SND_SOC [=m] && (COMPILE_TEST [=n] || ARCH_ROCKCHIP) && HAVE_CLK [=y] && I2C [=y] && GPIOLIB [=y] && SPI [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: 6eebf35b0e4a (ASoC: rt5514: add rt5514 SPI driver)
+# CONFIG_SND_SOC_RT5514_SPI is not set

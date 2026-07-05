@@ -1,0 +1,16 @@
+# ~~~
+# Symbol: BATTERY_QCOM_FG [=n]
+# Type  : tristate
+# Defined at drivers/power/supply/Kconfig:1138
+#   Prompt: Qualcomm PMIC fuel gauge driver
+#   Depends on: POWER_SUPPLY [=y] && MFD_SPMI_PMIC [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Power supply class support (POWER_SUPPLY [=y])
+#         -> Qualcomm PMIC fuel gauge driver (BATTERY_QCOM_FG [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: e1bde430f13c (power: supply: Add driver for Qualcomm PMIC fuel gauge)
+# CONFIG_BATTERY_QCOM_FG is not set
