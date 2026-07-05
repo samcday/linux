@@ -1,0 +1,19 @@
+# ~~~
+# Symbol: VIDEO_LC898217XC [=n]
+# Type  : tristate
+# Defined at drivers/media/i2c/Kconfig:973
+#   Prompt: LC898217XC lens voice coil support
+#   Depends on: MEDIA_SUPPORT [=m] && VIDEO_DEV [=m] && VIDEO_CAMERA_LENS [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Multimedia support (MEDIA_SUPPORT [=m])
+#         -> Media ancillary drivers
+#           -> Lens drivers (VIDEO_CAMERA_LENS [=y])
+#             -> LC898217XC lens voice coil support (VIDEO_LC898217XC [=n])
+# Selects: V4L2_CCI_I2C [=m]
+# 
+# 
+# 
+# ~~~
+# Commit: 7f96c7a49767 (media: i2c: Add driver for LC898217XC VCM)
+# CONFIG_VIDEO_LC898217XC is not set

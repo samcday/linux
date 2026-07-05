@@ -1,0 +1,16 @@
+# ~~~
+# Symbol: BATTERY_PMI8998_FG [=n]
+# Type  : tristate
+# Defined at drivers/power/supply/Kconfig:771
+#   Prompt: Qualcomm PMI8998 PMIC fuel gauge driver
+#   Depends on: POWER_SUPPLY [=y] && MFD_SPMI_PMIC [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Power supply class support (POWER_SUPPLY [=y])
+#         -> Qualcomm PMI8998 PMIC fuel gauge driver (BATTERY_PMI8998_FG [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: 284e80ea92d4 (power: supply: Add driver for Qualcomm PMI8998 fuel gauge)
+# CONFIG_BATTERY_PMI8998_FG is not set
