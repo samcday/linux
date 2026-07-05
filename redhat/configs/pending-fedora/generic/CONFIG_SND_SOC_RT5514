@@ -1,0 +1,25 @@
+# ~~~
+# Symbol: SND_SOC_RT5514 [=n]
+# Type  : tristate
+# Defined at sound/soc/codecs/Kconfig:1807
+#   Prompt: Realtek ALC5514 Codec
+#   Depends on: SOUND [=m] && SND [=m] && SND_SOC [=m] && I2C [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Sound card support (SOUND [=m])
+#         -> Advanced Linux Sound Architecture (SND [=m])
+#           -> ALSA for SoC audio support (SND_SOC [=m])
+#             -> CODEC drivers
+#               -> Realtek ALC5514 Codec (SND_SOC_RT5514 [=n])
+# Selected by [n]:
+#   - SND_SOC_INTEL_AVS_MACH_RT5514 [=n] && SOUND [=m] && SND [=m] && SND_SOC [=m] && SND_SOC_INTEL_AVS [=n] && I2C [=y] && (MFD_INTEL_LPSS [=n] || COMPILE_TEST [=n])
+#   - SND_SOC_MT8173_RT5650_RT5514 [=n] && SOUND [=m] && SND [=m] && SND_SOC [=m] && SND_SOC_MT8173 [=n] && I2C [=y]
+#   - SND_SOC_RK3399_GRU_SOUND [=n] && SOUND [=m] && SND [=m] && SND_SOC [=m] && (COMPILE_TEST [=n] || ARCH_ROCKCHIP) && HAVE_CLK [=y] && I2C [=y] && GPIOLIB [=y] && SPI [=y]
+# Implied by [n]:
+#   - SND_SOC_ALL_CODECS [=n] && SOUND [=m] && SND [=m] && SND_SOC [=m] && COMPILE_TEST [=n]
+# 
+# 
+# 
+# ~~~
+# Commit: 4a6180ea7399 (ASoC: rt5514: add rt5514 codec driver)
+# CONFIG_SND_SOC_RT5514 is not set

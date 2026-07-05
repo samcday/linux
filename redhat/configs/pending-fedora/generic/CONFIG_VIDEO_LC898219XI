@@ -1,0 +1,19 @@
+# ~~~
+# Symbol: VIDEO_LC898219XI [=n]
+# Type  : tristate
+# Defined at drivers/media/i2c/Kconfig:939
+#   Prompt: LC898219XI lens voice coil support
+#   Depends on: MEDIA_SUPPORT [=m] && VIDEO_CAMERA_LENS [=y] && I2C [=y] && VIDEO_DEV [=m]
+#   Location:
+#     -> Device Drivers
+#       -> Multimedia support (MEDIA_SUPPORT [=m])
+#         -> Media ancillary drivers
+#           -> Lens drivers (VIDEO_CAMERA_LENS [=y])
+#             -> LC898219XI lens voice coil support (VIDEO_LC898219XI [=n])
+# Selects: MEDIA_CONTROLLER [=y] && VIDEO_V4L2_SUBDEV_API [=y] && V4L2_ASYNC [=m]
+# 
+# 
+# 
+# ~~~
+# Commit: 86668da1008b (media: i2c: Add driver for LC898219XI VCM)
+# CONFIG_VIDEO_LC898219XI is not set

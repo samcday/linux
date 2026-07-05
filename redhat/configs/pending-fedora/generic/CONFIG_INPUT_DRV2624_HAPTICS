@@ -1,0 +1,19 @@
+# ~~~
+# Symbol: INPUT_DRV2624_HAPTICS [=n]
+# Type  : tristate
+# Defined at drivers/input/misc/Kconfig:936
+#   Prompt: TI DRV2624 haptics support
+#   Depends on: INPUT_MISC [=y] && INPUT [=y] && I2C [=y] && (GPIOLIB [=y] || COMPILE_TEST [=n])
+#   Location:
+#     -> Device Drivers
+#       -> Input device support
+#         -> Generic input layer (needed for keyboard, mouse, ...) (INPUT [=y])
+#           -> Miscellaneous devices (INPUT_MISC [=y])
+#             -> TI DRV2624 haptics support (INPUT_DRV2624_HAPTICS [=n])
+# Selects: INPUT_FF_MEMLESS [=m] && REGMAP_I2C [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: 5bc5a8fecc74 (Input: add ti drv2624 haptics driver)
+# CONFIG_INPUT_DRV2624_HAPTICS is not set

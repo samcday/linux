@@ -1,0 +1,18 @@
+# ~~~
+# Symbol: DRM_PANEL_SAMSUNG_SOFEF00_BONITO [=n]
+# Type  : tristate
+# Defined at drivers/gpu/drm/panel/Kconfig:996
+#   Prompt: Samsung sofef00 Google Pixel 3a XL DSI cmd mode panel
+#   Depends on: HAS_IOMEM [=y] && DRM [=y] && DRM_PANEL [=y] && OF [=y] && DRM_MIPI_DSI [=y] && BACKLIGHT_CLASS_DEVICE [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Graphics support
+#         -> Direct Rendering Manager (XFree86 4.1.0 and higher DRI support) (DRM [=y])
+#           -> Display Panels
+#             -> Samsung sofef00 Google Pixel 3a XL DSI cmd mode panel (DRM_PANEL_SAMSUNG_SOFEF00_BONITO [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: 84f6e2ae5658 (drm/panel: add sofef00 panel for bonito)
+# CONFIG_DRM_PANEL_SAMSUNG_SOFEF00_BONITO is not set
