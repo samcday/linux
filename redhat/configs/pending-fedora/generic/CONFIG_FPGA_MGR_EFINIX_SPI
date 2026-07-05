@@ -1,0 +1,16 @@
+# ~~~
+# Symbol: FPGA_MGR_EFINIX_SPI [=n]
+# Type  : tristate
+# Defined at drivers/fpga/Kconfig:291
+#   Prompt: Efinix FPGA configuration over SPI
+#   Depends on: FPGA [=m] && SPI [=y]
+#   Location:
+#     -> Device Drivers
+#       -> FPGA Configuration Framework (FPGA [=m])
+#         -> Efinix FPGA configuration over SPI (FPGA_MGR_EFINIX_SPI [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: d4d5ad6c6039 (fpga-mgr: Add Efinix SPI programming driver)
+# CONFIG_FPGA_MGR_EFINIX_SPI is not set

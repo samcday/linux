@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: LEDS_LP5860_SPI [=n]
+# Type  : tristate
+# Defined at drivers/leds/rgb/Kconfig:56
+#   Prompt: LED Support for TI LP5860 SPI LED driver chip
+#   Depends on: NEW_LEDS [=y] && LEDS_CLASS_MULTICOLOR [=m] && SPI [=y] && OF [=y]
+#   Location:
+#     -> Device Drivers
+#       -> LED Support (NEW_LEDS [=y])
+#         -> LED Support for TI LP5860 SPI LED driver chip (LEDS_LP5860_SPI [=n])
+# Selects: LEDS_LP5860_CORE [=n]
+# 
+# 
+# 
+# ~~~
+# Commit: f0a66563aa2d (leds: Add support for TI LP5860 LED driver chip)
+# CONFIG_LEDS_LP5860_SPI is not set

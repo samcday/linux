@@ -1,0 +1,18 @@
+# ~~~
+# Symbol: RUST_BITFIELD_KUNIT_TEST [=y]
+# Type  : bool
+# Defined at rust/kernel/Kconfig.test:76
+#   Prompt: KUnit tests for the Rust `bitfield!` macro
+#   Depends on: RUST_KUNIT_TESTS [=y]
+#   Visible if: RUST_KUNIT_TESTS [=y] && !KUNIT_ALL_TESTS [=m]
+#   Location:
+#     -> General setup
+#       -> Rust support (RUST [=y])
+#         -> Rust KUnit tests (RUST_KUNIT_TESTS [=y])
+#           -> KUnit tests for the Rust `bitfield!` macro (RUST_BITFIELD_KUNIT_TEST [=y])
+# 
+# 
+# 
+# ~~~
+# Commit: 7f502747bc00 (rust: bitfield: Add KUnit tests for bitfield)
+CONFIG_RUST_BITFIELD_KUNIT_TEST=y

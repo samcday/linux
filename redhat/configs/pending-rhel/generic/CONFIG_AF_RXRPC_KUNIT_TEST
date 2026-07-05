@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: AF_RXRPC_KUNIT_TEST [=m]
+# Type  : tristate
+# Defined at net/rxrpc/Kconfig:96
+#   Prompt: RxRPC crypto KUnit test
+#   Depends on: NET [=y] && AF_RXRPC [=m] && KUNIT [=m] && RXKAD [=y]
+#   Visible if: NET [=y] && AF_RXRPC [=m] && KUNIT [=m] && RXKAD [=y] && !KUNIT_ALL_TESTS [=m]
+#   Location:
+#     -> Networking support (NET [=y])
+#       -> RxRPC session sockets (AF_RXRPC [=m])
+#         -> RxRPC crypto KUnit test (AF_RXRPC_KUNIT_TEST [=m])
+# 
+# 
+# 
+# ~~~
+# Commit: f10e73dffd2a (net/rxrpc: Add local FCrypt-PCBC implementation)
+CONFIG_AF_RXRPC_KUNIT_TEST=m

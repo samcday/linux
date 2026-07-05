@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: VF_TIMER_NONE [=y]
+# Type  : bool
+# Defined at drivers/clocksource/Kconfig:818
+#   Prompt: None (Use standard Arch Timer)
+#   Depends on: GENERIC_CLOCKEVENTS [=y] && (SOC_VF610 || ARCH_S32 [=y]) && ARCH_S32 [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Clock Source drivers
+#         -> NXP clocksource for scheduler clock (<choice> [=n])
+#           -> None (Use standard Arch Timer) (VF_TIMER_NONE [=y])
+# 
+# 
+# 
+# ~~~
+# Commit: a9ac745bc320 (clocksource: move NXP timer selection to drivers/clocksource)
+CONFIG_VF_TIMER_NONE=y

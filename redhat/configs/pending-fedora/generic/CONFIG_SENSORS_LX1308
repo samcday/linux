@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: SENSORS_LX1308 [=n]
+# Type  : tristate
+# Defined at drivers/hwmon/pmbus/Kconfig:332
+#   Prompt: Luxshare LX1308 DC/DC Power Module
+#   Depends on: HWMON [=y] && PMBUS [=m]
+#   Location:
+#     -> Device Drivers
+#       -> Hardware Monitoring support (HWMON [=y])
+#         -> PMBus support (PMBUS [=m])
+#           -> Luxshare LX1308 DC/DC Power Module (SENSORS_LX1308 [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: d71d17d347de (hwmon: (pmbus/lx1308) Add support for LX1308)
+# CONFIG_SENSORS_LX1308 is not set

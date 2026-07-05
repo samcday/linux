@@ -1,0 +1,18 @@
+# ~~~
+# Symbol: KMALLOC_PARTITION_TYPED [=y]
+# Type  : bool
+# Defined at mm/Kconfig:287
+#   Prompt: Type based slab cache selection for normal kmalloc
+#   Depends on: KMALLOC_PARTITION_CACHES [=y] && CC_HAS_ALLOC_TOKEN [=y]
+#   Location:
+#     -> Memory Management options
+#       -> Slab allocator options
+#         -> Partitioned slab caches for normal kmalloc (KMALLOC_PARTITION_CACHES [=y])
+#           -> Partitioned slab cache mode (<choice> [=n])
+#             -> Type based slab cache selection for normal kmalloc (KMALLOC_PARTITION_TYPED [=y])
+# 
+# 
+# 
+# ~~~
+# Commit: feb662d9168b (slab: support for compiler-assisted type-based slab cache partitioning)
+CONFIG_KMALLOC_PARTITION_TYPED=y

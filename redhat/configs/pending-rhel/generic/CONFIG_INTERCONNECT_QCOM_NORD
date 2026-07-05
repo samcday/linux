@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: INTERCONNECT_QCOM_NORD [=n]
+# Type  : tristate
+# Defined at drivers/interconnect/qcom/Kconfig:127
+#   Prompt: Qualcomm Nord interconnect driver
+#   Depends on: INTERCONNECT [=y] && INTERCONNECT_QCOM_RPMH_POSSIBLE [=y]
+#   Location:
+#     -> Device Drivers
+#       -> On-Chip Interconnect management support (INTERCONNECT [=y])
+#         -> Qualcomm Nord interconnect driver (INTERCONNECT_QCOM_NORD [=n])
+# Selects: INTERCONNECT_QCOM_RPMH [=y] && INTERCONNECT_QCOM_BCM_VOTER [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: 010f4d24cc61 (interconnect: qcom: Add interconnect provider driver for Nord SoC)
+# CONFIG_INTERCONNECT_QCOM_NORD is not set

@@ -1,0 +1,19 @@
+# ~~~
+# Symbol: VIDEO_HWS [=n]
+# Type  : tristate
+# Defined at drivers/media/pci/hws/Kconfig:2
+#   Prompt: AVMatrix HWS PCIe capture devices
+#   Depends on: MEDIA_SUPPORT [=m] && MEDIA_PCI_SUPPORT [=y] && MEDIA_CAMERA_SUPPORT [=y] && PCI [=y] && VIDEO_DEV [=m]
+#   Location:
+#     -> Device Drivers
+#       -> Multimedia support (MEDIA_SUPPORT [=m])
+#         -> Media drivers
+#           -> Media PCI Adapters (MEDIA_PCI_SUPPORT [=y])
+#             -> AVMatrix HWS PCIe capture devices (VIDEO_HWS [=n])
+# Selects: VIDEOBUF2_DMA_CONTIG [=m]
+# 
+# 
+# 
+# ~~~
+# Commit: ba07fd2f5742 (media: pci: add AVMatrix HWS capture driver)
+# CONFIG_VIDEO_HWS is not set

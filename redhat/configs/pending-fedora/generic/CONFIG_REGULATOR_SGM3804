@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: REGULATOR_SGM3804 [=n]
+# Type  : tristate
+# Defined at drivers/regulator/Kconfig:1487
+#   Prompt: SGMicro SGM3804 voltage regulator
+#   Depends on: REGULATOR [=y] && I2C [=y] && OF [=y] && GPIOLIB [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Voltage and Current Regulator Support (REGULATOR [=y])
+#         -> SGMicro SGM3804 voltage regulator (REGULATOR_SGM3804 [=n])
+# Selects: REGMAP_I2C [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: 0c47e1a8cf5d (regulator: add SGM3804 Dual Output driver)
+# CONFIG_REGULATOR_SGM3804 is not set

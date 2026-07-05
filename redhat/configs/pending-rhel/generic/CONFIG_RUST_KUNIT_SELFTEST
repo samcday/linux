@@ -1,0 +1,18 @@
+# ~~~
+# Symbol: RUST_KUNIT_SELFTEST [=y]
+# Type  : bool
+# Defined at rust/kernel/Kconfig.test:46
+#   Prompt: KUnit selftests for Rust
+#   Depends on: RUST_KUNIT_TESTS [=y]
+#   Visible if: RUST_KUNIT_TESTS [=y] && !KUNIT_ALL_TESTS [=m]
+#   Location:
+#     -> General setup
+#       -> Rust support (RUST [=y])
+#         -> Rust KUnit tests (RUST_KUNIT_TESTS [=y])
+#           -> KUnit selftests for Rust (RUST_KUNIT_SELFTEST [=y])
+# 
+# 
+# 
+# ~~~
+# Commit: e74b7a3f5aee (rust: tests: add Kconfig for KUnit test)
+CONFIG_RUST_KUNIT_SELFTEST=y

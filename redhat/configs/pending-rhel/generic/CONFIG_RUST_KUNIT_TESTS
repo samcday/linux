@@ -1,0 +1,16 @@
+# ~~~
+# Symbol: RUST_KUNIT_TESTS [=y]
+# Type  : bool
+# Defined at rust/kernel/Kconfig.test:2
+#   Prompt: Rust KUnit tests
+#   Depends on: KUNIT [=m] && RUST [=y]
+#   Location:
+#     -> General setup
+#       -> Rust support (RUST [=y])
+#         -> Rust KUnit tests (RUST_KUNIT_TESTS [=y])
+# 
+# 
+# 
+# ~~~
+# Commit: e74b7a3f5aee (rust: tests: add Kconfig for KUnit test)
+CONFIG_RUST_KUNIT_TESTS=y

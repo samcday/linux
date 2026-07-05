@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: PINCTRL_IPQ9650 [=m]
+# Type  : tristate
+# Defined at drivers/pinctrl/qcom/Kconfig.msm:137
+#   Prompt: Qualcomm IPQ9650 pin controller driver
+#   Depends on: PINCTRL [=y] && (ARCH_QCOM [=y] || COMPILE_TEST [=n]) && PINCTRL_MSM [=m] && (ARM64 [=y] || COMPILE_TEST [=n])
+#   Location:
+#     -> Device Drivers
+#       -> Pin controllers (PINCTRL [=y])
+#         -> Qualcomm core pin controller driver (PINCTRL_MSM [=m])
+#           -> Qualcomm IPQ9650 pin controller driver (PINCTRL_IPQ9650 [=m])
+# 
+# 
+# 
+# ~~~
+# Commit: 3c8e7ba0e399 (pinctrl: qcom: Introduce IPQ9650 TLMM driver)
+CONFIG_PINCTRL_IPQ9650=m

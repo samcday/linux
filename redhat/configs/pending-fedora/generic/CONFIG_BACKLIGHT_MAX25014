@@ -1,0 +1,19 @@
+# ~~~
+# Symbol: BACKLIGHT_MAX25014 [=n]
+# Type  : tristate
+# Defined at drivers/video/backlight/Kconfig:285
+#   Prompt: Backlight driver for Maxim MAX25014
+#   Depends on: HAS_IOMEM [=y] && BACKLIGHT_CLASS_DEVICE [=y] && I2C [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Graphics support
+#         -> Backlight & LCD device support
+#           -> Lowlevel Backlight controls (BACKLIGHT_CLASS_DEVICE [=y])
+#             -> Backlight driver for Maxim MAX25014 (BACKLIGHT_MAX25014 [=n])
+# Selects: REGMAP_I2C [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: 3014ad47cfaf (backlight: Add max25014atg backlight)
+# CONFIG_BACKLIGHT_MAX25014 is not set

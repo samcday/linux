@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: CRYPTO_DRBG [=n]
+# Type  : tristate
+# Defined at crypto/Kconfig:1098
+#   Prompt: NIST SP800-90A DRBG (Deterministic Random Bit Generator)
+#   Depends on: CRYPTO [=y]
+#   Location:
+#     -> Cryptographic API (CRYPTO [=y])
+#       -> Random number generation
+#         -> NIST SP800-90A DRBG (Deterministic Random Bit Generator) (CRYPTO_DRBG [=n])
+# Selects: CRYPTO_JITTERENTROPY [=n] && CRYPTO_LIB_SHA512 [=y] && CRYPTO_RNG [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: f2c89a10de4f (crypto: drbg - Use Kconfig to ensure at least one RNG option is set)
+# CONFIG_CRYPTO_DRBG is not set

@@ -1,0 +1,18 @@
+# ~~~
+# Symbol: NET_DSA_NETC_SWITCH [=n]
+# Type  : tristate
+# Defined at drivers/net/dsa/netc/Kconfig:2
+#   Prompt: NXP NETC Ethernet switch support
+#   Depends on: NETDEVICES [=y] && (ARM64 [=y] || COMPILE_TEST [=n]) && NET_DSA [=m] && PCI [=y] && NET_VENDOR_FREESCALE [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Network device support (NETDEVICES [=y])
+#         -> Distributed Switch Architecture drivers
+#           -> NXP NETC Ethernet switch support (NET_DSA_NETC_SWITCH [=n])
+# Selects: NET_DSA_TAG_NETC [=n] && FSL_ENETC_MDIO [=m] && NXP_NTMP [=y] && NXP_NETC_LIB [=m]
+# 
+# 
+# 
+# ~~~
+# Commit: 187fbae024c8 (net: dsa: netc: introduce NXP NETC switch driver for i.MX94)
+# CONFIG_NET_DSA_NETC_SWITCH is not set

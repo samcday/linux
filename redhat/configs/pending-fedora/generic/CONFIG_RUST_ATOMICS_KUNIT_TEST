@@ -1,0 +1,18 @@
+# ~~~
+# Symbol: RUST_ATOMICS_KUNIT_TEST [=y]
+# Type  : bool
+# Defined at rust/kernel/Kconfig.test:66
+#   Prompt: KUnit tests for Rust atomics API
+#   Depends on: RUST_KUNIT_TESTS [=y]
+#   Visible if: RUST_KUNIT_TESTS [=y] && !KUNIT_ALL_TESTS [=m]
+#   Location:
+#     -> General setup
+#       -> Rust support (RUST [=y])
+#         -> Rust KUnit tests (RUST_KUNIT_TESTS [=y])
+#           -> KUnit tests for Rust atomics API (RUST_ATOMICS_KUNIT_TEST [=y])
+# 
+# 
+# 
+# ~~~
+# Commit: e74b7a3f5aee (rust: tests: add Kconfig for KUnit test)
+CONFIG_RUST_ATOMICS_KUNIT_TEST=y

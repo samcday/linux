@@ -1,0 +1,19 @@
+# ~~~
+# Symbol: DRM_PANEL_FOCALTECH_OTA7290B [=n]
+# Type  : tristate
+# Defined at drivers/gpu/drm/panel/Kconfig:159
+#   Prompt: Focaltech OTA7290B
+#   Depends on: HAS_IOMEM [=y] && DRM [=y] && DRM_PANEL [=y] && DRM_MIPI_DSI [=y] && I2C [=y] && BACKLIGHT_CLASS_DEVICE [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Graphics support
+#         -> Direct Rendering Manager (XFree86 4.1.0 and higher DRI support) (DRM [=y])
+#           -> Display Panels
+#             -> Focaltech OTA7290B (DRM_PANEL_FOCALTECH_OTA7290B [=n])
+# Selects: DRM_KMS_HELPER [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: 07853e954248 (drm/panel: add driver for Waveshare 8.8" DSI TOUCH-A panel)
+# CONFIG_DRM_PANEL_FOCALTECH_OTA7290B is not set

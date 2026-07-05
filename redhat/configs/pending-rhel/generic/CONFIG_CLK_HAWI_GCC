@@ -1,0 +1,18 @@
+# ~~~
+# Symbol: CLK_HAWI_GCC [=n]
+# Type  : tristate
+# Defined at drivers/clk/qcom/Kconfig:321
+#   Prompt: Hawi Global Clock Controller
+#   Depends on: COMMON_CLK [=y] && COMMON_CLK_QCOM [=y] && (ARM64 [=y] || COMPILE_TEST [=n])
+#   Location:
+#     -> Device Drivers
+#       -> Common Clock Framework (COMMON_CLK [=y])
+#         -> Support for Qualcomm's clock controllers (COMMON_CLK_QCOM [=y])
+#           -> Hawi Global Clock Controller (CLK_HAWI_GCC [=n])
+# Selects: QCOM_GDSC [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: 67121dad6cba (clk: qcom: Add support for global clock controller on Hawi)
+# CONFIG_CLK_HAWI_GCC is not set

@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: GUNYAH_WATCHDOG [=n]
+# Type  : tristate
+# Defined at drivers/watchdog/Kconfig:2342
+#   Prompt: Qualcomm Gunyah Watchdog
+#   Depends on: WATCHDOG [=y] && (ARCH_QCOM [=y] || COMPILE_TEST [=n]) && HAVE_ARM_SMCCC [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Watchdog Timer Support (WATCHDOG [=y])
+#         -> Qualcomm Gunyah Watchdog (GUNYAH_WATCHDOG [=n])
+# Selects: WATCHDOG_CORE [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: ca316e145c35 (watchdog: Add driver for Gunyah Watchdog)
+# CONFIG_GUNYAH_WATCHDOG is not set

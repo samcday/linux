@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: PINCTRL_TEGRA264 [=m]
+# Type  : tristate
+# Defined at drivers/pinctrl/tegra/Kconfig:51
+#   Prompt: NVIDIA Tegra264 pinctrl driver
+#   Depends on: PINCTRL [=y] && (ARCH_TEGRA [=y] || COMPILE_TEST [=n])
+#   Location:
+#     -> Device Drivers
+#       -> Pin controllers (PINCTRL [=y])
+#         -> NVIDIA Tegra264 pinctrl driver (PINCTRL_TEGRA264 [=m])
+# Selects: PINCTRL_TEGRA [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: c98506206912 (pinctrl: tegra: Add Tegra264 pinmux driver)
+CONFIG_PINCTRL_TEGRA264=m

@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: VSI_IOMMU [=n]
+# Type  : tristate
+# Defined at drivers/iommu/Kconfig:387
+#   Prompt: Verisilicon IOMMU Support
+#   Depends on: IOMMU_SUPPORT [=y] && (ARCH_ROCKCHIP [=y] && ARM64 [=y] || COMPILE_TEST [=n])
+#   Location:
+#     -> Device Drivers
+#       -> IOMMU Hardware Support (IOMMU_SUPPORT [=y])
+#         -> Verisilicon IOMMU Support (VSI_IOMMU [=n])
+# Selects: IOMMU_API [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: 917ace84b770 (iommu: Add verisilicon IOMMU driver)
+# CONFIG_VSI_IOMMU is not set

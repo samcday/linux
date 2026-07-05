@@ -1,0 +1,16 @@
+# ~~~
+# Symbol: USB4_STREAM [=n]
+# Type  : tristate
+# Defined at drivers/thunderbolt/Kconfig:67
+#   Prompt: Stream data over Thunderbolt/USB4 cable
+#   Depends on: USB4 [=m] && USB4_CONFIGFS [=m]
+#   Location:
+#     -> Device Drivers
+#       -> Unified support for USB4 and Thunderbolt (USB4 [=m])
+#         -> Stream data over Thunderbolt/USB4 cable (USB4_STREAM [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: 6db21d817b43 (thunderbolt: Add support for USB4STREAM)
+# CONFIG_USB4_STREAM is not set

@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: CLK_HAWI_TCSRCC [=n]
+# Type  : tristate
+# Defined at drivers/clk/qcom/Kconfig:330
+#   Prompt: Hawi TCSR Clock Controller
+#   Depends on: COMMON_CLK [=y] && COMMON_CLK_QCOM [=y] && (ARM64 [=y] || COMPILE_TEST [=n])
+#   Location:
+#     -> Device Drivers
+#       -> Common Clock Framework (COMMON_CLK [=y])
+#         -> Support for Qualcomm's clock controllers (COMMON_CLK_QCOM [=y])
+#           -> Hawi TCSR Clock Controller (CLK_HAWI_TCSRCC [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: 24ba8ce4c986 (clk: qcom: Add Hawi TCSR clock controller driver)
+# CONFIG_CLK_HAWI_TCSRCC is not set

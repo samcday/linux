@@ -1,0 +1,16 @@
+# ~~~
+# Symbol: RING_BUFFER_PERSISTENT_INJECT [=n]
+# Type  : bool
+# Defined at kernel/trace/Kconfig:1205
+#   Prompt: Enable persistent ring buffer error injection test
+#   Depends on: FTRACE [=y] && RING_BUFFER [=y]
+#   Location:
+#     -> Kernel hacking
+#       -> Tracers (FTRACE [=y])
+#         -> Enable persistent ring buffer error injection test (RING_BUFFER_PERSISTENT_INJECT [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: 68413a36f005 (ring-buffer: Add persistent ring buffer invalid-page inject test)
+# CONFIG_RING_BUFFER_PERSISTENT_INJECT is not set
