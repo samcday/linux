@@ -46,7 +46,7 @@ _afy_perform_startup()
 	fi
 
 	# check git & kernel
-	if [[ ! -d '.git' ]] || [[ $(head -n 1 'README' 2> /dev/null) != 'Linux kernel' ]]; then
+	if ! git rev-parse --is-inside-work-tree &> /dev/null || [[ "$(git rev-parse --show-prefix)" ]] || [[ $(head -n 1 'README' 2> /dev/null) != 'Linux kernel' ]]; then
 		echo "Aborting: this does not look like Git repository with the Linux sources."
 		exit 1
 	fi
