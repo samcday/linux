@@ -256,19 +256,59 @@ static const struct uart_ops qcom_eud_uart_ops = {
 	.verify_port	= qcom_eud_verify_port,
 };
 
-#ifdef CONFIG_SERIAL_QCOM_EUD_EARLYCON
-static void qcom_eud_early_putc(struct uart_port *port, unsigned char ch)
+#if defined(CONFIG_SERIAL_QCOM_EUD_EARLYCON) || \
+	defined(CONFIG_SERIAL_QCOM_EUD_CONSOLE)
+static bool qcom_eud_console_flush(struct uart_port *port,
+				   const unsigned char *buf,
+				   unsigned int count)
 {
-	qcom_eud_write_frame(port->membase, &ch, 1);
+	if (qcom_eud_write_frame(port->membase, buf, count))
+		return false;
+
 	udelay(EUD_FRAME_DELAY_US);
+
+	return true;
 }
 
+static bool qcom_eud_console_write_buf(struct uart_port *port, const char *s,
+				       unsigned int count)
+{
+	unsigned char buf[EUD_FIFO_SIZE];
+	unsigned int i;
+	unsigned int len = 0;
+
+	for (i = 0; i < count; i++) {
+		if (s[i] == '\n') {
+			buf[len++] = '\r';
+			if (len == sizeof(buf)) {
+				if (!qcom_eud_console_flush(port, buf, len))
+					return false;
+				len = 0;
+			}
+		}
+
+		buf[len++] = s[i];
+		if (len == sizeof(buf)) {
+			if (!qcom_eud_console_flush(port, buf, len))
+				return false;
+			len = 0;
+		}
+	}
+
+	if (len)
+		return qcom_eud_console_flush(port, buf, len);
+
+	return true;
+}
+#endif
+
+#ifdef CONFIG_SERIAL_QCOM_EUD_EARLYCON
 static void qcom_eud_early_write(struct console *con, const char *s,
 				 unsigned int count)
 {
 	struct earlycon_device *dev = con->data;
 
-	uart_console_write(&dev->port, s, count, qcom_eud_early_putc);
+	qcom_eud_console_write_buf(&dev->port, s, count);
 }
 
 static int __init qcom_eud_earlycon_setup(struct earlycon_device *dev,
@@ -290,26 +330,11 @@ OF_EARLYCON_DECLARE(qcom_eud, "qcom,sdm845-eud",
 #ifdef CONFIG_SERIAL_QCOM_EUD_CONSOLE
 static struct uart_port *qcom_eud_console_port;
 
-static bool qcom_eud_console_flush(struct uart_port *port,
-				   const unsigned char *buf,
-				   unsigned int count)
-{
-	if (qcom_eud_write_frame(port->membase, buf, count))
-		return false;
-
-	udelay(EUD_FRAME_DELAY_US);
-
-	return true;
-}
-
 static void qcom_eud_console_write(struct console *co, const char *s,
 				   unsigned int count)
 {
 	struct uart_port *port = qcom_eud_console_port;
-	unsigned char buf[EUD_FIFO_SIZE];
 	unsigned long flags;
-	unsigned int i;
-	unsigned int len = 0;
 	bool locked = true;
 
 	if (!port || !port->membase)
@@ -320,28 +345,8 @@ static void qcom_eud_console_write(struct console *co, const char *s,
 	else
 		uart_port_lock_irqsave(port, &flags);
 
-	for (i = 0; i < count; i++) {
-		if (s[i] == '\n') {
-			buf[len++] = '\r';
-			if (len == sizeof(buf)) {
-				if (!qcom_eud_console_flush(port, buf, len))
-					goto out_unlock;
-				len = 0;
-			}
-		}
+	qcom_eud_console_write_buf(port, s, count);
 
-		buf[len++] = s[i];
-		if (len == sizeof(buf)) {
-			if (!qcom_eud_console_flush(port, buf, len))
-				goto out_unlock;
-			len = 0;
-		}
-	}
-
-	if (len)
-		qcom_eud_console_flush(port, buf, len);
-
-out_unlock:
 	if (locked)
 		uart_port_unlock_irqrestore(port, flags);
 }
