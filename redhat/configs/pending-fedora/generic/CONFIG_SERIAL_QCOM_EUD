@@ -1,0 +1,19 @@
+# ~~~
+# Symbol: SERIAL_QCOM_EUD [=n]
+# Type  : tristate
+# Defined at drivers/tty/serial/Kconfig:915
+#   Prompt: Qualcomm SDM845 EUD COM serial port support
+#   Depends on: TTY [=y] && HAS_IOMEM [=y] && (ARCH_QCOM [=y] || COMPILE_TEST [=n])
+#   Location:
+#     -> Device Drivers
+#       -> Character devices
+#         -> Enable TTY (TTY [=y])
+#           -> Serial drivers
+#             -> Qualcomm SDM845 EUD COM serial port support (SERIAL_QCOM_EUD [=n])
+# Selects: SERIAL_CORE [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: af606d3b33b38 (serial: qcom: Add SDM845 EUD COM driver)
+# CONFIG_SERIAL_QCOM_EUD is not set
