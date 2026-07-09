@@ -158,6 +158,66 @@
 #define PMIC_TYPEC_LEGACY_CABLE_IRQ			0x6
 #define PMIC_TYPEC_TRY_SNK_SRC_IRQ			0x7
 
+/* PM660/PMI8998-era Type-C registers, relative to the USBIN block at 0x1300. */
+#define PM660_TYPE_C_STATUS_1_REG			0x0b
+#define PM660_UFP_TYPEC_MASK				GENMASK(7, 5)
+#define PM660_UFP_TYPEC_RDSTD_BIT			BIT(7)
+#define PM660_UFP_TYPEC_RD1P5_BIT			BIT(6)
+#define PM660_UFP_TYPEC_RD3P0_BIT			BIT(5)
+
+#define PM660_TYPE_C_STATUS_2_REG			0x0c
+#define PM660_DFP_TYPEC_MASK				GENMASK(3, 0)
+#define PM660_DFP_RD_OPEN_BIT				BIT(3)
+#define PM660_DFP_RD_RA_VCONN_BIT			BIT(2)
+#define PM660_DFP_RD_RD_BIT				BIT(1)
+#define PM660_DFP_RA_RA_BIT				BIT(0)
+
+#define PM660_TYPE_C_STATUS_4_REG			0x0e
+#define PM660_UFP_DFP_MODE_STATUS_BIT			BIT(7)
+#define PM660_TYPEC_VBUS_STATUS_BIT			BIT(6)
+#define PM660_TYPEC_VBUS_ERROR_STATUS_BIT		BIT(5)
+#define PM660_TYPEC_DEBOUNCE_DONE_STATUS_BIT		BIT(4)
+#define PM660_TYPEC_VCONN_OVERCURR_STATUS_BIT		BIT(2)
+#define PM660_CC_ORIENTATION_BIT			BIT(1)
+#define PM660_CC_ATTACHED_BIT				BIT(0)
+
+#define PM660_TYPE_C_CFG_REG				0x58
+#define PM660_FACTORY_MODE_DETECTION_EN_BIT		BIT(5)
+#define PM660_VCONN_OC_CFG_BIT				BIT(1)
+
+#define PM660_TYPE_C_CFG_2_REG				0x59
+#define PM660_DFP_CC_1P4V_OR_1P6V_BIT			BIT(6)
+#define PM660_VCONN_SOFTSTART_CFG_MASK			GENMASK(5, 4)
+#define PM660_EN_80UA_180UA_CUR_SOURCE_BIT		BIT(0)
+
+#define PM660_TYPE_C_CFG_3_REG				0x5a
+#define PM660_TYPEC_LEGACY_CABLE_INT_EN_BIT		BIT(6)
+#define PM660_TYPEC_NONCOMPLIANT_LEGACY_CABLE_INT_EN_BIT	BIT(5)
+#define PM660_TYPEC_TRYSOURCE_DETECT_INT_EN_BIT		BIT(4)
+#define PM660_TYPEC_TRYSINK_DETECT_INT_EN_BIT		BIT(3)
+#define PM660_EN_TRYSINK_MODE_BIT			BIT(2)
+
+#define PM660_TYPE_C_INTRPT_ENB_REG			0x67
+#define PM660_TYPEC_CCOUT_DETACH_INT_EN_BIT		BIT(7)
+#define PM660_TYPEC_CCOUT_ATTACH_INT_EN_BIT		BIT(6)
+#define PM660_TYPEC_VBUS_ERROR_INT_EN_BIT		BIT(5)
+#define PM660_TYPEC_UFP_AUDIOADAPT_INT_EN_BIT		BIT(4)
+#define PM660_TYPEC_DEBOUNCE_DONE_INT_EN_BIT		BIT(3)
+#define PM660_TYPEC_CCSTATE_CHANGE_INT_EN_BIT		BIT(2)
+#define PM660_TYPEC_VBUS_DEASSERT_INT_EN_BIT		BIT(1)
+#define PM660_TYPEC_VBUS_ASSERT_INT_EN_BIT		BIT(0)
+
+#define PM660_TYPE_C_INTRPT_ENB_SOFTWARE_CTRL_REG	0x68
+#define PM660_EXIT_SNK_BASED_ON_CC_BIT			BIT(7)
+#define PM660_VCONN_EN_ORIENTATION_BIT			BIT(6)
+#define PM660_TYPEC_VCONN_OVERCURR_INT_EN_BIT		BIT(5)
+#define PM660_VCONN_EN_SRC_BIT				BIT(4)
+#define PM660_VCONN_EN_VALUE_BIT			BIT(3)
+#define PM660_TYPEC_POWER_ROLE_CMD_MASK			GENMASK(2, 0)
+#define PM660_UFP_EN_CMD_BIT				BIT(2)
+#define PM660_DFP_EN_CMD_BIT				BIT(1)
+#define PM660_TYPEC_DISABLE_CMD_BIT			BIT(0)
+
 struct pmic_typec_port_irq_data {
 	int				virq;
 	int				irq;
@@ -178,6 +238,8 @@ struct pmic_typec_port {
 
 	int				cc;
 	bool				debouncing_cc;
+	bool				cc_debounce_notify;
+	bool				vbus_high;
 	struct delayed_work		cc_debounce_dwork;
 
 	spinlock_t			lock;	/* Register atomicity */
@@ -216,20 +278,35 @@ static const char *rp_sel_to_name(int rp_sel)
 	return rp_sel_name[rp_sel];
 }
 
-#define misc_to_cc(msic) !!(misc & CC_ORIENTATION) ? "cc1" : "cc2"
-#define misc_to_vconn(msic) !!(misc & CC_ORIENTATION) ? "cc2" : "cc1"
+static const char *misc_to_cc(unsigned int misc)
+{
+	return misc & CC_ORIENTATION ? "cc1" : "cc2";
+}
+
+static const char *misc_to_vconn(unsigned int misc)
+{
+	return misc & CC_ORIENTATION ? "cc2" : "cc1";
+}
 
 static void qcom_pmic_typec_port_cc_debounce(struct work_struct *work)
 {
 	struct pmic_typec_port *pmic_typec_port =
 		container_of(work, struct pmic_typec_port, cc_debounce_dwork.work);
+	struct tcpm_port *tcpm_port;
+	bool notify;
 	unsigned long flags;
 
 	spin_lock_irqsave(&pmic_typec_port->lock, flags);
 	pmic_typec_port->debouncing_cc = false;
+	notify = pmic_typec_port->cc_debounce_notify;
+	pmic_typec_port->cc_debounce_notify = false;
+	tcpm_port = pmic_typec_port->tcpm_port;
 	spin_unlock_irqrestore(&pmic_typec_port->lock, flags);
 
 	dev_dbg(pmic_typec_port->dev, "Debounce cc complete\n");
+
+	if (notify && tcpm_port)
+		tcpm_cc_change(tcpm_port);
 }
 
 static irqreturn_t pmic_typec_port_isr(int irq, void *dev_id)
@@ -365,9 +442,12 @@ static int qcom_pmic_typec_port_get_cc(struct tcpc_dev *tcpc,
 	struct pmic_typec *tcpm = tcpc_to_tcpm(tcpc);
 	struct pmic_typec_port *pmic_typec_port = tcpm->pmic_typec_port;
 	struct device *dev = pmic_typec_port->dev;
-	unsigned int misc, val;
-	bool attached;
+	unsigned int misc = 0, val = 0;
+	bool attached = false;
 	int ret = 0;
+
+	*cc1 = TYPEC_CC_OPEN;
+	*cc2 = TYPEC_CC_OPEN;
 
 	ret = regmap_read(pmic_typec_port->regmap,
 			  pmic_typec_port->base + TYPEC_MISC_STATUS_REG, &misc);
@@ -380,9 +460,6 @@ static int qcom_pmic_typec_port_get_cc(struct tcpc_dev *tcpc,
 		ret = -EBUSY;
 		goto done;
 	}
-
-	*cc1 = TYPEC_CC_OPEN;
-	*cc2 = TYPEC_CC_OPEN;
 
 	if (!attached)
 		goto done;
@@ -461,8 +538,9 @@ static int qcom_pmic_typec_port_set_cc(struct tcpc_dev *tcpc,
 	struct pmic_typec *tcpm = tcpc_to_tcpm(tcpc);
 	struct pmic_typec_port *pmic_typec_port = tcpm->pmic_typec_port;
 	struct device *dev = pmic_typec_port->dev;
-	unsigned int mode, currsrc;
-	unsigned int misc;
+	unsigned int mode = EN_SRC_ONLY;
+	unsigned int currsrc = TYPEC_SRC_RP_SEL_80UA;
+	unsigned int misc = 0;
 	unsigned long flags;
 	int ret;
 
@@ -473,8 +551,6 @@ static int qcom_pmic_typec_port_set_cc(struct tcpc_dev *tcpc,
 			  &misc);
 	if (ret)
 		goto done;
-
-	mode = EN_SRC_ONLY;
 
 	switch (cc) {
 	case TYPEC_CC_OPEN:
@@ -691,8 +767,584 @@ static void qcom_pmic_typec_port_stop(struct pmic_typec *tcpm)
 	struct pmic_typec_port *pmic_typec_port = tcpm->pmic_typec_port;
 	int i;
 
+	cancel_delayed_work_sync(&pmic_typec_port->cc_debounce_dwork);
+
 	for (i = 0; i < pmic_typec_port->nr_irqs; i++)
 		disable_irq(pmic_typec_port->irq_data[i].irq);
+}
+
+static const char *pm660_misc_to_cc(unsigned int misc)
+{
+	return misc & PM660_CC_ORIENTATION_BIT ? "cc1" : "cc2";
+}
+
+static const char *pm660_misc_to_vconn(unsigned int misc)
+{
+	return misc & PM660_CC_ORIENTATION_BIT ? "cc2" : "cc1";
+}
+
+static irqreturn_t pm660_typec_port_isr(int irq, void *dev_id)
+{
+	struct pmic_typec_port_irq_data *irq_data = dev_id;
+	struct pmic_typec_port *pmic_typec_port = irq_data->pmic_typec_port;
+	bool vbus_change = false;
+	bool cc_change = false;
+	unsigned int misc;
+	bool vbus_high;
+	unsigned long flags;
+	int ret;
+
+	spin_lock_irqsave(&pmic_typec_port->lock, flags);
+
+	ret = regmap_read(pmic_typec_port->regmap,
+			  pmic_typec_port->base + PM660_TYPE_C_STATUS_4_REG,
+			  &misc);
+	if (ret)
+		goto done;
+
+	vbus_high = !!(misc & PM660_TYPEC_VBUS_STATUS_BIT);
+	if (pmic_typec_port->vbus_high != vbus_high) {
+		pmic_typec_port->vbus_high = vbus_high;
+		vbus_change = true;
+	}
+
+	if (!pmic_typec_port->debouncing_cc)
+		cc_change = true;
+
+done:
+	spin_unlock_irqrestore(&pmic_typec_port->lock, flags);
+
+	if (vbus_change)
+		tcpm_vbus_change(pmic_typec_port->tcpm_port);
+
+	if (cc_change)
+		tcpm_cc_change(pmic_typec_port->tcpm_port);
+
+	return IRQ_HANDLED;
+}
+
+static int pm660_typec_port_vbus_detect(struct pmic_typec_port *pmic_typec_port)
+{
+	unsigned int misc;
+	int ret;
+
+	ret = regmap_read(pmic_typec_port->regmap,
+			  pmic_typec_port->base + PM660_TYPE_C_STATUS_4_REG,
+			  &misc);
+	if (ret)
+		return 0;
+
+	pmic_typec_port->vbus_high = !!(misc & PM660_TYPEC_VBUS_STATUS_BIT);
+
+	return pmic_typec_port->vbus_high;
+}
+
+static int pm660_typec_port_vbus_toggle(struct pmic_typec_port *pmic_typec_port,
+					bool on)
+{
+	if (on)
+		return regulator_enable(pmic_typec_port->vdd_vbus);
+
+	return regulator_disable(pmic_typec_port->vdd_vbus);
+}
+
+static int pm660_typec_port_get_vbus(struct tcpc_dev *tcpc)
+{
+	struct pmic_typec *tcpm = tcpc_to_tcpm(tcpc);
+	struct pmic_typec_port *pmic_typec_port = tcpm->pmic_typec_port;
+	int ret;
+
+	mutex_lock(&pmic_typec_port->vbus_lock);
+	ret = pmic_typec_port->vbus_enabled ||
+	      pm660_typec_port_vbus_detect(pmic_typec_port);
+	mutex_unlock(&pmic_typec_port->vbus_lock);
+
+	return ret;
+}
+
+static int pm660_typec_port_set_vbus(struct tcpc_dev *tcpc, bool on, bool sink)
+{
+	struct pmic_typec *tcpm = tcpc_to_tcpm(tcpc);
+	struct pmic_typec_port *pmic_typec_port = tcpm->pmic_typec_port;
+	int ret = 0;
+
+	mutex_lock(&pmic_typec_port->vbus_lock);
+	if (pmic_typec_port->vbus_enabled == on)
+		goto done;
+
+	ret = pm660_typec_port_vbus_toggle(pmic_typec_port, on);
+	if (ret)
+		goto done;
+
+	pmic_typec_port->vbus_enabled = on;
+	tcpm_vbus_change(tcpm->tcpm_port);
+
+done:
+	dev_dbg(tcpm->dev, "set_vbus set: %d result %d\n", on, ret);
+	mutex_unlock(&pmic_typec_port->vbus_lock);
+
+	return ret;
+}
+
+static int pm660_typec_port_get_cc(struct tcpc_dev *tcpc,
+				   enum typec_cc_status *cc1,
+				   enum typec_cc_status *cc2)
+{
+	struct pmic_typec *tcpm = tcpc_to_tcpm(tcpc);
+	struct pmic_typec_port *pmic_typec_port = tcpm->pmic_typec_port;
+	struct device *dev = pmic_typec_port->dev;
+	unsigned int misc = 0, val = 0;
+	bool attached = false;
+	int ret;
+
+	*cc1 = TYPEC_CC_OPEN;
+	*cc2 = TYPEC_CC_OPEN;
+
+	ret = regmap_read(pmic_typec_port->regmap,
+			  pmic_typec_port->base + PM660_TYPE_C_STATUS_4_REG,
+			  &misc);
+	if (ret)
+		goto done;
+
+	attached = !!(misc & PM660_CC_ATTACHED_BIT);
+
+	if (pmic_typec_port->debouncing_cc) {
+		ret = -EBUSY;
+		goto done;
+	}
+
+	if (!attached)
+		goto done;
+
+	if (misc & PM660_UFP_DFP_MODE_STATUS_BIT) {
+		ret = regmap_read(pmic_typec_port->regmap,
+				  pmic_typec_port->base + PM660_TYPE_C_STATUS_2_REG,
+				  &val);
+		if (ret)
+			goto done;
+
+		switch (val & PM660_DFP_TYPEC_MASK) {
+		case PM660_DFP_RA_RA_BIT:
+			val = TYPEC_CC_RA;
+			*cc1 = TYPEC_CC_RA;
+			*cc2 = TYPEC_CC_RA;
+			break;
+		case PM660_DFP_RD_RD_BIT:
+			val = TYPEC_CC_RD;
+			*cc1 = TYPEC_CC_RD;
+			*cc2 = TYPEC_CC_RD;
+			break;
+		case PM660_DFP_RD_OPEN_BIT:
+			val = TYPEC_CC_RD;
+			break;
+		case PM660_DFP_RD_RA_VCONN_BIT:
+			val = TYPEC_CC_RD;
+			*cc1 = TYPEC_CC_RA;
+			*cc2 = TYPEC_CC_RA;
+			break;
+		default:
+			dev_dbg(dev, "unexpected src status %.2x\n", val);
+			val = TYPEC_CC_RD;
+			break;
+		}
+	} else {
+		ret = regmap_read(pmic_typec_port->regmap,
+				  pmic_typec_port->base + PM660_TYPE_C_STATUS_1_REG,
+				  &val);
+		if (ret)
+			goto done;
+
+		switch (val & PM660_UFP_TYPEC_MASK) {
+		case PM660_UFP_TYPEC_RDSTD_BIT:
+			val = TYPEC_CC_RP_DEF;
+			break;
+		case PM660_UFP_TYPEC_RD1P5_BIT:
+			val = TYPEC_CC_RP_1_5;
+			break;
+		case PM660_UFP_TYPEC_RD3P0_BIT:
+			val = TYPEC_CC_RP_3_0;
+			break;
+		default:
+			dev_dbg(dev, "unexpected snk status %.2x\n", val);
+			val = TYPEC_CC_RP_DEF;
+			break;
+		}
+	}
+
+	if (misc & PM660_CC_ORIENTATION_BIT)
+		*cc2 = val;
+	else
+		*cc1 = val;
+
+done:
+	dev_dbg(dev, "get_cc: misc 0x%08x cc1 0x%08x %s cc2 0x%08x %s attached %d cc=%s\n",
+		misc, *cc1, cc_to_name(*cc1), *cc2, cc_to_name(*cc2), attached,
+		pm660_misc_to_cc(misc));
+
+	return ret;
+}
+
+static int pm660_typec_port_set_cc(struct tcpc_dev *tcpc,
+				   enum typec_cc_status cc)
+{
+	struct pmic_typec *tcpm = tcpc_to_tcpm(tcpc);
+	struct pmic_typec_port *pmic_typec_port = tcpm->pmic_typec_port;
+	struct device *dev = pmic_typec_port->dev;
+	unsigned int currsrc = 0;
+	unsigned int misc = 0;
+	unsigned int role = PM660_TYPEC_DISABLE_CMD_BIT;
+	const char *mode = "source";
+	unsigned long flags;
+	int ret;
+
+	spin_lock_irqsave(&pmic_typec_port->lock, flags);
+
+	ret = regmap_read(pmic_typec_port->regmap,
+			  pmic_typec_port->base + PM660_TYPE_C_STATUS_4_REG,
+			  &misc);
+	if (ret)
+		goto done;
+
+	switch (cc) {
+	case TYPEC_CC_OPEN:
+		mode = "open";
+		break;
+	case TYPEC_CC_RP_DEF:
+		currsrc = 0;
+		role = PM660_DFP_EN_CMD_BIT;
+		break;
+	case TYPEC_CC_RP_1_5:
+		currsrc = PM660_EN_80UA_180UA_CUR_SOURCE_BIT;
+		role = PM660_DFP_EN_CMD_BIT;
+		break;
+	case TYPEC_CC_RP_3_0:
+		dev_warn_once(dev, "unsupported Rp 3.0A, using 1.5A\n");
+		currsrc = PM660_EN_80UA_180UA_CUR_SOURCE_BIT;
+		role = PM660_DFP_EN_CMD_BIT;
+		break;
+	case TYPEC_CC_RD:
+		mode = "sink";
+		role = PM660_UFP_EN_CMD_BIT;
+		break;
+	default:
+		dev_warn(dev, "unexpected set_cc %d\n", cc);
+		ret = -EINVAL;
+		goto done;
+	}
+
+	if (role == PM660_DFP_EN_CMD_BIT) {
+		ret = regmap_update_bits(pmic_typec_port->regmap,
+					 pmic_typec_port->base +
+					 PM660_TYPE_C_CFG_2_REG,
+					 PM660_EN_80UA_180UA_CUR_SOURCE_BIT,
+					 currsrc);
+		if (ret)
+			goto done;
+	}
+
+	ret = regmap_update_bits(pmic_typec_port->regmap,
+				 pmic_typec_port->base +
+				 PM660_TYPE_C_INTRPT_ENB_SOFTWARE_CTRL_REG,
+				 PM660_TYPEC_POWER_ROLE_CMD_MASK, role);
+	if (ret)
+		goto done;
+
+	pmic_typec_port->cc = cc;
+	pmic_typec_port->cc_debounce_notify = true;
+	qcom_pmic_set_cc_debounce(pmic_typec_port);
+	ret = 0;
+
+done:
+	spin_unlock_irqrestore(&pmic_typec_port->lock, flags);
+
+	dev_dbg(dev, "set_cc: currsrc=%x role=%x %s mode %s debounce %d attached %d cc=%s\n",
+		currsrc, role, currsrc ? "Rp-1.5-180uA" : "Rp-def-80uA", mode,
+		pmic_typec_port->debouncing_cc,
+		!!(misc & PM660_CC_ATTACHED_BIT), pm660_misc_to_cc(misc));
+
+	return ret;
+}
+
+static int pm660_typec_port_set_vconn(struct tcpc_dev *tcpc, bool on)
+{
+	struct pmic_typec *tcpm = tcpc_to_tcpm(tcpc);
+	struct pmic_typec_port *pmic_typec_port = tcpm->pmic_typec_port;
+	struct device *dev = pmic_typec_port->dev;
+	unsigned int orientation = 0, misc = 0, mask, value = 0;
+	unsigned long flags;
+	int ret;
+
+	spin_lock_irqsave(&pmic_typec_port->lock, flags);
+
+	ret = regmap_read(pmic_typec_port->regmap,
+			  pmic_typec_port->base + PM660_TYPE_C_STATUS_4_REG,
+			  &misc);
+	if (ret)
+		goto done;
+
+	orientation = (misc & PM660_CC_ORIENTATION_BIT) ? 0 :
+		      PM660_VCONN_EN_ORIENTATION_BIT;
+	if (on) {
+		mask = PM660_VCONN_EN_ORIENTATION_BIT |
+		       PM660_VCONN_EN_VALUE_BIT |
+		       PM660_VCONN_EN_SRC_BIT;
+		value = orientation | PM660_VCONN_EN_VALUE_BIT |
+			PM660_VCONN_EN_SRC_BIT;
+	} else {
+		mask = PM660_VCONN_EN_VALUE_BIT;
+		value = 0;
+	}
+
+	ret = regmap_update_bits(pmic_typec_port->regmap,
+				 pmic_typec_port->base +
+				 PM660_TYPE_C_INTRPT_ENB_SOFTWARE_CTRL_REG,
+				 mask, value);
+done:
+	spin_unlock_irqrestore(&pmic_typec_port->lock, flags);
+
+	dev_dbg(dev, "set_vconn: orientation %d control 0x%08x state %s cc %s vconn %s\n",
+		orientation, value, str_on_off(on), pm660_misc_to_vconn(misc),
+		pm660_misc_to_cc(misc));
+
+	return ret;
+}
+
+static int pm660_typec_port_start_toggling(struct tcpc_dev *tcpc,
+					   enum typec_port_type port_type,
+					   enum typec_cc_status cc)
+{
+	struct pmic_typec *tcpm = tcpc_to_tcpm(tcpc);
+	struct pmic_typec_port *pmic_typec_port = tcpm->pmic_typec_port;
+	struct device *dev = pmic_typec_port->dev;
+	unsigned int misc = 0;
+	unsigned long flags;
+	int ret;
+
+	spin_lock_irqsave(&pmic_typec_port->lock, flags);
+
+	ret = regmap_read(pmic_typec_port->regmap,
+			  pmic_typec_port->base + PM660_TYPE_C_STATUS_4_REG,
+			  &misc);
+	if (ret)
+		goto done;
+
+	dev_dbg(dev, "start_toggling: misc 0x%08x attached %d port_type %d current cc %d new %d\n",
+		misc, !!(misc & PM660_CC_ATTACHED_BIT), port_type,
+		pmic_typec_port->cc, cc);
+
+	pmic_typec_port->cc_debounce_notify = true;
+	qcom_pmic_set_cc_debounce(pmic_typec_port);
+
+	switch (port_type) {
+	case TYPEC_PORT_SRC:
+		ret = regmap_update_bits(pmic_typec_port->regmap,
+					 pmic_typec_port->base +
+					 PM660_TYPE_C_CFG_3_REG,
+					 PM660_EN_TRYSINK_MODE_BIT, 0);
+		if (ret)
+			goto done;
+
+		ret = regmap_update_bits(pmic_typec_port->regmap,
+					 pmic_typec_port->base +
+					 PM660_TYPE_C_INTRPT_ENB_SOFTWARE_CTRL_REG,
+					 PM660_TYPEC_POWER_ROLE_CMD_MASK,
+					 PM660_DFP_EN_CMD_BIT);
+		break;
+	case TYPEC_PORT_SNK:
+		ret = regmap_update_bits(pmic_typec_port->regmap,
+					 pmic_typec_port->base +
+					 PM660_TYPE_C_CFG_3_REG,
+					 PM660_EN_TRYSINK_MODE_BIT, 0);
+		if (ret)
+			goto done;
+
+		ret = regmap_update_bits(pmic_typec_port->regmap,
+					 pmic_typec_port->base +
+					 PM660_TYPE_C_INTRPT_ENB_SOFTWARE_CTRL_REG,
+					 PM660_TYPEC_POWER_ROLE_CMD_MASK,
+					 PM660_UFP_EN_CMD_BIT);
+		break;
+	case TYPEC_PORT_DRP:
+		ret = regmap_update_bits(pmic_typec_port->regmap,
+					 pmic_typec_port->base +
+					 PM660_TYPE_C_INTRPT_ENB_SOFTWARE_CTRL_REG,
+					 PM660_TYPEC_POWER_ROLE_CMD_MASK, 0);
+		if (ret)
+			goto done;
+
+		ret = regmap_update_bits(pmic_typec_port->regmap,
+					 pmic_typec_port->base +
+					 PM660_TYPE_C_CFG_3_REG,
+					 PM660_EN_TRYSINK_MODE_BIT,
+					 PM660_EN_TRYSINK_MODE_BIT);
+		break;
+	default:
+		ret = -EINVAL;
+		break;
+	}
+
+	pmic_typec_port->vbus_high = !!(misc & PM660_TYPEC_VBUS_STATUS_BIT);
+
+done:
+	spin_unlock_irqrestore(&pmic_typec_port->lock, flags);
+
+	return ret;
+}
+
+#define PM660_TYPEC_INTR_ENB_MASK \
+	(PM660_TYPEC_CCOUT_DETACH_INT_EN_BIT | \
+	 PM660_TYPEC_CCOUT_ATTACH_INT_EN_BIT | \
+	 PM660_TYPEC_VBUS_ERROR_INT_EN_BIT | \
+	 PM660_TYPEC_UFP_AUDIOADAPT_INT_EN_BIT | \
+	 PM660_TYPEC_DEBOUNCE_DONE_INT_EN_BIT | \
+	 PM660_TYPEC_CCSTATE_CHANGE_INT_EN_BIT | \
+	 PM660_TYPEC_VBUS_DEASSERT_INT_EN_BIT | \
+	 PM660_TYPEC_VBUS_ASSERT_INT_EN_BIT)
+
+#define PM660_TYPEC_CFG_3_INTR_EN_MASK \
+	(PM660_TYPEC_TRYSOURCE_DETECT_INT_EN_BIT | \
+	 PM660_TYPEC_TRYSINK_DETECT_INT_EN_BIT)
+
+static int pm660_typec_port_start(struct pmic_typec *tcpm,
+				  struct tcpm_port *tcpm_port)
+{
+	struct pmic_typec_port *pmic_typec_port = tcpm->pmic_typec_port;
+	int i;
+	int ret;
+
+	pmic_typec_port->tcpm_port = tcpm_port;
+
+	ret = regmap_write(pmic_typec_port->regmap,
+			   pmic_typec_port->base + PM660_TYPE_C_INTRPT_ENB_REG,
+			   PM660_TYPEC_INTR_ENB_MASK);
+	if (ret)
+		return ret;
+
+	ret = regmap_update_bits(pmic_typec_port->regmap,
+				 pmic_typec_port->base + PM660_TYPE_C_CFG_REG,
+				 PM660_FACTORY_MODE_DETECTION_EN_BIT |
+				 PM660_VCONN_OC_CFG_BIT,
+				 0);
+	if (ret)
+		return ret;
+
+	ret = regmap_update_bits(pmic_typec_port->regmap,
+				 pmic_typec_port->base + PM660_TYPE_C_CFG_2_REG,
+				 PM660_DFP_CC_1P4V_OR_1P6V_BIT |
+				 PM660_VCONN_SOFTSTART_CFG_MASK,
+				 PM660_DFP_CC_1P4V_OR_1P6V_BIT |
+				 PM660_VCONN_SOFTSTART_CFG_MASK);
+	if (ret)
+		return ret;
+
+	ret = regmap_update_bits(pmic_typec_port->regmap,
+				 pmic_typec_port->base + PM660_TYPE_C_CFG_3_REG,
+				 PM660_TYPEC_LEGACY_CABLE_INT_EN_BIT |
+				 PM660_TYPEC_NONCOMPLIANT_LEGACY_CABLE_INT_EN_BIT |
+				 PM660_TYPEC_CFG_3_INTR_EN_MASK |
+				 PM660_EN_TRYSINK_MODE_BIT,
+				 PM660_TYPEC_CFG_3_INTR_EN_MASK |
+				 PM660_EN_TRYSINK_MODE_BIT);
+	if (ret)
+		return ret;
+
+	ret = regmap_update_bits(pmic_typec_port->regmap,
+				 pmic_typec_port->base +
+				 PM660_TYPE_C_INTRPT_ENB_SOFTWARE_CTRL_REG,
+				 PM660_TYPEC_POWER_ROLE_CMD_MASK |
+				 PM660_VCONN_EN_SRC_BIT |
+				 PM660_VCONN_EN_VALUE_BIT,
+				 PM660_VCONN_EN_SRC_BIT);
+	if (ret)
+		return ret;
+
+	for (i = 0; i < pmic_typec_port->nr_irqs; i++)
+		enable_irq(pmic_typec_port->irq_data[i].irq);
+
+	return 0;
+}
+
+static void pm660_typec_port_stop(struct pmic_typec *tcpm)
+{
+	struct pmic_typec_port *pmic_typec_port = tcpm->pmic_typec_port;
+	int i;
+
+	cancel_delayed_work_sync(&pmic_typec_port->cc_debounce_dwork);
+
+	for (i = 0; i < pmic_typec_port->nr_irqs; i++)
+		disable_irq(pmic_typec_port->irq_data[i].irq);
+}
+
+static int pm660_typec_port_probe(struct platform_device *pdev,
+				  struct pmic_typec *tcpm,
+				  const struct pmic_typec_port_resources *res,
+				  struct regmap *regmap,
+				  u32 base)
+{
+	struct device *dev = &pdev->dev;
+	struct pmic_typec_port_irq_data *irq_data;
+	struct pmic_typec_port *pmic_typec_port;
+	int i, irq, ret;
+
+	if (res->nr_irqs != 1)
+		return -EINVAL;
+
+	pmic_typec_port = devm_kzalloc(dev, sizeof(*pmic_typec_port), GFP_KERNEL);
+	if (!pmic_typec_port)
+		return -ENOMEM;
+
+	irq_data = devm_kcalloc(dev, res->nr_irqs, sizeof(*irq_data),
+				GFP_KERNEL);
+	if (!irq_data)
+		return -ENOMEM;
+
+	mutex_init(&pmic_typec_port->vbus_lock);
+
+	pmic_typec_port->vdd_vbus = devm_regulator_get(dev, "vdd-vbus");
+	if (IS_ERR(pmic_typec_port->vdd_vbus))
+		return PTR_ERR(pmic_typec_port->vdd_vbus);
+
+	pmic_typec_port->dev = dev;
+	pmic_typec_port->base = base;
+	pmic_typec_port->regmap = regmap;
+	pmic_typec_port->nr_irqs = res->nr_irqs;
+	pmic_typec_port->irq_data = irq_data;
+	spin_lock_init(&pmic_typec_port->lock);
+	INIT_DELAYED_WORK(&pmic_typec_port->cc_debounce_dwork,
+			  qcom_pmic_typec_port_cc_debounce);
+
+	for (i = 0; i < res->nr_irqs; i++, irq_data++) {
+		irq = platform_get_irq_byname(pdev, res->irq_params[i].irq_name);
+		if (irq < 0)
+			return irq;
+
+		irq_data->pmic_typec_port = pmic_typec_port;
+		irq_data->irq = irq;
+		irq_data->virq = res->irq_params[i].virq;
+
+		ret = devm_request_threaded_irq(dev, irq, NULL,
+						pm660_typec_port_isr,
+						IRQF_ONESHOT | IRQF_NO_AUTOEN,
+						res->irq_params[i].irq_name,
+						irq_data);
+		if (ret)
+			return ret;
+	}
+
+	tcpm->pmic_typec_port = pmic_typec_port;
+
+	tcpm->tcpc.get_vbus = pm660_typec_port_get_vbus;
+	tcpm->tcpc.set_vbus = pm660_typec_port_set_vbus;
+	tcpm->tcpc.set_cc = pm660_typec_port_set_cc;
+	tcpm->tcpc.get_cc = pm660_typec_port_get_cc;
+	tcpm->tcpc.set_polarity = qcom_pmic_typec_port_set_polarity;
+	tcpm->tcpc.set_vconn = pm660_typec_port_set_vconn;
+	tcpm->tcpc.start_toggling = pm660_typec_port_start_toggling;
+
+	tcpm->port_start = pm660_typec_port_start;
+	tcpm->port_stop = pm660_typec_port_stop;
+
+	return 0;
 }
 
 int qcom_pmic_typec_port_probe(struct platform_device *pdev,
@@ -705,6 +1357,9 @@ int qcom_pmic_typec_port_probe(struct platform_device *pdev,
 	struct pmic_typec_port_irq_data *irq_data;
 	struct pmic_typec_port *pmic_typec_port;
 	int i, ret, irq;
+
+	if (res->legacy_smb2)
+		return pm660_typec_port_probe(pdev, tcpm, res, regmap, base);
 
 	pmic_typec_port = devm_kzalloc(dev, sizeof(*pmic_typec_port), GFP_KERNEL);
 	if (!pmic_typec_port)
@@ -806,4 +1461,15 @@ const struct pmic_typec_port_resources pm8150b_port_res = {
 		},
 	},
 	.nr_irqs = 7,
+};
+
+const struct pmic_typec_port_resources pm660_port_res = {
+	.legacy_smb2 = true,
+	.irq_params = {
+		{
+			.irq_name = "type-c-change",
+			.virq = PMIC_TYPEC_ATTACH_DETACH_IRQ,
+		},
+	},
+	.nr_irqs = 1,
 };
