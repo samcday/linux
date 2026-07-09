@@ -448,6 +448,20 @@
 		regulator-boot-on;
 	};
 
+	ext_5v_boost: regulator-ext-5v-boost {
+		compatible = "regulator-fixed";
+		regulator-name = "ext_5v_boost";
+		regulator-min-microvolt = <5000000>;
+		regulator-max-microvolt = <5000000>;
+
+		gpio = <&pm660_gpios 6 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+		startup-delay-us = <1600>;
+
+		pinctrl-0 = <&usb2_ext_5v_boost_default>;
+		pinctrl-names = "default";
+	};
+
 	/*
 	 * Supply map from xiaomi-lavender specifies this as the supply for
 	 * ldob1, ldob9, ldob10, ldoa2, and ldoa3, while downstream specifies
@@ -1150,6 +1164,31 @@
 	status = "okay";
 };
 
+&pm660_typec {
+	vdd-pdphy-supply = <&vreg_l7b_3p125>;
+	vdd-vbus-supply = <&ext_5v_boost>;
+
+	status = "okay";
+
+	connector {
+		compatible = "usb-c-connector";
+		label = "USB-C";
+
+		power-role = "dual";
+		data-role = "dual";
+		try-power-role = "sink";
+
+		typec-power-opmode = "default";
+		pd-disable;
+
+		port {
+			pm660_typec_hs: endpoint {
+				remote-endpoint = <&usb_1_dwc3_hs>;
+			};
+		};
+	};
+};
+
 &pm660_fg {
 	monitored-battery = <&battery>;
 	power-supplies = <&pm660_charger>;
@@ -1157,6 +1196,13 @@
 };
 
 &pm660_gpios {
+	usb2_ext_5v_boost_default: usb2-ext-5v-boost-state {
+		pins = "gpio6";
+		function = "normal";
+		power-source = <0>;
+		output-low;
+	};
+
 	cam_vio_pin: cam-vio-state {
 		pins = "gpio13";
 		function = "normal";
@@ -1555,13 +1601,20 @@
 };
 
 &usb_1_dwc3 {
-	/* Only peripheral works for now */
-	dr_mode = "peripheral";
+	dr_mode = "otg";
+	usb-role-switch;
+	role-switch-default-mode = "peripheral";
 
 	/* Do not assume that sdm670.dtsi will never support USB 3.0 */
 	phys = <&usb_1_hsphy>;
 	phy-names = "usb2-phy";
 	maximum-speed = "high-speed";
+
+	port {
+		usb_1_dwc3_hs: endpoint {
+			remote-endpoint = <&pm660_typec_hs>;
+		};
+	};
 };
 
 &venus {
