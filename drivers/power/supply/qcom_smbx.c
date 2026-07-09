@@ -373,6 +373,7 @@ struct smb_init_register {
 	u16 addr;
 	u8 mask;
 	u8 val;
+	bool typec;
 };
 
 /**
@@ -389,6 +390,10 @@ struct smb_init_register {
  * @usb_in_v_chan:	USB_IN voltage measurement channel
  * @chg_psy:		Charger power supply instance
  * @cdev:		Cooling device
+ * @cdev_fcc_max:	Maximum fast-charge current for thermal cooling
+ * @cdev_fcc_step:	Fast-charge current reduction per cooling state
+ * @cooling_state:	Current thermal cooling state
+ * @typec_tcpm_present: A TCPM child owns the charger block's Type-C registers
  */
 struct smb_chip {
 	struct device *dev;
@@ -410,7 +415,25 @@ struct smb_chip {
 	u32 cdev_fcc_max;
 	u32 cdev_fcc_step;
 	int cooling_state;
+	bool typec_tcpm_present;
 };
+
+static bool smb_typec_tcpm_present(struct device *dev)
+{
+	struct device_node *child;
+
+	if (!dev->parent || !dev->parent->of_node)
+		return false;
+
+	for_each_available_child_of_node(dev->parent->of_node, child) {
+		if (of_device_is_compatible(child, "qcom,pm660-typec")) {
+			of_node_put(child);
+			return true;
+		}
+	}
+
+	return false;
+}
 
 static enum power_supply_property smb_properties[] = {
 	POWER_SUPPLY_PROP_MANUFACTURER,
@@ -806,14 +829,16 @@ static const struct smb_init_register smb_init_seq[] = {
 	{ .addr = TYPE_C_INTRPT_ENB_SOFTWARE_CTRL,
 	  .mask = TYPEC_POWER_ROLE_CMD_MASK | VCONN_EN_SRC_BIT |
 		  VCONN_EN_VALUE_BIT,
-	  .val = VCONN_EN_SRC_BIT },
+	  .val = VCONN_EN_SRC_BIT,
+	  .typec = true },
 	/*
 	 * Disable Type-C factory mode and stay in Attached.SRC state when VCONN
 	 * over-current happens
 	 */
 	{ .addr = TYPE_C_CFG,
 	  .mask = FACTORY_MODE_DETECTION_EN_BIT | VCONN_OC_CFG_BIT,
-	  .val = 0 },
+	  .val = 0,
+	  .typec = true },
 	/* Configure VBUS for software control */
 	{ .addr = OTG_CFG, .mask = OTG_EN_SRC_CFG_BIT, .val = 0 },
 	/*
@@ -974,6 +999,9 @@ static int smb_init_hw(struct smb_chip *chip)
 	int rc, i;
 
 	for (i = 0; i < ARRAY_SIZE(smb_init_seq); i++) {
+		if (chip->typec_tcpm_present && smb_init_seq[i].typec)
+			continue;
+
 		dev_dbg(chip->dev, "%d: Writing 0x%02x to 0x%02x\n", i,
 			smb_init_seq[i].val, smb_init_seq[i].addr);
 		rc = regmap_update_bits(chip->regmap,
@@ -1049,6 +1077,7 @@ static int smb_probe(struct platform_device *pdev)
 	chip->cooling_state = 0;
 	chip->cdev_fcc_max = THERMAL_FCC_MAX;
 	chip->cdev_fcc_step = THERMAL_FCC_STEP;
+	chip->typec_tcpm_present = smb_typec_tcpm_present(chip->dev);
 
 	chip->cdev = devm_thermal_of_cooling_device_register(chip->dev,
 							     chip->dev->of_node,
