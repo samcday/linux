@@ -12,7 +12,7 @@ RHEL_MINOR = 99
 #
 # Use this spot to avoid future merge conflicts.
 # Do not trim this comment.
-RHEL_RELEASE = 1
+RHEL_RELEASE = 0
 
 #
 # RHEL_REBASE_NUM
@@ -41,4 +41,4 @@ AUTOMOTIVE_MINOR = 99
 # ---------------------------
 #
 # Set DERIVATIVE_STREAM to "yes" to enable derivative kernel versioning.
-DERIVATIVE_BUILD = 0
+DERIVATIVE_BUILD = 1

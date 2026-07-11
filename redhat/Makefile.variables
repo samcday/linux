@@ -48,12 +48,12 @@ CHECK_FOR_RELEASE_COMMIT ?= 1
 # package release (NVR).
 # Example NVR with derivative versioning:
 #   kernel-6.12.0-180.partner.1.el10
-DERIVATIVE_STREAM ?= no
+DERIVATIVE_STREAM ?= yes
 
 # DERIVATIVE_TAG is a string included in the release (e.g., ".partner").
 # Ensure that this is set to the shortest value possible or you may exceed the
 # UTS_RELEASE size limit. See dist-vr-check.
-DERIVATIVE_TAG ?=
+DERIVATIVE_TAG ?= .pocketfed.sdm670
 
 # This is the dist release suffix used in the package release, eg. .fc34,
 # .el8 etc. In a different branch this may be set to a fixed value.
@@ -123,7 +123,7 @@ RELEASED_KERNEL:=1
 
 # Local version to be used for official (non-scratch) builds. Makefile
 # dist-{release/tag/git} targets will ignore localversion and DISTLOCALVERSION
-RELEASE_LOCALVERSION:=.pocketfed.sdm670
+RELEASE_LOCALVERSION:=
 
 # This variable is used by the redhat/self-tests.  It should not be
 # considered stable and my be changed or removed without warning.
@@ -216,4 +216,4 @@ UPSTREAMBUILD_GIT_ONLY ?=
 #
 ZSTREAM ?= no
 
-DISTLOCALVERSION ?= $(RELEASE_LOCALVERSION)
+DISTLOCALVERSION ?= .sam
