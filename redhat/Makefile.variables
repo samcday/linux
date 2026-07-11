@@ -36,12 +36,12 @@ BUILD_TARGET ?=
 # 'make dist-release'.  It should be set to "yes" if you expect to do
 # multiple updates and builds without bumping the base version, and no
 # when you expect every build to use a different base kernel version.
-BUMP_RELEASE:=no
+BUMP_RELEASE:=yes
 
 # For dist-release-tag and dist-git check that tree is in expected
 # state and has release commit as HEAD commit. Meant to be used
 # by downstream distros.
-CHECK_FOR_RELEASE_COMMIT ?= 0
+CHECK_FOR_RELEASE_COMMIT ?= 1
 
 # DERIVATIVE_STREAM controls whether derivative kernel versioning is enabled.
 # When set to "yes", DERIVATIVE_TAG and DERIVATIVE_BUILD are included in the
@@ -123,7 +123,7 @@ RELEASED_KERNEL:=1
 
 # Local version to be used for official (non-scratch) builds. Makefile
 # dist-{release/tag/git} targets will ignore localversion and DISTLOCALVERSION
-RELEASE_LOCALVERSION:=
+RELEASE_LOCALVERSION:=.pocketfed.sdm670
 
 # This variable is used by the redhat/self-tests.  It should not be
 # considered stable and my be changed or removed without warning.
@@ -216,4 +216,4 @@ UPSTREAMBUILD_GIT_ONLY ?=
 #
 ZSTREAM ?= no
 
-DISTLOCALVERSION ?= .pocketfed.sdm670.2
+DISTLOCALVERSION ?= $(RELEASE_LOCALVERSION)
