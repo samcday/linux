@@ -1,3 +1,7 @@
+* Sun Jul 12 2026 Sam Day <me@samcday.com> [7.1.2-0.pocketfed.sdm670.3]
+- redhat: enable RMNET on aarch64 (Sam Day)
+Resolves: 
+
 * Sun Jul 12 2026 Sam Day <me@samcday.com> [7.1.2-0.pocketfed.sdm670.2]
 - redhat: version pocketfed as a derivative stream (Sam Day)
 Resolves: 
