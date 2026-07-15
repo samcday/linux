@@ -26,9 +26,47 @@
 	stride = <(1440 * 4)>;
 };
 
+&i2c2 {
+	clock-frequency = <400000>;
+
+	status = "okay";
+
+	touchscreen@48 {
+		compatible = "samsung,s6sy761";
+		reg = <0x48>;
+
+		interrupt-parent = <&tlmm>;
+		interrupts = <125 IRQ_TYPE_LEVEL_LOW>;
+
+		avdd-supply = <&vreg_l19a_3p3>;
+		vdd-supply = <&vreg_l14a_1p8>;
+
+		pinctrl-0 = <&touchscreen_irq_n>, <&touchscreen_reset>,
+			    <&touchscreen_switch>;
+		pinctrl-names = "default";
+
+		touchscreen-size-x = <1440>;
+		touchscreen-size-y = <2960>;
+	};
+};
+
 &mdss {
 	/* Disable for now so simple-framebuffer continues working */
 	status = "disabled";
+};
+
+&tlmm {
+	touchscreen_switch: ts-switch-state {
+		pins = "gpio136";
+		function = "gpio";
+		drive-strength = <2>;
+		bias-disable;
+		output-high;
+	};
+};
+
+&touchscreen_reset {
+	output-high;
 };
 
 &wifi {
