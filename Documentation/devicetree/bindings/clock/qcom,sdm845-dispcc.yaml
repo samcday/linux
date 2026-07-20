@@ -46,6 +46,11 @@ properties:
       - const: dp_link_clk_divsel_ten
       - const: dp_vco_divided_clk_src_mux
 
+  post-init-providers:
+    description:
+      Providers whose clocks are not needed while DISPCC itself registers.
+      This can break initialization dependency cycles with enabled PHYs.
+
 required:
   - compatible
   - clocks
