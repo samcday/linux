@@ -4,10 +4,18 @@
 $id: http://devicetree.org/schemas/display/panel/samsung,s6e3ha8.yaml#
 $schema: http://devicetree.org/meta-schemas/core.yaml#
 
-title: Samsung s6e3ha8 AMOLED DSI panel
+title: Samsung S6E3HA8 AMOLED DSI panel
 
-description: The s6e3ha8 is a 1440x2960 DPI display panel from Samsung Mobile
-  Displays (SMD).
+description: |
+  The S6E3HA8 is a 1440x2960 AMOLED display controller from Samsung Mobile
+  Display (SMD). The samsung,s6e3ha8 compatible describes the AMB577PX01
+  panel module used by the Samsung Galaxy S9.
+
+  The exact Samsung module or assembly part number used by Google Crosshatch
+  is not present in the public downstream sources. The explicitly
+  board-qualified samsung,s6e3ha8-crosshatch compatible is therefore used to
+  keep its command-mode timings, power rails, and initialization sequence
+  separate from the AMB577PX01 until that part number can be identified.
 
 maintainers:
   - Dzmitry Sankouski <dsankouski@gmail.com>
@@ -15,15 +23,40 @@ maintainers:
 allOf:
   - $ref: panel-common.yaml#
 
+  - if:
+      properties:
+        compatible:
+          const: samsung,s6e3ha8-crosshatch
+    then:
+      properties:
+        vdd3-supply: false
+        vddr-supply: false
+      required:
+        - te-gpios
+        - vddi-supply
+        - vci-supply
+    else:
+      properties:
+        vddi-supply: false
+      required:
+        - vdd3-supply
+        - vci-supply
+        - vddr-supply
+
 properties:
   compatible:
-    const: samsung,s6e3ha8
+    enum:
+      - samsung,s6e3ha8
+      - samsung,s6e3ha8-crosshatch
 
   reg:
     maxItems: 1
 
   vdd3-supply:
     description: VDD regulator
+
+  vddi-supply:
+    description: 1.8 V interface supply
 
   vci-supply:
     description: VCI regulator
@@ -34,9 +67,6 @@ properties:
 required:
   - compatible
   - reset-gpios
-  - vdd3-supply
-  - vci-supply
-  - vddr-supply
 
 unevaluatedProperties: false
 
@@ -62,6 +92,29 @@ examples:
 
             port {
                 panel_in: endpoint {
+                    remote-endpoint = <&mdss_dsi0_out>;
+                };
+            };
+        };
+    };
+
+  - |
+    #include <dt-bindings/gpio/gpio.h>
+
+    dsi {
+        #address-cells = <1>;
+        #size-cells = <0>;
+
+        panel@0 {
+            compatible = "samsung,s6e3ha8-crosshatch";
+            reg = <0>;
+            vddi-supply = <&pm8998_l14>;
+            vci-supply = <&pm8998_l28>;
+            te-gpios = <&tlmm 12 GPIO_ACTIVE_HIGH>;
+            reset-gpios = <&tlmm 6 GPIO_ACTIVE_LOW>;
+
+            port {
+                crosshatch_panel_in: endpoint {
                     remote-endpoint = <&mdss_dsi0_out>;
                 };
             };
