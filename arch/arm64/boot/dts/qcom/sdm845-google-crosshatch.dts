@@ -64,6 +64,16 @@
 	status = "okay";
 };
 
+&spi4 {
+	status = "okay";
+
+	citadel@0 {
+		compatible = "google,citadel";
+		reg = <0>;
+		spi-max-frequency = <1200000>;
+	};
+};
+
 &tlmm {
 	panel_default: panel-default-state {
 		reset-pins {
