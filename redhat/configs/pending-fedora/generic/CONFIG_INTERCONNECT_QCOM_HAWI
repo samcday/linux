@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: INTERCONNECT_QCOM_HAWI [=n]
+# Type  : tristate
+# Defined at drivers/interconnect/qcom/Kconfig:31
+#   Prompt: Qualcomm HAWI interconnect driver
+#   Depends on: INTERCONNECT [=y] && INTERCONNECT_QCOM_RPMH_POSSIBLE [=y]
+#   Location:
+#     -> Device Drivers
+#       -> On-Chip Interconnect management support (INTERCONNECT [=y])
+#         -> Qualcomm HAWI interconnect driver (INTERCONNECT_QCOM_HAWI [=n])
+# Selects: INTERCONNECT_QCOM_RPMH [=y] && INTERCONNECT_QCOM_BCM_VOTER [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: ffaa88a08486 (interconnect: qcom: add Hawi interconnect provider driver)
+# CONFIG_INTERCONNECT_QCOM_HAWI is not set

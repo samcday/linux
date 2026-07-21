@@ -1,0 +1,18 @@
+# ~~~
+# Symbol: AD5706R [=n]
+# Type  : tristate
+# Defined at drivers/iio/dac/Kconfig:181
+#   Prompt: Analog Devices AD5706R DAC driver
+#   Depends on: IIO [=m] && SPI [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Industrial I/O support (IIO [=m])
+#         -> Digital to analog converters
+#           -> Analog Devices AD5706R DAC driver (AD5706R [=n])
+# Selects: REGMAP [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: 081ce276d801 (iio: dac: ad5706r: Add support for AD5706R DAC)
+# CONFIG_AD5706R is not set

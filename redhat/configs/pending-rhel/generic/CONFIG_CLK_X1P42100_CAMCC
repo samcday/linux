@@ -1,0 +1,18 @@
+# ~~~
+# Symbol: CLK_X1P42100_CAMCC [=m]
+# Type  : tristate
+# Defined at drivers/clk/qcom/Kconfig:203
+#   Prompt: X1P42100 Camera Clock Controller
+#   Depends on: COMMON_CLK [=y] && COMMON_CLK_QCOM [=y] && (ARM64 [=y] || COMPILE_TEST [=n])
+#   Location:
+#     -> Device Drivers
+#       -> Common Clock Framework (COMMON_CLK [=y])
+#         -> Support for Qualcomm's clock controllers (COMMON_CLK_QCOM [=y])
+#           -> X1P42100 Camera Clock Controller (CLK_X1P42100_CAMCC [=m])
+# Selects: CLK_X1E80100_GCC [=m]
+# 
+# 
+# 
+# ~~~
+# Commit: 10524682d1b8 (clk: qcom: camcc-x1p42100: Add support for camera clock controller)
+CONFIG_CLK_X1P42100_CAMCC=m

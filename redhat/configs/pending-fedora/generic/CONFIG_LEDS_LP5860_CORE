@@ -1,0 +1,19 @@
+# ~~~
+# Symbol: LEDS_LP5860_CORE [=n]
+# Type  : tristate
+# Defined at drivers/leds/rgb/Kconfig:42
+#   Prompt: Core Driver for TI LP5860
+#   Depends on: NEW_LEDS [=y] && LEDS_CLASS_MULTICOLOR [=m] && LEDS_CLASS [=y] && OF [=y]
+#   Location:
+#     -> Device Drivers
+#       -> LED Support (NEW_LEDS [=y])
+#         -> Core Driver for TI LP5860 (LEDS_LP5860_CORE [=n])
+# Selects: REGMAP [=y]
+# Selected by [n]:
+#   - LEDS_LP5860_SPI [=n] && NEW_LEDS [=y] && LEDS_CLASS_MULTICOLOR [=m] && SPI [=y] && OF [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: f0a66563aa2d (leds: Add support for TI LP5860 LED driver chip)
+# CONFIG_LEDS_LP5860_CORE is not set

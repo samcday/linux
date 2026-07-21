@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: SENSORS_E50SN12051 [=n]
+# Type  : tristate
+# Defined at drivers/hwmon/pmbus/Kconfig:173
+#   Prompt: Delta E50SN12051 Power Modules
+#   Depends on: HWMON [=y] && PMBUS [=m]
+#   Location:
+#     -> Device Drivers
+#       -> Hardware Monitoring support (HWMON [=y])
+#         -> PMBus support (PMBUS [=m])
+#           -> Delta E50SN12051 Power Modules (SENSORS_E50SN12051 [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: 98be2444a645 (hwmon: (pmbus) add support for Delta E50SN12051)
+# CONFIG_SENSORS_E50SN12051 is not set

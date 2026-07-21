@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: SENSORS_LTC4283 [=n]
+# Type  : tristate
+# Defined at drivers/hwmon/Kconfig:1172
+#   Prompt: Analog Devices LTC4283
+#   Depends on: HWMON [=y] && I2C [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Hardware Monitoring support (HWMON [=y])
+#         -> Analog Devices LTC4283 (SENSORS_LTC4283 [=n])
+# Selects: REGMAP_I2C [=y] && AUXILIARY_BUS [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: dd63353a0b5e (hwmon: ltc4283: Add support for the LTC4283 Swap Controller)
+# CONFIG_SENSORS_LTC4283 is not set

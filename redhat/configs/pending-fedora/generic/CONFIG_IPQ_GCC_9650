@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: IPQ_GCC_9650 [=y]
+# Type  : tristate
+# Defined at drivers/clk/qcom/Kconfig:475
+#   Prompt: IPQ9650 Global Clock Controller
+#   Depends on: COMMON_CLK [=y] && COMMON_CLK_QCOM [=y] && (ARM64 [=y] || COMPILE_TEST [=n])
+#   Location:
+#     -> Device Drivers
+#       -> Common Clock Framework (COMMON_CLK [=y])
+#         -> Support for Qualcomm's clock controllers (COMMON_CLK_QCOM [=y])
+#           -> IPQ9650 Global Clock Controller (IPQ_GCC_9650 [=y])
+# 
+# 
+# 
+# ~~~
+# Commit: 76fc060df67c (clk: qcom: add Global Clock controller (GCC) driver for IPQ9650 SoC)
+CONFIG_IPQ_GCC_9650=y

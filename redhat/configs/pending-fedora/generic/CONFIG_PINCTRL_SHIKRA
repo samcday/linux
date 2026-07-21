@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: PINCTRL_SHIKRA [=y]
+# Type  : tristate
+# Defined at drivers/pinctrl/qcom/Kconfig.msm:435
+#   Prompt: Qualcomm Shikra pin controller driver
+#   Depends on: PINCTRL [=y] && (ARCH_QCOM [=y] || COMPILE_TEST [=n]) && PINCTRL_MSM [=y] && (ARM64 [=y] || COMPILE_TEST [=n])
+#   Location:
+#     -> Device Drivers
+#       -> Pin controllers (PINCTRL [=y])
+#         -> Qualcomm core pin controller driver (PINCTRL_MSM [=y])
+#           -> Qualcomm Shikra pin controller driver (PINCTRL_SHIKRA [=y])
+# 
+# 
+# 
+# ~~~
+# Commit: 9db68ec534c5 (pinctrl: qcom: Add Shikra pinctrl driver)
+CONFIG_PINCTRL_SHIKRA=y

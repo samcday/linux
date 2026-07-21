@@ -1,0 +1,20 @@
+# ~~~
+# Symbol: DMABUF_KUNIT_TEST [=m]
+# Type  : tristate
+# Defined at drivers/dma-buf/Kconfig:52
+#   Prompt: KUnit tests for DMA-BUF
+#   Depends on: KUNIT [=m]
+#   Visible if: KUNIT [=m] && !KUNIT_ALL_TESTS [=m]
+#   Location:
+#     -> Device Drivers
+#       -> DMABUF options
+#         -> KUnit tests for DMA-BUF (DMABUF_KUNIT_TEST [=m])
+# Selects: DMA_SHARED_BUFFER [=y]
+# Selected by [n]:
+#   - DRM_I915_DEBUG [=n] && HAS_IOMEM [=y] && DRM [=y] && DRM_I915 [=m] && EXPERT [=y] && !COMPILE_TEST [=n] && KUNIT [=m]
+# 
+# 
+# 
+# ~~~
+# Commit: 15b9bde78bad (dma-buf: Change st-dma-resv.c to use kunit)
+CONFIG_DMABUF_KUNIT_TEST=m

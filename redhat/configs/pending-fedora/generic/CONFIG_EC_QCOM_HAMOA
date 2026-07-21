@@ -1,0 +1,16 @@
+# ~~~
+# Symbol: EC_QCOM_HAMOA [=n]
+# Type  : tristate
+# Defined at drivers/platform/arm64/Kconfig:93
+#   Prompt: Embedded Controller driver for Qualcomm Hamoa/Glymur reference devices
+#   Depends on: ARM64_PLATFORM_DEVICES [=y] && (ARCH_QCOM [=y] || COMPILE_TEST [=n]) && I2C [=y]
+#   Location:
+#     -> Device Drivers
+#       -> ARM64 Platform-Specific Device Drivers (ARM64_PLATFORM_DEVICES [=y])
+#         -> Embedded Controller driver for Qualcomm Hamoa/Glymur reference devices (EC_QCOM_HAMOA [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: 5c44f48e91de (platform: arm64: Add driver for EC found on Qualcomm reference devices)
+# CONFIG_EC_QCOM_HAMOA is not set

@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: PINCTRL_NORD [=y]
+# Type  : tristate
+# Defined at drivers/pinctrl/qcom/Kconfig.msm:270
+#   Prompt: Qualcomm Nord pin controller driver
+#   Depends on: PINCTRL [=y] && (ARCH_QCOM [=y] || COMPILE_TEST [=n]) && PINCTRL_MSM [=y] && (ARM64 [=y] || COMPILE_TEST [=n])
+#   Location:
+#     -> Device Drivers
+#       -> Pin controllers (PINCTRL [=y])
+#         -> Qualcomm core pin controller driver (PINCTRL_MSM [=y])
+#           -> Qualcomm Nord pin controller driver (PINCTRL_NORD [=y])
+# 
+# 
+# 
+# ~~~
+# Commit: c24dd0826f06 (pinctrl: qcom: add the TLMM driver for the Nord platforms)
+CONFIG_PINCTRL_NORD=y

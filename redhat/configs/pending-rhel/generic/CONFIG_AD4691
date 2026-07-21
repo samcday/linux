@@ -1,0 +1,18 @@
+# ~~~
+# Symbol: AD4691 [=n]
+# Type  : tristate
+# Defined at drivers/iio/adc/Kconfig:148
+#   Prompt: Analog Devices AD4691 Family ADC Driver
+#   Depends on: IIO [=m] && SPI [=y] && (REGULATOR [=y] || COMPILE_TEST [=n])
+#   Location:
+#     -> Device Drivers
+#       -> Industrial I/O support (IIO [=m])
+#         -> Analog to digital converters
+#           -> Analog Devices AD4691 Family ADC Driver (AD4691 [=n])
+# Selects: IIO_BUFFER [=y] && IIO_BUFFER_DMAENGINE [=n] && IIO_TRIGGERED_BUFFER [=m] && REGMAP [=y] && SPI_OFFLOAD [=n]
+# 
+# 
+# 
+# ~~~
+# Commit: 40850443aa12 (iio: adc: ad4691: add initial driver for AD4691 family)
+# CONFIG_AD4691 is not set

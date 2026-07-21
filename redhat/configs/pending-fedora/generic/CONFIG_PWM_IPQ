@@ -1,0 +1,16 @@
+# ~~~
+# Symbol: PWM_IPQ [=n]
+# Type  : tristate
+# Defined at drivers/pwm/Kconfig:350
+#   Prompt: IPQ PWM support
+#   Depends on: PWM [=y] && (ARCH_QCOM [=y] || COMPILE_TEST [=n]) && HAVE_CLK [=y] && HAS_IOMEM [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Pulse-Width Modulation (PWM) Support (PWM [=y])
+#         -> IPQ PWM support (PWM_IPQ [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: c436e3e9c265 (pwm: Driver for qualcomm ipq6018 pwm block)
+# CONFIG_PWM_IPQ is not set

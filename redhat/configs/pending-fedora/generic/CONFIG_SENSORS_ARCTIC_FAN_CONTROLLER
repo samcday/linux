@@ -1,0 +1,16 @@
+# ~~~
+# Symbol: SENSORS_ARCTIC_FAN_CONTROLLER [=n]
+# Type  : tristate
+# Defined at drivers/hwmon/Kconfig:391
+#   Prompt: ARCTIC Fan Controller
+#   Depends on: HWMON [=y] && USB_HID [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Hardware Monitoring support (HWMON [=y])
+#         -> ARCTIC Fan Controller (SENSORS_ARCTIC_FAN_CONTROLLER [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: e28d0c73d4d7 (hwmon: add driver for ARCTIC Fan Controller)
+# CONFIG_SENSORS_ARCTIC_FAN_CONTROLLER is not set
