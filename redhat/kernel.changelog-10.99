@@ -1,3 +1,7 @@
+* Tue Jul 21 2026 Sam Day <me@samcday.com> [7.2.0-0.rc1.15.msm8916]
+- redhat: disable SMB1360 debug support (Sam Day)
+Resolves: 
+
 * Tue Jul 21 2026 Sam Day <me@samcday.com> [7.2.0-0.rc1.14.msm8916]
 - bulk import ark-infra (Sam Day)
 - bulk import ark-infra (Sam Day)
