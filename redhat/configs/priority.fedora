@@ -17,34 +17,8 @@
 # the first arg is arch and variant, the second is a hierarchy of
 # config options, lowest priority to highest
 ORDER=common fedora pending-fedora custom-overrides
-EMPTY=s390x-zfcpdump
-
-# x86_64
-x86_64=generic:generic-x86
-x86_64-debug=generic:generic-x86:debug:debug-x86
-x86_64-rt=generic:generic-x86:rt-generic:rt-generic-x86
-x86_64-rt-debug=generic:generic-x86:debug:debug-x86:rt-generic:rt-generic-x86:rt-debug:rt-debug-x86
-
-# ppc64le
-ppc64le=generic:generic-powerpc
-ppc64le-debug=generic:generic-powerpc:debug:debug-powerpc
-
-# s390x
-s390x=generic:generic-s390x
-s390x-debug=generic:generic-s390x:debug:debug-s390x
+EMPTY=aarch64-16k aarch64-16k-debug ppc64le ppc64le-debug s390x s390x-debug s390x-zfcpdump x86_64 x86_64-debug riscv64 riscv64-debug
 
 # aarch64
 aarch64=generic:generic-arm:generic-arm-aarch64
 aarch64-debug=generic:generic-arm:generic-arm-aarch64:debug:debug-arm-aarch64
-aarch64-16k=generic:generic-arm:generic-arm-aarch64:generic-arm-aarch64-16k
-aarch64-16k-debug=generic:generic-arm:generic-arm-aarch64:generic-arm-aarch64-16k:debug:debug-arm-aarch64:debug-arm-aarch64-16k
-aarch64-rt=generic:generic-arm:generic-arm-aarch64:rt-generic:rt-generic-arm:rt-generic-arm-aarch64
-aarch64-rt-debug=generic:generic-arm:generic-arm-aarch64:debug:debug-arm:debug-arm-aarch64:rt-generic:rt-generic-arm:rt-generic-arm-aarch64:rt-debug:rt-debug-arm:rt-debug-arm-aarch64
-aarch64-rt-64k=generic:generic-arm:generic-arm-aarch64:rt-generic:rt-arm-aarch64:rt-arm-aarch64-64k
-aarch64-rt-64k-debug=generic:generic-arm:generic-arm-aarch64:rt-generic:rt-arm-aarch64:rt-arm-aarch64-64k:debug:debug-arm-aarch64:rt-debug
-
-# riscv64
-riscv64=generic:generic-riscv:generic-riscv-riscv64
-riscv64-debug=generic:generic-riscv:generic-riscv-riscv64:debug:debug-riscv-riscv64
-riscv64-rt=generic:generic-riscv:generic-riscv-riscv64:rt-generic:rt-generic-riscv-riscv64
-riscv64-rt-debug=generic:generic-riscv:generic-riscv-riscv64:debug:debug-riscv-riscv64:rt-generic:rt-generic-riscv-riscv64:rt-debug:rt-debug-riscv-riscv64
