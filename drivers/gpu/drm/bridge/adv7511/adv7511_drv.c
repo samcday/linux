@@ -1400,11 +1400,15 @@ static int adv7511_probe(struct i2c_client *i2c)
 	if (adv7511->info->has_dsi) {
 		ret = adv7533_attach_dsi(adv7511);
 		if (ret)
-			goto err_unregister_audio;
+			goto err_free_irq;
 	}
 
 	return 0;
 
+err_free_irq:
+	if (i2c->irq)
+		devm_free_irq(dev, i2c->irq, adv7511);
+	cancel_work_sync(&adv7511->hpd_work);
 err_unregister_audio:
 	drm_bridge_remove(&adv7511->bridge);
 	i2c_unregister_device(adv7511->i2c_cec);
@@ -1424,6 +1428,10 @@ err_of_node_put:
 static void adv7511_remove(struct i2c_client *i2c)
 {
 	struct adv7511 *adv7511 = i2c_get_clientdata(i2c);
+
+	if (i2c->irq)
+		devm_free_irq(&i2c->dev, i2c->irq, adv7511);
+	cancel_work_sync(&adv7511->hpd_work);
 
 	of_node_put(adv7511->host_node);
 
