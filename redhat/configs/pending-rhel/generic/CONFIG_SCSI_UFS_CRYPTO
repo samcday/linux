@@ -1,0 +1,16 @@
+# ~~~
+# Symbol: SCSI_UFS_CRYPTO [=n]
+# Type  : bool
+# Defined at drivers/ufs/core/Kconfig:29
+#   Prompt: UFS Crypto Engine Support
+#   Depends on: SCSI_UFSHCD [=y] && BLK_INLINE_ENCRYPTION [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Universal Flash Storage Controller (SCSI_UFSHCD [=y])
+#         -> UFS Crypto Engine Support (SCSI_UFS_CRYPTO [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: dd11376b9f1b (scsi: ufs: Split the drivers/scsi/ufs directory)
+# CONFIG_SCSI_UFS_CRYPTO is not set
