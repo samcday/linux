@@ -1,3 +1,7 @@
+* Thu Aug 20 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.3.0-0.rc0.bd5f485f3f02.5]
+- Turn off RUST in pending for ppc to revisit after merge window (Justin M. Forbes)
+Resolves: 
+
 * Wed Aug 19 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.3.0-0.rc0.bd5f485f3f02.4]
 - Turn on QCOM_PAS in pending (Justin M. Forbes)
 - Linux v7.3.0-0.rc0.bd5f485f3f02
