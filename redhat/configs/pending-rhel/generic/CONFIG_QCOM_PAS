@@ -1,0 +1,23 @@
+# ~~~
+# Symbol: QCOM_PAS [=n]
+# Type  : tristate
+# Defined at drivers/firmware/qcom/Kconfig:9
+#   Prompt: Qualcomm generic PAS interface driver
+#   Location:
+#     -> Device Drivers
+#       -> Firmware Drivers
+#         -> Qualcomm firmware drivers
+#           -> Qualcomm generic PAS interface driver (QCOM_PAS [=n])
+# Selected by [n]:
+#   - QCOM_PAS_TEE [=n] && TEE [=m] && !CPU_BIG_ENDIAN
+#   - QCOM_SCM [=n]
+#   - QCOM_IPA [=n] && NETDEVICES [=y] && NET [=y] && QCOM_SMEM [=n] && (ARCH_QCOM || COMPILE_TEST [=n]) && INTERCONNECT [=y] && (QCOM_RPROC_COMMON [=n] || QCOM_RPROC_COMMON [=n]=n [=n] && COMPILE_TEST [=n]) && (QCOM_AOSS_QMP [=n] || QCOM_AOSS_QMP [=n]=n [=n])
+#   - VIDEO_QCOM_IRIS [=n] && MEDIA_SUPPORT [=m] && MEDIA_PLATFORM_SUPPORT [=y] && MEDIA_PLATFORM_DRIVERS [=y] && VIDEO_DEV [=m] && (ARCH_QCOM || COMPILE_TEST [=n]) && (QCOM_SMEM [=n] || QCOM_SMEM [=n]=n [=n])
+#   - VIDEO_QCOM_VENUS [=n] && MEDIA_SUPPORT [=m] && MEDIA_PLATFORM_SUPPORT [=y] && MEDIA_PLATFORM_DRIVERS [=y] && V4L_MEM2MEM_DRIVERS [=n] && VIDEO_DEV [=m] && QCOM_SMEM [=n] && (ARCH_QCOM && ARM64 && IOMMU_API [=y] || COMPILE_TEST [=n])
+#   - DRM_MSM [=n] && HAS_IOMEM [=y] && DRM [=y] && (ARCH_QCOM || SOC_IMX5 || COMPILE_TEST [=n]) && COMMON_CLK [=y] && IOMMU_SUPPORT [=y] && OF [=n] && (QCOM_AOSS_QMP [=n] || QCOM_AOSS_QMP [=n]=n [=n]) && (QCOM_OCMEM [=n] || QCOM_OCMEM [=n]=n [=n]) && (QCOM_LLCC [=n] || QCOM_LLCC [=n]=n [=n]) && (QCOM_COMMAND_DB [=n] || QCOM_COMMAND_DB [=n]=n [=n]) && (QCOM_SMEM [=n] || QCOM_SMEM [=n]=n [=n]) && PM [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: 08314e7c2c38 (firmware: qcom: Add a generic PAS service)
+# CONFIG_QCOM_PAS is not set

@@ -1,0 +1,16 @@
+# ~~~
+# Symbol: ANDROID_BINDER_IPC_RUST [=n]
+# Type  : bool
+# Defined at drivers/android/Kconfig:17
+#   Prompt: Rust version of Android Binder IPC Driver
+#   Depends on: RUST [=y] && MMU [=y] && !ANDROID_BINDER_IPC [=n]
+#   Location:
+#     -> Device Drivers
+#       -> Android
+#         -> Rust version of Android Binder IPC Driver (ANDROID_BINDER_IPC_RUST [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: eafedbc7c050 (rust_binder: add Rust Binder driver)
+# CONFIG_ANDROID_BINDER_IPC_RUST is not set

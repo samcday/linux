@@ -1,0 +1,15 @@
+# ~~~
+# Symbol: NVIDIA_OLYMPUS_1027_ERRATUM [=y]
+# Type  : bool
+# Defined at arch/arm64/Kconfig:1407
+#   Prompt: NVIDIA Olympus: device store/load ordering erratum
+#   Location:
+#     -> Kernel Features
+#       -> ARM errata workarounds via the alternatives framework
+#         -> NVIDIA Olympus: device store/load ordering erratum (NVIDIA_OLYMPUS_1027_ERRATUM [=y])
+# 
+# 
+# 
+# ~~~
+# Commit: 12aab25ca56e (arm64: errata: work around NVIDIA Olympus device store/load ordering)
+CONFIG_NVIDIA_OLYMPUS_1027_ERRATUM=y

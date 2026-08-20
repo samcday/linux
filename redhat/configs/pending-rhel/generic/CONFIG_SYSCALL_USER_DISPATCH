@@ -1,0 +1,15 @@
+# ~~~
+# Symbol: SYSCALL_USER_DISPATCH [=y]
+# Type  : bool
+# Defined at arch/Kconfig:120
+#   Prompt: Syscall User Dispatch
+#   Depends on: ARCH_SUPPORTS_SYSCALL_USER_DISPATCH [=y] && GENERIC_ENTRY [=y]
+#   Location:
+#     -> General architecture-dependent options
+#       -> Syscall User Dispatch (SYSCALL_USER_DISPATCH [=y])
+# 
+# 
+# 
+# ~~~
+# Commit: ee935e8dc757 (syscall_user_dispatch: Make it configurable in Kconfig)
+CONFIG_SYSCALL_USER_DISPATCH=y

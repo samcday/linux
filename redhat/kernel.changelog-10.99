@@ -1,3 +1,8 @@
+* Wed Aug 19 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.3.0-0.rc0.bd5f485f3f02.4]
+- Turn on QCOM_PAS in pending (Justin M. Forbes)
+- Linux v7.3.0-0.rc0.bd5f485f3f02
+Resolves: 
+
 * Wed Aug 19 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.3.0-0.rc0.0f23d56f17fd.3]
 - Trim changelog for rebase (Justin M. Forbes)
 Resolves: 

@@ -1,0 +1,16 @@
+# ~~~
+# Symbol: QCOM_SOC [=y]
+# Type  : bool
+# Defined at drivers/soc/qcom/Kconfig:5
+#   Prompt: Qualcomm SoC drivers
+#   Depends on: ARCH_QCOM [=y] || COMPILE_TEST [=n]
+#   Location:
+#     -> Device Drivers
+#       -> SOC (System On Chip) specific Drivers
+#         -> Qualcomm SoC drivers (QCOM_SOC [=y])
+# 
+# 
+# 
+# ~~~
+# Commit: f2866e6a27f7 (soc: qcom: Hide all drivers behind selectable menu)
+CONFIG_QCOM_SOC=y
