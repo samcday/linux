@@ -1,3 +1,7 @@
+* Fri Aug 21 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.3.0-0.rc0.818bebeb63dd.7]
+- Linux v7.3.0-0.rc0.818bebeb63dd
+Resolves: 
+
 * Thu Aug 20 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.3.0-0.rc0.11260c335ec6.6]
 - Fix up some s390x mismatches for Fedora (Justin M. Forbes)
 - A number of mismatch fixes for 7.3 merge window (Justin M. Forbes)

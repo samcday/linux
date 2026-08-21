@@ -1,0 +1,15 @@
+# ~~~
+# Symbol: RISCV_ISA_SSQOSID [=n]
+# Type  : bool
+# Defined at arch/riscv/Kconfig:597
+#   Prompt: Ssqosid extension support for supervisor mode Quality of Service ID
+#   Depends on: 64BIT [=y]
+#   Location:
+#     -> Platform type
+#       -> Ssqosid extension support for supervisor mode Quality of Service ID (RISCV_ISA_SSQOSID [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: 326ba66db949 (riscv: Add support for srmcfg CSR from Ssqosid extension)
+# CONFIG_RISCV_ISA_SSQOSID is not set

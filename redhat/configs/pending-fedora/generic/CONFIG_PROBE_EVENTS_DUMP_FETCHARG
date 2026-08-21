@@ -1,0 +1,16 @@
+# ~~~
+# Symbol: PROBE_EVENTS_DUMP_FETCHARG [=n]
+# Type  : bool
+# Defined at kernel/trace/Kconfig:782
+#   Prompt: Dump of dynamic probe event fetch-arguments
+#   Depends on: FTRACE [=y] && PROBE_EVENTS [=y]
+#   Location:
+#     -> Kernel hacking
+#       -> Tracers (FTRACE [=y])
+#         -> Dump of dynamic probe event fetch-arguments (PROBE_EVENTS_DUMP_FETCHARG [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: dccddc39aa7d (tracing/probes: Support dumping fetcharg program for debugging dynamic events)
+# CONFIG_PROBE_EVENTS_DUMP_FETCHARG is not set
