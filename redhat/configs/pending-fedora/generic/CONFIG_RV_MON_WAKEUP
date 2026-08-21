@@ -1,0 +1,19 @@
+# ~~~
+# Symbol: RV_MON_WAKEUP [=y]
+# Type  : bool
+# Defined at kernel/trace/rv/monitors/wakeup/Kconfig:3
+#   Prompt: wakeup monitor
+#   Depends on: FTRACE [=y] && RV [=y] && RV_MON_RTAPP [=y] && HAVE_SYSCALL_TRACEPOINTS [=y]
+#   Location:
+#     -> Kernel hacking
+#       -> Tracers (FTRACE [=y])
+#         -> Runtime Verification (RV [=y])
+#           -> rtapp monitor (RV_MON_RTAPP [=y])
+#             -> wakeup monitor (RV_MON_WAKEUP [=y])
+# Selects: LTL_MON_EVENTS_ID [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: 6fdaab4e1636 (rv/rtapp: Add wakeup monitor)
+CONFIG_RV_MON_WAKEUP=y

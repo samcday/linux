@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: REGULATOR_SY8824X [=n]
+# Type  : tristate
+# Defined at drivers/regulator/Kconfig:1616
+#   Prompt: Silergy SY8824C/SY8824E regulator
+#   Depends on: REGULATOR [=y] && I2C [=y] && OF [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Voltage and Current Regulator Support (REGULATOR [=y])
+#         -> Silergy SY8824C/SY8824E regulator (REGULATOR_SY8824X [=n])
+# Selects: REGMAP_I2C [=m]
+# 
+# 
+# 
+# ~~~
+# Commit: d5a2b8220335 (regulator: add support for SY8824C regulator)
+# CONFIG_REGULATOR_SY8824X is not set

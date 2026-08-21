@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: WLAN_VENDOR_MORSEMICRO [=y]
+# Type  : bool
+# Defined at drivers/net/wireless/morsemicro/Kconfig:2
+#   Prompt: Morse Micro devices
+#   Depends on: NETDEVICES [=y] && WLAN [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Network device support (NETDEVICES [=y])
+#         -> Wireless LAN (WLAN [=y])
+#           -> Morse Micro devices (WLAN_VENDOR_MORSEMICRO [=y])
+# 
+# 
+# 
+# ~~~
+# Commit: b1906cea00b0 (wifi: mm81x: add mm81x Wi-Fi HaLow driver)
+CONFIG_WLAN_VENDOR_MORSEMICRO=y

@@ -1,0 +1,16 @@
+# ~~~
+# Symbol: SENSORS_KB9002 [=n]
+# Type  : tristate
+# Defined at drivers/hwmon/Kconfig:339
+#   Prompt: Kandou KB9002 PCIe retimer
+#   Depends on: HWMON [=y] && I2C [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Hardware Monitoring support (HWMON [=y])
+#         -> Kandou KB9002 PCIe retimer (SENSORS_KB9002 [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: 694329073a3a (hwmon: (kb9002) Add driver for Kandou KB9002 retimer)
+# CONFIG_SENSORS_KB9002 is not set

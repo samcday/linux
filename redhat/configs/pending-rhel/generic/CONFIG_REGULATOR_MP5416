@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: REGULATOR_MP5416 [=n]
+# Type  : tristate
+# Defined at drivers/regulator/Kconfig:845
+#   Prompt: Monolithic MP5416 PMIC
+#   Depends on: REGULATOR [=y] && I2C [=y] && OF [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Voltage and Current Regulator Support (REGULATOR [=y])
+#         -> Monolithic MP5416 PMIC (REGULATOR_MP5416 [=n])
+# Selects: REGMAP_I2C [=m]
+# 
+# 
+# 
+# ~~~
+# Commit: a273188b87fd (regulator: mp5416: add mp5416 regulator driver)
+# CONFIG_REGULATOR_MP5416 is not set

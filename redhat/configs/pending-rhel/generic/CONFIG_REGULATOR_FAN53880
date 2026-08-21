@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: REGULATOR_FAN53880 [=n]
+# Type  : tristate
+# Defined at drivers/regulator/Kconfig:433
+#   Prompt: Fairchild FAN53880 Regulator
+#   Depends on: REGULATOR [=y] && I2C [=y] && OF [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Voltage and Current Regulator Support (REGULATOR [=y])
+#         -> Fairchild FAN53880 Regulator (REGULATOR_FAN53880 [=n])
+# Selects: REGMAP_I2C [=m]
+# 
+# 
+# 
+# ~~~
+# Commit: e6dea51e2d41 (regulator: fan53880: Add initial support)
+# CONFIG_REGULATOR_FAN53880 is not set

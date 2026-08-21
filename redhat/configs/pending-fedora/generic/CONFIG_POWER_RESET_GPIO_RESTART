@@ -1,0 +1,16 @@
+# ~~~
+# Symbol: POWER_RESET_GPIO_RESTART [=n]
+# Type  : bool
+# Defined at drivers/power/reset/Kconfig:106
+#   Prompt: GPIO restart driver
+#   Depends on: POWER_RESET [=y] && OF [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Board level reset or power off (POWER_RESET [=y])
+#         -> GPIO restart driver (POWER_RESET_GPIO_RESTART [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: 371bb20d6927 (power: Add simple gpio-restart driver)
+# CONFIG_POWER_RESET_GPIO_RESTART is not set

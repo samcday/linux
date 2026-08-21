@@ -1,0 +1,19 @@
+# ~~~
+# Symbol: NXPWIFI_SDIO [=n]
+# Type  : tristate
+# Defined at drivers/net/wireless/nxp/nxpwifi/Kconfig:12
+#   Prompt: NXP WiFi Driver for IW61x
+#   Depends on: NETDEVICES [=y] && WLAN [=y] && WLAN_VENDOR_NXP [=y] && CFG80211 [=m] && MMC [=m]
+#   Location:
+#     -> Device Drivers
+#       -> Network device support (NETDEVICES [=y])
+#         -> Wireless LAN (WLAN [=y])
+#           -> NXP devices (WLAN_VENDOR_NXP [=y])
+#             -> NXP WiFi Driver for IW61x (NXPWIFI_SDIO [=n])
+# Selects: NXPWIFI [=n] && FW_LOADER [=y] && WANT_DEV_COREDUMP [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: 73b01e57ed3e (wifi: nxp: add nxpwifi driver for IW61x)
+# CONFIG_NXPWIFI_SDIO is not set

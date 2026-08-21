@@ -1,0 +1,19 @@
+# ~~~
+# Symbol: SND_HDA_SCODEC_AW88399_I2C [=n]
+# Type  : tristate
+# Defined at sound/hda/codecs/side-codecs/Kconfig:20
+#   Prompt: Build AW88399 HD-audio side codec support for I2C Bus
+#   Depends on: SOUND [=m] && SND [=m] && SND_HDA [=m] && I2C [=y] && ACPI [=y] && SND_SOC [=m]
+#   Location:
+#     -> Device Drivers
+#       -> Sound card support (SOUND [=m])
+#         -> Advanced Linux Sound Architecture (SND [=m])
+#           -> HD-Audio
+#             -> Build AW88399 HD-audio side codec support for I2C Bus (SND_HDA_SCODEC_AW88399_I2C [=n])
+# Selects: SND_HDA_SCODEC_AW88399 [=n] && SND_SOC_AW88399_LIB [=n]
+# 
+# 
+# 
+# ~~~
+# Commit: de7027c9149f (ALSA: hda/scodec: add AW88399 HDA side codec driver)
+# CONFIG_SND_HDA_SCODEC_AW88399_I2C is not set

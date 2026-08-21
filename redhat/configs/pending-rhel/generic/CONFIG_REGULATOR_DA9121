@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: REGULATOR_DA9121 [=n]
+# Type  : tristate
+# Defined at drivers/regulator/Kconfig:370
+#   Prompt: Dialog Semiconductor DA9121/DA9122/DA9220/DA9217/DA9130/DA9131/DA9132 regulator
+#   Depends on: REGULATOR [=y] && I2C [=y] && OF [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Voltage and Current Regulator Support (REGULATOR [=y])
+#         -> Dialog Semiconductor DA9121/DA9122/DA9220/DA9217/DA9130/DA9131/DA9132 regulator (REGULATOR_DA9121 [=n])
+# Selects: REGMAP_I2C [=m]
+# 
+# 
+# 
+# ~~~
+# Commit: e6ff10f24c58 (regulator: Add support for DA9121 regulator)
+# CONFIG_REGULATOR_DA9121 is not set

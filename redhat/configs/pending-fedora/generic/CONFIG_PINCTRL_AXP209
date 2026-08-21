@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: PINCTRL_AXP209 [=n]
+# Type  : tristate
+# Defined at drivers/pinctrl/Kconfig:132
+#   Prompt: X-Powers AXP209 PMIC pinctrl and GPIO Support
+#   Depends on: PINCTRL [=y] && MFD_AXP20X [=y] && OF [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Pin controllers (PINCTRL [=y])
+#         -> X-Powers AXP209 PMIC pinctrl and GPIO Support (PINCTRL_AXP209 [=n])
+# Selects: PINMUX [=y] && GENERIC_PINCONF [=y] && GPIOLIB [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: b124c8bd50c7 (pinctrl: Sort Kconfig and Makefile entries alphabetically)
+# CONFIG_PINCTRL_AXP209 is not set

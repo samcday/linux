@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: WATCHDOG_PRETIMEOUT_GOV_DUMP [=y]
+# Type  : tristate
+# Defined at drivers/watchdog/Kconfig:101
+#   Prompt: Dump watchdog pretimeout governor
+#   Depends on: WATCHDOG [=y] && WATCHDOG_PRETIMEOUT_GOV [=y] && WATCHDOG_CORE [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Watchdog Timer Support (WATCHDOG [=y])
+#         -> Enable watchdog pretimeout governors (WATCHDOG_PRETIMEOUT_GOV [=y])
+#           -> Dump watchdog pretimeout governor (WATCHDOG_PRETIMEOUT_GOV_DUMP [=y])
+# 
+# 
+# 
+# ~~~
+# Commit: 8bb763d4c3be (watchdog: pretimeout: Add "dump" pretimeout governor)
+CONFIG_WATCHDOG_PRETIMEOUT_GOV_DUMP=y

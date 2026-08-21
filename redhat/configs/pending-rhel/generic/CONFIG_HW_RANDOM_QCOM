@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: HW_RANDOM_QCOM [=n]
+# Type  : tristate
+# Defined at drivers/char/hw_random/Kconfig:639
+#   Prompt: Qualcomm True Random Number Generator Driver
+#   Depends on: (ARCH_QCOM [=y] || COMPILE_TEST [=n]) && HW_RANDOM [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Character devices
+#         -> Hardware Random Number Generator Core support (HW_RANDOM [=y])
+#           -> Qualcomm True Random Number Generator Driver (HW_RANDOM_QCOM [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: 6727c44461f7 (hwrng: qcom - Move qcom-rng.c into drivers/char/hw_random/)
+# CONFIG_HW_RANDOM_QCOM is not set

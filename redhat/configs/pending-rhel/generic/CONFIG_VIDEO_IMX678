@@ -1,0 +1,19 @@
+# ~~~
+# Symbol: VIDEO_IMX678 [=n]
+# Type  : tristate
+# Defined at drivers/media/i2c/Kconfig:302
+#   Prompt: Sony IMX678 sensor support
+#   Depends on: MEDIA_SUPPORT [=m] && VIDEO_DEV [=m] && VIDEO_CAMERA_SENSOR [=y] && GPIOLIB [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Multimedia support (MEDIA_SUPPORT [=m])
+#         -> Media ancillary drivers
+#           -> Camera sensor devices (VIDEO_CAMERA_SENSOR [=y])
+#             -> Sony IMX678 sensor support (VIDEO_IMX678 [=n])
+# Selects: V4L2_CCI_I2C [=m]
+# 
+# 
+# 
+# ~~~
+# Commit: bf40cc53b1e0 (media: i2c: imx678: Add driver for Sony IMX678)
+# CONFIG_VIDEO_IMX678 is not set

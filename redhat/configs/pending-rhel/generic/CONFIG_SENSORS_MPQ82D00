@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: SENSORS_MPQ82D00 [=n]
+# Type  : tristate
+# Defined at drivers/hwmon/pmbus/Kconfig:611
+#   Prompt: MPS MPQ82D00
+#   Depends on: HWMON [=y] && PMBUS [=m]
+#   Location:
+#     -> Device Drivers
+#       -> Hardware Monitoring support (HWMON [=y])
+#         -> PMBus support (PMBUS [=m])
+#           -> MPS MPQ82D00 (SENSORS_MPQ82D00 [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: ff71049f3617 (hwmon: (pmbus) Add MPQ82D00 driver)
+# CONFIG_SENSORS_MPQ82D00 is not set

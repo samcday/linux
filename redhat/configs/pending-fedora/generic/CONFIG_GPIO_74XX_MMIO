@@ -1,0 +1,18 @@
+# ~~~
+# Symbol: GPIO_74XX_MMIO [=n]
+# Type  : tristate
+# Defined at drivers/gpio/Kconfig:151
+#   Prompt: GPIO driver for 74xx-ICs with MMIO access
+#   Depends on: GPIOLIB [=y] && HAS_IOMEM [=y] && OF [=y]
+#   Location:
+#     -> Device Drivers
+#       -> GPIO Support (GPIOLIB [=y])
+#         -> Memory mapped GPIO drivers
+#           -> GPIO driver for 74xx-ICs with MMIO access (GPIO_74XX_MMIO [=n])
+# Selects: GPIO_GENERIC [=m]
+# 
+# 
+# 
+# ~~~
+# Commit: af0a33e26c1f (GPIO: Add driver for 74xx-ICs with MMIO access)
+# CONFIG_GPIO_74XX_MMIO is not set

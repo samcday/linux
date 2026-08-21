@@ -1,0 +1,16 @@
+# ~~~
+# Symbol: REGULATOR_CROS_EC [=n]
+# Type  : tristate
+# Defined at drivers/regulator/Kconfig:315
+#   Prompt: ChromeOS EC regulators
+#   Depends on: REGULATOR [=y] && CROS_EC [=m] && OF [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Voltage and Current Regulator Support (REGULATOR [=y])
+#         -> ChromeOS EC regulators (REGULATOR_CROS_EC [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: 8d9f8d57e023 (regulator: Add driver for cros-ec-regulator)
+# CONFIG_REGULATOR_CROS_EC is not set

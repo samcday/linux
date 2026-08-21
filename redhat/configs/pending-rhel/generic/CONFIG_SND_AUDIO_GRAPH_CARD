@@ -1,0 +1,22 @@
+# ~~~
+# Symbol: SND_AUDIO_GRAPH_CARD [=n]
+# Type  : tristate
+# Defined at sound/soc/generic/Kconfig:14
+#   Prompt: ASoC Audio Graph sound card support
+#   Depends on: SOUND [=m] && SND [=m] && SND_SOC [=m] && OF [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Sound card support (SOUND [=m])
+#         -> Advanced Linux Sound Architecture (SND [=m])
+#           -> ALSA for SoC audio support (SND_SOC [=m])
+#             -> Generic drivers
+#               -> ASoC Audio Graph sound card support (SND_AUDIO_GRAPH_CARD [=n])
+# Selects: SND_SIMPLE_CARD_UTILS [=n]
+# Selected by [n]:
+#   - DRM_TEGRA [=n] && HAS_IOMEM [=y] && (ARCH_TEGRA || COMPILE_TEST [=n]) && COMMON_CLK [=y] && DRM [=y] && OF [=y] && SND_SOC_TEGRA20_SPDIF [=n]
+# 
+# 
+# 
+# ~~~
+# Commit: 2692c1c63c29 (ASoC: add audio-graph-card support)
+# CONFIG_SND_AUDIO_GRAPH_CARD is not set

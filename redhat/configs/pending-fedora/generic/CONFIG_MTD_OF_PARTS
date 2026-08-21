@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: MTD_OF_PARTS [=m]
+# Type  : tristate
+# Defined at drivers/mtd/parsers/Kconfig:65
+#   Prompt: OpenFirmware (device tree) partitioning parser
+#   Depends on: MTD [=m] && OF [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Memory Technology Device (MTD) support (MTD [=m])
+#         -> Partition parsers
+#           -> OpenFirmware (device tree) partitioning parser (MTD_OF_PARTS [=m])
+# 
+# 
+# 
+# ~~~
+# Commit: c5da56f7c238 (mtd: parsers: Move OF parser)
+CONFIG_MTD_OF_PARTS=m

@@ -1,0 +1,19 @@
+# ~~~
+# Symbol: DRM_PANEL_LG_LG4573 [=n]
+# Type  : tristate
+# Defined at drivers/gpu/drm/panel/Kconfig:481
+#   Prompt: LG4573 RGB/SPI panel
+#   Depends on: HAS_IOMEM [=y] && DRM [=y] && DRM_PANEL [=y] && OF [=y] && SPI [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Graphics support
+#         -> Direct Rendering Manager (XFree86 4.1.0 and higher DRI support) (DRM [=y])
+#           -> Display Panels
+#             -> LG4573 RGB/SPI panel (DRM_PANEL_LG_LG4573 [=n])
+# Selects: VIDEOMODE_HELPERS [=n]
+# 
+# 
+# 
+# ~~~
+# Commit: 58c467ece486 (drm/panel: Add support for LG LG4573 480x800 4.3" panel)
+# CONFIG_DRM_PANEL_LG_LG4573 is not set

@@ -1,0 +1,20 @@
+# ~~~
+# Symbol: HID_HYPERV_MOUSE_KUNIT_TEST [=y]
+# Type  : bool
+# Defined at drivers/hid/Kconfig:1254
+#   Prompt: KUnit tests for Hyper-V mouse driver
+#   Depends on: HID_SUPPORT [=y] && HID [=y] && KUNIT [=m] && HID_HYPERV_MOUSE [=m]
+#   Visible if: HID_SUPPORT [=y] && HID [=y] && KUNIT [=m] && HID_HYPERV_MOUSE [=m] && !KUNIT_ALL_TESTS [=m]
+#   Location:
+#     -> Device Drivers
+#       -> HID bus support (HID_SUPPORT [=y])
+#         -> HID bus core support (HID [=y])
+#           -> Special HID drivers
+#             -> Microsoft Hyper-V mouse driver (HID_HYPERV_MOUSE [=m])
+#               -> KUnit tests for Hyper-V mouse driver (HID_HYPERV_MOUSE_KUNIT_TEST [=y])
+# 
+# 
+# 
+# ~~~
+# Commit: 83df7b5fa673 (HID: hyperv: add KUnit coverage for device info bounds)
+CONFIG_HID_HYPERV_MOUSE_KUNIT_TEST=y

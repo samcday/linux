@@ -1,0 +1,18 @@
+# ~~~
+# Symbol: GPIO_SODAVILLE [=n]
+# Type  : bool
+# Defined at drivers/gpio/Kconfig:1957
+#   Prompt: Intel Sodaville GPIO support
+#   Depends on: GPIOLIB [=y] && PCI [=y] && X86 [=y] && OF [=y]
+#   Location:
+#     -> Device Drivers
+#       -> GPIO Support (GPIOLIB [=y])
+#         -> PCI GPIO expanders
+#           -> Intel Sodaville GPIO support (GPIO_SODAVILLE [=n])
+# Selects: GPIO_GENERIC [=m] && GENERIC_IRQ_CHIP [=n]
+# 
+# 
+# 
+# ~~~
+# Commit: b43ab901d671 (gpio: Add a driver for Sodaville GPIO controller)
+# CONFIG_GPIO_SODAVILLE is not set

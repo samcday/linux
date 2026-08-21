@@ -1,0 +1,16 @@
+# ~~~
+# Symbol: CROS_EC_VBC [=m]
+# Type  : tristate
+# Defined at drivers/platform/chrome/Kconfig:195
+#   Prompt: ChromeOS EC vboot context support
+#   Depends on: CHROME_PLATFORMS [=y] && MFD_CROS_EC_DEV [=m] && OF [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Platform support for Chrome hardware (CHROME_PLATFORMS [=y])
+#         -> ChromeOS EC vboot context support (CROS_EC_VBC [=m])
+# 
+# 
+# 
+# ~~~
+# Commit: acb9900f9e80 (mfd / platform: cros_ec: Move vbc attributes to its own driver)
+CONFIG_CROS_EC_VBC=m

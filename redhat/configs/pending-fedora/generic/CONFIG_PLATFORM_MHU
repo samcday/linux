@@ -1,0 +1,16 @@
+# ~~~
+# Symbol: PLATFORM_MHU [=n]
+# Type  : tristate
+# Defined at drivers/mailbox/Kconfig:75
+#   Prompt: Platform MHU Mailbox
+#   Depends on: MAILBOX [=y] && OF [=y] && HAS_IOMEM [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Mailbox Hardware Support (MAILBOX [=y])
+#         -> Platform MHU Mailbox (PLATFORM_MHU [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: ad3a212c1db1 (mailbox: Add Platform Message-Handling-Unit variant driver)
+# CONFIG_PLATFORM_MHU is not set

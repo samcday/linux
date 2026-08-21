@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: PWM_INTEL_LGM [=n]
+# Type  : tristate
+# Defined at drivers/pwm/Kconfig:339
+#   Prompt: Intel LGM PWM support
+#   Depends on: PWM [=y] && HAS_IOMEM [=y] && (OF [=y] && X86 [=y] || COMPILE_TEST [=n])
+#   Location:
+#     -> Device Drivers
+#       -> Pulse-Width Modulation (PWM) Support (PWM [=y])
+#         -> Intel LGM PWM support (PWM_INTEL_LGM [=n])
+# Selects: REGMAP_MMIO [=m]
+# 
+# 
+# 
+# ~~~
+# Commit: 97960addcd9f (pwm: Add PWM fan controller driver for LGM SoC)
+# CONFIG_PWM_INTEL_LGM is not set
