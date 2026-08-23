@@ -1,0 +1,19 @@
+# ~~~
+# Symbol: DRM_IMX93_PARALLEL_DISP_FMT_CONVERTER [=n]
+# Type  : tristate
+# Defined at drivers/gpu/drm/bridge/imx/Kconfig:110
+#   Prompt: NXP i.MX91/i.MX93 parallel display format converter
+#   Depends on: HAS_IOMEM [=y] && DRM [=y] && DRM_BRIDGE [=y] && (ARCH_MXC [=y] || COMPILE_TEST [=n]) && OF [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Graphics support
+#         -> Direct Rendering Manager (XFree86 4.1.0 and higher DRI support) (DRM [=y])
+#           -> Display Interface Bridges
+#             -> NXP i.MX91/i.MX93 parallel display format converter (DRM_IMX93_PARALLEL_DISP_FMT_CONVERTER [=n])
+# Selects: DRM_KMS_HELPER [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: d12ff7e0116f (drm/bridge: imx: Add i.MX93 parallel display format configuration support)
+# CONFIG_DRM_IMX93_PARALLEL_DISP_FMT_CONVERTER is not set

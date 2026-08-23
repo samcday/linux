@@ -1,0 +1,18 @@
+# ~~~
+# Symbol: DRM_PANEL_ANBERNIC_TD4310 [=n]
+# Type  : tristate
+# Defined at drivers/gpu/drm/panel/Kconfig:20
+#   Prompt: Anbernic TD4310 LCD panel
+#   Depends on: HAS_IOMEM [=y] && DRM [=y] && DRM_PANEL [=y] && GPIOLIB [=y] && OF [=y] && DRM_MIPI_DSI [=y] && BACKLIGHT_CLASS_DEVICE [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Graphics support
+#         -> Direct Rendering Manager (XFree86 4.1.0 and higher DRI support) (DRM [=y])
+#           -> Display Panels
+#             -> Anbernic TD4310 LCD panel (DRM_PANEL_ANBERNIC_TD4310 [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: a81b4fe69e7b (drm/panel: anbernic-td4310: Add RG Vita Pro panel)
+# CONFIG_DRM_PANEL_ANBERNIC_TD4310 is not set

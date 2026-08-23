@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: CHARGER_SGM41542 [=n]
+# Type  : tristate
+# Defined at drivers/power/supply/Kconfig:876
+#   Prompt: SGM41542 charger driver
+#   Depends on: POWER_SUPPLY [=y] && I2C [=y] && (GPIOLIB [=y] || COMPILE_TEST [=n]) && REGULATOR [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Power supply class support (POWER_SUPPLY [=y])
+#         -> SGM41542 charger driver (CHARGER_SGM41542 [=n])
+# Selects: REGMAP_I2C [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: 5584ad5706e5 (power: supply: sgm41542: Add SG Micro sgm41542 charger)
+# CONFIG_CHARGER_SGM41542 is not set

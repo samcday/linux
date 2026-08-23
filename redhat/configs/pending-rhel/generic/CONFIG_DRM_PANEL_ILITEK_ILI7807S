@@ -1,0 +1,18 @@
+# ~~~
+# Symbol: DRM_PANEL_ILITEK_ILI7807S [=n]
+# Type  : tristate
+# Defined at drivers/gpu/drm/panel/Kconfig:289
+#   Prompt: Ilitek ILI7807S-based panels
+#   Depends on: HAS_IOMEM [=y] && DRM [=y] && DRM_PANEL [=y] && OF [=y] && DRM_MIPI_DSI [=y] && BACKLIGHT_CLASS_DEVICE [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Graphics support
+#         -> Direct Rendering Manager (XFree86 4.1.0 and higher DRI support) (DRM [=y])
+#           -> Display Panels
+#             -> Ilitek ILI7807S-based panels (DRM_PANEL_ILITEK_ILI7807S [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: dd7ec83f4567 (drm/panel: add Ilitek ILI7807S panel driver)
+# CONFIG_DRM_PANEL_ILITEK_ILI7807S is not set

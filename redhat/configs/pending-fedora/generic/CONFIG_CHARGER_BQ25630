@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: CHARGER_BQ25630 [=n]
+# Type  : tristate
+# Defined at drivers/power/supply/Kconfig:842
+#   Prompt: TI BQ25630 battery charger driver
+#   Depends on: POWER_SUPPLY [=y] && I2C [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Power supply class support (POWER_SUPPLY [=y])
+#         -> TI BQ25630 battery charger driver (CHARGER_BQ25630 [=n])
+# Selects: REGMAP_I2C [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: 81a10126cb33 (power: supply: Add driver for TI BQ25630 charger)
+# CONFIG_CHARGER_BQ25630 is not set
