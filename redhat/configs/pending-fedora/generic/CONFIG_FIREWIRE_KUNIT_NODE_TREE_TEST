@@ -1,0 +1,18 @@
+# ~~~
+# Symbol: FIREWIRE_KUNIT_NODE_TREE_TEST [=m]
+# Type  : tristate
+# Defined at drivers/firewire/Kconfig:84
+#   Prompt: KUnit tests for node tree
+#   Depends on: (PCI [=y] || COMPILE_TEST [=n]) && FIREWIRE [=m] && KUNIT [=m]
+#   Visible if: (PCI [=y] || COMPILE_TEST [=n]) && FIREWIRE [=m] && KUNIT [=m] && !KUNIT_ALL_TESTS [=m]
+#   Location:
+#     -> Device Drivers
+#       -> IEEE 1394 (FireWire) support
+#         -> FireWire driver stack (FIREWIRE [=m])
+#           -> KUnit tests for node tree (FIREWIRE_KUNIT_NODE_TREE_TEST [=m])
+# 
+# 
+# 
+# ~~~
+# Commit: 1f9b65cf5708 (firewire: core: add KUnit test skeleton for node tree)
+CONFIG_FIREWIRE_KUNIT_NODE_TREE_TEST=m
