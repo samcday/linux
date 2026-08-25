@@ -1,0 +1,15 @@
+# ~~~
+# Symbol: RENESAS_ERRATUM_GEN4GICITS1 [=y]
+# Type  : bool
+# Defined at arch/arm64/Kconfig:1430
+#   Prompt: Renesas R-Car Gen4: GIC600 can not access physical addresses above 4 GiB
+#   Location:
+#     -> Kernel Features
+#       -> ARM errata workarounds via the alternatives framework
+#         -> Renesas R-Car Gen4: GIC600 can not access physical addresses above 4 GiB (RENESAS_ERRATUM_GEN4GICITS1 [=y])
+# 
+# 
+# 
+# ~~~
+# Commit: a8818827486c (irqchip/gic-v3: Add Renesas R-Car Gen4 erratum workaround)
+CONFIG_RENESAS_ERRATUM_GEN4GICITS1=y

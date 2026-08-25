@@ -1,0 +1,18 @@
+# ~~~
+# Symbol: PCIE_CADENCE_DEBUGFS [=n]
+# Type  : bool
+# Defined at drivers/pci/controller/cadence/Kconfig:9
+#   Prompt: Cadence PCIe debugfs entries
+#   Depends on: PCI [=y] && DEBUG_FS [=y] && (PCIE_CADENCE_HOST [=y] || PCIE_CADENCE_EP [=n])
+#   Location:
+#     -> Device Drivers
+#       -> PCI support (PCI [=y])
+#         -> PCI controller drivers
+#           -> Cadence-based PCIe controllers
+#             -> Cadence PCIe debugfs entries (PCIE_CADENCE_DEBUGFS [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: ea34744eb094 (PCI: cadence: Add HPA IP debugfs for LTSSM status)
+# CONFIG_PCIE_CADENCE_DEBUGFS is not set

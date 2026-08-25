@@ -1,0 +1,16 @@
+# ~~~
+# Symbol: RAID6_PQ_KUNIT_BENCHMARK [=n]
+# Type  : bool
+# Defined at lib/raid/Kconfig:63
+#   Prompt: Benchmark for RAID6 PQ
+#   Depends on: RAID6_PQ_KUNIT_TEST [=m]
+#   Location:
+#     -> Library routines
+#       -> KUnit tests for RAID6 PQ functions (RAID6_PQ_KUNIT_TEST [=m])
+#         -> Benchmark for RAID6 PQ (RAID6_PQ_KUNIT_BENCHMARK [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: 10dab13117fa (raid6/kunit: add a benchmark)
+# CONFIG_RAID6_PQ_KUNIT_BENCHMARK is not set

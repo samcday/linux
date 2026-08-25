@@ -1,0 +1,18 @@
+# ~~~
+# Symbol: PCIE_TEGRA264 [=n]
+# Type  : tristate
+# Defined at drivers/pci/controller/Kconfig:260
+#   Prompt: NVIDIA Tegra264 PCIe controller
+#   Depends on: PCI [=y] && (ARCH_TEGRA [=y] || COMPILE_TEST [=n])
+#   Location:
+#     -> Device Drivers
+#       -> PCI support (PCI [=y])
+#         -> PCI controller drivers
+#           -> NVIDIA Tegra264 PCIe controller (PCIE_TEGRA264 [=n])
+# Selects: PCI_ECAM [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: 01c3c27a0ef6 (PCI: tegra264: Add Tegra264 support)
+# CONFIG_PCIE_TEGRA264 is not set

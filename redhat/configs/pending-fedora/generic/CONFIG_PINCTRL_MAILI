@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: PINCTRL_MAILI [=y]
+# Type  : tristate
+# Defined at drivers/pinctrl/qcom/Kconfig.msm:156
+#   Prompt: Qualcomm Technologies Inc Maili pin controller driver
+#   Depends on: PINCTRL [=y] && (ARCH_QCOM [=y] || COMPILE_TEST [=n]) && PINCTRL_MSM [=y] && (ARM64 [=y] || COMPILE_TEST [=n])
+#   Location:
+#     -> Device Drivers
+#       -> Pin controllers (PINCTRL [=y])
+#         -> Qualcomm core pin controller driver (PINCTRL_MSM [=y])
+#           -> Qualcomm Technologies Inc Maili pin controller driver (PINCTRL_MAILI [=y])
+# 
+# 
+# 
+# ~~~
+# Commit: 251b53103a2e (pinctrl: qcom: Add the tlmm driver for Maili platform)
+CONFIG_PINCTRL_MAILI=y

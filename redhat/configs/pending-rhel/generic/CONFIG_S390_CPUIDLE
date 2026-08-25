@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: S390_CPUIDLE [=y]
+# Type  : bool
+# Defined at drivers/cpuidle/Kconfig.s390:6
+#   Prompt: S390 CPU idle driver
+#   Depends on: CPU_IDLE [=y] && S390 [=y]
+#   Location:
+#     -> CPU Idle
+#       -> CPU idle PM support (CPU_IDLE [=y])
+#         -> S390 CPU Idle Drivers
+#           -> S390 CPU idle driver (S390_CPUIDLE [=y])
+# 
+# 
+# 
+# ~~~
+# Commit: 01c162e27a05 (s390/idle: Introduce cpuidle for s390)
+CONFIG_S390_CPUIDLE=y
