@@ -1,3 +1,7 @@
+* Tue Aug 25 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.3.0-0.rc0.66498c75b4f8.11]
+- Linux v7.3.0-0.rc0.66498c75b4f8
+Resolves: 
+
 * Mon Aug 24 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.3.0-0.rc0.47096fc3d064.10]
 - Fix up an s390 mismatch (Justin M. Forbes)
 - Switch CPU_IDLE for a mismatch (Justin M. Forbes)

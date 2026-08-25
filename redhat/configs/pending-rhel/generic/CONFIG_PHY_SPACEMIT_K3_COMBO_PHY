@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: PHY_SPACEMIT_K3_COMBO_PHY [=n]
+# Type  : tristate
+# Defined at drivers/phy/spacemit/Kconfig:32
+#   Prompt: SpacemiT K3 USB3/PCIe PHY support
+#   Depends on: (ARCH_SPACEMIT [=y] || COMPILE_TEST [=n]) && OF [=y] && COMMON_CLK [=y]
+#   Location:
+#     -> Device Drivers
+#       -> PHY Subsystem
+#         -> SpacemiT K3 USB3/PCIe PHY support (PHY_SPACEMIT_K3_COMBO_PHY [=n])
+# Selects: PHY_SPACEMIT_K3_COMMON_OPS [=n]
+# 
+# 
+# 
+# ~~~
+# Commit: 7a099760ea63 (phy: spacemit: Add USB3/PCIe comb PHY driver for Spacemit K3)
+# CONFIG_PHY_SPACEMIT_K3_COMBO_PHY is not set

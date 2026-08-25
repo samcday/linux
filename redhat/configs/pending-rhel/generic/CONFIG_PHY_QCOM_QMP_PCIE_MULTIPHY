@@ -1,0 +1,18 @@
+# ~~~
+# Symbol: PHY_QCOM_QMP_PCIE_MULTIPHY [=n]
+# Type  : tristate
+# Defined at drivers/phy/qualcomm/Kconfig:80
+#   Prompt: Qualcomm QMP PCIe Multi PHY Driver
+#   Depends on: PHY_QCOM_QMP [=y] && (PCI [=y] || COMPILE_TEST [=n])
+#   Location:
+#     -> Device Drivers
+#       -> PHY Subsystem
+#         -> Qualcomm QMP PHY Drivers (PHY_QCOM_QMP [=y])
+#           -> Qualcomm QMP PCIe Multi PHY Driver (PHY_QCOM_QMP_PCIE_MULTIPHY [=n])
+# Selects: GENERIC_PHY [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: 1781be3c8a5d (phy: qcom: qmp-pcie: Add QMP PCIe Multi-PHY driver)
+# CONFIG_PHY_QCOM_QMP_PCIE_MULTIPHY is not set

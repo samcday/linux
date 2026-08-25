@@ -1,0 +1,16 @@
+# ~~~
+# Symbol: AMD_HALO_LED [=n]
+# Type  : tristate
+# Defined at drivers/platform/x86/amd/Kconfig:37
+#   Prompt: AMD Halo Box RGB LED Driver
+#   Depends on: X86_PLATFORM_DEVICES [=y] && ACPI_WMI [=m] && LEDS_CLASS_MULTICOLOR [=m]
+#   Location:
+#     -> Device Drivers
+#       -> X86 Platform Specific Device Drivers (X86_PLATFORM_DEVICES [=y])
+#         -> AMD Halo Box RGB LED Driver (AMD_HALO_LED [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: 4ed460ce1371 (platform/x86/amd: Introduce Halo Box RGB LED driver)
+# CONFIG_AMD_HALO_LED is not set

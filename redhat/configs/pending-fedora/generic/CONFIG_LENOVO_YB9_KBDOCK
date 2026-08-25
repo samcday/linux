@@ -1,0 +1,16 @@
+# ~~~
+# Symbol: LENOVO_YB9_KBDOCK [=n]
+# Type  : tristate
+# Defined at drivers/platform/x86/lenovo/Kconfig:46
+#   Prompt: Lenovo Yoga Book 9 keyboard dock detection
+#   Depends on: X86_PLATFORM_DEVICES [=y] && ACPI_WMI [=m] && DMI [=y] && INPUT [=y]
+#   Location:
+#     -> Device Drivers
+#       -> X86 Platform Specific Device Drivers (X86_PLATFORM_DEVICES [=y])
+#         -> Lenovo Yoga Book 9 keyboard dock detection (LENOVO_YB9_KBDOCK [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: c9b5c8ff065d (platform/x86/lenovo: Add Yoga Book 9 keyboard dock detection driver)
+# CONFIG_LENOVO_YB9_KBDOCK is not set
