@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: AMD_SBTSI [=n]
+# Type  : tristate
+# Defined at drivers/misc/amd-sbi/Kconfig:24
+#   Prompt: AMD side band TSI support
+#   Depends on: I3C_OR_I2C [=m] && (ARM || ARM64 [=y] || COMPILE_TEST [=n])
+#   Location:
+#     -> Device Drivers
+#       -> Misc devices
+#         -> AMD side band TSI support (AMD_SBTSI [=n])
+# Selects: AUXILIARY_BUS [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: 319138ffcf83 (hwmon/misc: amd-sbi: Move core sbtsi support from hwmon to misc)
+# CONFIG_AMD_SBTSI is not set

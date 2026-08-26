@@ -1,0 +1,18 @@
+# ~~~
+# Symbol: INV_ICM42607_SPI [=n]
+# Type  : tristate
+# Defined at drivers/iio/imu/inv_icm42607/Kconfig:20
+#   Prompt: InvenSense ICM-42607 SPI driver
+#   Depends on: IIO [=m] && SPI_MASTER [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Industrial I/O support (IIO [=m])
+#         -> Inertial measurement units
+#           -> InvenSense ICM-42607 SPI driver (INV_ICM42607_SPI [=n])
+# Selects: INV_ICM42607 [=n] && REGMAP_SPI [=m]
+# 
+# 
+# 
+# ~~~
+# Commit: 337cb9a3fa7f (iio: imu: inv_icm42607: Add SPI For icm42607)
+# CONFIG_INV_ICM42607_SPI is not set

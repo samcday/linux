@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: INTERCONNECT_QCOM_MAILI [=y]
+# Type  : tristate
+# Defined at drivers/interconnect/qcom/Kconfig:50
+#   Prompt: Qualcomm MAILI interconnect driver
+#   Depends on: INTERCONNECT [=y] && INTERCONNECT_QCOM_RPMH_POSSIBLE [=y]
+#   Location:
+#     -> Device Drivers
+#       -> On-Chip Interconnect management support (INTERCONNECT [=y])
+#         -> Qualcomm MAILI interconnect driver (INTERCONNECT_QCOM_MAILI [=y])
+# Selects: INTERCONNECT_QCOM_RPMH [=y] && INTERCONNECT_QCOM_BCM_VOTER [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: fb8190f09bff (interconnect: qcom: add Maili interconnect provider driver)
+CONFIG_INTERCONNECT_QCOM_MAILI=y

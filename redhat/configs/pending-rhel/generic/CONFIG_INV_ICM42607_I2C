@@ -1,0 +1,18 @@
+# ~~~
+# Symbol: INV_ICM42607_I2C [=n]
+# Type  : tristate
+# Defined at drivers/iio/imu/inv_icm42607/Kconfig:8
+#   Prompt: InvenSense ICM-42607 I2C driver
+#   Depends on: IIO [=m] && I2C [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Industrial I/O support (IIO [=m])
+#         -> Inertial measurement units
+#           -> InvenSense ICM-42607 I2C driver (INV_ICM42607_I2C [=n])
+# Selects: INV_ICM42607 [=n] && REGMAP_I2C [=m]
+# 
+# 
+# 
+# ~~~
+# Commit: 2871c45d9469 (iio: imu: inv_icm42607: Add inv_icm42607 Core Driver)
+# CONFIG_INV_ICM42607_I2C is not set
