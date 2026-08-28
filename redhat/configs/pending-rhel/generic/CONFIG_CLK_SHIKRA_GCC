@@ -1,0 +1,20 @@
+# ~~~
+# Symbol: CLK_SHIKRA_GCC [=y]
+# Type  : tristate
+# Defined at drivers/clk/qcom/Kconfig:226
+#   Prompt: Shikra Global Clock Controller
+#   Depends on: COMMON_CLK [=y] && COMMON_CLK_QCOM [=y] && (ARM64 [=y] || COMPILE_TEST [=n])
+#   Location:
+#     -> Device Drivers
+#       -> Common Clock Framework (COMMON_CLK [=y])
+#         -> Support for Qualcomm's clock controllers (COMMON_CLK_QCOM [=y])
+#           -> Shikra Global Clock Controller (CLK_SHIKRA_GCC [=y])
+# Selects: QCOM_GDSC [=y]
+# Selected by [m]:
+#   - CLK_SHIKRA_AUDIOCORECC [=m] && COMMON_CLK [=y] && COMMON_CLK_QCOM [=y] && (ARM64 [=y] || COMPILE_TEST [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: 01cf3e27824d (clk: qcom: Add Global clock controller support on Qualcomm Shikra SoC)
+CONFIG_CLK_SHIKRA_GCC=y

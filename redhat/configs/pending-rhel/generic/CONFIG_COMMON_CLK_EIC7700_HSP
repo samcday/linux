@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: COMMON_CLK_EIC7700_HSP [=n]
+# Type  : tristate
+# Defined at drivers/clk/eswin/Kconfig:17
+#   Prompt: EIC7700 HSP Clock Driver
+#   Depends on: COMMON_CLK [=y] && (ARCH_ESWIN [=y] || COMPILE_TEST [=n])
+#   Location:
+#     -> Device Drivers
+#       -> Common Clock Framework (COMMON_CLK [=y])
+#         -> EIC7700 HSP Clock Driver (COMMON_CLK_EIC7700_HSP [=n])
+# Selects: AUXILIARY_BUS [=y] && COMMON_CLK_EIC7700 [=y] && RESET_EIC7700_HSP [=n] && REGMAP_MMIO [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: 8d92085fd79a (clk: eswin: Add eic7700 HSP clock driver)
+# CONFIG_COMMON_CLK_EIC7700_HSP is not set

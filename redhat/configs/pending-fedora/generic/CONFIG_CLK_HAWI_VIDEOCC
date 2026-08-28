@@ -1,0 +1,18 @@
+# ~~~
+# Symbol: CLK_HAWI_VIDEOCC [=m]
+# Type  : tristate
+# Defined at drivers/clk/qcom/Kconfig:444
+#   Prompt: Hawi Video Clock Controller
+#   Depends on: COMMON_CLK [=y] && COMMON_CLK_QCOM [=y] && (ARM64 [=y] || COMPILE_TEST [=n])
+#   Location:
+#     -> Device Drivers
+#       -> Common Clock Framework (COMMON_CLK [=y])
+#         -> Support for Qualcomm's clock controllers (COMMON_CLK_QCOM [=y])
+#           -> Hawi Video Clock Controller (CLK_HAWI_VIDEOCC [=m])
+# Selects: CLK_HAWI_GCC [=m]
+# 
+# 
+# 
+# ~~~
+# Commit: edbd5d323183 (clk: qcom: Add support for VideoCC driver for Hawi)
+CONFIG_CLK_HAWI_VIDEOCC=m

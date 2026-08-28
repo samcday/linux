@@ -1,0 +1,19 @@
+# ~~~
+# Symbol: BACKLIGHT_SY7758 [=n]
+# Type  : tristate
+# Defined at drivers/video/backlight/Kconfig:210
+#   Prompt: Backlight Driver for Silergy SY7758
+#   Depends on: HAS_IOMEM [=y] && BACKLIGHT_CLASS_DEVICE [=y] && I2C [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Graphics support
+#         -> Backlight & LCD device support
+#           -> Lowlevel Backlight controls (BACKLIGHT_CLASS_DEVICE [=y])
+#             -> Backlight Driver for Silergy SY7758 (BACKLIGHT_SY7758 [=n])
+# Selects: REGMAP_I2C [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: 110d67699a43 (backlight: Add SY7758 6-channel High Efficiency LED Driver support)
+# CONFIG_BACKLIGHT_SY7758 is not set

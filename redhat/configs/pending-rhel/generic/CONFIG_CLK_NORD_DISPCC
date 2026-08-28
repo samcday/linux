@@ -1,0 +1,18 @@
+# ~~~
+# Symbol: CLK_NORD_DISPCC [=m]
+# Type  : tristate
+# Defined at drivers/clk/qcom/Kconfig:184
+#   Prompt: Nord Display Clock Controller
+#   Depends on: COMMON_CLK [=y] && COMMON_CLK_QCOM [=y] && (ARM64 [=y] || COMPILE_TEST [=n])
+#   Location:
+#     -> Device Drivers
+#       -> Common Clock Framework (COMMON_CLK [=y])
+#         -> Support for Qualcomm's clock controllers (COMMON_CLK_QCOM [=y])
+#           -> Nord Display Clock Controller (CLK_NORD_DISPCC [=m])
+# Selects: CLK_NORD_GCC [=m]
+# 
+# 
+# 
+# ~~~
+# Commit: 9dcc782e2082 (clk: qcom: Add Nord display clock controller support)
+CONFIG_CLK_NORD_DISPCC=m

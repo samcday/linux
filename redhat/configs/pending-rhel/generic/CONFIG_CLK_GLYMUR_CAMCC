@@ -1,0 +1,18 @@
+# ~~~
+# Symbol: CLK_GLYMUR_CAMCC [=m]
+# Type  : tristate
+# Defined at drivers/clk/qcom/Kconfig:51
+#   Prompt: Glymur Camera Clock Controller
+#   Depends on: COMMON_CLK [=y] && COMMON_CLK_QCOM [=y] && (ARM64 [=y] || COMPILE_TEST [=n])
+#   Location:
+#     -> Device Drivers
+#       -> Common Clock Framework (COMMON_CLK [=y])
+#         -> Support for Qualcomm's clock controllers (COMMON_CLK_QCOM [=y])
+#           -> Glymur Camera Clock Controller (CLK_GLYMUR_CAMCC [=m])
+# Selects: CLK_GLYMUR_GCC [=m]
+# 
+# 
+# 
+# ~~~
+# Commit: 97255eedd690 (clk: qcom: camcc-glymur: Add camera clock controller driver)
+CONFIG_CLK_GLYMUR_CAMCC=m

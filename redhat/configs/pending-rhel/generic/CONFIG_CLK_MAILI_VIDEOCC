@@ -1,0 +1,18 @@
+# ~~~
+# Symbol: CLK_MAILI_VIDEOCC [=m]
+# Type  : tristate
+# Defined at drivers/clk/qcom/Kconfig:195
+#   Prompt: Maili Video Clock Controller
+#   Depends on: COMMON_CLK [=y] && COMMON_CLK_QCOM [=y] && (ARM64 [=y] || COMPILE_TEST [=n])
+#   Location:
+#     -> Device Drivers
+#       -> Common Clock Framework (COMMON_CLK [=y])
+#         -> Support for Qualcomm's clock controllers (COMMON_CLK_QCOM [=y])
+#           -> Maili Video Clock Controller (CLK_MAILI_VIDEOCC [=m])
+# Selects: CLK_HAWI_GCC [=m]
+# 
+# 
+# 
+# ~~~
+# Commit: 778149217dc0 (clk: qcom: Add support for videocc driver on Qualcomm Maili SoC)
+CONFIG_CLK_MAILI_VIDEOCC=m

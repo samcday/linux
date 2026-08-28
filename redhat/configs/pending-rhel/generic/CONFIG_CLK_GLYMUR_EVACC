@@ -1,0 +1,18 @@
+# ~~~
+# Symbol: CLK_GLYMUR_EVACC [=m]
+# Type  : tristate
+# Defined at drivers/clk/qcom/Kconfig:73
+#   Prompt: Glymur EVA Clock Controller
+#   Depends on: COMMON_CLK [=y] && COMMON_CLK_QCOM [=y] && (ARM64 [=y] || COMPILE_TEST [=n])
+#   Location:
+#     -> Device Drivers
+#       -> Common Clock Framework (COMMON_CLK [=y])
+#         -> Support for Qualcomm's clock controllers (COMMON_CLK_QCOM [=y])
+#           -> Glymur EVA Clock Controller (CLK_GLYMUR_EVACC [=m])
+# Selects: CLK_GLYMUR_GCC [=m]
+# 
+# 
+# 
+# ~~~
+# Commit: e291ec812dec (clk: qcom: Add EVA clock controller driver for Glymur SoC)
+CONFIG_CLK_GLYMUR_EVACC=m

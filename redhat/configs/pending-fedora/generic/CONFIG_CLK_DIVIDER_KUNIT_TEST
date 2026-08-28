@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: CLK_DIVIDER_KUNIT_TEST [=m]
+# Type  : tristate
+# Defined at drivers/clk/Kconfig:584
+#   Prompt: KUnit tests for clk divider bestdiv
+#   Depends on: COMMON_CLK [=y] && KUNIT [=m] && !S390
+#   Visible if: COMMON_CLK [=y] && KUNIT [=m] && !S390 && !KUNIT_ALL_TESTS [=m]
+#   Location:
+#     -> Device Drivers
+#       -> Common Clock Framework (COMMON_CLK [=y])
+#         -> KUnit tests for clk divider bestdiv (CLK_DIVIDER_KUNIT_TEST [=m])
+# 
+# 
+# 
+# ~~~
+# Commit: 50ca555d6ae8 (clk: divider: Add KUnit tests for clk_divider_bestdiv() ULONG_MAX handling)
+CONFIG_CLK_DIVIDER_KUNIT_TEST=m

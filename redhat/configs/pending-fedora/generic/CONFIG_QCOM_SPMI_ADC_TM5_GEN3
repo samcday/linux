@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: QCOM_SPMI_ADC_TM5_GEN3 [=n]
+# Type  : tristate
+# Defined at drivers/thermal/qcom/Kconfig:38
+#   Prompt: Qualcomm SPMI PMIC Thermal Monitor ADC5 Gen3
+#   Depends on: THERMAL [=y] && (ARCH_QCOM [=y] && OF [=y] || COMPILE_TEST [=n]) && QCOM_SPMI_ADC5_GEN3 [=m]
+#   Location:
+#     -> Device Drivers
+#       -> Thermal drivers (THERMAL [=y])
+#         -> Qualcomm thermal drivers
+#           -> Qualcomm SPMI PMIC Thermal Monitor ADC5 Gen3 (QCOM_SPMI_ADC_TM5_GEN3 [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: 948ee3a74f35 (thermal/drivers/qcom: add support for PMIC5 Gen3 ADC thermal monitoring)
+# CONFIG_QCOM_SPMI_ADC_TM5_GEN3 is not set

@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: RESET_SKY1_AUDSS [=n]
+# Type  : tristate
+# Defined at drivers/reset/Kconfig:314
+#   Prompt: Cix Sky1 Audio Subsystem reset controller
+#   Depends on: RESET_CONTROLLER [=y] && (ARCH_CIX [=y] || COMPILE_TEST [=n])
+#   Location:
+#     -> Device Drivers
+#       -> Reset Controller Support (RESET_CONTROLLER [=y])
+#         -> Cix Sky1 Audio Subsystem reset controller (RESET_SKY1_AUDSS [=n])
+# Selects: AUXILIARY_BUS [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: b5fa9d3beec4 (reset: cix: add sky1 audss auxiliary reset driver)
+# CONFIG_RESET_SKY1_AUDSS is not set
