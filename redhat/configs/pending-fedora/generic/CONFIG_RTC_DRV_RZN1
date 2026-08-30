@@ -1,0 +1,16 @@
+# ~~~
+# Symbol: RTC_DRV_RZN1 [=n]
+# Type  : tristate
+# Defined at drivers/rtc/Kconfig:1636
+#   Prompt: Renesas RZ/N1 RTC
+#   Depends on: RTC_CLASS [=y] && (ARCH_RENESAS [=y] || COMPILE_TEST [=n]) && OF [=y] && HAS_IOMEM [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Real Time Clock (RTC_CLASS [=y])
+#         -> Renesas RZ/N1 RTC (RTC_DRV_RZN1 [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: deeb4b5393e1 (rtc: rzn1: Add new RTC driver)
+# CONFIG_RTC_DRV_RZN1 is not set
