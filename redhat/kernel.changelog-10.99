@@ -1,3 +1,8 @@
+* Tue Sep 01 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.3.0-0.rc1.786262be6048.18]
+- Turn off CONFIG_DRIVER_PE_KUNIT_TEST (Justin M. Forbes)
+- Linux v7.3.0-0.rc1.786262be6048
+Resolves: 
+
 * Mon Aug 31 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.3.0-0.rc1.17]
 - Linux v7.3.0-0.rc1
 Resolves: 
