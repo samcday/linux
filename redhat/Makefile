@@ -450,11 +450,9 @@ dist-kabi: dist-python-check
 	@for KABIARCH in $(ARCH_LIST); do \
 		$(REDHAT)/kabi/show-kabi -k $(REDHAT)/kabi/kabi-module/ -m \
 			-a $$KABIARCH -r $(RHEL_MAJOR).$(RHEL_MINOR) > $(REDHAT)/kabi/Module.kabi_$$KABIARCH;\
-		for i in {0..$(RHEL_MINOR)}; do \
-			mkdir -p $(REDHAT)/kabi/kabi-rhel$(RHEL_MAJOR)$$i/;\
-			$(REDHAT)/kabi/show-kabi -k $(REDHAT)/kabi/kabi-module/ -s -a $$KABIARCH \
-			-r $(RHEL_MAJOR).$$i > $(REDHAT)/kabi/kabi-rhel$(RHEL_MAJOR)$$i/kabi_stablelist_$$KABIARCH;\
-		done;\
+		mkdir -p $(REDHAT)/kabi/kabi-rhel$(RHEL_MAJOR)$(RHEL_MINOR)/;\
+		$(REDHAT)/kabi/show-kabi -k $(REDHAT)/kabi/kabi-module/ -s -a $$KABIARCH \
+		-r $(RHEL_MAJOR).$(RHEL_MINOR) > $(REDHAT)/kabi/kabi-rhel$(RHEL_MAJOR)$(RHEL_MINOR)/kabi_stablelist_$$KABIARCH;\
 	done;
 	@(cd $(REDHAT)/kabi/ && ln -Tsf kabi-rhel$(RHEL_MAJOR)$(RHEL_MINOR) kabi-current)
 
