@@ -1,3 +1,8 @@
+* Thu Sep 03 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.3.0-0.rc1.940de590b839.20]
+- random: Drop the extrng module reference when import_ubuf() fails (Junjie Cao) [2524262]
+- Linux v7.3.0-0.rc1.940de590b839
+Resolves: rhbz#2524262
+
 * Wed Sep 02 2026 Fedora Kernel Team <kernel-team@fedoraproject.org> [7.3.0-0.rc1.89a312991dc6.19]
 - rh_messages.h: Disable ConnectX-10 NVLink-C2C device (Benjamin Poirier)
 - Linux v7.3.0-0.rc1.89a312991dc6
