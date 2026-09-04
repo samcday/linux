@@ -41,4 +41,4 @@ AUTOMOTIVE_MINOR = 99
 # ---------------------------
 #
 # Set DERIVATIVE_STREAM to "yes" to enable derivative kernel versioning.
-DERIVATIVE_BUILD = 4
+DERIVATIVE_BUILD = 5
