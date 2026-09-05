@@ -1575,6 +1575,9 @@
 
 	bluetooth {
 		compatible = "qcom,wcn3990-bt";
+
+		/* Filled from Google's CDT data by the bootloader. */
+		local-bd-address = [00 00 00 00 00 00];
 		vddio-supply = <&vph_pwr>;
 		vddxo-supply = <&vreg_l9a_1p8>;
 		vddrf-supply = <&vreg_l6a_1p3>;
