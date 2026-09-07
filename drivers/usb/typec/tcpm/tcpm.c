@@ -4770,7 +4770,10 @@ static int tcpm_init_vconn(struct tcpm_port *port)
 	int ret;
 
 	ret = port->tcpc->set_vconn(port->tcpc, false);
-	port->vconn_role = TYPEC_SINK;
+	if (!ret) {
+		port->vconn_role = TYPEC_SINK;
+		typec_set_vconn_role(port->typec_port, port->vconn_role);
+	}
 	return ret;
 }
 
