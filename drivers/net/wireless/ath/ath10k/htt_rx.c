@@ -486,6 +486,8 @@ static struct sk_buff *ath10k_htt_rx_pop_paddr(struct ath10k_htt *htt,
 	dma_unmap_single(htt->ar->dev, rxcb->paddr,
 			 msdu->len + skb_tailroom(msdu),
 			 DMA_FROM_DEVICE);
+	rxcb->rx_len_invalid = false;
+
 	ath10k_dbg_dump(ar, ATH10K_DBG_HTT_DUMP, NULL, "htt rx netbuf pop: ",
 			msdu->data, msdu->len + skb_tailroom(msdu));
 
@@ -654,15 +656,52 @@ ath10k_htt_rx_handle_amsdu_mon_64(struct ath10k_htt *htt,
 	return 0;
 }
 
+/* Keep the descriptor of an oversized MSDU so extraction can discard its
+ * entire A-MSDU, including one split across multiple in-order indications.
+ * Returning a pop error here would latch rx_confused and stop all reception.
+ */
+static int ath10k_htt_rx_in_ord_msdu(struct ath10k *ar, struct sk_buff *msdu,
+				     u16 msdu_len)
+{
+	struct ath10k_hw_params *hw = &ar->hw_params;
+	struct htt_rx_desc *rxd = HTT_RX_BUF_TO_RX_DESC(hw, msdu->data);
+	struct rx_attention *attention;
+	int capacity;
+
+	attention = ath10k_htt_rx_desc_get_attention(hw, rxd);
+	trace_ath10k_htt_rx_desc(ar, rxd, hw->rx_desc_ops->rx_desc_size);
+
+	if (!(attention->flags & __cpu_to_le32(RX_ATTENTION_FLAGS_MSDU_DONE))) {
+		ath10k_warn(ar, "tried to pop an incomplete frame, oops!\n");
+		return -EIO;
+	}
+
+	skb_put(msdu, hw->rx_desc_ops->rx_desc_size);
+	skb_pull(msdu, hw->rx_desc_ops->rx_desc_size);
+
+	/* The allocator may provide more space than the advertised RX buffer. */
+	capacity = min(skb_tailroom(msdu), ath10k_htt_rx_msdu_size(hw));
+	if (msdu_len > capacity) {
+		ATH10K_SKB_RXCB(msdu)->rx_len_invalid = true;
+		ath10k_warn(ar,
+			    "in-order rx overlength: len %u capacity %d attention %#x fragments %u msdu start %#x end %#x\n",
+			    msdu_len, capacity, __le32_to_cpu(attention->flags),
+			    ath10k_htt_rx_desc_get_frag_info(hw, rxd)->ring2_more_count,
+			    __le32_to_cpu(ath10k_htt_rx_desc_get_msdu_start(hw, rxd)->info0),
+			    __le32_to_cpu(ath10k_htt_rx_desc_get_msdu_end(hw, rxd)->info0));
+	} else {
+		skb_put(msdu, msdu_len);
+	}
+
+	return 0;
+}
+
 static int ath10k_htt_rx_pop_paddr32_list(struct ath10k_htt *htt,
 					  struct htt_rx_in_ord_ind *ev,
 					  struct sk_buff_head *list)
 {
 	struct ath10k *ar = htt->ar;
-	struct ath10k_hw_params *hw = &ar->hw_params;
 	struct htt_rx_in_ord_msdu_desc *msdu_desc = ev->msdu_descs32;
-	struct htt_rx_desc *rxd;
-	struct rx_attention *rxd_attention;
 	struct sk_buff *msdu;
 	int msdu_count, ret;
 	bool is_offload;
@@ -697,19 +736,11 @@ static int ath10k_htt_rx_pop_paddr32_list(struct ath10k_htt *htt,
 		__skb_queue_tail(list, msdu);
 
 		if (!is_offload) {
-			rxd = HTT_RX_BUF_TO_RX_DESC(hw, msdu->data);
-			rxd_attention = ath10k_htt_rx_desc_get_attention(hw, rxd);
-
-			trace_ath10k_htt_rx_desc(ar, rxd, hw->rx_desc_ops->rx_desc_size);
-
-			skb_put(msdu, hw->rx_desc_ops->rx_desc_size);
-			skb_pull(msdu, hw->rx_desc_ops->rx_desc_size);
-			skb_put(msdu, __le16_to_cpu(msdu_desc->msdu_len));
-
-			if (!(__le32_to_cpu(rxd_attention->flags) &
-			      RX_ATTENTION_FLAGS_MSDU_DONE)) {
-				ath10k_warn(htt->ar, "tried to pop an incomplete frame, oops!\n");
-				return -EIO;
+			ret = ath10k_htt_rx_in_ord_msdu(ar, msdu,
+							__le16_to_cpu(msdu_desc->msdu_len));
+			if (ret) {
+				__skb_queue_purge(list);
+				return ret;
 			}
 		}
 
@@ -724,10 +755,7 @@ static int ath10k_htt_rx_pop_paddr64_list(struct ath10k_htt *htt,
 					  struct sk_buff_head *list)
 {
 	struct ath10k *ar = htt->ar;
-	struct ath10k_hw_params *hw = &ar->hw_params;
 	struct htt_rx_in_ord_msdu_desc_ext *msdu_desc = ev->msdu_descs64;
-	struct htt_rx_desc *rxd;
-	struct rx_attention *rxd_attention;
 	struct sk_buff *msdu;
 	int msdu_count, ret;
 	bool is_offload;
@@ -761,19 +789,11 @@ static int ath10k_htt_rx_pop_paddr64_list(struct ath10k_htt *htt,
 		__skb_queue_tail(list, msdu);
 
 		if (!is_offload) {
-			rxd = HTT_RX_BUF_TO_RX_DESC(hw, msdu->data);
-			rxd_attention = ath10k_htt_rx_desc_get_attention(hw, rxd);
-
-			trace_ath10k_htt_rx_desc(ar, rxd, hw->rx_desc_ops->rx_desc_size);
-
-			skb_put(msdu, hw->rx_desc_ops->rx_desc_size);
-			skb_pull(msdu, hw->rx_desc_ops->rx_desc_size);
-			skb_put(msdu, __le16_to_cpu(msdu_desc->msdu_len));
-
-			if (!(__le32_to_cpu(rxd_attention->flags) &
-			      RX_ATTENTION_FLAGS_MSDU_DONE)) {
-				ath10k_warn(htt->ar, "tried to pop an incomplete frame, oops!\n");
-				return -EIO;
+			ret = ath10k_htt_rx_in_ord_msdu(ar, msdu,
+							__le16_to_cpu(msdu_desc->msdu_len));
+			if (ret) {
+				__skb_queue_purge(list);
+				return ret;
 			}
 		}
 
@@ -3159,6 +3179,7 @@ static int ath10k_htt_rx_extract_amsdu(struct ath10k_hw_params *hw,
 	struct sk_buff *msdu;
 	struct htt_rx_desc *rxd;
 	struct rx_msdu_end_common *rxd_msdu_end_common;
+	bool invalid = false;
 
 	if (skb_queue_empty(list))
 		return -ENOBUFS;
@@ -3168,6 +3189,7 @@ static int ath10k_htt_rx_extract_amsdu(struct ath10k_hw_params *hw,
 
 	while ((msdu = __skb_dequeue(list))) {
 		__skb_queue_tail(amsdu, msdu);
+		invalid |= ATH10K_SKB_RXCB(msdu)->rx_len_invalid;
 
 		rxd = HTT_RX_BUF_TO_RX_DESC(hw,
 					    (void *)msdu->data -
@@ -3190,7 +3212,7 @@ static int ath10k_htt_rx_extract_amsdu(struct ath10k_hw_params *hw,
 		return -EAGAIN;
 	}
 
-	return 0;
+	return invalid ? -EMSGSIZE : 0;
 }
 
 static void ath10k_htt_rx_h_rx_offload_prot(struct ieee80211_rx_status *status,
@@ -3356,6 +3378,14 @@ static int ath10k_htt_rx_in_ord_ind(struct ath10k *ar, struct sk_buff *skb)
 			ath10k_htt_rx_h_mpdu(ar, &amsdu, status, false, NULL,
 					     NULL, peer_id, frag);
 			ath10k_htt_rx_h_enqueue(ar, &amsdu, status);
+			break;
+		case -EMSGSIZE:
+			/* Update descriptor-only PPDU state, but never process the
+			 * payload of an A-MSDU containing an oversized member.
+			 */
+			ath10k_htt_rx_h_ppdu(ar, &amsdu, status, vdev_id);
+			__skb_queue_purge(&amsdu);
+			ret = 0;
 			break;
 		case -EAGAIN:
 			htt->rx_in_ord_split_tid = tid;
@@ -4493,3 +4523,7 @@ void ath10k_htt_set_rx_ops(struct ath10k_htt *htt)
 	else
 		htt->rx_ops = &htt_rx_ops_32;
 }
+
+#if IS_ENABLED(CONFIG_ATH10K_KUNIT_TEST)
+#include "htt_rx_test.c"
+#endif

@@ -97,3 +97,13 @@ config ATH10K_DFS_CERTIFIED
 	help
 	This option enables DFS support for initiating radiation on
 	ath10k.
+
+config ATH10K_KUNIT_TEST
+	bool "KUnit tests for ath10k in-order RX" if !KUNIT_ALL_TESTS
+	depends on ATH10K=y && KUNIT=y
+	default KUNIT_ALL_TESTS
+	help
+	  Test receive length validation and aggregate handling with synthetic
+	  firmware indications. Covers both 32-bit and 64-bit indications,
+	  buffer limits, split aggregates and reception after a discarded
+	  aggregate. No wireless hardware is required.
