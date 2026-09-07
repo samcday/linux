@@ -1,3 +1,11 @@
+* Mon Sep 07 2026 Sam Day <me@samcday.com> [7.1.2-0.pocketfed.sdm670.7]
+- arm64: dts: qcom: enable fixed-5V PD on the Sargo release train (Sam Day)
+- usb: typec: qcom: add SMB2 PD2 port controller backend (Sam Day)
+- usb: typec: tcpm: publish successful VCONN initialization (Sam Day)
+- power: supply: qcom_smbx: coordinate sink path and current with TCPM (Sam Day)
+- dt-bindings: usb: describe SMB2 Type-C charger supply (Sam Day)
+Resolves: 
+
 * Sat Sep 05 2026 Sam Day <me@samcday.com> [7.1.2-0.pocketfed.sdm670.6]
 - arm64: dts: qcom: sdm670-google: add bluetooth address placeholder (Sam Day)
 Resolves:
