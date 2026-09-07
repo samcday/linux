@@ -1,3 +1,7 @@
+* Mon Sep 07 2026 Sam Day <me@samcday.com> [7.1.2-0.pocketfed.sdm670.8]
+- wifi: ath10k: discard oversized in-order RX aggregates without stopping RX (Sam Day)
+Resolves: 
+
 * Mon Sep 07 2026 Sam Day <me@samcday.com> [7.1.2-0.pocketfed.sdm670.7]
 - arm64: dts: qcom: enable fixed-5V PD on the Sargo release train (Sam Day)
 - usb: typec: qcom: add SMB2 PD2 port controller backend (Sam Day)
