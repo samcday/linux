@@ -15,6 +15,7 @@
 #include <dt-bindings/sound/qcom,q6afe.h>
 #include <dt-bindings/sound/qcom,q6asm.h>
 #include <dt-bindings/sound/qcom,q6voice.h>
+#include <dt-bindings/usb/pd.h>
 #include "sdm670.dtsi"
 #include "pm660.dtsi"
 #include "pm660l.dtsi"
@@ -1165,6 +1166,7 @@
 };
 
 &pm660_typec {
+	charger-power-supply = <&pm660_charger>;
 	vdd-pdphy-supply = <&vreg_l7b_3p125>;
 	vdd-vbus-supply = <&ext_5v_boost>;
 
@@ -1173,13 +1175,23 @@
 	connector {
 		compatible = "usb-c-connector";
 		label = "USB-C";
+		vbus-supply = <&ext_5v_boost>;
 
 		power-role = "dual";
 		data-role = "dual";
 		try-power-role = "sink";
 
-		typec-power-opmode = "default";
-		pd-disable;
+		/* SMB2 support is limited to PD 2.0 and fixed 5 V contracts. */
+		pd-revision = /bits/ 8 <0x02 0x00 0x01 0x02>;
+		source-pdos = <PDO_FIXED(5000, 500,
+					PDO_FIXED_DUAL_ROLE |
+					PDO_FIXED_USB_COMM |
+					PDO_FIXED_DATA_SWAP)>;
+		sink-pdos = <PDO_FIXED(5000, 3000,
+				      PDO_FIXED_DUAL_ROLE |
+				      PDO_FIXED_USB_COMM |
+				      PDO_FIXED_DATA_SWAP)>;
+		op-sink-microwatt = <2500000>;
 
 		port {
 			pm660_typec_hs: endpoint {
