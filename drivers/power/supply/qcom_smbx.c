@@ -9,20 +9,25 @@
  */
 
 #include <linux/bits.h>
-#include <linux/devm-helpers.h>
 #include <linux/iio/consumer.h>
 #include <linux/interrupt.h>
 #include <linux/kernel.h>
 #include <linux/minmax.h>
 #include <linux/module.h>
+#include <linux/mutex.h>
+#include <linux/of.h>
 #include <linux/platform_device.h>
 #include <linux/pm_wakeirq.h>
-#include <linux/of.h>
 #include <linux/power_supply.h>
 #include <linux/regmap.h>
+#include <linux/thermal.h>
 #include <linux/types.h>
 #include <linux/workqueue.h>
-#include <linux/thermal.h>
+
+#if IS_ENABLED(CONFIG_CHARGER_QCOM_SMB2_KUNIT_TEST)
+#include <kunit/device.h>
+#include <kunit/test.h>
+#endif
 
 /* clang-format off */
 #define BATTERY_CHARGER_STATUS_1			0x06
@@ -350,6 +355,9 @@
 #define CDP_CURRENT_UA					1500000
 #define DCP_CURRENT_UA					1500000
 #define CURRENT_MAX_UA					DCP_CURRENT_UA
+#define SMB2_ICL_MAX_UA					4800000
+#define SMB2_APSD_DELAY_MS				1500
+#define SMB2_APSD_RETRY_MS				1000
 
 /* pmi8998 registers represent current in increments of 1/40th of an amp */
 #define CURRENT_SCALE_FACTOR				25000
@@ -377,6 +385,28 @@ struct smb_init_register {
 };
 
 /**
+ * struct smb_icl_policy - input-current ownership and cached policy
+ * @apsd_ua: last current limit derived from a current-generation APSD result
+ * @tcpm_ua: quantized current limit requested by TCPM
+ * @programmed_ua: last limit successfully written to the charger
+ * @generation: invalidates APSD work across cable and TCPM policy changes
+ * @apsd_valid: whether @apsd_ua belongs to the current generation
+ * @tcpm_active: whether TCPM currently owns the input-current limit
+ * @sink_enabled: whether TCPM permits the physical USB input path
+ * @dirty: whether the effective policy still needs to reach hardware
+ */
+struct smb_icl_policy {
+	u32 apsd_ua;
+	u32 tcpm_ua;
+	u32 programmed_ua;
+	u64 generation;
+	bool apsd_valid;
+	bool tcpm_active;
+	bool sink_enabled;
+	bool dirty;
+};
+
+/**
  * struct smb_chip - smb chip structure
  * @dev:		Device reference for power_supply
  * @name:		The platform device name
@@ -394,6 +424,9 @@ struct smb_init_register {
  * @cdev_fcc_step:	Fast-charge current reduction per cooling state
  * @cooling_state:	Current thermal cooling state
  * @typec_tcpm_present: A TCPM child owns the charger block's Type-C registers
+ * @icl_lock:		Serializes TCPM/APSD input-current arbitration
+ * @icl:		Input-current ownership and cached policy
+ * @plugin_check_pending: Retry a failed physical cable-status read
  */
 struct smb_chip {
 	struct device *dev;
@@ -416,6 +449,11 @@ struct smb_chip {
 	u32 cdev_fcc_step;
 	int cooling_state;
 	bool typec_tcpm_present;
+
+	/* Protect provider ownership and all ICL policy state. */
+	struct mutex icl_lock;
+	struct smb_icl_policy icl;
+	bool plugin_check_pending;
 };
 
 static bool smb_typec_tcpm_present(struct device *dev)
@@ -426,7 +464,8 @@ static bool smb_typec_tcpm_present(struct device *dev)
 		return false;
 
 	for_each_available_child_of_node(dev->parent->of_node, child) {
-		if (of_device_is_compatible(child, "qcom,pm660-typec")) {
+		if (of_device_is_compatible(child, "qcom,pm660-typec") ||
+		    of_device_is_compatible(child, "qcom,pmi8998-typec")) {
 			of_node_put(child);
 			return true;
 		}
@@ -454,12 +493,29 @@ static int smb_get_prop_usb_online(struct smb_chip *chip, int *val)
 
 	rc = regmap_read(chip->regmap, chip->base + POWER_PATH_STATUS, &stat);
 	if (rc < 0) {
-		dev_err(chip->dev, "Couldn't read power path status: %d\n", rc);
+		dev_err_ratelimited(chip->dev,
+				    "Couldn't read power path status: %d\n", rc);
 		return rc;
 	}
 
 	*val = (stat & P_PATH_USE_USBIN_BIT) &&
 	       (stat & P_PATH_VALID_INPUT_POWER_SOURCE_STS_BIT);
+	return 0;
+}
+
+static int smb_get_usb_plugin(struct smb_chip *chip, int *val)
+{
+	unsigned int stat;
+	int rc;
+
+	rc = regmap_read(chip->regmap, chip->base + INT_RT_STS, &stat);
+	if (rc < 0) {
+		dev_err_ratelimited(chip->dev,
+				    "Couldn't read USB plugin status: %d\n", rc);
+		return rc;
+	}
+
+	*val = !!(stat & USBIN_PLUGIN_RT_STS_BIT);
 	return 0;
 }
 
@@ -481,7 +537,8 @@ static int smb_apsd_get_charger_type(struct smb_chip *chip, int *val)
 
 	rc = regmap_read(chip->regmap, chip->base + APSD_STATUS, &apsd_stat);
 	if (rc < 0) {
-		dev_err(chip->dev, "Failed to read apsd status, rc = %d", rc);
+		dev_err_ratelimited(chip->dev,
+				    "Failed to read APSD status: %d\n", rc);
 		return rc;
 	}
 	if (!(apsd_stat & APSD_DTC_STATUS_DONE_BIT)) {
@@ -491,7 +548,8 @@ static int smb_apsd_get_charger_type(struct smb_chip *chip, int *val)
 
 	rc = regmap_read(chip->regmap, chip->base + APSD_RESULT_STATUS, &stat);
 	if (rc < 0) {
-		dev_err(chip->dev, "Failed to read apsd result, rc = %d", rc);
+		dev_err_ratelimited(chip->dev,
+				    "Failed to read APSD result: %d\n", rc);
 		return rc;
 	}
 
@@ -565,13 +623,83 @@ static inline int smb_get_current_limit(struct smb_chip *chip,
 	return rc;
 }
 
-static int smb_set_current_limit(struct smb_chip *chip, unsigned int val)
+static u32 smb_icl_quantize(u32 ua)
+{
+	return ua / CURRENT_SCALE_FACTOR * CURRENT_SCALE_FACTOR;
+}
+
+static u32 smb_icl_effective(const struct smb_icl_policy *icl)
+{
+	/* Type-C/PD is authoritative; hardware AICL remains the final clamp. */
+	if (icl->tcpm_active)
+		return icl->tcpm_ua;
+
+	if (icl->apsd_valid)
+		return icl->apsd_ua;
+
+	return SDP_CURRENT_UA;
+}
+
+static const char *smb_icl_owner(const struct smb_icl_policy *icl)
+{
+	if (icl->tcpm_active)
+		return "TCPM";
+
+	return icl->apsd_valid ? "APSD" : "fallback";
+}
+
+static void smb_icl_request_tcpm(struct smb_icl_policy *icl, u32 ua)
+{
+	icl->generation++;
+	icl->tcpm_active = ua != 0;
+	icl->tcpm_ua = smb_icl_quantize(ua);
+	icl->apsd_valid = false;
+	icl->dirty = true;
+}
+
+static void smb_icl_set_sink(struct smb_icl_policy *icl, bool enabled)
+{
+	if (!enabled)
+		smb_icl_request_tcpm(icl, 0);
+	if (icl->sink_enabled != enabled)
+		icl->dirty = true;
+	icl->sink_enabled = enabled;
+}
+
+static void smb_icl_cable_event(struct smb_icl_policy *icl, bool present)
+{
+	icl->generation++;
+	icl->apsd_valid = false;
+	icl->dirty = true;
+
+	/* A VBUS loss is an independent backstop for a missed TCPM reset. */
+	if (!present) {
+		icl->tcpm_active = false;
+		icl->tcpm_ua = 0;
+		icl->sink_enabled = false;
+	}
+}
+
+static bool smb_icl_set_apsd(struct smb_icl_policy *icl, u64 generation,
+			     u32 ua)
+{
+	if (icl->generation != generation || icl->tcpm_active)
+		return false;
+
+	icl->apsd_ua = ua;
+	icl->apsd_valid = true;
+	icl->dirty = true;
+	return true;
+}
+
+static int smb_write_current_limit(struct smb_chip *chip, unsigned int val)
 {
 	unsigned char val_raw;
 
-	if (val > 4800000) {
+	if (val > SMB2_ICL_MAX_UA) {
 		dev_err(chip->dev,
-			"Can't set current limit higher than 4800000uA");
+			"Can't set current limit higher than %uuA\n",
+			SMB2_ICL_MAX_UA);
 		return -EINVAL;
 	}
 	val_raw = val / CURRENT_SCALE_FACTOR;
@@ -580,18 +708,199 @@ static int smb_set_current_limit(struct smb_chip *chip, unsigned int val)
 			    val_raw);
 }
 
+static int smb_apply_icl_locked(struct smb_chip *chip)
+{
+	u32 current_ua = smb_icl_effective(&chip->icl);
+	bool override = chip->icl.tcpm_active ||
+			(chip->icl.apsd_valid && current_ua > SDP_CURRENT_UA);
+	/* Qualcomm's SMB2 policy suspends USB input at 25 mA or below. */
+	bool sink = chip->icl.sink_enabled && current_ua > CURRENT_SCALE_FACTOR;
+	bool apsd = chip->icl.sink_enabled && !chip->icl.tcpm_active;
+	int rc;
+
+	if (!chip->icl.dirty && chip->icl.programmed_ua == current_ua)
+		return 0;
+
+	/*
+	 * Never draw with an old limit or partly programmed override. In
+	 * particular, a failed decrease from a previous PD contract must leave
+	 * USB input suspended. A retry can resume it only if TCPM still sinks.
+	 */
+	chip->icl.dirty = true;
+	rc = regmap_update_bits(chip->regmap, chip->base + USBIN_CMD_IL,
+				USBIN_SUSPEND_BIT, USBIN_SUSPEND_BIT);
+	if (rc)
+		return rc;
+
+	rc = smb_write_current_limit(chip, current_ua);
+	if (rc)
+		return rc;
+
+	/*
+	 * SMB2 selects a separate SDP limit unless both high-current mode and
+	 * the post-APSD override are enabled. Follow the downstream ICL policy:
+	 * a TCPM request overrides BC1.2. A valid CDP/DCP result also uses its
+	 * programmed ceiling; absent either, restore USB2 SDP defaults.
+	 * Hardware AICL remains enabled and may further reduce the input draw.
+	 */
+	rc = regmap_update_bits(chip->regmap, chip->base + USBIN_ICL_OPTIONS,
+				CFG_USB3P0_SEL_BIT | USB51_MODE_BIT | USBIN_MODE_CHG_BIT,
+				override ? USBIN_MODE_CHG_BIT : USB51_MODE_BIT);
+	if (rc)
+		return rc;
+	rc = regmap_update_bits(chip->regmap, chip->base + USBIN_LOAD_CFG,
+				ICL_OVERRIDE_AFTER_APSD_BIT,
+				override ? ICL_OVERRIDE_AFTER_APSD_BIT : 0);
+	if (rc)
+		return rc;
+	rc = regmap_update_bits(chip->regmap, chip->base + USBIN_OPTIONS_1_CFG,
+				AUTO_SRC_DETECT_BIT, apsd ? AUTO_SRC_DETECT_BIT : 0);
+	if (rc)
+		return rc;
+
+	if (sink) {
+		rc = regmap_update_bits(chip->regmap, chip->base + USBIN_CMD_IL,
+					USBIN_SUSPEND_BIT, 0);
+		if (rc)
+			return rc;
+	}
+
+	chip->icl.programmed_ua = current_ua;
+	chip->icl.dirty = false;
+	dev_dbg(chip->dev,
+		"ICL applied: owner=%s effective=%uuA sink=%u apsd=%uuA valid=%u generation=%llu\n",
+		smb_icl_owner(&chip->icl),
+		current_ua, sink, chip->icl.apsd_ua, chip->icl.apsd_valid,
+		(unsigned long long)chip->icl.generation);
+	return 0;
+}
+
+static int smb_set_current_limit(struct smb_chip *chip, int val)
+{
+	bool active;
+	int rc;
+
+	if (val < 0 || val > SMB2_ICL_MAX_UA)
+		return -EINVAL;
+
+	/* Preserve the original direct APSD/userspace policy without TCPM. */
+	if (!chip->typec_tcpm_present)
+		return smb_write_current_limit(chip, val);
+
+	active = val != 0;
+
+	mutex_lock(&chip->icl_lock);
+	smb_icl_request_tcpm(&chip->icl, val);
+	dev_dbg(chip->dev,
+		"ICL TCPM request: requested=%duA quantized=%uuA active=%u generation=%llu\n",
+		val, chip->icl.tcpm_ua, chip->icl.tcpm_active,
+		(unsigned long long)chip->icl.generation);
+	rc = smb_apply_icl_locked(chip);
+	mutex_unlock(&chip->icl_lock);
+
+	/* TCPM uses zero for both detach and Rp-default APSD fallback. */
+	if (!active || rc)
+		mod_delayed_work(system_wq, &chip->status_change_work,
+				 msecs_to_jiffies(rc ? SMB2_APSD_RETRY_MS :
+						    SMB2_APSD_DELAY_MS));
+
+	return rc;
+}
+
+static int smb_set_sink_enabled(struct smb_chip *chip, int enabled)
+{
+	bool apsd;
+	int rc;
+
+	/* Preserve the existing boolean STATUS ABI for non-TCPM devices. */
+	if (!chip->typec_tcpm_present)
+		return regmap_update_bits(chip->regmap, chip->base + USBIN_CMD_IL,
+					  USBIN_SUSPEND_BIT, !enabled);
+	if (enabled != 0 && enabled != 1)
+		return -EINVAL;
+
+	mutex_lock(&chip->icl_lock);
+	smb_icl_set_sink(&chip->icl, enabled);
+	rc = smb_apply_icl_locked(chip);
+	apsd = chip->icl.sink_enabled && !chip->icl.tcpm_active;
+	mutex_unlock(&chip->icl_lock);
+
+	power_supply_changed(chip->chg_psy);
+	if (rc || apsd)
+		mod_delayed_work(system_wq, &chip->status_change_work,
+				 msecs_to_jiffies(rc ? SMB2_APSD_RETRY_MS :
+						    SMB2_APSD_DELAY_MS));
+	return rc;
+}
+
 static void smb_status_change_work(struct work_struct *work)
 {
 	unsigned int charger_type, current_ua;
+	u64 generation = 0;
+	bool notify = false;
+	bool retry = false;
 	int usb_online = 0;
+	int usb_present = 0;
+	int apply_rc;
 	int count, rc;
 	struct smb_chip *chip;
 
 	chip = container_of(work, struct smb_chip, status_change_work.work);
 
-	smb_get_prop_usb_online(chip, &usb_online);
+	if (chip->typec_tcpm_present) {
+		mutex_lock(&chip->icl_lock);
+		if (chip->plugin_check_pending) {
+			rc = smb_get_usb_plugin(chip, &usb_present);
+			if (rc) {
+				if (chip->icl.dirty) {
+					apply_rc = smb_apply_icl_locked(chip);
+					if (!apply_rc)
+						notify = true;
+					else
+						dev_err_ratelimited(chip->dev,
+								    "failed to retry ICL: %d\n",
+								    apply_rc);
+				}
+				retry = true;
+				mutex_unlock(&chip->icl_lock);
+				goto out;
+			}
+
+			chip->plugin_check_pending = false;
+			smb_icl_cable_event(&chip->icl, usb_present);
+			rc = smb_apply_icl_locked(chip);
+			if (rc) {
+				retry = true;
+				mutex_unlock(&chip->icl_lock);
+				goto out;
+			}
+			notify = true;
+		}
+		if (chip->icl.dirty) {
+			rc = smb_apply_icl_locked(chip);
+			if (rc) {
+				retry = true;
+				mutex_unlock(&chip->icl_lock);
+				goto out;
+			}
+			notify = true;
+		}
+		if (chip->icl.tcpm_active || !chip->icl.sink_enabled) {
+			mutex_unlock(&chip->icl_lock);
+			goto out;
+		}
+		generation = chip->icl.generation;
+		mutex_unlock(&chip->icl_lock);
+	}
+
+	rc = smb_get_prop_usb_online(chip, &usb_online);
+	if (rc) {
+		retry = chip->typec_tcpm_present;
+		goto out;
+	}
+
 	if (!usb_online)
-		return;
+		goto out;
 
 	for (count = 0; count < 3; count++) {
 		dev_dbg(chip->dev, "get charger type retry %d\n", count);
@@ -602,15 +911,41 @@ static void smb_status_change_work(struct work_struct *work)
 	}
 
 	if (rc < 0 && rc != -EAGAIN) {
-		dev_err(chip->dev, "get charger type failed: %d\n", rc);
-		return;
+		dev_err_ratelimited(chip->dev,
+				    "get charger type failed: %d\n", rc);
+		retry = chip->typec_tcpm_present;
+		goto out;
 	}
 
 	if (rc < 0) {
+		if (chip->typec_tcpm_present) {
+			/* Do not start APSD after a newer cable or TCPM event. */
+			mutex_lock(&chip->icl_lock);
+			if (chip->icl.generation != generation ||
+			    chip->icl.tcpm_active) {
+				mutex_unlock(&chip->icl_lock);
+				goto out;
+			}
+
+			rc = regmap_update_bits(chip->regmap,
+						chip->base + CMD_APSD,
+						APSD_RERUN_BIT,
+						APSD_RERUN_BIT);
+			mutex_unlock(&chip->icl_lock);
+			retry = true;
+			if (rc)
+				dev_err(chip->dev,
+					"failed to rerun APSD: %d\n", rc);
+			else
+				dev_dbg(chip->dev,
+					"charger type unavailable, reran APSD\n");
+			goto out;
+		}
+
 		rc = regmap_update_bits(chip->regmap, chip->base + CMD_APSD,
 					APSD_RERUN_BIT, APSD_RERUN_BIT);
 		schedule_delayed_work(&chip->status_change_work,
-				      msecs_to_jiffies(1000));
+				      msecs_to_jiffies(SMB2_APSD_RETRY_MS));
 		dev_dbg(chip->dev, "get charger type failed, rerun apsd\n");
 		return;
 	}
@@ -628,8 +963,39 @@ static void smb_status_change_work(struct work_struct *work)
 		break;
 	}
 
-	smb_set_current_limit(chip, current_ua);
-	power_supply_changed(chip->chg_psy);
+	if (!chip->typec_tcpm_present) {
+		smb_write_current_limit(chip, current_ua);
+		power_supply_changed(chip->chg_psy);
+		return;
+	}
+
+	mutex_lock(&chip->icl_lock);
+	if (smb_icl_set_apsd(&chip->icl, generation, current_ua)) {
+		dev_dbg(chip->dev,
+			"ICL APSD result: requested=%uuA generation=%llu\n",
+			current_ua, (unsigned long long)generation);
+		rc = smb_apply_icl_locked(chip);
+		notify = true;
+		retry = rc != 0;
+		if (rc)
+			dev_err(chip->dev,
+				"failed to apply APSD current limit: %d\n", rc);
+	}
+	mutex_unlock(&chip->icl_lock);
+
+out:
+	if (notify)
+		power_supply_changed(chip->chg_psy);
+	if (retry)
+		mod_delayed_work(system_wq, &chip->status_change_work,
+				 msecs_to_jiffies(SMB2_APSD_RETRY_MS));
+}
+
+static void smb_cancel_status_change_work(void *data)
+{
+	struct smb_chip *chip = data;
+
+	cancel_delayed_work_sync(&chip->status_change_work);
 }
 
 static int smb_get_iio_chan(struct smb_chip *chip, struct iio_channel *chan,
@@ -730,8 +1096,7 @@ static int smb_set_property(struct power_supply *psy,
 
 	switch (psp) {
 	case POWER_SUPPLY_PROP_STATUS:
-		return regmap_update_bits(chip->regmap, chip->base + USBIN_CMD_IL,
-					  USBIN_SUSPEND_BIT, !val->intval);
+		return smb_set_sink_enabled(chip, val->intval);
 	case POWER_SUPPLY_PROP_CURRENT_MAX:
 		return smb_set_current_limit(chip, val->intval);
 	default:
@@ -743,10 +1108,13 @@ static int smb_set_property(struct power_supply *psy,
 static int smb_property_is_writable(struct power_supply *psy,
 				     enum power_supply_property psp)
 {
+	struct smb_chip *chip = power_supply_get_drvdata(psy);
+
 	switch (psp) {
 	case POWER_SUPPLY_PROP_STATUS:
 	case POWER_SUPPLY_PROP_CURRENT_MAX:
-		return 1;
+		/* Keep TCPM ownership distinct from arbitrary sysfs writes. */
+		return !chip->typec_tcpm_present;
 	default:
 		return 0;
 	}
@@ -772,11 +1140,47 @@ static irqreturn_t smb_handle_batt_overvoltage(int irq, void *data)
 static irqreturn_t smb_handle_usb_plugin(int irq, void *data)
 {
 	struct smb_chip *chip = data;
+	int usb_present = 0;
+	int apply_rc;
+	int rc;
+
+	if (!chip->typec_tcpm_present) {
+		power_supply_changed(chip->chg_psy);
+
+		schedule_delayed_work(&chip->status_change_work,
+				      msecs_to_jiffies(SMB2_APSD_DELAY_MS));
+		return IRQ_HANDLED;
+	}
+
+	mutex_lock(&chip->icl_lock);
+	rc = smb_get_usb_plugin(chip, &usb_present);
+	if (rc) {
+		/* Preserve a possible owner, but retry the physical status. */
+		chip->plugin_check_pending = true;
+		chip->icl.generation++;
+		chip->icl.apsd_valid = false;
+	} else {
+		chip->plugin_check_pending = false;
+		smb_icl_cable_event(&chip->icl, usb_present);
+		dev_dbg(chip->dev,
+			"ICL cable event: present=%u owner=%s generation=%llu\n",
+			usb_present, smb_icl_owner(&chip->icl),
+			(unsigned long long)chip->icl.generation);
+	}
+	apply_rc = smb_apply_icl_locked(chip);
+	mutex_unlock(&chip->icl_lock);
+
+	if (apply_rc)
+		dev_err(chip->dev, "failed to apply cable-event ICL: %d\n",
+			apply_rc);
 
 	power_supply_changed(chip->chg_psy);
 
-	schedule_delayed_work(&chip->status_change_work,
-			      msecs_to_jiffies(1500));
+	if (rc || usb_present || apply_rc)
+		mod_delayed_work(system_wq, &chip->status_change_work,
+				 msecs_to_jiffies(rc || apply_rc ?
+						    SMB2_APSD_RETRY_MS :
+						    SMB2_APSD_DELAY_MS));
 
 	return IRQ_HANDLED;
 }
@@ -1078,6 +1482,9 @@ static int smb_probe(struct platform_device *pdev)
 	chip->cdev_fcc_max = THERMAL_FCC_MAX;
 	chip->cdev_fcc_step = THERMAL_FCC_STEP;
 	chip->typec_tcpm_present = smb_typec_tcpm_present(chip->dev);
+	mutex_init(&chip->icl_lock);
+	chip->icl.dirty = true;
+	INIT_DELAYED_WORK(&chip->status_change_work, smb_status_change_work);
 
 	chip->cdev = devm_thermal_of_cooling_device_register(chip->dev,
 							     chip->dev->of_node,
@@ -1090,6 +1497,15 @@ static int smb_probe(struct platform_device *pdev)
 	rc = smb_init_hw(chip);
 	if (rc < 0)
 		return rc;
+
+	if (chip->typec_tcpm_present) {
+		mutex_lock(&chip->icl_lock);
+		rc = smb_apply_icl_locked(chip);
+		mutex_unlock(&chip->icl_lock);
+		if (rc)
+			return dev_err_probe(chip->dev, rc,
+					     "Failed to set safe input current\n");
+	}
 
 	supply_config.drv_data = chip;
 	supply_config.fwnode = dev_fwnode(&pdev->dev);
@@ -1110,16 +1526,15 @@ static int smb_probe(struct platform_device *pdev)
 		return dev_err_probe(chip->dev, PTR_ERR(chip->chg_psy),
 				     "failed to register power supply\n");
 
+	rc = devm_add_action_or_reset(chip->dev,
+				      smb_cancel_status_change_work, chip);
+	if (rc)
+		return rc;
+
 	rc = power_supply_get_battery_info(chip->chg_psy, &chip->batt_info);
 	if (rc)
 		return dev_err_probe(chip->dev, rc,
 				     "Failed to get battery info\n");
-
-	rc = devm_delayed_work_autocancel(chip->dev, &chip->status_change_work,
-					  smb_status_change_work);
-	if (rc)
-		return dev_err_probe(chip->dev, rc,
-				     "Failed to init status change work\n");
 
 	rc = (chip->batt_info->voltage_max_design_uv - 3487500) / 7500 + 1;
 	rc = regmap_update_bits(chip->regmap, chip->base + FLOAT_VOLTAGE_CFG,
@@ -1157,6 +1572,294 @@ static int smb_probe(struct platform_device *pdev)
 
 	return 0;
 }
+
+#if IS_ENABLED(CONFIG_CHARGER_QCOM_SMB2_KUNIT_TEST)
+struct smb_icl_test_context {
+	struct smb_chip chip;
+	u8 regs[0x700];
+	unsigned int fail_reg;
+	bool fail_write;
+};
+
+static int smb_icl_test_read(void *context, unsigned int reg, unsigned int *val)
+{
+	struct smb_icl_test_context *ctx = context;
+
+	*val = ctx->regs[reg];
+	return 0;
+}
+
+static int smb_icl_test_write(void *context, unsigned int reg, unsigned int val)
+{
+	struct smb_icl_test_context *ctx = context;
+
+	if (ctx->fail_write && reg == ctx->fail_reg)
+		return -EIO;
+	ctx->regs[reg] = val;
+	return 0;
+}
+
+static const struct regmap_bus smb_icl_test_bus = {
+	.reg_read = smb_icl_test_read,
+	.reg_write = smb_icl_test_write,
+};
+
+static const struct regmap_config smb_icl_test_regmap_config = {
+	.reg_bits = 16,
+	.val_bits = 8,
+	.max_register = 0x6ff,
+	.cache_type = REGCACHE_NONE,
+};
+
+static int smb_icl_test_init(struct kunit *test)
+{
+	struct smb_icl_test_context *ctx;
+	struct device *dev;
+
+	ctx = kunit_kzalloc(test, sizeof(*ctx), GFP_KERNEL);
+	if (!ctx)
+		return -ENOMEM;
+	dev = kunit_device_register(test, "smb2-icl");
+	if (IS_ERR(dev))
+		return PTR_ERR(dev);
+	ctx->chip.dev = dev;
+	ctx->chip.regmap = devm_regmap_init(dev, &smb_icl_test_bus, ctx,
+					   &smb_icl_test_regmap_config);
+	if (IS_ERR(ctx->chip.regmap))
+		return PTR_ERR(ctx->chip.regmap);
+	ctx->chip.typec_tcpm_present = true;
+	ctx->chip.icl.dirty = true;
+	mutex_init(&ctx->chip.icl_lock);
+	ctx->regs[USBIN_ICL_OPTIONS] = USB51_MODE_BIT;
+	ctx->regs[USBIN_OPTIONS_1_CFG] = AUTO_SRC_DETECT_BIT;
+	ctx->regs[USBIN_AICL_OPTIONS_CFG] = USBIN_AICL_EN_BIT;
+	test->priv = ctx;
+	return 0;
+}
+
+static void smb_icl_program_contract_test(struct kunit *test)
+{
+	struct smb_icl_test_context *ctx = test->priv;
+	struct smb_icl_policy *icl = &ctx->chip.icl;
+
+	/* Setting a limit alone must not open the physical sink path. */
+	smb_icl_request_tcpm(icl, 3000000);
+	KUNIT_ASSERT_EQ(test, smb_apply_icl_locked(&ctx->chip), 0);
+	KUNIT_EXPECT_EQ(test, ctx->regs[USBIN_CMD_IL], (u8)USBIN_SUSPEND_BIT);
+	smb_icl_set_sink(icl, true);
+	KUNIT_ASSERT_EQ(test, smb_apply_icl_locked(&ctx->chip), 0);
+	KUNIT_EXPECT_EQ(test, ctx->regs[USBIN_CURRENT_LIMIT_CFG], (u8)120);
+	KUNIT_EXPECT_EQ(test, ctx->regs[USBIN_ICL_OPTIONS], (u8)USBIN_MODE_CHG_BIT);
+	KUNIT_EXPECT_EQ(test, ctx->regs[USBIN_LOAD_CFG], (u8)ICL_OVERRIDE_AFTER_APSD_BIT);
+	KUNIT_EXPECT_EQ(test, ctx->regs[USBIN_OPTIONS_1_CFG], (u8)0);
+	KUNIT_EXPECT_EQ(test, ctx->regs[USBIN_CMD_IL], (u8)0);
+	KUNIT_EXPECT_EQ(test, ctx->regs[USBIN_AICL_OPTIONS_CFG], (u8)USBIN_AICL_EN_BIT);
+	/* A repeated sink-enable must not discard the negotiated limit. */
+	smb_icl_set_sink(icl, true);
+	KUNIT_EXPECT_TRUE(test, icl->tcpm_active);
+	KUNIT_EXPECT_EQ(test, smb_icl_effective(icl), (u32)3000000);
+}
+
+static void smb_icl_same_current_release_mode_test(struct kunit *test)
+{
+	struct smb_icl_test_context *ctx = test->priv;
+	struct smb_icl_policy *icl = &ctx->chip.icl;
+
+	smb_icl_set_sink(icl, true);
+	smb_icl_request_tcpm(icl, SDP_CURRENT_UA);
+	KUNIT_ASSERT_EQ(test, smb_apply_icl_locked(&ctx->chip), 0);
+	KUNIT_ASSERT_EQ(test, ctx->regs[USBIN_ICL_OPTIONS], (u8)USBIN_MODE_CHG_BIT);
+
+	/* Same numeric ceiling, different owner: restore the hardware SDP mode. */
+	smb_icl_request_tcpm(icl, 0);
+	KUNIT_ASSERT_EQ(test, smb_apply_icl_locked(&ctx->chip), 0);
+	KUNIT_EXPECT_EQ(test, ctx->regs[USBIN_CURRENT_LIMIT_CFG], (u8)20);
+	KUNIT_EXPECT_EQ(test, ctx->regs[USBIN_ICL_OPTIONS], (u8)USB51_MODE_BIT);
+	KUNIT_EXPECT_EQ(test, ctx->regs[USBIN_LOAD_CFG], (u8)0);
+	KUNIT_EXPECT_EQ(test, ctx->regs[USBIN_OPTIONS_1_CFG], (u8)AUTO_SRC_DETECT_BIT);
+	KUNIT_EXPECT_EQ(test, ctx->regs[USBIN_CMD_IL], (u8)0);
+
+	KUNIT_ASSERT_TRUE(test, smb_icl_set_apsd(icl, icl->generation, DCP_CURRENT_UA));
+	KUNIT_ASSERT_EQ(test, smb_apply_icl_locked(&ctx->chip), 0);
+	KUNIT_EXPECT_EQ(test, ctx->regs[USBIN_CURRENT_LIMIT_CFG], (u8)60);
+	KUNIT_EXPECT_EQ(test, ctx->regs[USBIN_ICL_OPTIONS], (u8)USBIN_MODE_CHG_BIT);
+	KUNIT_EXPECT_EQ(test, ctx->regs[USBIN_LOAD_CFG], (u8)ICL_OVERRIDE_AFTER_APSD_BIT);
+	KUNIT_EXPECT_EQ(test, ctx->regs[USBIN_OPTIONS_1_CFG], (u8)AUTO_SRC_DETECT_BIT);
+}
+
+static void smb_icl_stop_sink_test(struct kunit *test)
+{
+	struct smb_icl_test_context *ctx = test->priv;
+	struct smb_icl_policy *icl = &ctx->chip.icl;
+	u64 generation;
+
+	smb_icl_set_sink(icl, true);
+	smb_icl_request_tcpm(icl, 3000000);
+	KUNIT_ASSERT_EQ(test, smb_apply_icl_locked(&ctx->chip), 0);
+	generation = icl->generation;
+	smb_icl_set_sink(icl, false);
+	KUNIT_ASSERT_EQ(test, smb_apply_icl_locked(&ctx->chip), 0);
+	KUNIT_EXPECT_FALSE(test, icl->tcpm_active);
+	KUNIT_EXPECT_FALSE(test, smb_icl_set_apsd(icl, generation, DCP_CURRENT_UA));
+	KUNIT_EXPECT_EQ(test, ctx->regs[USBIN_CMD_IL], (u8)USBIN_SUSPEND_BIT);
+	KUNIT_EXPECT_EQ(test, ctx->regs[USBIN_CURRENT_LIMIT_CFG], (u8)20);
+	KUNIT_EXPECT_EQ(test, ctx->regs[USBIN_LOAD_CFG], (u8)0);
+	KUNIT_EXPECT_EQ(test, ctx->regs[USBIN_OPTIONS_1_CFG], (u8)0);
+
+	/* USB-plugin IRQs caused by source VBUS must not resume sinking. */
+	smb_icl_cable_event(icl, true);
+	KUNIT_ASSERT_EQ(test, smb_apply_icl_locked(&ctx->chip), 0);
+	KUNIT_EXPECT_EQ(test, ctx->regs[USBIN_CMD_IL], (u8)USBIN_SUSPEND_BIT);
+}
+
+static void smb_icl_program_error_stays_suspended_test(struct kunit *test)
+{
+	static const unsigned int fail_regs[] = {
+		USBIN_CURRENT_LIMIT_CFG, USBIN_ICL_OPTIONS,
+		USBIN_LOAD_CFG, USBIN_OPTIONS_1_CFG,
+	};
+	struct smb_icl_test_context *ctx = test->priv;
+	struct smb_icl_policy *icl = &ctx->chip.icl;
+	int i;
+
+	for (i = 0; i < ARRAY_SIZE(fail_regs); i++) {
+		smb_icl_set_sink(icl, true);
+		smb_icl_request_tcpm(icl, 3000000);
+		KUNIT_ASSERT_EQ(test, smb_apply_icl_locked(&ctx->chip), 0);
+		smb_icl_request_tcpm(icl, 0);
+		ctx->fail_reg = fail_regs[i];
+		ctx->fail_write = true;
+		KUNIT_ASSERT_EQ(test, smb_apply_icl_locked(&ctx->chip), -EIO);
+		KUNIT_EXPECT_TRUE(test, icl->dirty);
+		KUNIT_EXPECT_EQ(test, ctx->regs[USBIN_CMD_IL], (u8)USBIN_SUSPEND_BIT);
+
+		/* A source transition before the retry must keep the input off. */
+		smb_icl_set_sink(icl, false);
+		ctx->fail_write = false;
+		KUNIT_ASSERT_EQ(test, smb_apply_icl_locked(&ctx->chip), 0);
+		KUNIT_EXPECT_FALSE(test, icl->dirty);
+		KUNIT_EXPECT_EQ(test, ctx->regs[USBIN_CMD_IL], (u8)USBIN_SUSPEND_BIT);
+	}
+}
+
+static void smb_icl_substep_keeps_input_off_test(struct kunit *test)
+{
+	struct smb_icl_test_context *ctx = test->priv;
+
+	smb_icl_set_sink(&ctx->chip.icl, true);
+	smb_icl_request_tcpm(&ctx->chip.icl, 10000);
+	KUNIT_ASSERT_EQ(test, smb_apply_icl_locked(&ctx->chip), 0);
+	KUNIT_EXPECT_TRUE(test, ctx->chip.icl.tcpm_active);
+	KUNIT_EXPECT_EQ(test, ctx->regs[USBIN_CMD_IL], (u8)USBIN_SUSPEND_BIT);
+	smb_icl_request_tcpm(&ctx->chip.icl, 25000);
+	KUNIT_ASSERT_EQ(test, smb_apply_icl_locked(&ctx->chip), 0);
+	KUNIT_EXPECT_EQ(test, ctx->regs[USBIN_CMD_IL], (u8)USBIN_SUSPEND_BIT);
+	smb_icl_request_tcpm(&ctx->chip.icl, 50000);
+	KUNIT_ASSERT_EQ(test, smb_apply_icl_locked(&ctx->chip), 0);
+	KUNIT_EXPECT_EQ(test, ctx->regs[USBIN_CURRENT_LIMIT_CFG], (u8)2);
+	KUNIT_EXPECT_EQ(test, ctx->regs[USBIN_CMD_IL], (u8)0);
+}
+
+static void smb_icl_default_test(struct kunit *test)
+{
+	struct smb_icl_policy icl = {};
+
+	KUNIT_EXPECT_EQ(test, smb_icl_effective(&icl), (u32)SDP_CURRENT_UA);
+}
+
+static void smb_icl_tcpm_overrides_stale_apsd_test(struct kunit *test)
+{
+	struct smb_icl_policy icl = {};
+	u64 generation = icl.generation;
+
+	smb_icl_request_tcpm(&icl, 3000000);
+
+	KUNIT_EXPECT_FALSE(test,
+			   smb_icl_set_apsd(&icl, generation, SDP_CURRENT_UA));
+	KUNIT_EXPECT_TRUE(test, icl.tcpm_active);
+	KUNIT_EXPECT_EQ(test, smb_icl_effective(&icl), (u32)3000000);
+}
+
+static void smb_icl_tcpm_release_test(struct kunit *test)
+{
+	struct smb_icl_policy icl = {};
+	u64 generation = icl.generation;
+
+	KUNIT_ASSERT_TRUE(test,
+			  smb_icl_set_apsd(&icl, generation, DCP_CURRENT_UA));
+	smb_icl_request_tcpm(&icl, 3000000);
+	smb_icl_request_tcpm(&icl, 0);
+
+	KUNIT_EXPECT_FALSE(test, icl.tcpm_active);
+	KUNIT_EXPECT_FALSE(test, icl.apsd_valid);
+	KUNIT_EXPECT_EQ(test, smb_icl_effective(&icl), (u32)SDP_CURRENT_UA);
+}
+
+static void smb_icl_cable_lifecycle_test(struct kunit *test)
+{
+	struct smb_icl_policy icl = {};
+
+	smb_icl_request_tcpm(&icl, 3000000);
+	smb_icl_cable_event(&icl, true);
+	KUNIT_EXPECT_TRUE(test, icl.tcpm_active);
+	KUNIT_EXPECT_EQ(test, smb_icl_effective(&icl), (u32)3000000);
+
+	smb_icl_cable_event(&icl, false);
+	KUNIT_EXPECT_FALSE(test, icl.tcpm_active);
+	KUNIT_EXPECT_EQ(test, smb_icl_effective(&icl), (u32)SDP_CURRENT_UA);
+}
+
+static void smb_icl_substep_request_stays_owned_test(struct kunit *test)
+{
+	struct smb_icl_policy icl = {};
+
+	/* A non-zero request below the 25mA register step quantizes to zero. */
+	smb_icl_request_tcpm(&icl, 10000);
+	KUNIT_EXPECT_TRUE(test, icl.tcpm_active);
+	KUNIT_EXPECT_EQ(test, smb_icl_effective(&icl), (u32)0);
+
+	/* Only an original zero-current request releases ownership. */
+	smb_icl_request_tcpm(&icl, 0);
+	KUNIT_EXPECT_FALSE(test, icl.tcpm_active);
+	KUNIT_EXPECT_EQ(test, smb_icl_effective(&icl), (u32)SDP_CURRENT_UA);
+}
+
+static void smb_icl_stale_generation_test(struct kunit *test)
+{
+	struct smb_icl_policy icl = {};
+	u64 generation = icl.generation;
+
+	smb_icl_cable_event(&icl, false);
+	smb_icl_cable_event(&icl, true);
+
+	KUNIT_EXPECT_FALSE(test,
+			   smb_icl_set_apsd(&icl, generation, DCP_CURRENT_UA));
+	KUNIT_EXPECT_EQ(test, smb_icl_effective(&icl), (u32)SDP_CURRENT_UA);
+}
+
+static struct kunit_case smb_icl_test_cases[] = {
+	KUNIT_CASE(smb_icl_program_contract_test),
+	KUNIT_CASE(smb_icl_same_current_release_mode_test),
+	KUNIT_CASE(smb_icl_stop_sink_test),
+	KUNIT_CASE(smb_icl_program_error_stays_suspended_test),
+	KUNIT_CASE(smb_icl_substep_keeps_input_off_test),
+	KUNIT_CASE(smb_icl_default_test),
+	KUNIT_CASE(smb_icl_tcpm_overrides_stale_apsd_test),
+	KUNIT_CASE(smb_icl_tcpm_release_test),
+	KUNIT_CASE(smb_icl_cable_lifecycle_test),
+	KUNIT_CASE(smb_icl_substep_request_stays_owned_test),
+	KUNIT_CASE(smb_icl_stale_generation_test),
+	{}
+};
+
+static struct kunit_suite smb_icl_test_suite = {
+	.name = "qcom-smbx-icl",
+	.init = smb_icl_test_init,
+	.test_cases = smb_icl_test_cases,
+};
+
+kunit_test_suite(smb_icl_test_suite);
+#endif
 
 static const struct of_device_id smb_match_id_table[] = {
 	{ .compatible = "qcom,pmi8998-charger", .data = "pmi8998" },

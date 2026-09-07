@@ -1152,6 +1152,18 @@ config CHARGER_QCOM_SMB2
 	  adds support for the SMB2 switch mode battery charger found
 	  in PMI8998 and related PMICs.
 
+config CHARGER_QCOM_SMB2_KUNIT_TEST
+	bool "KUnit tests for Qualcomm SMB2 input-current policy" if !KUNIT_ALL_TESTS
+	depends on CHARGER_QCOM_SMB2=y && KUNIT=y
+	default KUNIT_ALL_TESTS
+	help
+	  Test TCPM/APSD ownership, cable lifecycle, current quantization,
+	  sink suspension, hardware mode selection, and failed-write recovery
+	  in the Qualcomm SMB2 charger driver.
+
+	  These tests use an emulated register map and do not access SMB2 hardware.
+	  Enable this option only for KUnit test kernels.
+
 config FUEL_GAUGE_MM8013
 	tristate "Mitsumi MM8013 fuel gauge driver"
 	depends on I2C
