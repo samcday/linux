@@ -91,4 +91,32 @@ config TYPEC_QCOM_PMIC
 	  This driver enables Type-C role switching, orientation, Alternate
 	  mode and Power Delivery support both for VBUS and VCONN.
 
+config TYPEC_QCOM_PMIC_SMB2
+	tristate "Qualcomm SMB2 PMIC USB Type-C Port Controller Manager driver"
+	depends on ARCH_QCOM || COMPILE_TEST
+	depends on OF
+	depends on REGULATOR
+	depends on MFD_SPMI_PMIC
+	depends on CHARGER_QCOM_SMB2
+	help
+	  A Type-C port and USB Power Delivery driver for the SMB2-generation
+	  Type-C and PD PHY blocks found in PM660 and PMI8998 PMICs.
+
+	  The driver coordinates negotiated Type-C current with the matching
+	  qcom_smbx charger power supply and supports a deliberately limited
+	  USB PD 2.0 fixed-5V policy.
+
+	  This driver can be built as a module. The module will be called
+	  qcom_pmic_typec_smb2.
+
+config TYPEC_QCOM_PMIC_SMB2_KUNIT_TEST
+	bool "KUnit tests for Qualcomm SMB2 Type-C control" if !KUNIT_ALL_TESTS
+	depends on KUNIT=y && TYPEC_QCOM_PMIC_SMB2=y
+	default KUNIT_ALL_TESTS
+	help
+	  Exercise dual-role startup, preferred-role changes and charger input
+	  sequencing using a simulated register map and charger power supply.
+	  The tests call the driver's TCPM callbacks without physical hardware.
+	  Enable this option only for built-in KUnit test kernels.
+
 endif # TYPEC_TCPM
