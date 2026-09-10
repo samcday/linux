@@ -7,7 +7,9 @@ QSEECOM Driver
 The QSEECOM driver exposes Qualcomm's QSEE trusted applications, reached over
 the command-based QSEECOM interface, through the TEE subsystem.
 
-The implementation reports ``TEE_IMPL_ID_QSEECOM``.
+The implementation reports ``TEE_IMPL_ID_QSEECOM``. This is an experimental
+downstream interface; its implementation identifier and parameter conventions
+have not been assigned as an upstream Linux ABI.
 
 Why this driver
 ===============
@@ -108,8 +110,10 @@ QSEE requires the request to contain the *physical* address of the payload
 buffer. User space neither knows nor should supply one, so parameter 2 carries
 a descriptor instead: ``value.a`` is the offset in the request to write at and
 ``value.b`` the width, 4 or 8 bytes. The kernel resolves the address of the
-following parameter and patches it in. Further pairs may follow for additional
-buffers.
+following parameter and patches it in using little-endian unaligned writes.
+An eight-byte address at byte offset four is supported. A four-byte descriptor
+rejects an address above 4 GiB rather than truncating it. Further pairs may
+follow for additional buffers.
 
 Buffers the secure world reads are copied through kernel-only memory, so user
 space cannot change them after validation while the secure world is reading
@@ -151,7 +155,26 @@ program headers cannot be used as a file layout at all: segments have been
 observed declaring ``p_offset`` 0, which overlaps the headers being parsed, and
 two segments declaring the same ``p_offset`` with different sizes.
 
-QSEE keeps the name it was loaded under, which is what a later lookup matches.
+Both little-endian ELF32 and ELF64 images are supported. The loader validates
+the program-header table and every segment size before assembling the image.
+A load request for a name already in the registry takes another reference
+without loading a second copy.
+
+Shared libraries
+----------------
+
+To load a common library, open a session on the privileged device with the name
+as MEMREF_INPUT and a second VALUE_INPUT with ``a = 1, b = 0, c = 0``. Only
+``cmnlib`` (ELF32) and ``cmnlib64`` (ELF64) are accepted. This uses QSEE
+APP_MGR command 7, not the ordinary application-load command.
+
+A successful request returns a regular, positive session ID acknowledging the
+load. Closing that session is a no-op for the library. Common libraries stay
+resident for the boot lifetime. SCM remembers a successfully loaded library
+across TEE module reloads and treats later requests for that library as success.
+It does not reinterpret an arbitrary secure-firmware error as "already loaded".
+If firmware loaded a library before Linux and rejects this request, that error
+is returned. No library or application is loaded automatically.
 
 Application lifetime
 --------------------
@@ -220,7 +243,8 @@ failure. Claiming success without having filled the request buffer leaves the
 application acting on whatever was in it, which has been observed to hang the
 secure world until the watchdog fires.
 
-Only one supplicant may be open at a time; a second gets -EBUSY.
+Multiple privileged contexts may load applications or register listeners; only
+one context may receive and answer requests.
 
 A supplicant that stops answering blocks more than itself
 =========================================================
@@ -246,6 +270,12 @@ application stays resident and the driver keeps its registry entry, so it can
 still be reached -- but a module unload at that point frees the registry, and
 nothing afterwards can name or unload it short of a reboot. QSEE has no
 enumerate command that would let a later probe recover it.
+
+The call lock serializes Linux callers, and listener callbacks must not issue
+another SCM call. The transport handles QSEE INCOMPLETE listener requests. It
+does not implement the separate CONTINUE_BLOCKED/reentrant protocol; a
+BLOCKED_ON_LISTENER result returns ``-EBUSY``. Hardware validation must check
+that the selected firmware follows the implemented protocol.
 
 Security considerations
 =======================

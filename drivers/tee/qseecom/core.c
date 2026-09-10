@@ -30,11 +30,13 @@
 #include <linux/capability.h>
 #include <linux/cleanup.h>
 #include <linux/errno.h>
+#include <linux/elf.h>
 #include <linux/firmware.h>
 #include <linux/list.h>
 #include <linux/module.h>
 #include <linux/mutex.h>
 #include <linux/platform_device.h>
+#include <linux/overflow.h>
 #include <linux/sizes.h>
 #include <linux/slab.h>
 #include <linux/string.h>
@@ -112,8 +114,8 @@ struct qseecom_tee_supp {
 	struct qseecom_tee_listener *req;
 	bool taken;
 	bool pending;
-	u32 req_gen;
-	u32 taken_gen;
+	u64 req_gen;
+	u64 taken_gen;
 	bool answered;
 	u32 status;
 	unsigned int users;
@@ -131,6 +133,7 @@ struct qseecom_tee_supp {
  *               staged through here, and none of it is ever mapped to user
  *               space.
  * @apps_lock:   Protects @apps and @next_app_gen.
+ * @load_lock:   Serializes application and shared-library image loads.
  * @next_app_gen: Counter stamped into each registry entry, so a session can
  *               tell the application it was opened on from a later one that
  *               TZ gave the same ID.
@@ -146,6 +149,7 @@ struct qseecom_tee {
 	struct qcom_tzmem_pool *mempool;
 	struct qseecom_tee_supp supp;
 	struct mutex apps_lock;
+	struct mutex load_lock; /* Serializes firmware loading and registration. */
 	u32 next_app_gen;
 	struct list_head apps;
 };
@@ -182,7 +186,8 @@ struct qseecom_tee_listener {
  *            application IDs, so the ID alone does not identify it.
  * @listener: The service offered, for a listener session.
  *
- * Exactly one of @app_id and @listener is set. IDs are handed out from a
+ * An app or listener session sets exactly one of @app_id and @listener; a
+ * shared-library load acknowledgment sets neither. IDs are handed out from a
  * per-context counter rather than reusing the application or listener ID,
  * because the privileged device carries both kinds and their ID spaces
  * overlap -- both are small integers.
@@ -218,12 +223,18 @@ struct qseecom_tee_app {
 	char name[QSEECOM_TEE_MAX_APP_NAME];
 };
 
+struct qseecom_tee_supp_shm {
+	struct list_head node;
+	struct tee_shm *shm;
+};
+
 /**
  * struct qseecom_tee_context - Per-context state.
  * @qtee:      Driver instance.
  * @mutex:     Protects @sessions, @listeners and @next_session_id.
  * @sessions:  Sessions opened on this context.
  * @listeners: Listeners registered by this context, if it is a supplicant.
+ * @supp_shms: Shared buffers returned by receive, held until close.
  * @next_session_id: Counter session IDs are taken from. Never reused, so a
  *                   stale ID from user space fails to resolve rather than
  *                   silently naming something else.
@@ -235,6 +246,7 @@ struct qseecom_tee_context {
 	struct mutex mutex;
 	struct list_head sessions;
 	struct list_head listeners;
+	struct list_head supp_shms;
 	u32 next_session_id;
 	bool closed;
 };
@@ -377,10 +389,11 @@ static void qseecom_tee_app_put(struct qseecom_tee *qtee, u32 app_id, u32 gen)
 		if (--app->users)
 			return;
 
-		if (qcom_scm_qseecom_app_shutdown(app_id))
-			dev_err(qtee->dev,
-				"app %u could not be unloaded and is stuck until reboot\n",
-				app_id);
+		if (qcom_scm_qseecom_app_shutdown(app_id)) {
+			dev_err(qtee->dev, "app %u could not be unloaded\n", app_id);
+			/* Preserve its identity so another session can reuse it. */
+			return;
+		}
 
 		list_del(&app->node);
 		kfree(app);
@@ -401,6 +414,7 @@ static int qseecom_tee_open(struct tee_context *ctx)
 	mutex_init(&ctxdata->mutex);
 	INIT_LIST_HEAD(&ctxdata->sessions);
 	INIT_LIST_HEAD(&ctxdata->listeners);
+	INIT_LIST_HEAD(&ctxdata->supp_shms);
 	ctxdata->qtee = tee_get_drvdata(ctx->teedev);
 	ctx->data = ctxdata;
 
@@ -469,6 +483,11 @@ static int qseecom_tee_session_add(struct qseecom_tee_context *ctxdata,
 	sess->listener = listener;
 
 	mutex_lock(&ctxdata->mutex);
+	if (ctxdata->next_session_id == U32_MAX) {
+		mutex_unlock(&ctxdata->mutex);
+		kfree(sess);
+		return -EOVERFLOW;
+	}
 	sess->id = ++ctxdata->next_session_id;
 	list_add_tail(&sess->node, &ctxdata->sessions);
 	mutex_unlock(&ctxdata->mutex);
@@ -521,36 +540,22 @@ static int qseecom_tee_app_remember(struct qseecom_tee *qtee, const char *name,
 
 	mutex_lock(&qtee->apps_lock);
 
-	/* gen 0 means "boot-loaded, cannot be replaced"; never hand it out. */
-	do {
-		app->gen = ++qtee->next_app_gen;
-	} while (!app->gen);
-
-	if (gen)
-		*gen = app->gen;
-
-	/*
-	 * A name identifies one application, so an existing entry under this
-	 * name is stale -- the application it referred to is gone, whether we
-	 * unloaded it or something else did. Replace it rather than appending,
-	 * because lookups take the first match and a stale entry would
-	 * otherwise shadow the live one for good, failing every command with
-	 * an id TZ no longer knows.
-	 *
-	 * An id is just as identifying, and for the same reason: TZ hands out
-	 * small integers and reuses them, so an application unloaded out of
-	 * band and a different one loaded afterwards can arrive here sharing an
-	 * id. Evicting on either key keeps at most one entry per id, which is
-	 * what makes an id lookup answer about the application that holds it
-	 * now rather than about a dead one that got there first.
-	 */
+	/* A load must never replace an application that existing sessions use. */
 	list_for_each_entry(old, &qtee->apps, node) {
 		if (!strcmp(old->name, name) || old->app_id == app_id) {
-			list_del(&old->node);
-			kfree(old);
-			break;
+			mutex_unlock(&qtee->apps_lock);
+			kfree(app);
+			return -EEXIST;
 		}
 	}
+	/* Generation zero identifies boot-loaded apps, and generations never wrap. */
+	if (qtee->next_app_gen == U32_MAX) {
+		mutex_unlock(&qtee->apps_lock);
+		kfree(app);
+		return -EOVERFLOW;
+	}
+	app->gen = ++qtee->next_app_gen;
+	*gen = app->gen;
 
 	list_add_tail(&app->node, &qtee->apps);
 	mutex_unlock(&qtee->apps_lock);
@@ -591,24 +596,26 @@ static int qseecom_tee_get_app_name(struct tee_param *param, char *name,
 		return -EINVAL;
 
 	size = param->u.memref.size;
-	if (!size || size > name_len)
+	if (!size || size > name_len ||
+	    size > tee_shm_get_size(param->u.memref.shm) ||
+	    param->u.memref.shm_offs > tee_shm_get_size(param->u.memref.shm) - size)
 		return -EINVAL;
 
 	va = tee_shm_get_va(param->u.memref.shm, param->u.memref.shm_offs);
 	if (IS_ERR(va))
 		return PTR_ERR(va);
 
-	if (strnlen(va, size) == size)
-		return -EINVAL;	/* not NUL-terminated within the memref */
+	/* Snapshot shared memory once before examining any string content. */
+	memcpy(name, va, size);
+	if (!memchr(name, 0, size) || !name[0])
+		return -EINVAL;
 
 	/*
 	 * The name becomes part of a firmware path, so it must name a file and
 	 * not a route out of the firmware directory.
 	 */
-	if (strchr(va, '/') || !strcmp(va, ".") || !strcmp(va, ".."))
+	if (strchr(name, '/') || !strcmp(name, ".") || !strcmp(name, ".."))
 		return -EINVAL;
-
-	strscpy(name, va, name_len);
 
 	return 0;
 }
@@ -655,8 +662,10 @@ static int qseecom_tee_open_session(struct tee_context *ctx,
 
 	ret = qseecom_tee_session_add(ctxdata, app_id, app_gen, NULL,
 				      &arg->session);
-	if (ret)
+	if (ret) {
+		qseecom_tee_app_put(ctxdata->qtee, app_id, app_gen);
 		return ret;
+	}
 
 	arg->ret = 0;
 	arg->ret_origin = 0;
@@ -817,12 +826,12 @@ static int qseecom_tee_invoke_func(struct tee_context *ctx,
 	    arg->num_params > 2 + 2 * QSEECOM_TEE_MAX_PATCH)
 		return -EINVAL;
 
-	mutex_lock(&ctxdata->mutex);
+	/* Keep the session's application reference until its command finishes. */
+	guard(mutex)(&ctxdata->mutex);
 	sess = qseecom_tee_session_find(ctxdata, arg->session);
 	app_id = sess ? sess->app_id : 0;
 	app_gen = sess ? sess->app_gen : 0;
 	found = sess;
-	mutex_unlock(&ctxdata->mutex);
 
 	if (!found)
 		return -EINVAL;
@@ -869,9 +878,13 @@ static int qseecom_tee_invoke_func(struct tee_context *ctx,
 		 * that user space has mapped are written through a cacheable
 		 * alias, and TZ does not see those writes.
 		 */
-		need = req_size + rsp_size;
+		if (!req_size || !rsp_size ||
+		    check_add_overflow(req_size, rsp_size, &need))
+			return -EINVAL;
 		for (k = 2; k < arg->num_params; k += 2)
-			need += param[k + 1].u.memref.size;
+			if (check_add_overflow(need, param[k + 1].u.memref.size,
+					       &need))
+				return -EINVAL;
 
 		/*
 		 * Every size here is bounded by the shared memory it refers to,
@@ -1107,20 +1120,51 @@ static void qseecom_tee_listener_release(struct qseecom_tee *qtee,
 	kfree(listener);
 }
 
+/* Keep returned memrefs valid until this receiving context closes. */
+static int qseecom_tee_supp_hold_shm(struct qseecom_tee_context *ctxdata,
+				     struct tee_shm *shm)
+{
+	struct qseecom_tee_supp_shm *held;
+
+	guard(mutex)(&ctxdata->mutex);
+	list_for_each_entry(held, &ctxdata->supp_shms, node)
+		if (held->shm == shm)
+			return 0;
+	held = kzalloc_obj(*held);
+	if (!held)
+		return -ENOMEM;
+	held->shm = tee_shm_get_from_id(shm->ctx, tee_shm_get_id(shm));
+	if (IS_ERR(held->shm)) {
+		int ret = PTR_ERR(held->shm);
+
+		kfree(held);
+		return ret;
+	}
+	list_add_tail(&held->node, &ctxdata->supp_shms);
+	return 0;
+}
+
 static int qseecom_tee_supp_recv(struct tee_context *ctx, u32 *func,
 				 u32 *num_params, struct tee_param *param)
 {
 	struct qseecom_tee_context *ctxdata = ctx->data;
-	struct qseecom_tee *qtee = ctxdata->qtee;
-	struct qseecom_tee_supp *supp = &qtee->supp;
+	struct qseecom_tee_supp *supp = &ctxdata->qtee->supp;
 	struct qseecom_tee_listener *listener;
+	bool invalid = *num_params < 2;
 	unsigned int i;
-	u32 gen = 0;
+	int ret;
 
-	if (*num_params < 2)
+	/* The TEE core does not drop input references on the supp_recv path. */
+	for (i = 0; i < *num_params; i++) {
+		if ((param[i].attr & TEE_IOCTL_PARAM_ATTR_TYPE_MASK) !=
+		    TEE_IOCTL_PARAM_ATTR_TYPE_NONE)
+			invalid = true;
+		if (tee_param_is_memref(param + i) && param[i].u.memref.shm)
+			tee_shm_put(param[i].u.memref.shm);
+	}
+	if (invalid)
 		return -EINVAL;
 
-	/* See qseecom_tee_supp_open(): whoever receives first, receives. */
 	scoped_guard(mutex, &supp->mutex) {
 		if (!supp->recv_ctx)
 			supp->recv_ctx = ctx;
@@ -1128,97 +1172,38 @@ static int qseecom_tee_supp_recv(struct tee_context *ctx, u32 *func,
 			return -EBUSY;
 	}
 
-	/*
-	 * The core resolved any memref the caller passed and took a reference
-	 * for it, and deliberately does not drop them on this path -- see the
-	 * comment on free_params() in tee_ioctl_supp_recv(). Since param[0] is
-	 * about to be overwritten wholesale, dropping them is ours to do, and
-	 * failing to leaves a reference on a tee_shm, which pins the context,
-	 * which strands the device on unregister.
-	 *
-	 * Nothing meaningful can be passed in, so refuse anything that is not
-	 * empty rather than silently discarding it.
-	 */
-	for (i = 0; i < *num_params; i++)
-		if (tee_param_is_memref(param + i) && param[i].u.memref.shm)
-			tee_shm_put(param[i].u.memref.shm);
-
-	/*
-	 * Only reject once every reference has been dropped. Returning from
-	 * inside the loop above would strand the references of every parameter
-	 * after the offending one.
-	 */
-	for (i = 0; i < *num_params; i++)
-		if ((param[i].attr & TEE_IOCTL_PARAM_ATTR_TYPE_MASK) !=
-		    TEE_IOCTL_PARAM_ATTR_TYPE_NONE)
-			return -EINVAL;
-
-	/*
-	 * Take the request under the lock, and wait outside it.
-	 *
-	 * Evaluating a condition that can sleep from inside
-	 * wait_event_interruptible() is not allowed: the condition runs with
-	 * the task state already set to TASK_INTERRUPTIBLE, and mutex_lock()
-	 * calls might_sleep(), which splats under CONFIG_DEBUG_ATOMIC_SLEEP
-	 * and can leave the task spinning rather than sleeping. OP-TEE settled
-	 * on this shape for the same reason.
-	 */
 	while (true) {
 		scoped_guard(mutex, &supp->mutex) {
 			listener = supp->req;
 			if (listener && !supp->taken) {
+				/*
+				 * A timeout can withdraw and free the listener as
+				 * soon as this lock drops. Snapshot its metadata
+				 * now and hold its shm through params_to_supp().
+				 */
+				ret = qseecom_tee_supp_hold_shm(ctxdata, listener->shm);
+				if (ret)
+					return ret;
 				supp->taken = true;
 				supp->taken_gen = supp->req_gen;
-				/*
-				 * Taken, so no longer waiting to be taken.
-				 * Leaving this set spins any other receiver.
-				 */
 				WRITE_ONCE(supp->pending, false);
-				gen = supp->req_gen;
-				goto got_request;
+				*func = listener->scm.id;
+				*num_params = 2;
+				param[0].attr = TEE_IOCTL_PARAM_ATTR_TYPE_VALUE_INPUT;
+				param[0].u.value.a = supp->req_gen;
+				param[0].u.value.b = 0;
+				param[0].u.value.c = 0;
+				param[1].attr = TEE_IOCTL_PARAM_ATTR_TYPE_MEMREF_INOUT;
+				param[1].u.memref.shm = listener->shm;
+				param[1].u.memref.shm_offs = 0;
+				param[1].u.memref.size = listener->len;
+				return 0;
 			}
 		}
-
-		if (wait_event_interruptible(supp->wq,
-					     READ_ONCE(supp->pending)))
-			return -ERESTARTSYS;
+		ret = wait_event_interruptible(supp->wq, READ_ONCE(supp->pending));
+		if (ret)
+			return ret;
 	}
-
-got_request:
-
-	/*
-	 * The request is already in the listener's buffer, which the
-	 * supplicant registered and therefore already has mapped. It is handed
-	 * back as a memref so the supplicant can tell which of its buffers to
-	 * look at.
-	 */
-	*func = listener->scm.id;
-	*num_params = 2;
-
-	/*
-	 * Which request this is. The supplicant echoes it back in SUPPL_SEND
-	 * so a late answer can be told from an answer to the request now
-	 * outstanding. A generation the kernel never shows anyone cannot do
-	 * that, because the answer would carry nothing to compare against.
-	 *
-	 * VALUE_INPUT, not VALUE_OUTPUT: direction is from the supplicant's
-	 * point of view, and this is the kernel handing it something. It is
-	 * also the only thing that works -- params_to_supp() copies a, b and c
-	 * for the INPUT and INOUT cases and zeroes everything else, so an
-	 * OUTPUT parameter arrives as zero. OP-TEE marks its equivalent the
-	 * same way.
-	 */
-	param[0].attr = TEE_IOCTL_PARAM_ATTR_TYPE_VALUE_INPUT;
-	param[0].u.value.a = gen;
-	param[0].u.value.b = 0;
-	param[0].u.value.c = 0;
-
-	param[1].attr = TEE_IOCTL_PARAM_ATTR_TYPE_MEMREF_INOUT;
-	param[1].u.memref.shm = listener->shm;
-	param[1].u.memref.shm_offs = 0;
-	param[1].u.memref.size = listener->scm.sb_len;
-
-	return 0;
 }
 
 static int qseecom_tee_supp_send(struct tee_context *ctx, u32 ret,
@@ -1342,6 +1327,7 @@ static void qseecom_tee_supp_close_context(struct tee_context *ctx)
 {
 	struct qseecom_tee_context *ctxdata = ctx->data;
 	struct qseecom_tee_listener *listener, *tmp;
+	struct qseecom_tee_supp_shm *held, *held_tmp;
 	struct qseecom_tee *qtee;
 
 	/*
@@ -1384,6 +1370,11 @@ static void qseecom_tee_supp_close_context(struct tee_context *ctx)
 	list_for_each_entry_safe(listener, tmp, &ctxdata->listeners, node) {
 		list_del(&listener->node);
 		qseecom_tee_listener_release(ctxdata->qtee, listener);
+	}
+	list_for_each_entry_safe(held, held_tmp, &ctxdata->supp_shms, node) {
+		list_del(&held->node);
+		tee_shm_put(held->shm);
+		kfree(held);
 	}
 }
 
@@ -1452,15 +1443,36 @@ static int qseecom_tee_supp_load_app(struct tee_context *ctx,
 	void *stage, *aligned;
 	ssize_t len;
 	struct qcom_tzmem_pool *pool;
-	u32 app_id;
+	u32 app_id = 0;
+	int commonlib = -1;
+	bool service = arg->num_params == 2;
 	int ret;
 
-	if (arg->num_params != 1)
+	if (arg->num_params != 1 && !service)
 		return -EINVAL;
 
 	ret = qseecom_tee_get_app_name(&param[0], app_name, sizeof(app_name));
 	if (ret)
 		return ret;
+
+	if (service) {
+		if (param[1].attr != TEE_IOCTL_PARAM_ATTR_TYPE_VALUE_INPUT ||
+		    param[1].u.value.a != 1 || param[1].u.value.b ||
+		    param[1].u.value.c)
+			return -EINVAL;
+		if (!strcmp(app_name, "cmnlib"))
+			commonlib = 0;
+		else if (!strcmp(app_name, "cmnlib64"))
+			commonlib = 1;
+		else
+			return -EINVAL;
+	}
+	guard(mutex)(&qtee->load_lock);
+	if (!service) {
+		app_id = qseecom_tee_app_get(qtee, app_name, &app_gen);
+		if (app_id)
+			goto service_session;
+	}
 
 	snprintf(fw_name, sizeof(fw_name), "%s.mdt", app_name);
 
@@ -1479,6 +1491,11 @@ static int qseecom_tee_supp_load_app(struct tee_context *ctx,
 		goto out_release;
 	}
 
+	if (service && mdt->data[EI_CLASS] !=
+	    (commonlib ? ELFCLASS64 : ELFCLASS32)) {
+		ret = -EINVAL;
+		goto out_release;
+	}
 	img_len = len;
 	mdt_len = mdt->size;
 
@@ -1521,6 +1538,9 @@ static int qseecom_tee_supp_load_app(struct tee_context *ctx,
 	len = qcom_mdt_read_image(qtee->dev, mdt, fw_name, aligned, img_len);
 	if (len < 0)
 		ret = len;
+	else if (service)
+		ret = qcom_scm_qseecom_load_service(aligned, mdt_len, img_len,
+						    commonlib == 1);
 	else
 		ret = qcom_scm_qseecom_app_load(aligned, mdt_len, img_len,
 						&app_id);
@@ -1534,6 +1554,9 @@ static int qseecom_tee_supp_load_app(struct tee_context *ctx,
 		return ret;
 	}
 
+	if (service)
+		goto service_session;
+
 	/*
 	 * From here the application is live in TZ. Anything that fails now has
 	 * to put it back, because nothing else can: without a registry entry
@@ -1545,9 +1568,13 @@ static int qseecom_tee_supp_load_app(struct tee_context *ctx,
 	 * what has to be given back.
 	 */
 	ret = qseecom_tee_app_remember(qtee, app_name, app_id, &app_gen);
+	/* A colliding ID belongs to existing sessions and must not be unloaded. */
+	if (ret == -EEXIST)
+		return ret;
 	if (ret)
 		goto err_shutdown;
 
+service_session:
 	ret = qseecom_tee_session_add(ctxdata, app_id, app_gen, NULL,
 				      &arg->session);
 	if (ret) {
@@ -1555,7 +1582,10 @@ static int qseecom_tee_supp_load_app(struct tee_context *ctx,
 		return ret;
 	}
 
-	dev_info(qtee->dev, "loaded '%s' as app %u\n", app_name, app_id);
+	if (service)
+		dev_info(qtee->dev, "shared library '%s' ready\n", app_name);
+	else
+		dev_info(qtee->dev, "loaded '%s' as app %u\n", app_name, app_id);
 
 	arg->ret = 0;
 	arg->ret_origin = 0;
@@ -1580,7 +1610,8 @@ err_shutdown:
  *
  *   value  -- register a listener service: the ID, and the buffer requests
  *             and replies pass through.
- *   memref -- load an application: its name, its image, and the .mdt length.
+ *   memref -- load an application by firmware name, or a shared library when
+ *             followed by VALUE_INPUT { 1, 0, 0 }.
  */
 static int qseecom_tee_supp_open_session(struct tee_context *ctx,
 					 struct tee_ioctl_open_session_arg *arg,
@@ -1637,9 +1668,10 @@ static int qseecom_tee_supp_open_session(struct tee_context *ctx,
 		return -ENOMEM;
 
 	/* Held until the listener is withdrawn, so TZ's buffer cannot vanish. */
-	if (!tee_shm_get_from_id(ctx, tee_shm_get_id(shm))) {
+	shm = tee_shm_get_from_id(ctx, tee_shm_get_id(shm));
+	if (IS_ERR(shm)) {
 		kfree(listener);
-		return -EINVAL;
+		return PTR_ERR(shm);
 	}
 
 	listener->len = param[1].u.memref.size;
@@ -1654,9 +1686,11 @@ static int qseecom_tee_supp_open_session(struct tee_context *ctx,
 	listener->buf = qcom_tzmem_alloc(qtee->mempool, listener->len,
 					 GFP_KERNEL);
 	if (!listener->buf) {
+		tee_shm_put(shm);
 		kfree(listener);
 		return -ENOMEM;
 	}
+	memset(listener->buf, 0, listener->len);
 
 	listener->qtee = qtee;
 	listener->shm = shm;
@@ -1822,6 +1856,9 @@ static int qseecom_tee_probe(struct platform_device *pdev)
 		return ret;
 
 	ret = devm_mutex_init(dev, &qtee->apps_lock);
+	if (ret)
+		return ret;
+	ret = devm_mutex_init(dev, &qtee->load_lock);
 	if (ret)
 		return ret;
 
