@@ -1,3 +1,9 @@
+* Fri Sep 11 2026 Sam Day <me@samcday.com> [7.1.2-0.pocketfed.sdm670.10]
+- misc: add Sargo fingerprint reset and IRQ companion (Sam Day)
+- tee: qseecom: support Sargo ELF64 images and harden session lifetimes (Sam Day)
+- tee: import legacy Qualcomm QSEECOM transport (Dawid Wrobel)
+Resolves: 
+
 * Thu Sep 10 2026 Sam Day <me@samcday.com> [7.1.2-0.pocketfed.sdm670.9]
 - media: i2c: lc898219xi: power the lens before restoring focus (Sam Day)
 Resolves: 
