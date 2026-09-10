@@ -1,3 +1,7 @@
+* Thu Sep 10 2026 Sam Day <me@samcday.com> [7.1.2-0.pocketfed.sdm670.9]
+- media: i2c: lc898219xi: power the lens before restoring focus (Sam Day)
+Resolves: 
+
 * Mon Sep 07 2026 Sam Day <me@samcday.com> [7.1.2-0.pocketfed.sdm670.8]
 - wifi: ath10k: discard oversized in-order RX aggregates without stopping RX (Sam Day)
 Resolves: 
