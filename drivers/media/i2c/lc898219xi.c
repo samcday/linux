@@ -64,8 +64,8 @@ static int lc898219xi_set_dac(struct lc898219xi *lc898219xi, u16 val)
 
 static int lc898219xi_power_on(struct lc898219xi *lc898219xi)
 {
-	int ret;
 	struct i2c_client *client = v4l2_get_subdevdata(&lc898219xi->sd);
+	int ret, retry;
 
 	ret = regulator_bulk_enable(ARRAY_SIZE(lc898219xi_supply_names),
 				    lc898219xi->supplies);
@@ -77,32 +77,46 @@ static int lc898219xi_power_on(struct lc898219xi *lc898219xi)
 
 	usleep_range(8000, 10000);
 
-	uint32_t regdata = i2c_smbus_read_byte_data(client, 0xF0);
-	if (regdata != 0xA5) {
-		dev_err(&client->dev, "communication error: regdata: %x \n",
-		        regdata);
-		return -1;
+	ret = i2c_smbus_read_byte_data(client, 0xF0);
+	if (ret < 0)
+		goto err_disable_regulators;
+	if (ret != 0xA5) {
+		dev_err(&client->dev, "unexpected chip ID: %x\n", ret);
+		ret = -ENODEV;
+		goto err_disable_regulators;
 	}
 
 	usleep_range(1000, 1010);
 
-	i2c_smbus_write_byte_data(client, 0xE0, 0x01);
+	ret = i2c_smbus_write_byte_data(client, 0xE0, 0x01);
+	if (ret < 0)
+		goto err_disable_regulators;
 	msleep(8);
 
-	int retry;
 	for (retry = 0; retry < 10; retry++) {
-		uint32_t check = i2c_smbus_read_byte_data(client, 0xB3);
-		if ((check & 0XE0) == 0) {
+		ret = i2c_smbus_read_byte_data(client, 0xB3);
+		if (ret < 0)
+			goto err_disable_regulators;
+		if (!(ret & 0xE0))
 			break;
-		} else if (retry >= 9) {
-			dev_err(&client->dev, "LSI wake up check failed");
-			return -1;
-		}
 		usleep_range(1000, 1010);
 	}
 
-	i2c_smbus_write_byte_data(client, 0x8C, 0xE9);
+	if (retry == 10) {
+		dev_err(&client->dev, "LSI wake up check failed\n");
+		ret = -ETIMEDOUT;
+		goto err_disable_regulators;
+	}
 
+	ret = i2c_smbus_write_byte_data(client, 0x8C, 0xE9);
+	if (ret < 0)
+		goto err_disable_regulators;
+
+	return 0;
+
+err_disable_regulators:
+	regulator_bulk_disable(ARRAY_SIZE(lc898219xi_supply_names),
+			       lc898219xi->supplies);
 	return ret;
 }
 
@@ -155,9 +169,18 @@ static const struct v4l2_ctrl_ops lc898219xi_ctrl_ops = {
 static int lc898219xi_open(struct v4l2_subdev *sd, struct v4l2_subdev_fh *fh)
 {
 	struct lc898219xi *lc898219xi = sd_to_lc898219xi(sd);
-	__v4l2_ctrl_handler_setup(&lc898219xi->ctrls);
+	int ret;
 
-	return pm_runtime_resume_and_get(sd->dev);
+	/* Keep the lens powered, and its focus stable, until this file closes. */
+	ret = pm_runtime_resume_and_get(sd->dev);
+	if (ret < 0)
+		return ret;
+
+	ret = v4l2_ctrl_handler_setup(&lc898219xi->ctrls);
+	if (ret)
+		pm_runtime_put_autosuspend(sd->dev);
+
+	return ret;
 }
 
 static int lc898219xi_close(struct v4l2_subdev *sd, struct v4l2_subdev_fh *fh)
