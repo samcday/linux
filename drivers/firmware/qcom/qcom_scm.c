@@ -126,6 +126,7 @@ enum qcom_scm_qseecom_tz_cmd_app {
 	QSEECOM_TZ_CMD_APP_SEND			= 1,
 	QSEECOM_TZ_CMD_APP_SHUTDOWN		= 2,
 	QSEECOM_TZ_CMD_APP_LOOKUP		= 3,
+	QSEECOM_TZ_CMD_LOAD_SERVICE		= 7,
 };
 
 enum qcom_scm_qseecom_tz_cmd_listener {
@@ -2582,6 +2583,56 @@ int qcom_scm_qseecom_app_load(void *img, size_t mdt_len, size_t img_len,
 	return 0;
 }
 EXPORT_SYMBOL_GPL(qcom_scm_qseecom_app_load);
+
+/**
+ * qcom_scm_qseecom_load_service() - Load a shared QSEE service image.
+ * @img: assembled image in TZ memory
+ * @mdt_len: metadata length
+ * @img_len: total image length
+ * @is64: true for cmnlib64, false for cmnlib
+ *
+ * This is APP_MGR command 7, used by Android for cmnlib and cmnlib64.
+ * The service belongs to secure firmware and must not be unloaded when an
+ * individual application or loader session closes.
+ *
+ * Return: zero on success, or a negative errno.
+ */
+int qcom_scm_qseecom_load_service(void *img, size_t mdt_len, size_t img_len,
+				  bool is64)
+{
+	static bool loaded[2];
+	struct qcom_scm_qseecom_resp res = {};
+	struct qcom_scm_desc desc = {};
+	phys_addr_t phys;
+	int ret;
+
+	if (!img || !mdt_len || mdt_len > img_len)
+		return -EINVAL;
+	phys = qcom_tzmem_to_phys(img);
+	if (!phys)
+		return -EINVAL;
+	desc.owner = QSEECOM_TZ_OWNER_QSEE_OS;
+	desc.svc = QSEECOM_TZ_SVC_APP_MGR;
+	desc.cmd = QSEECOM_TZ_CMD_LOAD_SERVICE;
+	desc.arginfo = QCOM_SCM_ARGS(3);
+	desc.args[0] = mdt_len;
+	desc.args[1] = img_len;
+	desc.args[2] = phys;
+	/* SCM is built in; a successful load stays remembered across TEE reloads. */
+	guard(mutex)(&qcom_scm_qseecom_call_lock);
+	if (loaded[is64])
+		return 0;
+	ret = __qcom_scm_qseecom_call(&desc, &res);
+	if (!ret)
+		ret = qcom_scm_qseecom_service_listeners(&res);
+	if (ret)
+		return ret;
+	if (res.result != QSEECOM_RESULT_SUCCESS)
+		return -EIO;
+	loaded[is64] = true;
+	return 0;
+}
+EXPORT_SYMBOL_GPL(qcom_scm_qseecom_load_service);
 
 /**
  * qcom_scm_qseecom_app_shutdown() - Unload a QSEE application.
