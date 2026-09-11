@@ -1,3 +1,7 @@
+* Fri Sep 11 2026 Sam Day <me@samcday.com> [7.1.2-0.pocketfed.sdm670.11]
+- tee: qseecom: wipe application invoke staging before release (Sam Day)
+Resolves: 
+
 * Fri Sep 11 2026 Sam Day <me@samcday.com> [7.1.2-0.pocketfed.sdm670.10]
 - misc: add Sargo fingerprint reset and IRQ companion (Sam Day)
 - tee: qseecom: support Sargo ELF64 images and harden session lifetimes (Sam Day)
