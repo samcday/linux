@@ -982,6 +982,8 @@ static int qseecom_tee_invoke_func(struct tee_context *ctx,
 		}
 
 out_free:
+		/* Clear credentials and other sensitive application data. */
+		memzero_explicit(b, bc.initial_size);
 		qcom_tzmem_free(b);
 		qcom_tzmem_pool_free(bp);
 
