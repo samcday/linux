@@ -863,11 +863,7 @@ static int qseecom_tee_invoke_func(struct tee_context *ctx,
 	}
 
 	{
-		struct qcom_tzmem_pool_config bc = {
-			.policy = QCOM_TZMEM_POLICY_STATIC,
-		};
-		struct qcom_tzmem_pool *bp;
-		size_t need, off;
+		size_t need, off, staging_size;
 		void *b;
 		unsigned int k;
 
@@ -895,20 +891,19 @@ static int qseecom_tee_invoke_func(struct tee_context *ctx,
 		if (need < req_size || need > QSEECOM_TEE_MAX_XFER)
 			return -EINVAL;
 
-		bc.initial_size = PAGE_ALIGN(need) + PAGE_SIZE;
-		bc.max_size = bc.initial_size;
+		staging_size = PAGE_ALIGN(need) + PAGE_SIZE;
 
-		bp = qcom_tzmem_pool_new(&bc);
-		if (IS_ERR(bp))
-			return PTR_ERR(bp);
-
-		b = qcom_tzmem_alloc(bp, bc.initial_size, GFP_KERNEL);
-		if (!b) {
-			qcom_tzmem_pool_free(bp);
+		/*
+		 * Keep coherent backing mappings alive between invocations.
+		 * The device-owned TZ pool is kernel-only; individual staging
+		 * chunks are still cleared and released after each command.
+		 */
+		b = qcom_tzmem_alloc(ctxdata->qtee->mempool, staging_size,
+				     GFP_KERNEL);
+		if (!b)
 			return -ENOMEM;
-		}
 
-		memset(b, 0, bc.initial_size);
+		memset(b, 0, staging_size);
 		memcpy(b, req, req_size);
 
 		/* Copy each patched buffer in and repoint the request at it. */
@@ -983,9 +978,8 @@ static int qseecom_tee_invoke_func(struct tee_context *ctx,
 
 out_free:
 		/* Clear credentials and other sensitive application data. */
-		memzero_explicit(b, bc.initial_size);
+		memzero_explicit(b, staging_size);
 		qcom_tzmem_free(b);
-		qcom_tzmem_pool_free(bp);
 
 		if (ret)
 			return ret;
