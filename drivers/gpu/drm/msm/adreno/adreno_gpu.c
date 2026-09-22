@@ -719,7 +719,15 @@ void adreno_recover(struct msm_gpu *gpu)
 	int ret;
 
 	msm_perfcntr_suspend(gpu);
-	gpu->funcs->pm_suspend(gpu);
+	/*
+	 * A3xx recovery has already reset the GPU and flushed VBIF.  Its
+	 * runtime suspend callback cannot wait for the reset ring to drain
+	 * to the old software write pointer.
+	 */
+	if (to_adreno_gpu(gpu)->info->family == ADRENO_3XX)
+		msm_gpu_pm_suspend(gpu);
+	else
+		gpu->funcs->pm_suspend(gpu);
 	gpu->funcs->pm_resume(gpu);
 	msm_perfcntr_resume(gpu);
 
