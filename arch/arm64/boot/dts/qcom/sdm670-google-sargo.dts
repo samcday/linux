@@ -12,6 +12,16 @@
 / {
 	model = "Google Pixel 3a";
 	compatible = "google,sargo", "qcom,sdm670";
+
+	fingerprint {
+		compatible = "google,sargo-fingerprint", "fpc,fpc1020";
+		firmware-name = "fpctzappfingerprint";
+		reset-gpios = <&tlmm 134 GPIO_ACTIVE_LOW>;
+		irq-gpios = <&tlmm 121 GPIO_ACTIVE_HIGH>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&fingerprint_default>;
+		wakeup-source;
+	};
 };
 
 &battery {
@@ -29,4 +39,22 @@
 &rmi4_f12 {
 	touchscreen-x-mm = <62>;
 	touchscreen-y-mm = <127>;
+};
+
+&tlmm {
+	fingerprint_default: fingerprint-default-state {
+		reset-pins {
+			pins = "gpio134";
+			function = "gpio";
+			drive-strength = <2>;
+			bias-disable;
+		};
+
+		irq-pins {
+			pins = "gpio121";
+			function = "gpio";
+			drive-strength = <2>;
+			bias-pull-down;
+		};
+	};
 };
