@@ -306,6 +306,9 @@ static int qcom_iommu_init_domain(struct iommu_domain *domain,
 		ctx->domain = domain;
 	}
 
+	/* Discard cached walks/translations belonging to the previous kernel. */
+	qcom_iommu_tlb_inv_context(qcom_domain);
+
 	/* Publish page table ops for map/unmap */
 	qcom_domain->pgtbl_ops = pgtbl_ops;
 
