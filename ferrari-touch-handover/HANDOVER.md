@@ -33,7 +33,7 @@ working on mainline.
 | Talking to pem120 | `~/claude-touch/ask.sh TAG "Title" "Body" "choice1|choice2|…"` pops a notification plus a zenity dialog on pem120's Hyprland desktop and writes `epoch|phone_uptime|answer` to `~/claude-touch/replies/TAG.txt`. He has answered each prompt within about 35 s. |
 
 ## Phone state right now
-- In **lk2nd fastboot** (`lk2nd-msm8916`, 23.1-next, unlocked). It landed there
+- (Superseded: mainline is now booted and E09 is loaded. See "E09 results" at the end.) Earlier: in **lk2nd fastboot** (`lk2nd-msm8916`, 23.1-next, unlocked). It landed there
   after `adb reboot` from rev3 TWRP instead of booting extlinux/mainline.
 - `fastboot continue` printed "Resuming boot", but lk2nd's log
   (`~/claude-touch/boot/lk2nd-log-1.bin`) shows the command never arrived
@@ -134,7 +134,7 @@ Plan:
   gets the driver patch(es) plus the report). The CRC split applies to 7.3's `mxt_read_info_block()` unchanged in spirit.
 
 ## Goal gates (all on mainline, evidence saved on the host)
-1. Real finger evdev events plus pem120 confirmation: **not yet** (works on rev3 only)
+1. Real finger evdev events plus pem120 confirmation: **not yet**. Works on rev3; on mainline the chip reports (IRQs follow touches) after the E09 sequence, but evdev is unverified
 2. 10 min normal use, no I2C errors/IRQ storm/stuck contacts: not yet
 3. Survives 3 boots: not yet
 4. Survives 3 blank/unblank or suspend/resume cycles: not yet (1 cycle OK on rev3)
@@ -156,3 +156,28 @@ Plan:
   `aarch64-linux-musl-gcc -static -idirafter /usr/aarch64-linux-gnu/include`.
 - Never `pkill -f` a pattern that appears in your own adb command line.
 - The vendor driver disables touch on fb blank. Keep the fb unblanked (`echo 0 > /sys/class/graphics/fb0/blank`) during TWRP tests.
+## E09 results on mainline (2026-09-24 ~12:10–12:25 UTC, phone uptime 146–536 s)
+Phone booted mainline via lk2nd `fastboot continue` (the first attempt was lost to a USB error; the second worked).
+DS's quirk module (srcversion FF654C…, mxt_write_quirk=Y) was replaced with E09 `atmel_mxt_ts.ko` (sha256 3059b0e3…).
+
+- Probe: **no info-CRC error** (split read works), `E09: T7 bytes 20 09 19`, input2/event1
+  registered, no maxtouch.cfg (-2). Before activation the IRQ fires a few times with
+  `T44 count 153 exceeded max report id` / `Unexpected invalid message` (same as rev3's first IRQ).
+- **Test A** (plain upstream start path, pem120 confirmed touches, epoch 1790251850–877):
+  IRQ count stayed at **6** → the chip does not report under plain upstream.
+- `echo 0x0f > /sys/bus/i2c/devices/1-004a/e09_seq` at 259.8 s (T7 0/0/0 → T97 CTRL=3 ×3 + T19[3]=0
+  → T7 restore 19/09/20 → +100 ms CALIBRATE): `done err 0`, IRQ 6→8, no invalid-message warnings.
+- Test B (dialog closed without an answer, epoch 1790251936): IRQ 8→207 by 294 s, 524 by 415 s.
+- **Test B2** (pem120 confirmed, uptime 506.6–535.7 s, epoch 1790252170–189): IRQ **524 → 716**
+  during the touches, and **0 IRQs in a 5 s idle window** → **after the vendor-style T7 cycle and
+  calibrate, the chip reports touches on mainline.**
+- **Caveat:** `evgrab` (started via ssh + sudo + setsid) died early without an end record, so the "0 evdev
+  events" for A/B is NOT evidence. Whether the upstream driver turns these messages into input
+  events is still **unknown**. There were no T44/invalid-message warnings after activation.
+- **Blocked:** everything further needs root on the phone (reading /dev/input/event1 is root:input 0660,
+  plus insmod/rmmod, e09_seq, dynamic debug). The phone's sudo needs a password, and Claude's safety
+  checks refuse to handle that password. Needs Sam's decision (see HANDOVER).
+
+Next once root is available: start evgrab as a detached root service, enable
+`dyndbg` for atmel_mxt_ts, re-run B, then bisect (reload the module between runs to return the chip to its
+unstarted state): 0x07, 0x03, 0x04, 0x08, 0x60|0x04 (upstream block writes).
