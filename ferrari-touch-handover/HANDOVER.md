@@ -1,5 +1,11 @@
 # Xiaomi Mi 4i (ferrari) touchscreen on mainline — handover
 
+> **Update (2026-09-24 evening): solved, see [REPORT.md](REPORT.md).** Root cause: the controller only reports
+> touches after T97 instance 0 is enabled, and the info-block CRC must be read separately. The fix is the patch series on this
+> branch (7.3) and on `claude/ferrari-touch` → `msm8939/mi4i` in DS's tree. It is verified on mainline: 3 boots, 3 sleep/wake
+> cycles and 10 minutes of use, each confirmed by pem120. The rest of this file is the mid-investigation handover and is kept for history.
+
+
 Status as of 2026-09-24 ~12:00 UTC. Written by Claude Code, which took over the
 Codex thread `01a0d25f…` for Sam. The goal is still open: touch is **not yet**
 working on mainline.
