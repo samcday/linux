@@ -1875,10 +1875,24 @@ static int mxt_read_info_block(struct mxt_data *data)
 
 	id_buf = buf;
 
-	/* Read rest of info block */
-	error = __mxt_read_reg(client, MXT_OBJECT_START,
-			       size - MXT_OBJECT_START,
-			       id_buf + MXT_OBJECT_START);
+	/*
+	 * Read the object table and the info block checksum in two
+	 * transfers. Some controllers (e.g. the one fitted to Xiaomi Mi 4i
+	 * replacement panels) return garbage for the checksum when it is
+	 * read as the tail of the object table transfer, while a separate
+	 * read of the checksum returns the correct value.
+	 */
+	if (num_objects) {
+		error = __mxt_read_reg(client, MXT_OBJECT_START,
+				       num_objects * sizeof(struct mxt_object),
+				       id_buf + MXT_OBJECT_START);
+		if (error)
+			return error;
+	}
+
+	error = __mxt_read_reg(client, size - MXT_INFO_CHECKSUM_SIZE,
+			       MXT_INFO_CHECKSUM_SIZE,
+			       id_buf + size - MXT_INFO_CHECKSUM_SIZE);
 	if (error)
 		return error;
 
