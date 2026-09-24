@@ -159,6 +159,11 @@ struct t37_debug {
 #define MXT_RESET_VALUE		0x01
 #define MXT_BACKUP_VALUE	0x55
 
+/* T97 Touch Key Array */
+#define MXT_T97_CTRL		0
+#define MXT_T97_CTRL_ENABLE	BIT(0)
+#define MXT_T97_CTRL_RPTEN	BIT(1)
+
 /* T100 Multiple Touch Touchscreen */
 #define MXT_T100_CTRL		0
 #define MXT_T100_CFG1		1
@@ -335,6 +340,7 @@ struct mxt_data {
 	u16 T44_address;
 	u8 T97_reportid_min;
 	u8 T97_reportid_max;
+	u16 T97_address;
 	u8 T100_reportid_min;
 	u8 T100_reportid_max;
 
@@ -354,6 +360,8 @@ struct mxt_data {
 	unsigned int t15_num_keys;
 
 	enum mxt_suspend_mode suspend_mode;
+
+	bool enable_t97;
 
 	u32 wakeup_method;
 
@@ -1719,6 +1727,7 @@ static void mxt_free_object_table(struct mxt_data *data)
 	data->T44_address = 0;
 	data->T97_reportid_min = 0;
 	data->T97_reportid_max = 0;
+	data->T97_address = 0;
 	data->T100_reportid_min = 0;
 	data->T100_reportid_max = 0;
 	data->max_reportid = 0;
@@ -1807,6 +1816,7 @@ static int mxt_parse_object_table(struct mxt_data *data,
 		case MXT_TOUCH_PTC_KEYS_T97:
 			data->T97_reportid_min = min_id;
 			data->T97_reportid_max = max_id;
+			data->T97_address = object->start_address;
 			break;
 		case MXT_TOUCH_MULTITOUCHSCREEN_T100:
 			data->multitouch = MXT_TOUCH_MULTITOUCHSCREEN_T100;
@@ -3076,6 +3086,26 @@ static struct attribute *mxt_attrs[] = {
 
 ATTRIBUTE_GROUPS(mxt);
 
+/*
+ * Some controllers (e.g. the one fitted to Xiaomi Mi 4i replacement
+ * panels) run a configuration with the T97 touch key array disabled and do
+ * not report any touches at all until the host enables it, as the vendor
+ * driver does on every resume. The register cannot be read back reliably
+ * on those controllers, so the control byte is written unconditionally.
+ */
+static void mxt_enable_t97(struct mxt_data *data)
+{
+	int error;
+
+	if (!data->enable_t97 || !data->T97_address)
+		return;
+
+	error = mxt_write_reg(data->client, data->T97_address + MXT_T97_CTRL,
+			      MXT_T97_CTRL_ENABLE | MXT_T97_CTRL_RPTEN);
+	if (error)
+		dev_warn(&data->client->dev, "Failed to enable T97: %d\n", error);
+}
+
 static void mxt_start(struct mxt_data *data)
 {
 	mxt_wakeup_toggle(data->client, true, false);
@@ -3083,6 +3113,7 @@ static void mxt_start(struct mxt_data *data)
 	switch (data->suspend_mode) {
 	case MXT_SUSPEND_T9_CTRL:
 		mxt_soft_reset(data);
+		mxt_enable_t97(data);
 
 		/* Touch enable */
 		/* 0x83 = SCANEN | RPTEN | ENABLE */
@@ -3092,6 +3123,7 @@ static void mxt_start(struct mxt_data *data)
 
 	case MXT_SUSPEND_DEEP_SLEEP:
 	default:
+		mxt_enable_t97(data);
 		mxt_set_t7_power_cfg(data, MXT_POWER_CFG_RUN);
 
 		/* Recalibrate since chip has been in deep sleep */
@@ -3195,6 +3227,8 @@ static int mxt_parse_device_properties(struct mxt_data *data)
 		data->t15_keymap = buttonmap;
 		data->t15_num_keys = n_keys;
 	}
+
+	data->enable_t97 = device_property_read_bool(dev, "atmel,enable-t97");
 
 	return 0;
 }
