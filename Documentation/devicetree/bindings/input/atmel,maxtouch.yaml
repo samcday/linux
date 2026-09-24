@@ -88,6 +88,13 @@ properties:
       - 2 # ATMEL_MXT_WAKEUP_GPIO
     default: 0
 
+  atmel,enable-t97:
+    type: boolean
+    description:
+      Enable the T97 touch key array object (instance 0) whenever the device
+      is started. Some controllers run a configuration with T97 disabled and
+      do not report any touches until the host enables it.
+
   wakeup-source: true
 
 required:
