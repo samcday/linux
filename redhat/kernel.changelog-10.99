@@ -1,3 +1,7 @@
+* Thu Sep 24 2026 Sam Day <me@samcday.com> [7.3.0-0.rc2.26.msm8916]
+- iommu/qcom: invalidate a newly programmed context (Sam Day)
+Resolves: 
+
 * Thu Sep 24 2026 Sam Day <me@samcday.com> [7.3.0-0.rc2.25.msm8916]
 - bulk import ark-infra (Sam Day)
 - thermal: qcom: retain TSENS callbacks for deferred probing (Sam Day)
