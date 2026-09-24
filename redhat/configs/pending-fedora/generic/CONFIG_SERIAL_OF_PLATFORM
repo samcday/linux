@@ -1,0 +1,19 @@
+# ~~~
+# Symbol: SERIAL_OF_PLATFORM [=n]
+# Type  : tristate
+# Defined at drivers/tty/serial/8250/Kconfig:590
+#   Prompt: Devicetree based probing for 8250 ports
+#   Depends on: TTY [=y] && HAS_IOMEM [=y] && SERIAL_8250 [=y] && OF [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Character devices
+#         -> Enable TTY (TTY [=y])
+#           -> Serial drivers
+#             -> 8250/16550 and compatible serial support (SERIAL_8250 [=y])
+#               -> Devicetree based probing for 8250 ports (SERIAL_OF_PLATFORM [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: afd7f88f1577 (serial: 8250: move of_serial code to 8250 directory)
+# CONFIG_SERIAL_OF_PLATFORM is not set

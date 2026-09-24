@@ -1,0 +1,16 @@
+# ~~~
+# Symbol: POWER_RESET_GPIO [=n]
+# Type  : bool
+# Defined at drivers/power/reset/Kconfig:98
+#   Prompt: GPIO power-off driver
+#   Depends on: POWER_RESET [=y] && OF [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Board level reset or power off (POWER_RESET [=y])
+#         -> GPIO power-off driver (POWER_RESET_GPIO [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: 96ff0f5c7efd (power: Add simple poweroff-gpio driver)
+# CONFIG_POWER_RESET_GPIO is not set

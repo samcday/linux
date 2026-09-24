@@ -1,0 +1,18 @@
+# ~~~
+# Symbol: CLK_SKY1_AUDSS [=n]
+# Type  : tristate
+# Defined at drivers/clk/cix/Kconfig:5
+#   Prompt: Cixtech Sky1 Audio Subsystem Clock Driver
+#   Depends on: COMMON_CLK [=y] && (ARCH_CIX [=y] || COMPILE_TEST [=n])
+#   Location:
+#     -> Device Drivers
+#       -> Common Clock Framework (COMMON_CLK [=y])
+#         -> Cixtech Audio Subsystem Clock Driver
+#           -> Cixtech Sky1 Audio Subsystem Clock Driver (CLK_SKY1_AUDSS [=n])
+# Selects: AUXILIARY_BUS [=y] && REGMAP_MMIO [=y] && RESET_CONTROLLER [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: 3730fe6032d9 (clk: cix: add sky1 audss clock controller)
+# CONFIG_CLK_SKY1_AUDSS is not set

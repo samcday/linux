@@ -1,0 +1,19 @@
+# ~~~
+# Symbol: MCTP_TRANSPORT_USBLIB [=m]
+# Type  : tristate
+# Defined at drivers/net/mctp/Kconfig:50
+#   Prompt: MCTP over USB common library
+#   Depends on: NETDEVICES [=y] && MCTP [=y] && USB [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Network device support (NETDEVICES [=y])
+#         -> MCTP Device Drivers
+#           -> MCTP over USB common library (MCTP_TRANSPORT_USBLIB [=m])
+# Selected by [m]:
+#   - MCTP_TRANSPORT_USB [=m] && NETDEVICES [=y] && MCTP [=y] && USB [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: b8564b19c0ff (net: mctp: usblib: Move RX transfer processing to a new mctp-usblib)
+CONFIG_MCTP_TRANSPORT_USBLIB=m

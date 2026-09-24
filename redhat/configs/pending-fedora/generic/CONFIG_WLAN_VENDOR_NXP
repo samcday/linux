@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: WLAN_VENDOR_NXP [=y]
+# Type  : bool
+# Defined at drivers/net/wireless/nxp/Kconfig:2
+#   Prompt: NXP devices
+#   Depends on: NETDEVICES [=y] && WLAN [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Network device support (NETDEVICES [=y])
+#         -> Wireless LAN (WLAN [=y])
+#           -> NXP devices (WLAN_VENDOR_NXP [=y])
+# 
+# 
+# 
+# ~~~
+# Commit: 73b01e57ed3e (wifi: nxp: add nxpwifi driver for IW61x)
+CONFIG_WLAN_VENDOR_NXP=y

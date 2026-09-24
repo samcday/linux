@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: IMX9_BLK_CTRL [=m]
+# Type  : tristate
+# Defined at drivers/pmdomain/imx/Kconfig:20
+#   Prompt: i.MX93 BLK CTRL driver
+#   Depends on: SOC_IMX9 [=m] && PM_GENERIC_DOMAINS [=y]
+#   Location:
+#     -> Device Drivers
+#       -> PM Domains
+#         -> i.MX PM Domains
+#           -> i.MX93 BLK CTRL driver (IMX9_BLK_CTRL [=m])
+# 
+# 
+# 
+# ~~~
+# Commit: 24a11a1e8245 (pmdomain: imx: Move Kconfig options to the pmdomain subsystem)
+CONFIG_IMX9_BLK_CTRL=m

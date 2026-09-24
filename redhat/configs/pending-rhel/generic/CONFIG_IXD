@@ -1,0 +1,19 @@
+# ~~~
+# Symbol: IXD [=n]
+# Type  : tristate
+# Defined at drivers/net/ethernet/intel/ixd/Kconfig:4
+#   Prompt: Intel(R) Control Plane Function Support
+#   Depends on: NETDEVICES [=y] && ETHERNET [=y] && NET_VENDOR_INTEL [=y] && PCI_MSI [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Network device support (NETDEVICES [=y])
+#         -> Ethernet driver support (ETHERNET [=y])
+#           -> Intel devices (NET_VENDOR_INTEL [=y])
+#             -> Intel(R) Control Plane Function Support (IXD [=n])
+# Selects: LIBIE_CP [=m] && LIBIE_PCI [=m] && NET_DEVLINK [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: bea44e3892a0 (ixd: add basic driver framework for Intel(R) Control Plane Function)
+# CONFIG_IXD is not set

@@ -1,0 +1,19 @@
+# ~~~
+# Symbol: POLYNOMIAL_KUNIT_TEST [=m]
+# Type  : tristate
+# Defined at lib/Kconfig.debug:3493
+#   Prompt: Polynomial calculation (polynomial_calc) test
+#   Depends on: RUNTIME_TESTING_MENU [=y] && KUNIT [=m]
+#   Visible if: RUNTIME_TESTING_MENU [=y] && KUNIT [=m] && !KUNIT_ALL_TESTS [=m]
+#   Location:
+#     -> Kernel hacking
+#       -> Kernel Testing and Coverage
+#         -> Runtime Testing (RUNTIME_TESTING_MENU [=y])
+#           -> Polynomial calculation (polynomial_calc) test (POLYNOMIAL_KUNIT_TEST [=m])
+# Selects: POLYNOMIAL [=m]
+# 
+# 
+# 
+# ~~~
+# Commit: a0275efa65ca (lib/math: add KUnit test suite for polynomial_calc())
+CONFIG_POLYNOMIAL_KUNIT_TEST=m

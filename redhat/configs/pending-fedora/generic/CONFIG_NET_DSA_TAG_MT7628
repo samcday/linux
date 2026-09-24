@@ -1,0 +1,19 @@
+# ~~~
+# Symbol: NET_DSA_TAG_MT7628 [=n]
+# Type  : tristate
+# Defined at net/dsa/Kconfig:101
+#   Prompt: Tag driver for the MT7628 embedded switch
+#   Depends on: NET [=y] && NET_DSA [=m]
+#   Location:
+#     -> Networking support (NET [=y])
+#       -> Networking options
+#         -> Distributed Switch Architecture (NET_DSA [=m])
+#           -> Tag driver for the MT7628 embedded switch (NET_DSA_TAG_MT7628 [=n])
+# Selected by [n]:
+#   - NET_DSA_MT7628 [=n] && NETDEVICES [=y] && NET_DSA [=m] && HAS_IOMEM [=y] && (SOC_MT7620 || COMPILE_TEST [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: 44204fd425af (net: dsa: initial MT7628 tagging driver)
+# CONFIG_NET_DSA_TAG_MT7628 is not set

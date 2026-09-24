@@ -1,0 +1,19 @@
+# ~~~
+# Symbol: INPUT_ISA1200_HAPTIC [=n]
+# Type  : tristate
+# Defined at drivers/input/misc/Kconfig:845
+#   Prompt: Imagis ISA1200 haptic feedback unit
+#   Depends on: INPUT [=y] && INPUT_MISC [=y] && I2C [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Input device support
+#         -> Generic input layer (needed for keyboard, mouse, ...) (INPUT [=y])
+#           -> Miscellaneous devices (INPUT_MISC [=y])
+#             -> Imagis ISA1200 haptic feedback unit (INPUT_ISA1200_HAPTIC [=n])
+# Selects: INPUT_FF_MEMLESS [=m] && REGMAP_I2C [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: 8fc62e1d7429 (Input: isa1200 - new driver for Imagis ISA1200)
+# CONFIG_INPUT_ISA1200_HAPTIC is not set

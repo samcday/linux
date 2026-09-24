@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: APPLE_PMGR_MISC [=n]
+# Type  : tristate
+# Defined at drivers/soc/apple/Kconfig:19
+#   Prompt: Apple SoC PMGR miscellaneous support
+#   Depends on: (ARCH_APPLE [=y] || COMPILE_TEST [=n]) && PM [=y]
+#   Location:
+#     -> Device Drivers
+#       -> SOC (System On Chip) specific Drivers
+#         -> Apple SoC drivers
+#           -> Apple SoC PMGR miscellaneous support (APPLE_PMGR_MISC [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: fef9350c314b (soc: apple: Add driver for Apple PMGR misc controls)
+# CONFIG_APPLE_PMGR_MISC is not set

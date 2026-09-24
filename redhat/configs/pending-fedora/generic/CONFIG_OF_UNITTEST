@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: OF_UNITTEST [=n]
+# Type  : bool
+# Defined at drivers/of/Kconfig:21
+#   Prompt: Device Tree runtime unit tests
+#   Depends on: OF [=y] && OF_EARLY_FLATTREE [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Device Tree and Open Firmware support (OF [=y])
+#         -> Device Tree runtime unit tests (OF_UNITTEST [=n])
+# Selects: IRQ_DOMAIN [=y] && OF_RESOLVE [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: 19fd74879a32 (of/unittest: Rename selftest.c to unittest.c)
+# CONFIG_OF_UNITTEST is not set

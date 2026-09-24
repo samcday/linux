@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: PHY_INTEL_LGM_COMBO [=n]
+# Type  : bool
+# Defined at drivers/phy/intel/Kconfig:29
+#   Prompt: Intel Lightning Mountain ComboPHY driver
+#   Depends on: (X86 [=y] || COMPILE_TEST [=n]) && OF [=y] && HAS_IOMEM [=y]
+#   Location:
+#     -> Device Drivers
+#       -> PHY Subsystem
+#         -> Intel Lightning Mountain ComboPHY driver (PHY_INTEL_LGM_COMBO [=n])
+# Selects: MFD_SYSCON [=n] && GENERIC_PHY [=n] && REGMAP [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: fa687038ba7f (phy: intel: Rename phy-intel to phy-intel-lgm)
+# CONFIG_PHY_INTEL_LGM_COMBO is not set

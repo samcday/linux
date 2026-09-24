@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: REGULATOR_SY8827N [=n]
+# Type  : tristate
+# Defined at drivers/regulator/Kconfig:1623
+#   Prompt: Silergy SY8827N regulator
+#   Depends on: REGULATOR [=y] && I2C [=y] && OF [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Voltage and Current Regulator Support (REGULATOR [=y])
+#         -> Silergy SY8827N regulator (REGULATOR_SY8827N [=n])
+# Selects: REGMAP_I2C [=m]
+# 
+# 
+# 
+# ~~~
+# Commit: 38fc6f295726 (regulator: add support for SY8827N regulator)
+# CONFIG_REGULATOR_SY8827N is not set

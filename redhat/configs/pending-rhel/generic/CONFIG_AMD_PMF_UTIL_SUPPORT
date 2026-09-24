@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: AMD_PMF_UTIL_SUPPORT [=n]
+# Type  : bool
+# Defined at drivers/platform/x86/amd/pmf/Kconfig:34
+#   Prompt: AMD PMF Util layer support
+#   Depends on: X86_PLATFORM_DEVICES [=y] && AMD_PMF [=m]
+#   Location:
+#     -> Device Drivers
+#       -> X86 Platform Specific Device Drivers (X86_PLATFORM_DEVICES [=y])
+#         -> AMD Platform Management Framework (AMD_PMF [=m])
+#           -> AMD PMF Util layer support (AMD_PMF_UTIL_SUPPORT [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: 98432eec3180 (platform/x86/amd/pmf: Add util layer and userspace character device interface)
+# CONFIG_AMD_PMF_UTIL_SUPPORT is not set

@@ -1,0 +1,18 @@
+# ~~~
+# Symbol: TI_ADS112C14 [=n]
+# Type  : tristate
+# Defined at drivers/iio/adc/Kconfig:1825
+#   Prompt: Texas Instruments ADS112C14/ADS122C14
+#   Depends on: IIO [=m] && I2C [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Industrial I/O support (IIO [=m])
+#         -> Analog to digital converters
+#           -> Texas Instruments ADS112C14/ADS122C14 (TI_ADS112C14 [=n])
+# Selects: CRC8 [=m] && REGMAP [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: b7fa84f60ffe (iio: adc: add ti-ads112c14 driver)
+# CONFIG_TI_ADS112C14 is not set

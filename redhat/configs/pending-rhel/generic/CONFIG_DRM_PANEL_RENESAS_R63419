@@ -1,0 +1,18 @@
+# ~~~
+# Symbol: DRM_PANEL_RENESAS_R63419 [=n]
+# Type  : tristate
+# Defined at drivers/gpu/drm/panel/Kconfig:854
+#   Prompt: Renesas R63419 dual-DSI video mode panels
+#   Depends on: HAS_IOMEM [=y] && DRM [=y] && DRM_PANEL [=y] && OF [=y] && GPIOLIB [=y] && DRM_MIPI_DSI [=y] && BACKLIGHT_CLASS_DEVICE [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Graphics support
+#         -> Direct Rendering Manager (XFree86 4.1.0 and higher DRI support) (DRM [=y])
+#           -> Display Panels
+#             -> Renesas R63419 dual-DSI video mode panels (DRM_PANEL_RENESAS_R63419 [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: 1190fc8d7b8a (drm: panel: add support for the Renesas R63419 based dual-DSI video mode Display Panels)
+# CONFIG_DRM_PANEL_RENESAS_R63419 is not set

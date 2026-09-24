@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: REGULATOR_TPS6286X [=n]
+# Type  : tristate
+# Defined at drivers/regulator/Kconfig:1660
+#   Prompt: TI TPS6286x Power Regulator
+#   Depends on: REGULATOR [=y] && I2C [=y] && OF [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Voltage and Current Regulator Support (REGULATOR [=y])
+#         -> TI TPS6286x Power Regulator (REGULATOR_TPS6286X [=n])
+# Selects: REGMAP_I2C [=m]
+# 
+# 
+# 
+# ~~~
+# Commit: e2a01b4e8806 (regulator: Add support for TPS6286x)
+# CONFIG_REGULATOR_TPS6286X is not set

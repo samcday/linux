@@ -1,0 +1,19 @@
+# ~~~
+# Symbol: DRM_PANEL_NOVATEK_NT36536 [=n]
+# Type  : tristate
+# Defined at drivers/gpu/drm/panel/Kconfig:667
+#   Prompt: Novatek NT36536 panel driver
+#   Depends on: HAS_IOMEM [=y] && DRM [=y] && DRM_PANEL [=y] && OF [=y] && DRM_MIPI_DSI [=y] && BACKLIGHT_CLASS_DEVICE [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Graphics support
+#         -> Direct Rendering Manager (XFree86 4.1.0 and higher DRI support) (DRM [=y])
+#           -> Display Panels
+#             -> Novatek NT36536 panel driver (DRM_PANEL_NOVATEK_NT36536 [=n])
+# Selects: DRM_KMS_HELPER [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: 75a5dbd1f4f7 (drm/panel: Add Novatek NT36536 panel driver)
+# CONFIG_DRM_PANEL_NOVATEK_NT36536 is not set

@@ -1,0 +1,18 @@
+# ~~~
+# Symbol: CLK_NORD_GPUCC [=m]
+# Type  : tristate
+# Defined at drivers/clk/qcom/Kconfig:236
+#   Prompt: Nord Graphics Clock Controller
+#   Depends on: COMMON_CLK [=y] && COMMON_CLK_QCOM [=y] && (ARM64 [=y] || COMPILE_TEST [=n])
+#   Location:
+#     -> Device Drivers
+#       -> Common Clock Framework (COMMON_CLK [=y])
+#         -> Support for Qualcomm's clock controllers (COMMON_CLK_QCOM [=y])
+#           -> Nord Graphics Clock Controller (CLK_NORD_GPUCC [=m])
+# Selects: CLK_NORD_GCC [=m]
+# 
+# 
+# 
+# ~~~
+# Commit: 47f2e6e1cee1 (clk: qcom: gpucc: Add Nord graphics clock controller support)
+CONFIG_CLK_NORD_GPUCC=m

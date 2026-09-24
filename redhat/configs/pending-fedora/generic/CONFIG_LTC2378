@@ -1,0 +1,18 @@
+# ~~~
+# Symbol: LTC2378 [=n]
+# Type  : tristate
+# Defined at drivers/iio/adc/Kconfig:949
+#   Prompt: Analog Devices LTC2378 ADC driver
+#   Depends on: IIO [=m] && SPI [=y] && (REGULATOR [=y] || COMPILE_TEST [=n]) && GPIOLIB [=y] && PWM [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Industrial I/O support (IIO [=m])
+#         -> Analog to digital converters
+#           -> Analog Devices LTC2378 ADC driver (LTC2378 [=n])
+# Selects: IIO_BUFFER [=y] && IIO_BUFFER_DMA [=m] && IIO_BUFFER_DMAENGINE [=m] && IIO_TRIGGERED_BUFFER [=m] && SPI_OFFLOAD [=y] && SPI_OFFLOAD_TRIGGER_PWM [=m]
+# 
+# 
+# 
+# ~~~
+# Commit: 469eafdc69a4 (iio: adc: ltc2378: Add support for LTC2378-20 and similar ADCs)
+# CONFIG_LTC2378 is not set

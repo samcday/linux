@@ -1,0 +1,19 @@
+# ~~~
+# Symbol: RESET_EIC7700_HSP [=n]
+# Type  : tristate
+# Defined at drivers/reset/Kconfig:86
+#   Prompt: EIC7700 HSP Reset controller
+#   Depends on: RESET_CONTROLLER [=y] && (ARCH_ESWIN [=y] || COMPILE_TEST [=n])
+#   Location:
+#     -> Device Drivers
+#       -> Reset Controller Support (RESET_CONTROLLER [=y])
+#         -> EIC7700 HSP Reset controller (RESET_EIC7700_HSP [=n])
+# Selects: AUXILIARY_BUS [=y]
+# Selected by [n]:
+#   - COMMON_CLK_EIC7700_HSP [=n] && COMMON_CLK [=y] && (ARCH_ESWIN [=y] || COMPILE_TEST [=n]) && RESET_CONTROLLER [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: b37fe0ee3691 (reset: eswin: Add eic7700 HSP reset driver)
+# CONFIG_RESET_EIC7700_HSP is not set

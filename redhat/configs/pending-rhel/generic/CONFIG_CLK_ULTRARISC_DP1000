@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: CLK_ULTRARISC_DP1000 [=y]
+# Type  : tristate
+# Defined at drivers/clk/ultrarisc/Kconfig:8
+#   Prompt: UltraRISC DP1000 clock controller
+#   Depends on: COMMON_CLK [=y] && OF [=y] && HAS_IOMEM [=y] && (ARCH_ULTRARISC [=y] || COMPILE_TEST [=n])
+#   Location:
+#     -> Device Drivers
+#       -> Common Clock Framework (COMMON_CLK [=y])
+#         -> UltraRISC DP1000 clock controller (CLK_ULTRARISC_DP1000 [=y])
+# Selects: CLK_ULTRARISC [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: 3948a36be42b (clk: ultrarisc: Add DP1000 clock driver)
+CONFIG_CLK_ULTRARISC_DP1000=y

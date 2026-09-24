@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: NET_VENDOR_ZTE [=y]
+# Type  : bool
+# Defined at drivers/net/ethernet/zte/Kconfig:6
+#   Prompt: ZTE devices
+#   Depends on: NETDEVICES [=y] && ETHERNET [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Network device support (NETDEVICES [=y])
+#         -> Ethernet driver support (ETHERNET [=y])
+#           -> ZTE devices (NET_VENDOR_ZTE [=y])
+# 
+# 
+# 
+# ~~~
+# Commit: b8180f7977aa (dinghai: add ZTE network driver support)
+CONFIG_NET_VENDOR_ZTE=y

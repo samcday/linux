@@ -1,0 +1,20 @@
+# ~~~
+# Symbol: DRM_I915_KUNIT_TEST [=m]
+# Type  : tristate
+# Defined at drivers/gpu/drm/i915/Kconfig.debug:223
+#   Prompt: KUnit tests for the drm i915 driver
+#   Depends on: HAS_IOMEM [=y] && DRM [=y] && EXPERT [=y] && DRM_I915 [=m] && KUNIT [=m] && DEBUG_FS [=y]
+#   Visible if: HAS_IOMEM [=y] && DRM [=y] && EXPERT [=y] && DRM_I915 [=m] && KUNIT [=m] && DEBUG_FS [=y] && !KUNIT_ALL_TESTS [=m]
+#   Location:
+#     -> Device Drivers
+#       -> Graphics support
+#         -> Direct Rendering Manager (XFree86 4.1.0 and higher DRI support) (DRM [=y])
+#           -> Intel 8xx/9xx/G3x/G4x/HD Graphics (DRM_I915 [=m])
+#             -> drm/i915 Debugging
+#               -> KUnit tests for the drm i915 driver (DRM_I915_KUNIT_TEST [=m])
+# 
+# 
+# 
+# ~~~
+# Commit: 3d5fc7070952 (drm/i915/kunit: Enable KUnit tests)
+CONFIG_DRM_I915_KUNIT_TEST=m

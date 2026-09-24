@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: SPI_DMA_KUNIT_TEST [=m]
+# Type  : tristate
+# Defined at drivers/spi/Kconfig:1373
+#   Prompt: KUnit tests for SPI core DMA mapping
+#   Depends on: SPI [=y] && SPI_MASTER [=y] && KUNIT [=m] && HAS_DMA [=y]
+#   Visible if: SPI [=y] && SPI_MASTER [=y] && KUNIT [=m] && HAS_DMA [=y] && !KUNIT_ALL_TESTS [=m]
+#   Location:
+#     -> Device Drivers
+#       -> SPI support (SPI [=y])
+#         -> KUnit tests for SPI core DMA mapping (SPI_DMA_KUNIT_TEST [=m])
+# 
+# 
+# 
+# ~~~
+# Commit: 9b81a87c5244 (spi: Add KUnit coverage for DMA mapping error paths)
+CONFIG_SPI_DMA_KUNIT_TEST=m

@@ -1,0 +1,19 @@
+# ~~~
+# Symbol: DRM_PANEL_CHIPONE_ICNA35XX [=n]
+# Type  : tristate
+# Defined at drivers/gpu/drm/panel/Kconfig:118
+#   Prompt: Chipone ICNA35XX panel driver
+#   Depends on: HAS_IOMEM [=y] && DRM [=y] && DRM_PANEL [=y] && OF [=y] && DRM_MIPI_DSI [=y] && BACKLIGHT_CLASS_DEVICE [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Graphics support
+#         -> Direct Rendering Manager (XFree86 4.1.0 and higher DRI support) (DRM [=y])
+#           -> Display Panels
+#             -> Chipone ICNA35XX panel driver (DRM_PANEL_CHIPONE_ICNA35XX [=n])
+# Selects: DRM_DISPLAY_HELPER [=m]
+# 
+# 
+# 
+# ~~~
+# Commit: f747473a838e (drm/panel: Add panel driver for Chipone ICNA35XX based panels)
+# CONFIG_DRM_PANEL_CHIPONE_ICNA35XX is not set

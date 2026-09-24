@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: AMD_MBV_BRAM_REMOTEPROC [=n]
+# Type  : tristate
+# Defined at drivers/remoteproc/Kconfig:26
+#   Prompt: AMD MicroBlaze/V BRAM-based remoteproc support
+#   Depends on: REMOTEPROC [=y] && OF [=y] && COMMON_CLK [=y] && (GPIOLIB [=y] || COMPILE_TEST [=n])
+#   Location:
+#     -> Device Drivers
+#       -> Remoteproc drivers
+#         -> Support for Remote Processor subsystem (REMOTEPROC [=y])
+#           -> AMD MicroBlaze/V BRAM-based remoteproc support (AMD_MBV_BRAM_REMOTEPROC [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: f87b4998994e (remoteproc: Add AMD MicroBlaze/V BRAM-based remote processor driver)
+# CONFIG_AMD_MBV_BRAM_REMOTEPROC is not set

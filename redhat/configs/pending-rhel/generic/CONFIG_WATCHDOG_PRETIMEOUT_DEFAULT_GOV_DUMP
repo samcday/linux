@@ -1,0 +1,18 @@
+# ~~~
+# Symbol: WATCHDOG_PRETIMEOUT_DEFAULT_GOV_DUMP [=n]
+# Type  : bool
+# Defined at drivers/watchdog/Kconfig:133
+#   Prompt: dump
+#   Depends on: WATCHDOG [=y] && WATCHDOG_PRETIMEOUT_GOV [=y] && WATCHDOG_PRETIMEOUT_GOV_DUMP [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Watchdog Timer Support (WATCHDOG [=y])
+#         -> Enable watchdog pretimeout governors (WATCHDOG_PRETIMEOUT_GOV [=y])
+#           -> Default Watchdog Pretimeout Governor (<choice> [=n])
+#             -> dump (WATCHDOG_PRETIMEOUT_DEFAULT_GOV_DUMP [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: 8bb763d4c3be (watchdog: pretimeout: Add "dump" pretimeout governor)
+# CONFIG_WATCHDOG_PRETIMEOUT_DEFAULT_GOV_DUMP is not set

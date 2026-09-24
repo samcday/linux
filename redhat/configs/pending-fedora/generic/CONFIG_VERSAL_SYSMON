@@ -1,0 +1,18 @@
+# ~~~
+# Symbol: VERSAL_SYSMON [=n]
+# Type  : tristate
+# Defined at drivers/iio/adc/Kconfig:2016
+#   Prompt: AMD Versal SysMon driver
+#   Depends on: IIO [=m] && (ARCH_ZYNQMP [=y] || COMPILE_TEST [=n]) && HAS_IOMEM [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Industrial I/O support (IIO [=m])
+#         -> Analog to digital converters
+#           -> AMD Versal SysMon driver (VERSAL_SYSMON [=n])
+# Selects: VERSAL_SYSMON_CORE [=n]
+# 
+# 
+# 
+# ~~~
+# Commit: 50bf4fd85b25 (iio: adc: add Versal SysMon driver)
+# CONFIG_VERSAL_SYSMON is not set

@@ -1,0 +1,20 @@
+# ~~~
+# Symbol: RTW89_8922DE [=n]
+# Type  : tristate
+# Defined at drivers/net/wireless/realtek/rtw89/Kconfig:175
+#   Prompt: Realtek 8922DE/8922DE-VS PCI wireless network (Wi-Fi 7) adapter
+#   Depends on: NETDEVICES [=y] && WLAN [=y] && WLAN_VENDOR_REALTEK [=y] && RTW89 [=m] && PCI [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Network device support (NETDEVICES [=y])
+#         -> Wireless LAN (WLAN [=y])
+#           -> Realtek devices (WLAN_VENDOR_REALTEK [=y])
+#             -> Realtek 802.11ax wireless chips support (RTW89 [=m])
+#               -> Realtek 8922DE/8922DE-VS PCI wireless network (Wi-Fi 7) adapter (RTW89_8922DE [=n])
+# Selects: RTW89_CORE [=m] && RTW89_PCI [=m] && RTW89_8922D [=n]
+# 
+# 
+# 
+# ~~~
+# Commit: 86c3125c75d7 (wifi: rtw89: 8922d: enable Makefile and Kconfig for RTL8922DE)
+# CONFIG_RTW89_8922DE is not set

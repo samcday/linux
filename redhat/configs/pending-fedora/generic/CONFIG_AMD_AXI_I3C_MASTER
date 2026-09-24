@@ -1,0 +1,16 @@
+# ~~~
+# Symbol: AMD_AXI_I3C_MASTER [=n]
+# Type  : tristate
+# Defined at drivers/i3c/master/Kconfig:90
+#   Prompt: AMD AXI I3C Master driver
+#   Depends on: I3C [=m] && HAS_IOMEM [=y]
+#   Location:
+#     -> Device Drivers
+#       -> I3C support (I3C [=m])
+#         -> AMD AXI I3C Master driver (AMD_AXI_I3C_MASTER [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: 629a6ddd1d9a (i3c: master: Add driver for AMD AXI I3C master controller)
+# CONFIG_AMD_AXI_I3C_MASTER is not set

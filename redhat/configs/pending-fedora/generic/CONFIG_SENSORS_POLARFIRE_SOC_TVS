@@ -1,0 +1,16 @@
+# ~~~
+# Symbol: SENSORS_POLARFIRE_SOC_TVS [=n]
+# Type  : tristate
+# Defined at drivers/hwmon/Kconfig:953
+#   Prompt: PolarFire SoC (MPFS) temperature and voltage sensor
+#   Depends on: HWMON [=y] && (POLARFIRE_SOC_SYSCONS [=y] || COMPILE_TEST [=n]) && MFD_SYSCON [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Hardware Monitoring support (HWMON [=y])
+#         -> PolarFire SoC (MPFS) temperature and voltage sensor (SENSORS_POLARFIRE_SOC_TVS [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: ecc0eb5e9569 (hwmon: Driver for the temp/voltage sensor on PolarFire SoC)
+# CONFIG_SENSORS_POLARFIRE_SOC_TVS is not set

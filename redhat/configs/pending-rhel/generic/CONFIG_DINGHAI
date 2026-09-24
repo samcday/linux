@@ -1,0 +1,19 @@
+# ~~~
+# Symbol: DINGHAI [=n]
+# Type  : bool
+# Defined at drivers/net/ethernet/zte/dinghai/Kconfig:6
+#   Prompt: ZTE DingHai Ethernet driver
+#   Depends on: NETDEVICES [=y] && ETHERNET [=y] && NET_VENDOR_ZTE [=y] && PCI [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Network device support (NETDEVICES [=y])
+#         -> Ethernet driver support (ETHERNET [=y])
+#           -> ZTE devices (NET_VENDOR_ZTE [=y])
+#             -> ZTE DingHai Ethernet driver (DINGHAI [=n])
+# Selects: NET_DEVLINK [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: b8180f7977aa (dinghai: add ZTE network driver support)
+# CONFIG_DINGHAI is not set

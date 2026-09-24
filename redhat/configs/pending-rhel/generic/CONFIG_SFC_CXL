@@ -1,0 +1,19 @@
+# ~~~
+# Symbol: SFC_CXL [=y]
+# Type  : bool
+# Defined at drivers/net/ethernet/sfc/Kconfig:69
+#   Prompt: Solarflare SFC9100-family CXL support
+#   Depends on: NETDEVICES [=y] && ETHERNET [=y] && NET_VENDOR_SOLARFLARE [=y] && SFC [=m] && CXL_BUS [=m]>=SFC [=m]
+#   Location:
+#     -> Device Drivers
+#       -> Network device support (NETDEVICES [=y])
+#         -> Ethernet driver support (ETHERNET [=y])
+#           -> Solarflare devices (NET_VENDOR_SOLARFLARE [=y])
+#             -> Solarflare SFC9100/EF100-family support (SFC [=m])
+#               -> Solarflare SFC9100-family CXL support (SFC_CXL [=y])
+# 
+# 
+# 
+# ~~~
+# Commit: a3fc56b12e3a (sfc: add cxl support)
+CONFIG_SFC_CXL=y

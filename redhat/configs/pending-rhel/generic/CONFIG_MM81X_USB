@@ -1,0 +1,19 @@
+# ~~~
+# Symbol: MM81X_USB [=n]
+# Type  : tristate
+# Defined at drivers/net/wireless/morsemicro/mm81x/Kconfig:12
+#   Prompt: Morse Micro MM81x USB support
+#   Depends on: NETDEVICES [=y] && WLAN [=y] && WLAN_VENDOR_MORSEMICRO [=y] && MAC80211 [=m] && USB [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Network device support (NETDEVICES [=y])
+#         -> Wireless LAN (WLAN [=y])
+#           -> Morse Micro devices (WLAN_VENDOR_MORSEMICRO [=y])
+#             -> Morse Micro MM81x USB support (MM81X_USB [=n])
+# Selects: MM81X [=n]
+# 
+# 
+# 
+# ~~~
+# Commit: b1906cea00b0 (wifi: mm81x: add mm81x Wi-Fi HaLow driver)
+# CONFIG_MM81X_USB is not set

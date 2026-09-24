@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: REGULATOR_MPQ7920 [=n]
+# Type  : tristate
+# Defined at drivers/regulator/Kconfig:873
+#   Prompt: Monolithic MPQ7920 PMIC
+#   Depends on: REGULATOR [=y] && I2C [=y] && OF [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Voltage and Current Regulator Support (REGULATOR [=y])
+#         -> Monolithic MPQ7920 PMIC (REGULATOR_MPQ7920 [=n])
+# Selects: REGMAP_I2C [=m]
+# 
+# 
+# 
+# ~~~
+# Commit: 6501c1f54a17 (regulator: mpq7920: add mpq7920 regulator driver)
+# CONFIG_REGULATOR_MPQ7920 is not set

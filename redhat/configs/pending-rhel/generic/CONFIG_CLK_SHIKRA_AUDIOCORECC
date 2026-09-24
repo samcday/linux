@@ -1,0 +1,18 @@
+# ~~~
+# Symbol: CLK_SHIKRA_AUDIOCORECC [=m]
+# Type  : tristate
+# Defined at drivers/clk/qcom/Kconfig:216
+#   Prompt: Shikra Audio Core Clock Controller
+#   Depends on: COMMON_CLK [=y] && COMMON_CLK_QCOM [=y] && (ARM64 [=y] || COMPILE_TEST [=n])
+#   Location:
+#     -> Device Drivers
+#       -> Common Clock Framework (COMMON_CLK [=y])
+#         -> Support for Qualcomm's clock controllers (COMMON_CLK_QCOM [=y])
+#           -> Shikra Audio Core Clock Controller (CLK_SHIKRA_AUDIOCORECC [=m])
+# Selects: CLK_SHIKRA_GCC [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: 3e7b00804665 (clk: qcom: Add Audio Core clock controller support on Qualcomm Shikra SoC)
+CONFIG_CLK_SHIKRA_AUDIOCORECC=m

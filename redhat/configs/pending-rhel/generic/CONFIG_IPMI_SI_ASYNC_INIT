@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: IPMI_SI_ASYNC_INIT [=n]
+# Type  : bool
+# Defined at drivers/char/ipmi/Kconfig:70
+#   Prompt: Asynchronous initialization of IPMI System Interface
+#   Depends on: IPMI_HANDLER [=m] && IPMI_SI [=m]
+#   Location:
+#     -> Device Drivers
+#       -> Character devices
+#         -> IPMI System Interface handler (IPMI_SI [=m])
+#           -> Asynchronous initialization of IPMI System Interface (IPMI_SI_ASYNC_INIT [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: ed98f8e27a93 (ipmi:si: Add async init to ipmi_si)
+# CONFIG_IPMI_SI_ASYNC_INIT is not set

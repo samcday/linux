@@ -1,0 +1,19 @@
+# ~~~
+# Symbol: ADIN1140 [=n]
+# Type  : tristate
+# Defined at drivers/net/ethernet/adi/Kconfig:29
+#   Prompt: Analog Devices ADIN1140 MAC-PHY
+#   Depends on: NETDEVICES [=y] && ETHERNET [=y] && NET_VENDOR_ADI [=y] && SPI [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Network device support (NETDEVICES [=y])
+#         -> Ethernet driver support (ETHERNET [=y])
+#           -> Analog Devices devices (NET_VENDOR_ADI [=y])
+#             -> Analog Devices ADIN1140 MAC-PHY (ADIN1140 [=n])
+# Selects: ADIN1140_PHY [=n] && OA_TC6 [=n]
+# 
+# 
+# 
+# ~~~
+# Commit: 20e69e671070 (net: ethernet: adi: Add a driver for the ADIN1140 MACPHY)
+# CONFIG_ADIN1140 is not set

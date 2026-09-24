@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: REGULATOR_MP886X [=n]
+# Type  : tristate
+# Defined at drivers/regulator/Kconfig:866
+#   Prompt: MPS MP8869 regulator driver
+#   Depends on: REGULATOR [=y] && I2C [=y] && OF [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Voltage and Current Regulator Support (REGULATOR [=y])
+#         -> MPS MP8869 regulator driver (REGULATOR_MP886X [=n])
+# Selects: REGMAP_I2C [=m]
+# 
+# 
+# 
+# ~~~
+# Commit: 97be82880b61 (regulator: add support for MP8869 regulator)
+# CONFIG_REGULATOR_MP886X is not set

@@ -1,0 +1,19 @@
+# ~~~
+# Symbol: ADIN1140_PHY [=n]
+# Type  : tristate
+# Defined at drivers/net/phy/Kconfig:139
+#   Prompt: Analog Devices ADIN1140 10BASE-T1S PHY
+#   Depends on: NETDEVICES [=y] && PHYLIB [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Network device support (NETDEVICES [=y])
+#         -> PHY Device support and infrastructure (PHYLIB [=y])
+#           -> Analog Devices ADIN1140 10BASE-T1S PHY (ADIN1140_PHY [=n])
+# Selected by [n]:
+#   - ADIN1140 [=n] && NETDEVICES [=y] && ETHERNET [=y] && NET_VENDOR_ADI [=n] && SPI [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: 0feaf415b782 (net: phy: Add support for the ADIN1140 PHY)
+# CONFIG_ADIN1140_PHY is not set

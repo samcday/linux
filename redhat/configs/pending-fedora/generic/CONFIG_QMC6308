@@ -1,0 +1,18 @@
+# ~~~
+# Symbol: QMC6308 [=n]
+# Type  : tristate
+# Defined at drivers/iio/magnetometer/Kconfig:223
+#   Prompt: QST QMC6308 3-Axis Magnetic Sensor
+#   Depends on: IIO [=m] && I2C [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Industrial I/O support (IIO [=m])
+#         -> Magnetometer sensors
+#           -> QST QMC6308 3-Axis Magnetic Sensor (QMC6308 [=n])
+# Selects: REGMAP_I2C [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: 8dc6d241fc1f (iio: magnetometer: add support for QST QMC6308)
+# CONFIG_QMC6308 is not set

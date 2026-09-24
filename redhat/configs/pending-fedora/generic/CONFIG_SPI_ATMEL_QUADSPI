@@ -1,0 +1,16 @@
+# ~~~
+# Symbol: SPI_ATMEL_QUADSPI [=n]
+# Type  : tristate
+# Defined at drivers/spi/Kconfig:190
+#   Prompt: Atmel Quad SPI Controller
+#   Depends on: SPI [=y] && SPI_MASTER [=y] && (ARCH_MICROCHIP [=y] || COMPILE_TEST [=n]) && OF [=y] && HAS_IOMEM [=y]
+#   Location:
+#     -> Device Drivers
+#       -> SPI support (SPI [=y])
+#         -> Atmel Quad SPI Controller (SPI_ATMEL_QUADSPI [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: 0e6aae08e9ae (spi: Add QuadSPI driver for Atmel SAMA5D2)
+# CONFIG_SPI_ATMEL_QUADSPI is not set

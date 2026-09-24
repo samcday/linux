@@ -1,0 +1,18 @@
+# ~~~
+# Symbol: HID_HYPERX [=n]
+# Type  : tristate
+# Defined at drivers/hid/Kconfig:436
+#   Prompt: HyperX microphones
+#   Depends on: HID_SUPPORT [=y] && HID [=y] && USB_HID [=y]
+#   Location:
+#     -> Device Drivers
+#       -> HID bus support (HID_SUPPORT [=y])
+#         -> HID bus core support (HID [=y])
+#           -> Special HID drivers
+#             -> HyperX microphones (HID_HYPERX [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: 663870a84c17 (HID: hyperx: add driver for the HyperX QuadCast 2 mute button)
+# CONFIG_HID_HYPERX is not set

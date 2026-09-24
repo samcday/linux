@@ -1,0 +1,16 @@
+# ~~~
+# Symbol: XOR_BENCHMARK [=n]
+# Type  : bool
+# Defined at lib/raid/Kconfig:32
+#   Prompt: Benchmark for xor_gen
+#   Depends on: XOR_KUNIT_TEST [=m]
+#   Location:
+#     -> Library routines
+#       -> KUnit tests for xor_gen (XOR_KUNIT_TEST [=m])
+#         -> Benchmark for xor_gen (XOR_BENCHMARK [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: 874d2edd07db (xor/kunit: add a benchmark)
+# CONFIG_XOR_BENCHMARK is not set

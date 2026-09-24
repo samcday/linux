@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: SENSORS_EIC7700_PVT [=n]
+# Type  : tristate
+# Defined at drivers/hwmon/Kconfig:2091
+#   Prompt: Eswin EIC7700 Voltage, Temperature sensor driver
+#   Depends on: HWMON [=y] && (ARCH_ESWIN [=y] || COMPILE_TEST [=n])
+#   Location:
+#     -> Device Drivers
+#       -> Hardware Monitoring support (HWMON [=y])
+#         -> Eswin EIC7700 Voltage, Temperature sensor driver (SENSORS_EIC7700_PVT [=n])
+# Selects: POLYNOMIAL [=m]
+# 
+# 
+# 
+# ~~~
+# Commit: a24f4ea5f3c2 (hwmon: Add Eswin EIC7700 PVT sensor driver)
+# CONFIG_SENSORS_EIC7700_PVT is not set

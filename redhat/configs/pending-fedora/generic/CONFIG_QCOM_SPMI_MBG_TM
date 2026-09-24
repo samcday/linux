@@ -1,0 +1,18 @@
+# ~~~
+# Symbol: QCOM_SPMI_MBG_TM [=n]
+# Type  : tristate
+# Defined at drivers/thermal/qcom/Kconfig:24
+#   Prompt: Qualcomm SPMI PMIC MBG Temperature monitor
+#   Depends on: THERMAL [=y] && (ARCH_QCOM [=y] && OF [=y] || COMPILE_TEST [=n]) && QCOM_SPMI_ADC5_GEN3 [=m]
+#   Location:
+#     -> Device Drivers
+#       -> Thermal drivers (THERMAL [=y])
+#         -> Qualcomm thermal drivers
+#           -> Qualcomm SPMI PMIC MBG Temperature monitor (QCOM_SPMI_MBG_TM [=n])
+# Selects: REGMAP_SPMI [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: c3dce117333c (thermal/drivers/qcom: Add support for Qualcomm MBG thermal monitoring)
+# CONFIG_QCOM_SPMI_MBG_TM is not set

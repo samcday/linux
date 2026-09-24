@@ -1,0 +1,19 @@
+# ~~~
+# Symbol: ATH10K_AHB [=n]
+# Type  : bool
+# Defined at drivers/net/wireless/ath/ath10k/Kconfig:24
+#   Prompt: Atheros ath10k AHB support
+#   Depends on: NETDEVICES [=y] && WLAN [=y] && WLAN_VENDOR_ATH [=y] && ATH10K_PCI [=m] && OF [=y] && RESET_CONTROLLER [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Network device support (NETDEVICES [=y])
+#         -> Wireless LAN (WLAN [=y])
+#           -> Atheros/Qualcomm devices (WLAN_VENDOR_ATH [=y])
+#             -> Atheros ath10k PCI support (ATH10K_PCI [=m])
+#               -> Atheros ath10k AHB support (ATH10K_AHB [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: 0b523ced9a3c (ath10k: add basic skeleton to support ahb)
+# CONFIG_ATH10K_AHB is not set

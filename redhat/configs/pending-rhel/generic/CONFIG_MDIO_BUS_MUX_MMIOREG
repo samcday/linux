@@ -1,0 +1,19 @@
+# ~~~
+# Symbol: MDIO_BUS_MUX_MMIOREG [=n]
+# Type  : tristate
+# Defined at drivers/net/mdio/Kconfig:279
+#   Prompt: MMIO device-controlled MDIO bus multiplexers
+#   Depends on: NETDEVICES [=y] && PHYLIB [=y] && OF_MDIO [=y] && HAS_IOMEM [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Network device support (NETDEVICES [=y])
+#         -> MDIO controller drivers
+#           -> MDIO Multiplexers
+#             -> MMIO device-controlled MDIO bus multiplexers (MDIO_BUS_MUX_MMIOREG [=n])
+# Selects: MDIO_BUS_MUX [=n]
+# 
+# 
+# 
+# ~~~
+# Commit: a9770eac511a (net: mdio: Move MDIO drivers into a new subdirectory)
+# CONFIG_MDIO_BUS_MUX_MMIOREG is not set

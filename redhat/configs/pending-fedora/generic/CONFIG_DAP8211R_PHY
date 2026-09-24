@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: DAP8211R_PHY [=n]
+# Type  : tristate
+# Defined at drivers/net/phy/Kconfig:241
+#   Prompt: DAPU Telecom DAP8211R(I) Gigabit Ethernet PHY
+#   Depends on: NETDEVICES [=y] && PHYLIB [=y] && OF [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Network device support (NETDEVICES [=y])
+#         -> PHY Device support and infrastructure (PHYLIB [=y])
+#           -> DAPU Telecom DAP8211R(I) Gigabit Ethernet PHY (DAP8211R_PHY [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: d90265e75584 (net: phy: add DAPU Telecom DAP8211R(I) Gigabit Ethernet PHY driver)
+# CONFIG_DAP8211R_PHY is not set

@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: PINCTRL_SINGLE [=n]
+# Type  : tristate
+# Defined at drivers/pinctrl/Kconfig:544
+#   Prompt: One-register-per-pin type device tree based pinctrl driver
+#   Depends on: PINCTRL [=y] && OF [=y] && HAS_IOMEM [=y]
+#   Location:
+#     -> Device Drivers
+#       -> Pin controllers (PINCTRL [=y])
+#         -> One-register-per-pin type device tree based pinctrl driver (PINCTRL_SINGLE [=n])
+# Selects: GENERIC_PINCTRL_GROUPS [=y] && GENERIC_PINMUX_FUNCTIONS [=y] && GENERIC_PINCONF [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: 8b8b091bf07f (pinctrl: Add one-register-per-pin type device tree based pinctrl driver)
+# CONFIG_PINCTRL_SINGLE is not set

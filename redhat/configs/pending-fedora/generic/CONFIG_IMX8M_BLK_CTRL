@@ -1,0 +1,18 @@
+# ~~~
+# Symbol: IMX8M_BLK_CTRL [=y]
+# Type  : tristate
+# Defined at drivers/pmdomain/imx/Kconfig:12
+#   Prompt: i.MX8M BLK CTRL driver
+#   Depends on: SOC_IMX8M [=y] && IMX_GPCV2_PM_DOMAINS [=y] && PM_GENERIC_DOMAINS [=y] && COMMON_CLK [=y]
+#   Location:
+#     -> Device Drivers
+#       -> PM Domains
+#         -> i.MX PM Domains
+#           -> i.MX GPCv2 PM domains (IMX_GPCV2_PM_DOMAINS [=y])
+#             -> i.MX8M BLK CTRL driver (IMX8M_BLK_CTRL [=y])
+# 
+# 
+# 
+# ~~~
+# Commit: 24a11a1e8245 (pmdomain: imx: Move Kconfig options to the pmdomain subsystem)
+CONFIG_IMX8M_BLK_CTRL=y

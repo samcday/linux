@@ -1,0 +1,10 @@
+srpm:
+	dnf -y install git make gcc flex bison bzip2 dwarves xz rpm-build python3-pyyaml rust rust-src bindgen rustfmt
+	git config user.email "fedora@leemhuis.info"
+	git config user.name "Thorsten Leemhuis"
+	.copr/deepen_gittree.sh
+
+	# Build only release commits, without hard-coding the Fedora dist tag.
+	make NO_CONFIGCHECKS=1 UPSTREAMBUILD_GIT_ONLY=0 dist-check-release dist-srpm
+
+	mv redhat/rpm/SRPMS/*.src.rpm  $(outdir)

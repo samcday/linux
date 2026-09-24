@@ -1,0 +1,19 @@
+# ~~~
+# Symbol: COMMON_CLK_A9_PERIPHERALS [=y]
+# Type  : tristate
+# Defined at drivers/clk/meson/Kconfig:135
+#   Prompt: Amlogic A9 SoC peripherals clock controller support
+#   Depends on: COMMON_CLK [=y] && (ARCH_MESON [=y] || COMPILE_TEST [=n]) && (ARM64 [=y] || COMPILE_TEST [=n])
+#   Location:
+#     -> Device Drivers
+#       -> Common Clock Framework (COMMON_CLK [=y])
+#         -> Clock support for Amlogic platforms
+#           -> Amlogic A9 SoC peripherals clock controller support (COMMON_CLK_A9_PERIPHERALS [=y])
+# Selects: COMMON_CLK_MESON_REGMAP [=y] && COMMON_CLK_MESON_CLKC_UTILS [=y] && COMMON_CLK_MESON_DUALDIV [=y] && COMMON_CLK_MESON_VID_PLL_DIV [=y]
+# Implies: COMMON_CLK_SCMI [=y]
+# 
+# 
+# 
+# ~~~
+# Commit: 6f809ca8104b (clk: amlogic: Add A9 peripherals clock controller driver)
+CONFIG_COMMON_CLK_A9_PERIPHERALS=y

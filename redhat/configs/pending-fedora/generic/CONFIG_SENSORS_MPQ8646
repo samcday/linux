@@ -1,0 +1,17 @@
+# ~~~
+# Symbol: SENSORS_MPQ8646 [=n]
+# Type  : tristate
+# Defined at drivers/hwmon/pmbus/Kconfig:629
+#   Prompt: MPS MPQ8646
+#   Depends on: HWMON [=y] && PMBUS [=m]
+#   Location:
+#     -> Device Drivers
+#       -> Hardware Monitoring support (HWMON [=y])
+#         -> PMBus support (PMBUS [=m])
+#           -> MPS MPQ8646 (SENSORS_MPQ8646 [=n])
+# 
+# 
+# 
+# ~~~
+# Commit: 24be24bebc1b (hwmon: (pmbus) Add MPQ8646 driver)
+# CONFIG_SENSORS_MPQ8646 is not set
