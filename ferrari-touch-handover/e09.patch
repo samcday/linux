@@ -1,0 +1,130 @@
+--- atmel_mxt_ts.base.c	2026-09-24 11:19:00.487043058 +0000
++++ atmel_mxt_ts.c	2026-09-24 11:20:09.924566466 +0000
+@@ -358,6 +358,8 @@
+ 	u32 wakeup_method;
+ 
+ 	struct touchscreen_properties prop;
++
++	u8 e09_t7[3];	/* E09 test harness: T7 IDLE/ACTV/A2I as read at init */
+ };
+ 
+ struct mxt_vb2_buffer {
+@@ -1888,13 +1890,23 @@
+ 	}
+ 	id_buf = buf;
+ 
+-	/* Read rest of info block */
++	/*
++	 * Read the object table and the info block CRC as two transfers:
++	 * some controllers return garbage for the CRC bytes when they are
++	 * read as the tail of the object table transfer.
++	 */
+ 	error = __mxt_read_reg(client, MXT_OBJECT_START,
+-			       size - MXT_OBJECT_START,
++			       size - MXT_OBJECT_START - MXT_INFO_CHECKSUM_SIZE,
+ 			       id_buf + MXT_OBJECT_START);
+ 	if (error)
+ 		goto err_free_mem;
+ 
++	error = __mxt_read_reg(client, size - MXT_INFO_CHECKSUM_SIZE,
++			       MXT_INFO_CHECKSUM_SIZE,
++			       id_buf + size - MXT_INFO_CHECKSUM_SIZE);
++	if (error)
++		goto err_free_mem;
++
+ 	/* Extract & calculate checksum */
+ 	crc_ptr = id_buf + size - MXT_INFO_CHECKSUM_SIZE;
+ 	data->info_crc = crc_ptr[0] | (crc_ptr[1] << 8) | (crc_ptr[2] << 16);
+@@ -2794,6 +2806,17 @@
+ 		return error;
+ 	}
+ 
++	if (data->T7_address) {
++		int i;
++
++		for (i = 0; i < 3; i++)
++			__mxt_read_reg(data->client, data->T7_address + i, 1,
++				       &data->e09_t7[i]);
++		dev_info(dev, "E09: T7 bytes %02x %02x %02x, t7_cfg idle %02x active %02x\n",
++			 data->e09_t7[0], data->e09_t7[1], data->e09_t7[2],
++			 data->t7_cfg.idle, data->t7_cfg.active);
++	}
++
+ 	if (cfg) {
+ 		error = mxt_update_cfg(data, cfg);
+ 		if (error)
+@@ -3057,6 +3080,66 @@
+ 	return count;
+ }
+ 
++/*
++ * E09 TEST HARNESS ONLY (not for merging): replay parts of the vendor
++ * driver's suspend/resume register sequence with single-byte writes.
++ *  bit0 0x01: T7 IDLE, ACTV, A2I = 0 (vendor suspend)
++ *  bit3 0x08: T97 inst0/1/2 CTRL = 3, T19[3] = 0 (vendor resume, keys/gpio)
++ *  bit1 0x02: T7 A2I, ACTV, IDLE = values read at init (vendor resume)
++ *  bit2 0x04: 100 ms later T6 CALIBRATE = 1, wait for clear
++ *  bit4 0x10: T6 REPORTALL = 1
++ *  bit5 0x20: T7 RUN via upstream mxt_set_t7_power_cfg() 2-byte block write
++ *  bit6 0x40: T7 deep sleep via upstream 2-byte block write
++ */
++static ssize_t mxt_e09_seq_store(struct device *dev,
++				 struct device_attribute *attr,
++				 const char *buf, size_t count)
++{
++	struct mxt_data *data = dev_get_drvdata(dev);
++	struct i2c_client *client = data->client;
++	struct mxt_object *obj;
++	unsigned int seq;
++	int err = 0, i;
++
++	if (kstrtouint(buf, 0, &seq))
++		return -EINVAL;
++	if (!data->T7_address || !data->T6_address)
++		return -ENODEV;
++
++	dev_info(dev, "E09 seq 0x%02x start\n", seq);
++	if (seq & 0x40)
++		err |= mxt_set_t7_power_cfg(data, MXT_POWER_CFG_DEEPSLEEP);
++	if (seq & 0x01)
++		for (i = 0; i < 3; i++)
++			err |= mxt_write_reg(client, data->T7_address + i, 0);
++	if (seq & 0x08) {
++		obj = mxt_get_object(data, 97);
++		if (obj)
++			for (i = 0; i < 3; i++)
++				err |= mxt_write_reg(client,
++						     obj->start_address + 10 * i, 3);
++		obj = mxt_get_object(data, MXT_SPT_GPIOPWM_T19);
++		if (obj)
++			err |= mxt_write_reg(client, obj->start_address + 3, 0);
++	}
++	if (seq & 0x02)
++		for (i = 2; i >= 0; i--)
++			err |= mxt_write_reg(client, data->T7_address + i,
++					     data->e09_t7[i]);
++	if (seq & 0x20)
++		err |= mxt_set_t7_power_cfg(data, MXT_POWER_CFG_RUN);
++	if (seq & 0x04) {
++		msleep(100);
++		err |= mxt_t6_command(data, MXT_COMMAND_CALIBRATE, 1, true);
++	}
++	if (seq & 0x10)
++		err |= mxt_t6_command(data, MXT_COMMAND_REPORTALL, 1, false);
++	dev_info(dev, "E09 seq 0x%02x done err %d\n", seq, err);
++
++	return err ? -EIO : count;
++}
++
++static DEVICE_ATTR(e09_seq, S_IWUSR, NULL, mxt_e09_seq_store);
+ static DEVICE_ATTR(fw_version, S_IRUGO, mxt_fw_version_show, NULL);
+ static DEVICE_ATTR(hw_version, S_IRUGO, mxt_hw_version_show, NULL);
+ static DEVICE_ATTR(object, S_IRUGO, mxt_object_show, NULL);
+@@ -3067,6 +3150,7 @@
+ 	&dev_attr_hw_version.attr,
+ 	&dev_attr_object.attr,
+ 	&dev_attr_update_fw.attr,
++	&dev_attr_e09_seq.attr,
+ 	NULL
+ };
+ 
