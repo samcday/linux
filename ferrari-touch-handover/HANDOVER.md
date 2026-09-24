@@ -181,3 +181,13 @@ DS's quirk module (srcversion FF654C…, mxt_write_quirk=Y) was replaced with E0
 Next once root is available: start evgrab as a detached root service, enable
 `dyndbg` for atmel_mxt_ts, re-run B, then bisect (reload the module between runs to return the chip to its
 unstarted state): 0x07, 0x03, 0x04, 0x08, 0x60|0x04 (upstream block writes).
+
+### Mainline touch confirmed by pem120 (E09 module + e09_seq=0x0f)
+- With the logger dead, pem120's touches reached the greeter (greetd UI). Sam relayed "touch is working".
+- Dialog `replies/e09-confirm.txt`: epoch 1790252483→1790252535, answer
+  **"Works well - taps land where my finger is, drags are smooth"**; IRQ 1598 → 2005 during ~55 s of use
+  (phone uptime 819→875 s). There are no atmel warnings/errors in dmesg since the 259.8 s e09_seq.
+- So: **upstream driver + split CRC read + one vendor-style start sequence
+  (T7 0/0/0 → [T97/T19] → T7 restore → CALIBRATE) = working touch on mainline.** The write quirk is not needed.
+- Still missing for gate 1: an evdev log (needs root). Gates 2–5 need the bisect, a real patch
+  and a persistent install (all need root on the phone).
