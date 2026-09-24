@@ -1,0 +1,15 @@
+#!/usr/bin/env python3
+# usage: rput LOCALFILE REMOTEPATH  -- chunked, idempotent, sha256-verified upload via rsh
+import base64,hashlib,subprocess,sys,os
+src,dst=sys.argv[1],sys.argv[2]
+data=open(src,'rb').read(); h=hashlib.sha256(data).hexdigest()
+b=base64.b64encode(data).decode(); tmp=dst+'.part'
+rsh=os.path.dirname(os.path.abspath(__file__))+'/rsh'
+run=lambda c: subprocess.run([rsh,c],check=True,capture_output=True,text=True).stdout
+chunks=[b[i:i+60000] for i in range(0,len(b),60000)]
+run(f'mkdir -p "$(dirname {dst})"; rm -f {tmp}.*')
+for i,c in enumerate(chunks):
+    run(f'printf %s {c} > {tmp}.{i:03d}')
+out=run(f'cat {" ".join(f"{tmp}.{i:03d}" for i in range(len(chunks)))} | base64 -d > {dst} && rm -f {tmp}.* && sha256sum {dst}')
+ok=out.split()[0]==h if out.strip() else False
+print(('OK ' if ok else 'MISMATCH ')+out.strip()); sys.exit(0 if ok else 1)

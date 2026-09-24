@@ -1,0 +1,15 @@
+#!/usr/bin/env python3
+# usage: rpost PATH [jsonfile|-]   (GET if no body)
+import json,sys,time,urllib.request,urllib.error
+import os; B=os.environ['OPENCODE_URL']  # the OpenCode server URL (ask Sam)
+path=sys.argv[1]
+data=None
+if len(sys.argv)>2:
+    data=(sys.stdin.read() if sys.argv[2]=='-' else open(sys.argv[2]).read()).encode()
+req=urllib.request.Request(B+path,data=data,headers={'content-type':'application/json'})
+for a in range(14):
+    try:
+        print(urllib.request.urlopen(req,timeout=300).read().decode()); break
+    except urllib.error.URLError as e:
+        if not any(k in str(e) for k in ('Tunnel connection failed','Connection reset','handshake','timed out','EOF occurred')) or a==13: raise
+        time.sleep(min(2**(a+1),20))
