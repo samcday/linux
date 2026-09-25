@@ -1,0 +1,74 @@
+From 4efd2e53b227db1aaf331c0230f6e2c55b65f7f0 Mon Sep 17 00:00:00 2001
+From: REPLACE WITH PEM120 REAL NAME <replace-me@example.invalid>
+Date: Fri, 25 Sep 2026 05:07:04 +0000
+Subject: [PATCH] Input: atmel_mxt_ts - read the info block checksum separately
+
+The touch controller on a Xiaomi Mi 4i (ferrari) with a replacement
+display panel identifies itself as an mXT336T (family 0xa4, variant
+0x15, firmware 2.1.AA, 41 objects), but its I2C interface does not
+behave like a genuine maXTouch: reads that do not start at one of a few
+special addresses return bytes from a flat 256-byte map indexed by the
+low address byte. It appears to be firmware that emulates the maXTouch
+object protocol.
+
+When the object table and the info block checksum are read in a single
+transfer starting at MXT_OBJECT_START, this controller returns the
+object table correctly but 00 00 fc in place of the checksum, and probe
+fails with "Info Block CRC error". A separate read of the three checksum
+bytes returns 0x8DDD0D, which matches the checksum calculated over the
+ID information and the object table. The Xiaomi vendor driver also reads
+the checksum on its own.
+
+Read the checksum in its own transfer, just as the ID information is
+already read separately from the object table. The checksum is still
+calculated and verified over the same contiguous buffer, so the check
+added by commit 068bdb67ef74 ("Input: atmel_mxt_ts - fix the firmware
+update") is unchanged, and a genuine controller returns the same bytes
+either way. The cost is one extra 3-byte read at probe.
+
+Also skip the object table transfer if the info block reports no
+objects, so that no zero-length read is issued.
+
+Assisted-by: LLM
+---
+ drivers/input/touchscreen/atmel_mxt_ts.c | 22 ++++++++++++++++++----
+ 1 file changed, 18 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+index 2c0e5a6713..76589ac39e 100644
+--- a/drivers/input/touchscreen/atmel_mxt_ts.c
++++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+@@ -1875,10 +1875,24 @@ static int mxt_read_info_block(struct mxt_data *data)
+ 
+ 	id_buf = buf;
+ 
+-	/* Read rest of info block */
+-	error = __mxt_read_reg(client, MXT_OBJECT_START,
+-			       size - MXT_OBJECT_START,
+-			       id_buf + MXT_OBJECT_START);
++	/*
++	 * Read the object table and the info block checksum in two
++	 * transfers. Some controllers (e.g. the one fitted to Xiaomi Mi 4i
++	 * replacement panels) return garbage for the checksum when it is
++	 * read as the tail of the object table transfer, while a separate
++	 * read of the checksum returns the correct value.
++	 */
++	if (num_objects) {
++		error = __mxt_read_reg(client, MXT_OBJECT_START,
++				       num_objects * sizeof(struct mxt_object),
++				       id_buf + MXT_OBJECT_START);
++		if (error)
++			return error;
++	}
++
++	error = __mxt_read_reg(client, size - MXT_INFO_CHECKSUM_SIZE,
++			       MXT_INFO_CHECKSUM_SIZE,
++			       id_buf + size - MXT_INFO_CHECKSUM_SIZE);
+ 	if (error)
+ 		return error;
+ 
+
+base-commit: fe2ec83746e501645709761605c2464a44fd2929
+-- 
+2.43.0
+

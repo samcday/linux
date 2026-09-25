@@ -1,0 +1,116 @@
+From c58bdcea0710694dad3362d7dc38100bffb9dfcd Mon Sep 17 00:00:00 2001
+From: REPLACE WITH PEM120 REAL NAME <replace-me@example.invalid>
+Date: Fri, 25 Sep 2026 05:07:05 +0000
+Subject: [PATCH 2/2] Input: atmel_mxt_ts - optionally enable T97 on start
+
+With the info block checksum read fixed, the maXTouch-compatible
+controller on a Xiaomi Mi 4i (ferrari) replacement panel probes, but
+reports no T100 touches. The Xiaomi vendor driver writes ENABLE | RPTEN
+to the CTRL byte of T97 (PTC Key Set) instances 0 to 2 each time it
+resumes the controller, and clears them on suspend.
+
+The vendor driver's resume sequence (T97 CTRL, T19, T7 restore,
+CALIBRATE) was bisected on the device, with a power cycle before each
+case, a person touching the panel continuously and interrupts counted.
+Writing ENABLE | RPTEN to T97 instance 0 alone makes the controller
+report touches; the T7 deep sleep/run cycle, CALIBRATE and the T19 write
+make no difference. The setting is lost on reset, and a maxtouch.cfg
+cannot be used to make it stick: the controller never reports the
+checksum of an uploaded configuration, so the driver would upload the
+file and issue BACKUPNV on every boot.
+
+When the "atmel,enable-t97" property is set and the device has a T97
+object, write CTRL = ENABLE | RPTEN to T97 instance 0 from mxt_start():
+in deep sleep mode before restoring T7 and recalibrating (the vendor
+order), and in T9 control mode after the soft reset, which would
+otherwise undo it. The byte is written without a read-modify-write
+because the controller's registers cannot be read back reliably.
+Devices without the property are unaffected.
+
+If the controller resets itself while the input device is open, T97
+stays disabled until the next mxt_start(). This was not seen in testing.
+
+Assisted-by: LLM
+---
+ drivers/input/touchscreen/atmel_mxt_ts.c | 30 ++++++++++++++++++++++++
+ 1 file changed, 30 insertions(+)
+
+diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+index 2c0e5a6713..5bdf84d97a 100644
+--- a/drivers/input/touchscreen/atmel_mxt_ts.c
++++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+@@ -159,6 +159,11 @@ struct t37_debug {
+ #define MXT_RESET_VALUE		0x01
+ #define MXT_BACKUP_VALUE	0x55
+ 
++/* T97 PTC Key Set */
++#define MXT_T97_CTRL		0
++#define MXT_T97_CTRL_ENABLE	BIT(0)
++#define MXT_T97_CTRL_RPTEN	BIT(1)
++
+ /* T100 Multiple Touch Touchscreen */
+ #define MXT_T100_CTRL		0
+ #define MXT_T100_CFG1		1
+@@ -355,6 +360,8 @@ struct mxt_data {
+ 
+ 	enum mxt_suspend_mode suspend_mode;
+ 
++	bool enable_t97;
++
+ 	u32 wakeup_method;
+ 
+ 	struct touchscreen_properties prop;
+@@ -3062,6 +3069,25 @@ static struct attribute *mxt_attrs[] = {
+ 
+ ATTRIBUTE_GROUPS(mxt);
+ 
++/*
++ * The maXTouch-compatible controller on some Xiaomi Mi 4i (ferrari) panels
++ * does not report any touches until T97 instance 0 is enabled, and loses
++ * that setting on reset. Its registers cannot be read back reliably, so the
++ * control byte is written without a read-modify-write.
++ */
++static void mxt_enable_t97(struct mxt_data *data)
++{
++	int error;
++
++	if (!data->enable_t97 || !data->T97_reportid_min)
++		return;
++
++	error = mxt_write_object(data, MXT_TOUCH_PTC_KEYS_T97, MXT_T97_CTRL,
++				 MXT_T97_CTRL_ENABLE | MXT_T97_CTRL_RPTEN);
++	if (error)
++		dev_warn(&data->client->dev, "Failed to enable T97: %d\n", error);
++}
++
+ static void mxt_start(struct mxt_data *data)
+ {
+ 	mxt_wakeup_toggle(data->client, true, false);
+@@ -3069,6 +3095,7 @@ static void mxt_start(struct mxt_data *data)
+ 	switch (data->suspend_mode) {
+ 	case MXT_SUSPEND_T9_CTRL:
+ 		mxt_soft_reset(data);
++		mxt_enable_t97(data);
+ 
+ 		/* Touch enable */
+ 		/* 0x83 = SCANEN | RPTEN | ENABLE */
+@@ -3078,6 +3105,7 @@ static void mxt_start(struct mxt_data *data)
+ 
+ 	case MXT_SUSPEND_DEEP_SLEEP:
+ 	default:
++		mxt_enable_t97(data);
+ 		mxt_set_t7_power_cfg(data, MXT_POWER_CFG_RUN);
+ 
+ 		/* Recalibrate since chip has been in deep sleep */
+@@ -3182,6 +3210,8 @@ static int mxt_parse_device_properties(struct mxt_data *data)
+ 		data->t15_num_keys = n_keys;
+ 	}
+ 
++	data->enable_t97 = device_property_read_bool(dev, "atmel,enable-t97");
++
+ 	return 0;
+ }
+ 
+-- 
+2.43.0
+

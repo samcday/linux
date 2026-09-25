@@ -10,13 +10,17 @@ address 0x4a. Mainline's `atmel_mxt_ts` never got a single touch from it. Two th
    failed with "Info Block CRC error". Reading the checksum as a separate transfer returns the correct
    value (0x8DDD0D, matching the calculated CRC). The vendor driver reads it separately.
 2. **No touch reports:** the controller does **not report any touches (T100) until the T97 touch key
-   array is enabled** (T97 instance 0 CTRL = ENABLE | RPTEN = 0x03). Xiaomi's config ships T97
-   disabled, and the vendor driver enables it on every resume. Upstream never writes T97, so the chip
+   array is enabled** (T97 instance 0 CTRL = ENABLE | RPTEN = 0x03). The controller comes up with T97
+   disabled after every power cycle or reset (why is unknown: its registers can't be read back reliably), and
+   the vendor driver enables it on every resume. Upstream never writes T97, so the chip
    stayed silent. This was found by bisecting the vendor driver's resume sequence on the device:
    only the T97 write matters. T7 deep-sleep cycling, CALIBRATE and T19 made no difference.
 
 Neither needs a config upload, BACKUPNV, firmware or the "write quirk" that earlier bring-up work
 added. The controller and its NVM were never damaged.
+
+**Upstreaming:** reworked v1 patches for LKML, the step-by-step plan for pem120 and the review behind it are in
+[upstream/](upstream/UPSTREAMING.md).
 
 ## Fix (patch series)
 | # | patch | why |
@@ -25,7 +29,7 @@ added. The controller and its NVM were never damaged.
 | 2 | Input: atmel_mxt_ts - read the info block checksum separately | fixes probe (item 1); also skips a zero-length read if the info block reports no objects |
 | 3 | dt-bindings: input: atmel,maxtouch: add atmel,enable-t97 | documents the new boolean property (`dt_binding_check` passes on 7.3) |
 | 4 | Input: atmel_mxt_ts - optionally enable the T97 key array on start | with `atmel,enable-t97`, write T97 instance 0 CTRL = ENABLE\|RPTEN from `mxt_start()`: in deep-sleep mode before the T7 restore and CALIBRATE (the vendor order), and in T9 mode after the soft reset. Boards without the property are unchanged |
-| 5 | arm64: dts: qcom: msm8939-xiaomi-ferrari: use upstream maXTouch binding | (7.0 tree only) `atmel,maxtouch` node with GPIO9/GPIO78 fixed regulators from pm8916_l6 (voltages from bring-up, not measured), CHG GPIO13 level-low, RESET GPIO12 active-low, `atmel,enable-t97`; **no `atmel,write-quirk`, no key codes** (the keys are dead on this panel) |
+| 5 | arm64: dts: qcom: msm8939-xiaomi-ferrari: use upstream maXTouch binding | (7.0 tree only) `atmel,maxtouch` node with GPIO9/GPIO78 fixed regulators from pm8916_l6 (voltages from bring-up, not measured), CHG GPIO13 level-low, RESET GPIO12 active-low, `atmel,enable-t97`; **no `atmel,write-quirk`, no key codes** (the keys produced no T97 messages in our tests) |
 
 Design notes from the adversarial review, which ran four reviewer dimensions and adversarially verified each finding:
 - The first version enabled one T97 instance per `linux,keycodes` entry. That contradicted upstream's T97 decoding
@@ -39,7 +43,11 @@ Not included: **i2c: qup: revert forced DMA and custom SCL dividers** (parked on
 Commit 5d8f10ccdc03 changed the QUP DMA and divider logic based on a wrong theory. The revert could not be verified: a
 kernel built from the series plus this revert (Debian clang 19, RAM-booted via `fastboot boot`) never brought up USB, and
 pem120 had to force a restart with the power jumpers. Toolchain, revert or something else? Unknown (pstore was empty).
-The tested and deployed kernel is the existing #8 build.
+The tested and deployed kernel is the existing #8 build. It was built from `msm8939/mi4i` @ 03fc2dcd **plus DS's
+uncommitted i2c-qup.c changes**: the source was modified at 20:22 and `i2c-qup.o`/`vmlinux` were built at 20:26–20:27 IST on
+2026-09-23. Those changes are now saved on branch `ds-wip-2026-09-24`. They keep 5d8f10ccdc03's custom SCL dividers
+(in a different form) and go back to the upstream DMA heuristic. So **touch has not yet been tested with stock
+upstream i2c-qup**. That is the first thing to test before upstreaming; see [upstream/UPSTREAMING.md](upstream/UPSTREAMING.md) §5.
 
 ## Evidence (full raw data under `~/claude-touch/` on ishulappy)
 - **Controller behaviour** (E02/E03/E07): reads use a flat 256-byte map indexed by the low address byte, with
@@ -54,8 +62,8 @@ The tested and deployed kernel is the existing #8 build.
   with a human touching continuously, and IRQs counted over 9 s:
   none 0 · CAL 0 · T7→0 0 · T7 restore 0 · T7 cycle 0 · T7 cycle+CAL 0 · upstream block T7 cycle+CAL 0 ·
   T97×3+T19 440 · all vendor steps 632 · T97×3 423/410 · T19 only 0 · **T97 instance 0 only 413**.
-- The capacitive keys produce no T97 messages at all on this replacement panel (hardware), so the key
-  codes are taken from the vendor configuration and are unverified here.
+- The capacitive keys produced no T97 messages in any of our tests (rev3 TWRP, mainline), although the MIUI log shows
+  T97 key events (HANDOVER.md, stock logs). The cause is unknown, so the final series describes no key codes.
 
 ## Status on mainline 7.0 (`7.0.0-msm8916` #8, final patched `atmel_mxt_ts.ko` in rootfs **and initramfs**, final DTB)
 All gates were re-run on the **final** version (driver = the committed series, DTB built from it; no manual steps after boot):

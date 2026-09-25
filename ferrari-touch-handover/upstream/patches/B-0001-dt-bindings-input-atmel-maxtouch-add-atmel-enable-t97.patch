@@ -1,0 +1,48 @@
+From c5b7590e65382c342bfefb393149d465b5166b3e Mon Sep 17 00:00:00 2001
+From: REPLACE WITH PEM120 REAL NAME <replace-me@example.invalid>
+Date: Fri, 25 Sep 2026 05:07:05 +0000
+Subject: [PATCH 1/2] dt-bindings: input: atmel,maxtouch: add atmel,enable-t97
+
+The maXTouch-compatible touch controller on a Xiaomi Mi 4i (ferrari)
+replacement panel does not report any touchscreen events until instance
+0 of its T97 (PTC Key Set) object is enabled, and T97 is disabled again
+after every reset or power cycle. The Xiaomi vendor driver enables T97
+each time it wakes the controller.
+
+This depends on the controller and the configuration it runs on a given
+board, not on the maXTouch family: on other boards T97 is set up by the
+stored configuration and must be left alone. The controller reports the
+same family, variant and firmware version as a genuine mXT336T, so it
+cannot be identified from its ID information, and its real part number
+is not known, so there is no specific compatible to use.
+
+Add a boolean property for boards whose controller needs T97 instance 0
+to be enabled by the host.
+
+Assisted-by: LLM
+---
+ .../devicetree/bindings/input/atmel,maxtouch.yaml         | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/Documentation/devicetree/bindings/input/atmel,maxtouch.yaml b/Documentation/devicetree/bindings/input/atmel,maxtouch.yaml
+index 26ea78df27..186b644877 100644
+--- a/Documentation/devicetree/bindings/input/atmel,maxtouch.yaml
++++ b/Documentation/devicetree/bindings/input/atmel,maxtouch.yaml
+@@ -88,6 +88,14 @@ properties:
+       - 2 # ATMEL_MXT_WAKEUP_GPIO
+     default: 0
+ 
++  atmel,enable-t97:
++    type: boolean
++    description:
++      The controller does not report touchscreen events while instance 0 of
++      its T97 (PTC Key Set) object is disabled, and T97 is disabled after
++      every reset or power cycle, so T97 instance 0 has to be enabled each
++      time the controller is brought up or woken from deep sleep.
++
+   wakeup-source: true
+ 
+ required:
+-- 
+2.43.0
+
