@@ -70,7 +70,8 @@ All gates were re-run on the **final** version (driver = the committed series, D
 
 A first run of the 10-minute test was cut short after about 4 min. pem120 rebooted the phone because the **display** did not wake after
 the screen blanked: a power-key press was followed by `mdp5_irq_error_handler ... errors: 04000000`. That is a separate display
-issue and not touch related. For the repeat run the Phosh idle-delay was set to 0 temporarily (original value 300 s, restored afterwards).
+issue and not touch related. For the repeat run the Phosh idle-delay was set to 0 temporarily (original value 300 s). It has **not** been
+restored yet, because ishulappy went offline before that step (see Open items).
 
 Remaining cosmetic message: at probe, before `mxt_start()` enables T97, the first IRQ logs
 "T44 count 153 exceeded max report id" / "Unexpected invalid message" once or twice. It is harmless.
@@ -83,3 +84,14 @@ Remaining cosmetic message: at probe, before `mxt_start()` enables T97, the firs
 - Rescue: in lk2nd fastboot, `fastboot boot ~/claude-touch/rescue/rescue-boot.img` (original kernel + DTB +
   initramfs, RAM only).
 - `Signed-off-by:` lines are intentionally absent. The humans submitting these patches must add their own.
+
+## Open items
+ishulappy went offline at about 14:38 UTC on 2026-09-24, before these steps could run:
+- **Restore the screen-blank timeout** on the phone (as `ishu`, in the Phosh session):
+  `gsettings set org.gnome.desktop.session idle-delay 300`
+- **DS's checkout:** the series is committed on branch `claude/ferrari-touch` (worktree `~/claude-touch/linux-wt`),
+  but `msm8939/mi4i` has not been moved. The plan was to commit this report there as `ferrari-touch/REPORT.md`, then run
+  `git stash push -m "DS WIP before claude/ferrari-touch"` in `~/Projects/Android/msm8939/linux` (it holds uncommitted
+  WIP in 4 files) and `git merge --ff-only claude/ferrari-touch`.
+- **Re-measure idle IRQs:** the last idle sample (22 IRQs in 30 s) was taken right after the 10-minute test, possibly while
+  someone was still touching the screen. A clean untouched ~40 s sample, comparing IRQs with evdev events, was not taken.
