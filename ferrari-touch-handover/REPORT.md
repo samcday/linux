@@ -30,6 +30,7 @@ added. The controller and its NVM were never damaged.
 | 3 | dt-bindings: input: atmel,maxtouch: add atmel,enable-t97 | documents the new boolean property (`dt_binding_check` passes on 7.3) |
 | 4 | Input: atmel_mxt_ts - optionally enable the T97 key array on start | with `atmel,enable-t97`, write T97 instance 0 CTRL = ENABLE\|RPTEN from `mxt_start()`: in deep-sleep mode before the T7 restore and CALIBRATE (the vendor order), and in T9 mode after the soft reset. Boards without the property are unchanged |
 | 5 | arm64: dts: qcom: msm8939-xiaomi-ferrari: use upstream maXTouch binding | (7.0 tree only) `atmel,maxtouch` node with GPIO9/GPIO78 fixed regulators from pm8916_l6 (voltages from bring-up, not measured), CHG GPIO13 level-low, RESET GPIO12 active-low, `atmel,enable-t97`; **no `atmel,write-quirk`, no key codes** (the keys produced no T97 messages in our tests) |
+| 6 | i2c: qup: revert forced DMA and custom SCL dividers | (7.0 tree only) back to stock i2c-qup; the bring-up change 5d8f10ccdc03 is not needed (E12, kernel #9) |
 
 Design notes from the adversarial review, which ran four reviewer dimensions and adversarially verified each finding:
 - The first version enabled one T97 instance per `linux,keycodes` entry. That contradicted upstream's T97 decoding
@@ -39,15 +40,22 @@ Design notes from the adversarial review, which ran four reviewer dimensions and
 - Not handled: if the controller resets itself while the device is open, T97 stays disabled until the next start
   (documented in the commit message).
 
-Not included: **i2c: qup: revert forced DMA and custom SCL dividers** (parked on branch `claude/qup-revert-untested`).
-Commit 5d8f10ccdc03 changed the QUP DMA and divider logic based on a wrong theory. The revert could not be verified: a
-kernel built from the series plus this revert (Debian clang 19, RAM-booted via `fastboot boot`) never brought up USB, and
-pem120 had to force a restart with the power jumpers. Toolchain, revert or something else? Unknown (pstore was empty).
-The tested and deployed kernel is the existing #8 build. It was built from `msm8939/mi4i` @ 03fc2dcd **plus DS's
-uncommitted i2c-qup.c changes**: the source was modified at 20:22 and `i2c-qup.o`/`vmlinux` were built at 20:26–20:27 IST on
-2026-09-23. Those changes are now saved on branch `ds-wip-2026-09-24`. They keep 5d8f10ccdc03's custom SCL dividers
-(in a different form) and go back to the upstream DMA heuristic. So **touch has not yet been tested with stock
-upstream i2c-qup**. That is the first thing to test before upstreaming; see [upstream/UPSTREAMING.md](upstream/UPSTREAMING.md) §5.
+**i2c-qup: the bring-up changes are not needed (verified 2026-09-25, E12).**
+- Commit 5d8f10ccdc03 changed the QUP DMA and divider logic based on a wrong theory.
+- The gate tests above ran on kernel #8. That kernel was built from `msm8939/mi4i` @ 03fc2dcd **plus DS's uncommitted
+  i2c-qup.c changes** (custom SCL dividers, upstream DMA heuristic), now saved on branch `ds-wip-2026-09-24`.
+- A first attempt at the revert (my build with Debian clang 19, RAM-booted) never brought up USB, and pem120 had to
+  force a restart with the power jumpers. The cause is unknown.
+- pem120's own build (#9, pmbootstrap `--envkernel`) boots fine. It is branch `claude/ferrari-touch-stock-qup`: the
+  series plus **i2c: qup: revert forced DMA and custom SCL dividers**, so i2c-qup.c is stock (identical to 464923b).
+  - probe: `Family: 164 Variant: 21 Firmware V2.1.AA Objects: 41`, with no CRC error;
+  - no I2C/QUP errors;
+  - the touch module's srcversion is identical to the tested one;
+  - no IRQs while idle;
+  - 6/6 touch-downs and releases across the panel (X 142–1066, Y 34–1820);
+  - pem120: "Works - screen reacts correctly" (`~/claude-touch/E12-stockqup/`).
+- So `msm8939/mi4i` now includes the revert as a sixth commit.
+- Not re-run on #9: the 10-minute and blank/unblank gates.
 
 ## Evidence (full raw data under `~/claude-touch/` on ishulappy)
 - **Controller behaviour** (E02/E03/E07): reads use a flat 256-byte map indexed by the low address byte, with
@@ -97,8 +105,8 @@ Remaining cosmetic message: at probe, before `mxt_start()` enables T97, the firs
 - DS's uncommitted work from `msm8939/mi4i` (i2c-qup.c, atmel_mxt_ts.c, atmel_mxt_ts_336t.c, ferrari DTS) is saved on branch
   `ds-wip-2026-09-24` and as `~/claude-touch/ds-wip-2026-09-24/ds-wip.diff`. It was no longer in the working tree after the
   checkout was moved by hand on 2026-09-25.
-- `msm8939/mi4i` is unchanged at 03fc2dcd. The tested series is on `claude/ferrari-touch`.
 - At pem120's request the checkout is on **`claude/ferrari-touch-stock-qup`**: `claude/ferrari-touch` plus the i2c-qup
   revert, so `i2c-qup.c` is the stock pre-hack version (identical to 464923b). It is the only file that differs from the
-  tested tree. pem120 is building and testing it. That is the stock-i2c-qup test UPSTREAMING.md §5 asks for. Once it
-  passes, `msm8939/mi4i` can move to that branch.
+  tree the gates ran on.
+- pem120 built it as kernel #9 and touch works (E12, above), so **`msm8939/mi4i` was fast-forwarded to it**
+  (03fc2dcd → 9988b32e8fd8). The first series-only branch `claude/ferrari-touch` is kept for reference.

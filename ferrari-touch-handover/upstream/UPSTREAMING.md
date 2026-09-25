@@ -94,10 +94,21 @@ Tags:
 - committed 5d8f10ccdc03: forced DMA and custom SCL dividers;
 - the uncommitted change: upstream DMA heuristic, but a custom `fs_div`/`ht_div` for every bus speed.
 
-Nobody has tested touch with **stock upstream i2c-qup** yet. A reviewer's first question will be "is it your I2C
-controller?", and only this test answers it. One earlier attempt (series + full i2c-qup revert, built with a different
-clang, RAM-booted) never brought up USB and needed the jumpers. The cause is unknown. Have the jumpers ready and keep
-lk2nd fastboot as the way back.
+**Update 2026-09-25 (E12).** Touch works with **stock i2c-qup** on a 7.0-based kernel:
+- the build is pem120's kernel #9, branch `claude/ferrari-touch-stock-qup`, now also `msm8939/mi4i`;
+- probe OK, no CRC error, no I2C errors;
+- 6/6 touch-downs and releases across the panel;
+- pem120 confirmed it.
+The evidence is in `~/claude-touch/E12-stockqup/` on ishulappy. This answers "is it your I2C controller?" for the
+tested combination (A + B).
+
+Still to do from the list below:
+- step 1 (the CRC error line without A) and step 2 (A only), on stock i2c-qup;
+- blank/unblank and the 10 minutes on stock i2c-qup;
+- a 7.3 kernel;
+- real suspend.
+(An earlier stock-i2c-qup build of mine, made with a different clang, never brought up USB. pem120's pmbootstrap
+build boots fine. Keep the jumpers ready anyway.)
 
 Use this kernel:
 - a 7.3-based msm8916-mainline kernel (`wip/msm8916/7.3-rc2` or newer);
@@ -184,7 +195,7 @@ patches.
   - Give the marking if you can photograph it safely. Otherwise say it is unknown.
 - **Is it your I2C controller?**
   - The flat map looks the same with the vendor kernel's i2c-msm-v2 master.
-  - Quote the stock-i2c-qup result from §5. Until you have it, you can't say "no".
+  - Touch works on stock i2c-qup (E12, 2026-09-25). Quote that, and the CRC-error line from §5 step 1 once you have it.
 - **068bdb67ef74 wanted the info block read as one block.**
   - That commit already used two transfers: the 7-byte header, then the rest.
   - The CRC is still calculated over the same contiguous buffer and still compared.
@@ -248,7 +259,7 @@ Lore blocked automated access during the review, so these links weren't tried.
      in linux-next, which gives the property an in-tree user.
 
 ## Not yet verified by anyone
-- Touch with stock upstream i2c-qup (§5).
+- The CRC-error line without patch A on stock i2c-qup (§5 step 1). Touch with A + B on stock i2c-qup works (E12).
 - Any 7.3 kernel on this phone.
 - Real system suspend/resume.
 - The chip marking.
