@@ -71,15 +71,15 @@ All gates were re-run on the **final** version (driver = the committed series, D
 | gate | result (final version) |
 |---|---|
 | real touches produce evdev events, confirmed by pem120 | ✅ boots 1–3: 11/11/10 touch-downs, full panel, 2 MT slots; pem120: "Works – screen reacts correctly to taps and drags" each time |
-| 10 min normal use, no I2C errors / IRQ storm / stuck contacts | ✅ 634 s logged: 2406 events, 31 downs / 31 ups, all slots released, X 30–1073 / Y 10–1902; no touch/I2C/QUP messages (only unrelated wcn36xx Wi-Fi BMPS messages); pem120: "Worked well the whole time". Idle IRQ rate: 0 in 45 s on the earlier version; 22 in 30 s right after this run (pem120 may still have been touching), so no storm |
+| 10 min normal use, no I2C errors / IRQ storm / stuck contacts | ✅ 634 s logged: 2406 events, 31 downs / 31 ups, all slots released, X 30–1073 / Y 10–1902; no touch/I2C/QUP messages (only unrelated wcn36xx Wi-Fi BMPS messages); pem120: "Worked well the whole time". Idle IRQ rate: 0 IRQs and 0 evdev events in 45 s (2026-09-25, final version, 1 h uptime, no I2C/QUP errors in dmesg); the earlier 22 in 30 s right after this run was residual touching |
 | survives 3 boots | ✅ |
 | survives 3 blank/unblank cycles (input inhibit → `mxt_stop()`/`mxt_start()`) | ✅ 14/9/13 touch-downs in the windows after the three cycles |
 | minimal reviewed series committed | ✅ both trees (see commit logs); 4-dimension adversarial review + checkpatch; the 7.3 driver compiles cleanly with W=1 at every commit; `dt_binding_check` passes |
 
 A first run of the 10-minute test was cut short after about 4 min. pem120 rebooted the phone because the **display** did not wake after
 the screen blanked: a power-key press was followed by `mdp5_irq_error_handler ... errors: 04000000`. That is a separate display
-issue and not touch related. For the repeat run the Phosh idle-delay was set to 0 temporarily (original value 300 s). It has **not** been
-restored yet, because ishulappy went offline before that step (see Open items).
+issue and not touch related. For the repeat run the Phosh idle-delay was set to 0 temporarily (original value 300 s). It was restored to
+300 on 2026-09-25.
 
 Remaining cosmetic message: at probe, before `mxt_start()` enables T97, the first IRQ logs
 "T44 count 153 exceeded max report id" / "Unexpected invalid message" once or twice. It is harmless.
@@ -93,13 +93,12 @@ Remaining cosmetic message: at probe, before `mxt_start()` enables T97, the firs
   initramfs, RAM only).
 - `Signed-off-by:` lines are intentionally absent. The humans submitting these patches must add their own.
 
-## Open items
-ishulappy went offline at about 14:38 UTC on 2026-09-24, before these steps could run:
-- **Restore the screen-blank timeout** on the phone (as `ishu`, in the Phosh session):
-  `gsettings set org.gnome.desktop.session idle-delay 300`
-- **DS's checkout:** the series is committed on branch `claude/ferrari-touch` (worktree `~/claude-touch/linux-wt`),
-  but `msm8939/mi4i` has not been moved. The plan was to commit this report there as `ferrari-touch/REPORT.md`, then run
-  `git stash push -m "DS WIP before claude/ferrari-touch"` in `~/Projects/Android/msm8939/linux` (it holds uncommitted
-  WIP in 4 files) and `git merge --ff-only claude/ferrari-touch`.
-- **Re-measure idle IRQs:** the last idle sample (22 IRQs in 30 s) was taken right after the 10-minute test, possibly while
-  someone was still touching the screen. A clean untouched ~40 s sample, comparing IRQs with evdev events, was not taken.
+## Status of DS's checkout (2026-09-25)
+- DS's uncommitted work from `msm8939/mi4i` (i2c-qup.c, atmel_mxt_ts.c, atmel_mxt_ts_336t.c, ferrari DTS) is saved on branch
+  `ds-wip-2026-09-24` and as `~/claude-touch/ds-wip-2026-09-24/ds-wip.diff`. It was no longer in the working tree after the
+  checkout was moved by hand on 2026-09-25.
+- `msm8939/mi4i` is unchanged at 03fc2dcd. The tested series is on `claude/ferrari-touch`.
+- At pem120's request the checkout is on **`claude/ferrari-touch-stock-qup`**: `claude/ferrari-touch` plus the i2c-qup
+  revert, so `i2c-qup.c` is the stock pre-hack version (identical to 464923b). It is the only file that differs from the
+  tested tree. pem120 is building and testing it. That is the stock-i2c-qup test UPSTREAMING.md §5 asks for. Once it
+  passes, `msm8939/mi4i` can move to that branch.
