@@ -23,7 +23,8 @@ dtor/input `next` and next-20260924: nothing touched these two files upstream si
 - `B-0001-*.patch`, `B-0002-*.patch`: B (write the cover letter from §7)
 - `mxt-v1.bundle`: the same commits as a git bundle, with branches `mxt-crc` (A) and `mxt-t97` (B)
 
-They are reworked from the branch commits 210b841585, 4ffb88519f and 536df0e49b, which are what ran on the phone:
+They are reworked from the 7.3 commits 210b841585, 4ffb88519f and 536df0e49b. The phone ran their 7.0 backport, which in
+DS's tree is now d49f1b3da33f, 9ebd65f703bd and b64fb0cfc76d on `msm8939/mi4i`:
 - The author is a placeholder. Co-Authored-By / Claude-Session are replaced by `Assisted-by: LLM` (format per
   Documentation/process/coding-assistants.rst). You add your own Signed-off-by (§4).
 - The T97 write uses the existing `mxt_write_object()` helper, and the extra `T97_address` field is gone. The I2C write
@@ -61,8 +62,8 @@ If any of this doesn't work for you, tell Sam before sending. Sam could submit i
 git clone https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git && cd linux
 git config user.name  "Your Name"        # a known identity: the kernel doesn't take anonymous contributions
 git config user.email "you@example.org"  # an inbox you will read
-git fetch /path/to/ferrari-touch-handover/upstream/patches/mxt-v1.bundle mxt-crc:mxt-crc mxt-t97:mxt-t97
-pipx install b4 && pip install --user dtschema yamllint
+git fetch ~/claude-touch/docs/upstream/patches/mxt-v1.bundle mxt-crc:mxt-crc mxt-t97:mxt-t97   # needs fe2ec83746 in the clone
+pipx install b4 && pipx install dtschema && pipx install yamllint && pipx ensurepath   # Debian refuses pip --user
 git config --global b4.send-endpoint-web https://lkml.kernel.org/_b4_submit
 b4 send --web-auth-new              # then: b4 send --web-auth-verify <challenge from the email>
 ```
@@ -71,7 +72,7 @@ reply-all, no HTML (see email-clients.rst).
 
 ## 4. Make the patches yours
 ```sh
-BASE=$(git describe --tags --abbrev=0 origin/master)   # newest mainline tag, e.g. v7.3-rc6
+BASE=$(git describe --tags --abbrev=0 origin/master)   # newest mainline tag, e.g. v7.3-rc6; write it down, §6/§7 need it again
 for b in mxt-crc mxt-t97; do
   git rebase --onto $BASE fe2ec83746 $b
   git rebase --exec 'git commit --amend --no-edit --reset-author -s' $BASE $b
@@ -88,7 +89,7 @@ Tags:
   their consent.
 
 ## 5. Test on the phone (required; do not skip)
-**Why this matters.** Every mainline test so far ran on kernel `7.0.0-msm8916 #8`. That kernel was built from DS's
+**Why this matters.** Every mainline test before 2026-09-25 (E12) ran on kernel `7.0.0-msm8916 #8`. That kernel was built from DS's
 `msm8939/mi4i` @ 03fc2dcd **plus DS's uncommitted i2c-qup.c changes**. Those changes are saved on branch
 `ds-wip-2026-09-24` in DS's checkout. The i2c-qup driver in that kernel therefore differs from upstream twice:
 - committed 5d8f10ccdc03: forced DMA and custom SCL dividers;
@@ -105,11 +106,28 @@ tested combination (A + B).
 
 Still to do from the list below:
 - step 1 (the CRC error line without A) and step 2 (A only), on stock i2c-qup;
-- blank/unblank and the 10 minutes on stock i2c-qup;
+- 3 boots, blank/unblank and the 10 minutes on stock i2c-qup (#9 was booted once and only taps were checked);
 - a 7.3 kernel;
 - real suspend.
 (An earlier stock-i2c-qup build of mine, made with a different clang, never brought up USB. pem120's pmbootstrap
 build boots fine. Keep the jumpers ready anyway.)
+
+**Making the test variants on the 7.0 tree.** Branch from `msm8939/mi4i`, never from 464923b. 464923b's own driver
+only warns on the CRC mismatch; 231dfd6898e3 restores the check.
+```sh
+git switch -c test-no-A  msm8939/mi4i && git revert --no-edit d49f1b3da33f   # step 1: expect the CRC error
+git switch -c test-A-only msm8939/mi4i && git revert --no-edit b64fb0cfc76d  # step 2: probes, no touches
+```
+Build each with pmbootstrap `--envkernel` and RAM-boot it (`fastboot boot`) so the installed kernel stays the way back.
+
+**A 7.3 kernel.** There is no ferrari DTS for 7.3 yet. On msm8916-mainline `wip/msm8916/7.3-rcN`:
+1. Apply the three v1 patches (`git am` or merge `mxt-crc` and `mxt-t97`).
+2. Copy `msm8939-xiaomi-ferrari.dts` (plus its Makefile line) from `msm8939/mi4i`, not the minimal-UNTESTED DTS, whose
+   touch regulators differ.
+3. Drop or port the panel and lm3533 nodes. Touch doesn't need the display: test over SSH with `evtest`.
+
+If that is too much work, test the v1 patches backported onto `msm8939/mi4i` instead, and say "7.0-based
+msm8916-mainline kernel with the patches backported; not tested on 7.3" in the notes and cover letter.
 
 Use this kernel:
 - a 7.3-based msm8916-mainline kernel (`wip/msm8916/7.3-rc2` or newer);
@@ -260,7 +278,8 @@ Lore blocked automated access during the review, so these links weren't tried.
      in linux-next, which gives the property an in-tree user.
 
 ## Not yet verified by anyone
-- The CRC-error line without patch A on stock i2c-qup (§5 step 1). Touch with A + B on stock i2c-qup works (E12).
+- The CRC-error line without patch A and the A-only run, on stock i2c-qup (§5 steps 1–2). Touch with A + B on stock
+  i2c-qup works (E12, one boot, taps only); 3 boots, blank/unblank and 10 minutes were not re-run on it.
 - Any 7.3 kernel on this phone.
 - Real system suspend/resume.
 - The chip marking.

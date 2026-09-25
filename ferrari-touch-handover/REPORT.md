@@ -19,10 +19,18 @@ address 0x4a. Mainline's `atmel_mxt_ts` never got a single touch from it. Two th
 Neither needs a config upload, BACKUPNV, firmware or the "write quirk" that earlier bring-up work
 added. The controller and its NVM were never damaged.
 
+**Current state and next steps for pem120:** [NEXT-STEPS.md](NEXT-STEPS.md).
+
 **Upstreaming:** reworked v1 patches for LKML, the step-by-step plan for pem120 and the review behind it are in
 [upstream/](upstream/UPSTREAMING.md).
 
 ## Fix (patch series)
+This is the series as built and tested on 03fc2dcd: rows 1–5 are `claude/ferrari-touch` (kernel #8's touch module and
+DTB), and rows 1–6 are `claude/ferrari-touch-stock-qup` (kernel #9). On `msm8939/mi4i`, which is now rebased onto
+464923b, the order is: an lm3533 build fix first, then "restore the info block CRC check" in place of row 1, then rows
+2–4 and a DTS commit with the same content as row 5. Row 6 isn't needed there because 464923b already has stock
+i2c-qup. See "Status of DS's checkout".
+
 | # | patch | why |
 |---|---|---|
 | 1 | Input: atmel_mxt_ts - drop ferrari bring-up changes | (7.0 tree only) restore the upstream driver. Bring-up had commented out the CRC check, forced RETRIGEN, added a CRC "repair" write and added a `zero_config` (zero + BACKUPNV) sysfs |
@@ -40,9 +48,9 @@ Design notes from the adversarial review, which ran four reviewer dimensions and
 - Not handled: if the controller resets itself while the device is open, T97 stays disabled until the next start
   (documented in the commit message).
 
-**i2c-qup: the bring-up changes are not needed (verified 2026-09-25, E12).**
+**i2c-qup: touch works without the bring-up changes (2026-09-25, E12; one boot, taps only).**
 - Commit 5d8f10ccdc03 changed the QUP DMA and divider logic based on a wrong theory.
-- The gate tests above ran on kernel #8. That kernel was built from `msm8939/mi4i` @ 03fc2dcd **plus DS's uncommitted
+- The gate tests below ("Status on mainline 7.0") ran on kernel #8. That kernel was built from `msm8939/mi4i` @ 03fc2dcd **plus DS's uncommitted
   i2c-qup.c changes** (custom SCL dividers, upstream DMA heuristic), now saved on branch `ds-wip-2026-09-24`.
 - A first attempt at the revert (my build with Debian clang 19, RAM-booted) never brought up USB, and pem120 had to
   force a restart with the power jumpers. The cause is unknown.
@@ -56,7 +64,7 @@ Design notes from the adversarial review, which ran four reviewer dimensions and
   - pem120: "Works - screen reacts correctly" (`~/claude-touch/E12-stockqup/`).
 - So the bring-up i2c-qup changes are gone from `msm8939/mi4i`. It was later rebased onto 464923b, which already has stock
   i2c-qup (see below).
-- Not re-run on #9: the 10-minute and blank/unblank gates.
+- Not re-run on #9: the 3-boot, 10-minute and blank/unblank gates (one boot, taps only).
 
 ## Evidence (full raw data under `~/claude-touch/` on ishulappy)
 - **Controller behaviour** (E02/E03/E07): reads use a flat 256-byte map indexed by the low address byte, with
@@ -93,7 +101,9 @@ issue and not touch related. For the repeat run the Phosh idle-delay was set to 
 Remaining cosmetic message: at probe, before `mxt_start()` enables T97, the first IRQ logs
 "T44 count 153 exceeded max report id" / "Unexpected invalid message" once or twice. It is harmless.
 
-## Deployment notes (phone)
+## Deployment notes (phone; E11 deploy of kernel #8, superseded)
+- The phone now runs pem120's kernel #9, installed with pmbootstrap. The notes below describe the earlier E11 deploy onto
+  kernel #8. Its backups can be deleted (NEXT-STEPS.md).
 - Backups: `/boot/msm8939-xiaomi-ferrari.dtb.pre-claude`, `/boot/initramfs.pre-claude`,
   `/lib/modules/7.0.0-msm8916/kernel/drivers/input/touchscreen/atmel_mxt_ts.ko.pre-claude`.
 - The initramfs was updated by replacing only `atmel_mxt_ts.ko` inside it. A future `mkinitfs` run will pick up
@@ -123,4 +133,6 @@ Remaining cosmetic message: at probe, before `mxt_start()` enables T97, the firs
 - Compared with the kernel #9 tree, the touch driver, binding, DTS and i2c-qup.c are byte-identical. The unused 336t
   driver is gone. With pem120's config, those files and the lm3533 drivers compile, and the DTB is byte-identical to #9's.
   **This branch has not been booted yet.** The rebased commits are unsigned (see NEXT-STEPS.md).
-- `claude/ferrari-touch` (kernel #8 tree) and `claude/ferrari-touch-stock-qup` (kernel #9 tree) are kept for reference.
+- `claude/ferrari-touch` (the series behind kernel #8's touch module and DTB; #8's i2c-qup.c was DS's uncommitted
+  version) and `claude/ferrari-touch-stock-qup` (kernel #9 tree) are kept for reference. Tag `mi4i-before-rebase` =
+  03fc2dcd, DS's old head.

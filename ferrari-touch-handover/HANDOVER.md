@@ -1,9 +1,19 @@
 # Xiaomi Mi 4i (ferrari) touchscreen on mainline — handover
 
-> **Update (2026-09-24 evening): solved, see [REPORT.md](REPORT.md).** Root cause: the controller only reports
-> touches after T97 instance 0 is enabled, and the info-block CRC must be read separately. The fix is the patch series on this
-> branch (7.3) and on `claude/ferrari-touch` → `msm8939/mi4i` in DS's tree. It is verified on mainline: 3 boots, 3 sleep/wake
-> cycles and 10 minutes of use, each confirmed by pem120. The rest of this file is the mid-investigation handover and is kept for history.
+> **Update (2026-09-25): solved. Current state and next steps: [NEXT-STEPS.md](NEXT-STEPS.md). Details:
+> [REPORT.md](REPORT.md).** Root cause: the controller only reports touches after T97 instance 0 is enabled, and the
+> info-block CRC must be read separately.
+>
+> Where the fix is: the patch series on this branch (7.3), and in DS's tree `msm8939/mi4i` = `claude/ferrari-touch-rebased`
+> (the series rebased onto 464923b on 2026-09-25).
+>
+> Verification:
+> - kernel #8 passed 3 boots, 3 sleep/wake cycles and 10 minutes of use;
+> - kernel #9 (stock i2c-qup) passed taps;
+> - pem120 confirmed each.
+>
+> Since then, the OpenCode server requires a password. Statements below about dead keys and about i2c-qup are
+> superseded. The rest of this file is the mid-investigation handover, kept for history.
 
 
 Status as of 2026-09-24 ~12:00 UTC. Written by Claude Code, which took over the
