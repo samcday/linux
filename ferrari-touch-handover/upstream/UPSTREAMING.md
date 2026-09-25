@@ -95,7 +95,8 @@ Tags:
 - the uncommitted change: upstream DMA heuristic, but a custom `fs_div`/`ht_div` for every bus speed.
 
 **Update 2026-09-25 (E12).** Touch works with **stock i2c-qup** on a 7.0-based kernel:
-- the build is pem120's kernel #9, branch `claude/ferrari-touch-stock-qup`, now also `msm8939/mi4i`;
+- the build is pem120's kernel #9, branch `claude/ferrari-touch-stock-qup`. `msm8939/mi4i` has the same touch code
+  rebased onto 464923b;
 - probe OK, no CRC error, no I2C errors;
 - 6/6 touch-downs and releases across the panel;
 - pem120 confirmed it.

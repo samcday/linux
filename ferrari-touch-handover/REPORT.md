@@ -54,7 +54,8 @@ Design notes from the adversarial review, which ran four reviewer dimensions and
   - no IRQs while idle;
   - 6/6 touch-downs and releases across the panel (X 142–1066, Y 34–1820);
   - pem120: "Works - screen reacts correctly" (`~/claude-touch/E12-stockqup/`).
-- So `msm8939/mi4i` now includes the revert as a sixth commit.
+- So the bring-up i2c-qup changes are gone from `msm8939/mi4i`. It was later rebased onto 464923b, which already has stock
+  i2c-qup (see below).
 - Not re-run on #9: the 10-minute and blank/unblank gates.
 
 ## Evidence (full raw data under `~/claude-touch/` on ishulappy)
@@ -105,8 +106,21 @@ Remaining cosmetic message: at probe, before `mxt_start()` enables T97, the firs
 - DS's uncommitted work from `msm8939/mi4i` (i2c-qup.c, atmel_mxt_ts.c, atmel_mxt_ts_336t.c, ferrari DTS) is saved on branch
   `ds-wip-2026-09-24` and as `~/claude-touch/ds-wip-2026-09-24/ds-wip.diff`. It was no longer in the working tree after the
   checkout was moved by hand on 2026-09-25.
-- At pem120's request the checkout is on **`claude/ferrari-touch-stock-qup`**: `claude/ferrari-touch` plus the i2c-qup
-  revert, so `i2c-qup.c` is the stock pre-hack version (identical to 464923b). It is the only file that differs from the
+- For pem120's stock-i2c-qup build the checkout was put on **`claude/ferrari-touch-stock-qup`**: `claude/ferrari-touch`
+  plus the i2c-qup revert, so `i2c-qup.c` is the stock pre-hack version (identical to 464923b). It is the only file that differs from the
   tree the gates ran on.
-- pem120 built it as kernel #9 and touch works (E12, above), so **`msm8939/mi4i` was fast-forwarded to it**
-  (03fc2dcd → 9988b32e8fd8). The first series-only branch `claude/ferrari-touch` is kept for reference.
+- pem120 built it as kernel #9 and touch works (E12, above). `msm8939/mi4i` was first fast-forwarded to it
+  (03fc2dcd → 9988b32e8fd8).
+- Then, at pem120's request, the series was **rebased onto 464923b94bbb**. That commit comes before DS's 336t vendor
+  driver port and before the i2c-qup change 5d8f10ccdc03, and its i2c-qup is stock. **`msm8939/mi4i` =
+  `claude/ferrari-touch-rebased` = 9d28c6b714ff** (checked out):
+  - c1ffcb40270c leds: lm3533, backlight: lm3533_bl: add missing includes (464923b itself does not build)
+  - 231dfd6898e3 Input: atmel_mxt_ts - restore the info block CRC check (undoes the bring-up warning-only change)
+  - d49f1b3da33f Input: atmel_mxt_ts - read the info block checksum separately
+  - 9ebd65f703bd dt-bindings: input: atmel,maxtouch: add atmel,enable-t97
+  - b64fb0cfc76d Input: atmel_mxt_ts - optionally enable the T97 key array on start
+  - 9d28c6b714ff arm64: dts: qcom: msm8939-xiaomi-ferrari: fix the touchscreen
+- Compared with the kernel #9 tree, the touch driver, binding, DTS and i2c-qup.c are byte-identical. The unused 336t
+  driver is gone. With pem120's config, those files and the lm3533 drivers compile, and the DTB is byte-identical to #9's.
+  **This branch has not been booted yet.** The rebased commits are unsigned (see NEXT-STEPS.md).
+- `claude/ferrari-touch` (kernel #8 tree) and `claude/ferrari-touch-stock-qup` (kernel #9 tree) are kept for reference.
