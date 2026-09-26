@@ -1,3 +1,7 @@
+* Sat Sep 26 2026 Sam Day <me@samcday.com> [7.3.0-0.rc2.27.msm8916]
+- drm/msm/a3xx: Reset the GPU before initializing it (Sam Day)
+Resolves: 
+
 * Thu Sep 24 2026 Sam Day <me@samcday.com> [7.3.0-0.rc2.26.msm8916]
 - iommu/qcom: invalidate a newly programmed context (Sam Day)
 Resolves: 
