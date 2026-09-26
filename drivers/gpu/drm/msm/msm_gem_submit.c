@@ -29,6 +29,15 @@
  * Cmdstream submission:
  */
 
+/*
+ * Upper bounds on the size of a single submit, to limit how much kernel
+ * memory userspace can make us allocate.  Before the submit struct was
+ * allocated with kvzalloc(), its size was implicitly capped by
+ * KMALLOC_MAX_SIZE, which with 4K pages works out to roughly 128K bos.
+ */
+#define MAX_SUBMIT_BOS	SZ_128K
+#define MAX_SUBMIT_CMDS	SZ_128K
+
 static struct msm_gem_submit *submit_create(struct drm_device *dev,
 		struct msm_gpu *gpu, struct drm_gpuvm *vm,
 		struct msm_gpu_submitqueue *queue, uint32_t nr_bos,
@@ -42,14 +51,14 @@ static struct msm_gem_submit *submit_create(struct drm_device *dev,
 	sz = size_add(struct_size(submit, bos, nr_bos),
 		      array_size(sizeof(submit->cmd[0]), nr_cmds));
 
-	submit = kzalloc(sz, GFP_KERNEL | __GFP_NOWARN);
+	submit = kvzalloc(sz, GFP_KERNEL | __GFP_NOWARN);
 	if (!submit)
 		return ERR_PTR(-ENOMEM);
 
 	submit->hw_fence = msm_fence_alloc();
 	if (IS_ERR(submit->hw_fence)) {
 		ret = PTR_ERR(submit->hw_fence);
-		kfree(submit);
+		kvfree(submit);
 		return ERR_PTR(ret);
 	}
 
@@ -57,7 +66,7 @@ static struct msm_gem_submit *submit_create(struct drm_device *dev,
 				 drm_client_id);
 	if (ret) {
 		kfree(submit->hw_fence);
-		kfree(submit);
+		kvfree(submit);
 		return ERR_PTR(ret);
 	}
 
@@ -121,7 +130,7 @@ void __msm_gem_submit_destroy(struct kref *kref)
 	for (i = 0; i < submit->nr_cmds; i++)
 		kfree(submit->cmd[i].relocs);
 
-	kfree(submit);
+	kvfree(submit);
 }
 
 static int submit_lookup_objects(struct msm_gem_submit *submit,
@@ -588,6 +597,10 @@ int msm_ioctl_gem_submit(struct drm_device *dev, void *data,
 		    !capable(CAP_SYS_RAWIO))
 			return -EINVAL;
 	}
+
+	if (args->nr_bos > MAX_SUBMIT_BOS || args->nr_cmds > MAX_SUBMIT_CMDS)
+		return UERR(EINVAL, dev, "too many bos/cmds: %u/%u",
+			    args->nr_bos, args->nr_cmds);
 
 	queue = msm_submitqueue_get(ctx, args->queueid);
 	if (!queue)
