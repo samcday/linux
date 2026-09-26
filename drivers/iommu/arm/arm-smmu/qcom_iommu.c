@@ -111,23 +111,26 @@ iommu_readq(struct qcom_iommu_ctx *ctx, unsigned reg)
 	return readq_relaxed(ctx->base + reg);
 }
 
+static void qcom_iommu_ctx_tlb_sync(struct qcom_iommu_ctx *ctx)
+{
+	unsigned int val, ret;
+
+	iommu_writel(ctx, ARM_SMMU_CB_TLBSYNC, 0);
+
+	ret = readl_poll_timeout(ctx->base + ARM_SMMU_CB_TLBSTATUS, val,
+				 (val & 0x1) == 0, 0, 5000000);
+	if (ret)
+		dev_err(ctx->dev, "timeout waiting for TLB SYNC\n");
+}
+
 static void qcom_iommu_tlb_sync(void *cookie)
 {
 	struct qcom_iommu_domain *qcom_domain = cookie;
 	struct iommu_fwspec *fwspec = qcom_domain->fwspec;
 	unsigned i;
 
-	for (i = 0; i < fwspec->num_ids; i++) {
-		struct qcom_iommu_ctx *ctx = to_ctx(qcom_domain, fwspec->ids[i]);
-		unsigned int val, ret;
-
-		iommu_writel(ctx, ARM_SMMU_CB_TLBSYNC, 0);
-
-		ret = readl_poll_timeout(ctx->base + ARM_SMMU_CB_TLBSTATUS, val,
-					 (val & 0x1) == 0, 0, 5000000);
-		if (ret)
-			dev_err(ctx->dev, "timeout waiting for TLB SYNC\n");
-	}
+	for (i = 0; i < fwspec->num_ids; i++)
+		qcom_iommu_ctx_tlb_sync(to_ctx(qcom_domain, fwspec->ids[i]));
 }
 
 static void qcom_iommu_tlb_inv_context(void *cookie)
@@ -269,6 +272,13 @@ static int qcom_iommu_init_domain(struct iommu_domain *domain,
 
 		/* Disable context bank before programming */
 		iommu_writel(ctx, ARM_SMMU_CB_SCTLR, 0);
+
+		/*
+		 * The ASID is fixed per context bank, so anything the TLB still
+		 * holds for it (e.g. from a kernel that kexec'd us) is stale.
+		 */
+		iommu_writel(ctx, ARM_SMMU_CB_S1_TLBIASID, ctx->asid);
+		qcom_iommu_ctx_tlb_sync(ctx);
 
 		/* Clear context bank fault address fault status registers */
 		iommu_writel(ctx, ARM_SMMU_CB_FAR, 0);
