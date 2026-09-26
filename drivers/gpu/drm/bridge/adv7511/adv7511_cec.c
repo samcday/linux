@@ -334,14 +334,13 @@ int adv7511_cec_transmit(struct drm_bridge *bridge, u8 attempts,
 
 static int adv7511_cec_parse_dt(struct device *dev, struct adv7511 *adv7511)
 {
-	adv7511->cec_clk = devm_clk_get(dev, "cec");
+	adv7511->cec_clk = devm_clk_get_enabled(dev, "cec");
 	if (IS_ERR(adv7511->cec_clk)) {
 		int ret = PTR_ERR(adv7511->cec_clk);
 
 		adv7511->cec_clk = NULL;
 		return ret;
 	}
-	clk_prepare_enable(adv7511->cec_clk);
 	adv7511->cec_clk_freq = clk_get_rate(adv7511->cec_clk);
 	return 0;
 }
