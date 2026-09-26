@@ -30,6 +30,19 @@ extern bool hang_debug;
 static void a3xx_dump(struct msm_gpu *gpu);
 static bool a3xx_idle(struct msm_gpu *gpu);
 
+static void a3xx_sw_reset(struct msm_gpu *gpu)
+{
+	struct a3xx_gpu *a3xx_gpu = to_a3xx_gpu(to_adreno_gpu(gpu));
+
+	/* The reset clears the busy counter, keep a3xx_gpu_busy() monotonic: */
+	a3xx_gpu->busy_cycles_base +=
+		gpu_read64(gpu, REG_A3XX_RBBM_PERFCTR_RBBM_1_LO);
+
+	gpu_write(gpu, REG_A3XX_RBBM_SW_RESET_CMD, 1);
+	gpu_read(gpu, REG_A3XX_RBBM_SW_RESET_CMD);
+	gpu_write(gpu, REG_A3XX_RBBM_SW_RESET_CMD, 0);
+}
+
 static void a3xx_submit(struct msm_gpu *gpu, struct msm_gem_submit *submit)
 {
 	struct msm_ringbuffer *ring = submit->ring;
@@ -119,6 +132,16 @@ static int a3xx_hw_init(struct msm_gpu *gpu)
 	int i, ret;
 
 	DBG("%s", gpu->name);
+
+	/*
+	 * Runtime suspend does not guarantee that the GPU lost its state:
+	 * its power domain can stay on, e.g. until the domain provider's
+	 * sync_state() if it was already on at boot.  The CP then keeps
+	 * running with the old ringbuffer write pointer, and reloading the
+	 * microcode or the ringbuffer base underneath it hangs the GPU.
+	 * Start from the reset state, as recovery does.
+	 */
+	a3xx_sw_reset(gpu);
 
 	if (adreno_is_a305(adreno_gpu)) {
 		/* Set up 16 deep read/write request queues: */
@@ -374,9 +397,7 @@ static void a3xx_recover(struct msm_gpu *gpu)
 	if (hang_debug)
 		a3xx_dump(gpu);
 
-	gpu_write(gpu, REG_A3XX_RBBM_SW_RESET_CMD, 1);
-	gpu_read(gpu, REG_A3XX_RBBM_SW_RESET_CMD);
-	gpu_write(gpu, REG_A3XX_RBBM_SW_RESET_CMD, 0);
+	a3xx_sw_reset(gpu);
 	adreno_recover(gpu);
 }
 
@@ -490,12 +511,13 @@ static struct msm_gpu_state *a3xx_gpu_state_get(struct msm_gpu *gpu)
 
 static u64 a3xx_gpu_busy(struct msm_gpu *gpu, unsigned long *out_sample_rate)
 {
+	struct a3xx_gpu *a3xx_gpu = to_a3xx_gpu(to_adreno_gpu(gpu));
 	u64 busy_cycles;
 
 	busy_cycles = gpu_read64(gpu, REG_A3XX_RBBM_PERFCTR_RBBM_1_LO);
 	*out_sample_rate = clk_get_rate(gpu->core_clk);
 
-	return busy_cycles;
+	return a3xx_gpu->busy_cycles_base + busy_cycles;
 }
 
 static int a3xx_vbif_halt(struct msm_gpu *gpu)
