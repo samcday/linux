@@ -146,7 +146,9 @@ static void mdp5_vid_encoder_disable(struct drm_encoder *encoder)
 	 * the settings changes for the new modeset (like new
 	 * scanout buffer) don't latch properly..
 	 */
-	mdp_irq_wait(&mdp5_kms->base, intf2vblank(mixer, intf));
+	if (mdp_irq_wait(&mdp5_kms->base, intf2vblank(mixer, intf)))
+		dev_warn(encoder->dev->dev,
+			 "vsync time out disabling intf%d\n", intfn);
 
 	mdp5_encoder->enabled = false;
 }
