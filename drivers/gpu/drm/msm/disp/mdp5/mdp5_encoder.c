@@ -126,6 +126,7 @@ static void mdp5_vid_encoder_disable(struct drm_encoder *encoder)
 	struct mdp5_hw_mixer *mixer = mdp5_crtc_get_mixer(encoder->crtc);
 	struct mdp5_interface *intf = mdp5_encoder->intf;
 	int intfn = mdp5_encoder->intf->num;
+	u32 flush_mask = mdp_ctl_flush_mask_encoder(intf);
 	unsigned long flags;
 
 	if (WARN_ON(!mdp5_encoder->enabled))
@@ -133,15 +134,31 @@ static void mdp5_vid_encoder_disable(struct drm_encoder *encoder)
 
 	mdp5_ctl_set_encoder_state(ctl, pipeline, false);
 
+	/*
+	 * Unstage all pipes (border colour only) and flush that while the
+	 * timing engine is still running, so it latches no later than the
+	 * frame on which the engine stops.  The plane teardown done by
+	 * crtc->atomic_flush() later in this commit runs after the timing
+	 * engine has stopped, so it may stay pending until the next
+	 * enable, and nothing rewrites the SSPP address registers.
+	 * Without this the hardware can keep the old framebuffer staged
+	 * while it is unpinned and possibly unmapped.
+	 */
+	mdp5_ctl_blend(ctl, pipeline, NULL, NULL, 0,
+		       MDP5_CTL_BLEND_OP_FLAG_BORDER_OUT);
+	flush_mask |= mdp_ctl_flush_mask_lm(pipeline->mixer->lm);
+	if (pipeline->r_mixer)
+		flush_mask |= mdp_ctl_flush_mask_lm(pipeline->r_mixer->lm);
+	mdp5_ctl_commit(ctl, pipeline, flush_mask, true);
+
 	spin_lock_irqsave(&mdp5_encoder->intf_lock, flags);
 	mdp5_write(mdp5_kms, REG_MDP5_INTF_TIMING_ENGINE_EN(intfn), 0);
 	spin_unlock_irqrestore(&mdp5_encoder->intf_lock, flags);
-	mdp5_ctl_commit(ctl, pipeline, mdp_ctl_flush_mask_encoder(intf), true);
 
 	/*
-	 * Wait for a vsync so we know the ENABLE=0 latched before
-	 * the (connector) source of the vsync's gets disabled,
-	 * otherwise we end up in a funny state if we re-enable
+	 * Wait for a vsync so we know the ENABLE=0 and the unstage
+	 * latched before the (connector) source of the vsync's gets
+	 * disabled, otherwise we end up in a funny state if we re-enable
 	 * before the disable latches, which results that some of
 	 * the settings changes for the new modeset (like new
 	 * scanout buffer) don't latch properly..
