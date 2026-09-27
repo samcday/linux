@@ -1,3 +1,7 @@
+* Sun Sep 27 2026 Sam Day <me@samcday.com> [7.3.0-0.rc2.29.msm8916]
+- redhat: disable RTC_HCTOSYS for msm8916 (Sam Day)
+Resolves: 
+
 * Sun Sep 27 2026 Sam Day <me@samcday.com> [7.3.0-0.rc2.28.msm8916]
 - drm/msm: Use kvzalloc() for the submit and bound nr_bos/nr_cmds (Sam Day)
 - opp: fix use after free in _update_opp_table_clk() (Peter Griffin)
