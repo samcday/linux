@@ -1,0 +1,152 @@
+MSM submit allocation review and validation, 2026-09-28
+
+Repository: https://github.com/samcday/linux
+Prepared b4 patch: 076a33301208c3b034c468f3e3c569c0418d8a56
+Base: 72d3fcf802c45d00b300f25b848a93c3a2bd7c7e (Linux 7.3-rc5)
+Equivalent PR #19 patch on its original base: 59b74851bbbdbcdfb73530a4fb77153caaa9a0b2
+Original PR draft: 4b1f97c141e7edf19276e67e119475d1e11dc0a8
+Related record: https://github.com/samcday/pocketfed/commit/23f7bcab2e54509bbf65854a8068824dab901f21
+File there: tools/adreno/hardware-20260923.md, B36-B38.
+
+Scope and changes
+-----------------
+This revision uses kvzalloc for submit_create's combined structure, BO and
+command tables, and kvfree at both early errors and final destruction.
+It replaces the original draft's independent SZ_128K count caps with:
+  if (sz > KMALLOC_MAX_SIZE) return ERR_PTR(-ENOMEM);
+The existing size_add/struct_size/array_size arithmetic saturates overflow.
+The check preserves the previous configurable allocation ceiling and
+oversize errno; it is not a quota for all submission-related memory.
+
+Source/lifetime review
+----------------------
+Reviewed original draft and 7.3-rc5 base. The relevant code is unchanged.
+All msm_gem_submit_put call sites are the ioctl completion, retirement,
+and msm_job_free. Retirement executes from retire_worker/recover_worker;
+scheduler release executes from drm_sched_free_job_work or
+ dr m_sched_entity_kill_jobs_work (identifier: drm_sched_entity_kill_jobs_work).
+Relevant spinlocks are released before final puts. Allocation is from the
+ioctl with GFP_KERNEL. A3xx a3xx_submit reads CPU bookkeeping and writes
+separate command-buffer IOVAs/sizes into the ring; the GPU does not consume
+the submit structure's own address. No new DMA/SG mapping is needed.
+
+KMALLOC_MAX_SIZE = 1UL << (MAX_PAGE_ORDER + PAGE_SHIFT). In the recorded
+Fedora config PAGE_SHIFT=12 and CONFIG_ARCH_FORCE_MAX_ORDER=10, giving
+4 MiB. Default arm64 16K/64K configs allow 32 MiB/512 MiB respectively.
+The aggregate guard therefore avoids imposing new per-count policy.
+128K of both recorded entry types would permit 9,437,536 bytes;
+64K of both would permit 4,718,944 bytes while rejecting some formerly
+admissible BO-heavy submissions below the old byte ceiling.
+
+Historical hardware evidence (not a hardware run of this revision)
+-----------------------------------------------------------------
+Device: DragonBoard 410c, 1 GiB RAM, Adreno 306.
+Kernel: Fedora 7.3.0-0.rc3.260918g5dd1818b15d9.36.fc46.aarch64.
+Mesa base: e443fef0f24f20c2087a737185ddd6fa3ce86440, install-fixbase.
+B36 stock module; B37 control rebuild; B38 kvzalloc/kvfree-only rebuild.
+Lab change: tools/adreno/piglit/enomem/lab-kvzalloc.diff in the related
+pocketfed record. The added size guard has NOT been hardware-tested.
+Original local archives are under:
+  /var/home/sam/tmp/a306-piglit-20260924/evidence/
+Read archive members with tar --zstd -xOf ARCHIVE MEMBER.
+
+B36 S-trace/events.txt (failure at t=431.5256 s):
+  mm_page_alloc: page=0000000000000000 order=9
+  kmalloc: call_site=submit_create+0x54/0x218 [msm]
+    ptr=0000000000000000 bytes_req=1053640 bytes_alloc=2097152
+    gfp_flags=GFP_KERNEL|__GFP_ZERO|__GFP_NOWARN
+  subcr: nr_bos=32914 nr_cmds=1 ret=0xfffffffffffffff4
+  gemsub: ret=-12
+S-trace/fgraph-tail.txt independently shows submit_create ret=-12 after
+770.104 us and msm_ioctl_gem_submit ret=-12.
+
+Control module disassembly, read with aarch64-linux-gnu-objdump -d
+--disassemble=submit_create on kernel-explore/lab-plan/kbuild/msm-ctl.ko,
+computes 352 + 32*nr_bos + 40*nr_cmds.
+352 + 32*32914 + 40 = 1,053,640 bytes, or 258 whole 4K pages.
+Large kmalloc's get_order selects 512 pages (order 9), 2 MiB.
+At 32922 BOs and one command it would instead request 1,053,896 bytes.
+111fdd2198e6 added the vm_bo pointer, growing an arm64 BO entry 24->32
+bytes. This pushes the observed workload over 1 MiB. This is code/arithmetic
+causality, not a newly performed historical kernel bisect.
+
+B38 K-trace/events.txt (same workload, t=807.2904 s):
+  kmalloc: call_site=__kvmalloc_node_noprof+0x43c/0x6a0
+    ptr=0000000000000000 bytes_req=1053640 bytes_alloc=2097152
+  subcr: nr_bos=32914 nr_cmds=1 ret=0xffff800083090000
+  msm_gpu_submit: id=47156 pid=26483 ring=0 bos=32914 cmds=1
+This shows failed contiguous allocation followed by a successful vmalloc
+address and GPU submission. The old subcr_kz offset probe is not used to
+interpret the rebuilt module: the function layout changed.
+
+A/B totals verified directly from results.csv and original failure logs:
+- C-f2-1/results.csv and C-f2-2/results.csv, lines 4512-4513:
+  spec@arb_vertex_buffer_object@vbo-subdata-many drawarrays,KnownFlake
+  spec@arb_vertex_buffer_object@vbo-subdata-many drawelements,KnownFlake
+  Each of the four corresponding .log files says:
+    PIGLIT: {"result": "fail" }
+    MESA: error: flush_submit_list:135: submit failed: -12 (Cannot allocate memory)
+- K-f2-1/results.csv and K-f2-2/results.csv, lines 4512-4513:
+  Both variants are Pass in both repetitions.
+Thus two suite-fraction runs per arm, two cases per suite: 4/4 failing
+case executions on control, 4/4 passing on kvzalloc. KnownFlake is runner
+classification, not a successful test result.
+Each runner.log line 22 records --fraction-start 2 --fraction 4 --jobs 8.
+The first run per arm records num_hw_submissions=8 and matching libgallium
+SHA256 33beaf3e3f2073b4a6d3ea7cc754c945a32eb98e6fcab8a1d0861a453dd7939e.
+This establishes the workload/outcomes; module provenance is documented
+in the B36-B38 record and lab build scripts. The historical ledger reports
+no hangchecks; the selected result members do not independently prove it.
+
+Archive SHA256:
+c10866b42b85397410bbc9ffe335e23448d3b5d76f81526d92780c6ee1d2ff4b  b36/b36-S-trace.tar.zst
+cceb8f786d369a48c3551a1c59720ac1e7b7e8df2850b88dfa490cedbc1c2bcc  b37/b37-C-f2-1.tar.zst
+947ddbb68e1da9f74ebb98cef10b37eb0889c5cb93d17419769d272299058c79  b37/b37-C-f2-2.tar.zst
+0ff562aa0b221c6534091674519e70faa58e961b8602665d399debd90af38224  b38/b38-K-f2-1.tar.zst
+4192778550cf2770202c295b66378d70698310ad336ec0bef78fef738d0ebbd1  b38/b38-K-f2-2.tar.zst
+ed8c36f7e8a44525d362d033654813b8969f638dcc79ce61e9b77fbb427e5332  b38/b38-K-trace.tar.zst
+
+Validation of this revision
+---------------------------
+On 2026-09-28 ran in the original source checkout, output elsewhere:
+  make O=<workspace>/work/build-arm64 ARCH=arm64
+    CROSS_COMPILE=aarch64-linux-gnu- defconfig
+  make O=<workspace>/work/build-arm64 ARCH=arm64
+    CROSS_COMPILE=aarch64-linux-gnu- -j16 W=1
+    drivers/gpu/drm/msm/msm_gem_submit.o
+Both exited 0; build log contains no warning: or error:. Result is an
+AArch64 ELF relocatable object. This is a changed-object compile check,
+not a complete kernel build or hardware test.
+  git show --format=email HEAD | scripts/checkpatch.pl --strict --no-tree -
+Result: 0 errors, 0 warnings, 0 checks, 36 lines checked.
+  b4 prep --check
+Result: Success 1, Warning 0, Error 0.
+Generated b4 patch retains change-id
+20260928-msmdrm-submit-vmalloc-02569e622ae6 and revision 1.
+
+Freedreno threshold review
+--------------------------
+At Mesa e443fef0f24 (relevant files unchanged in f0f99ecd300):
+MAX_ARRAY_SIZE=65535; ringbuffer checks fail above 32767 BOs.
+fd_batch_check_size polls after draw/clear and requests a flush. Final
+command BOs and merging deferred submits can add entries afterwards.
+No corresponding 32K command-count rule was found. This is a Mesa
+implementation policy, not a kernel UAPI maximum.
+
+Upstream prior-art search
+------------------------
+Ran lore update linux-arm-msm, then local and remote /all/ searches:
+  (s:msm OR l:linux-arm-msm) s:submit (kvzalloc OR kvmalloc OR vmalloc)
+  d:20200101.. s:msm dfn:drivers/gpu/drm/msm/msm_gem_submit.c
+    (dfb:kvzalloc OR dfb:kvmalloc OR dfb:kvfree OR dfb:KMALLOC_MAX_SIZE)
+  d:20250101.. s:msm (s:submit OR s:submission)
+    (s:alloc OR s:allocation OR s:memory OR kvzalloc OR kvmalloc OR KMALLOC_MAX_SIZE)
+  d:20250101.. s:msm (s:submit OR s:submission)
+    (s:bound OR s:limit OR s:large OR s:overflow)
+No clear duplicate. Bounded negative search, not proof of absence.
+Read 20230802222158.11838-3-robdclark@gmail.com: changes GEM pointer usage
+and unrelated coredump kvmalloc storage, not this allocation.
+Read 20210927113632.3849987-1-arnd@kernel.org: fixes relocation allocation
+size-variable overflow checking, not this allocation's size policy.
+lore show was broken (msgid: command not found); selected originals were
+read using lore q --json and lei blob. No mail or hardware tests run.
