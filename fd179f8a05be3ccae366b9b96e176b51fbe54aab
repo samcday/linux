@@ -1,0 +1,112 @@
+# Kernel side of smoo data-motion audit — 2026-09-28
+
+Source review only, no kernel changes or device tests. Inspected Linux commit
+fd179f8a05be3ccae366b9b96e176b51fbe54aab, described by version tags as
+v7.3-rc4-606-gfd179f8a05be3. The broader describe command selects an unrelated
+arkify tag; version-tag-only describe is used here.
+
+Companion source/evidence: https://github.com/samcday/smoo at
+326d0dc6753103dc0e500157c815512f7e86f484, refs/notes/evidence. GitHub main was
+62cdccdb02ea84905ea50aec5c65a5eb9cd6cc32; relevant gadget paths unchanged.
+This note is published only to Sam's fork https://github.com/samcday/linux.
+
+Method: git rev-parse/describe/log/show, git tag --contains for release ancestry,
+rg symbol lookup and numbered source reads in ublk_drv.c, f_fs.c, dma-buf.c,
+dma-resv.c, sync_file.c, DMA heap drivers, UAPI headers and ublk documentation.
+No runtime result, benchmark or general declaration of DMA safety follows.
+
+## Traditional ublk mapping versus zero-copy features
+
+drivers/block/ublk_drv.c:1419-1493 uses import_ubuf and copy iter helpers for
+traditional ublk request/server-buffer transfers. This path does not require
+pinning the server mapping with GUP. Passing the CPU mapping of a dma-heap
+buffer as the traditional server address is therefore plausible; it is not a
+tested implementation. Preserve DMA CPU-access synchronization around ublk's
+kernel CPU copy, not merely around Rust slice access.
+
+SHMEM_ZC is a different path. It pins registered buffers with FOLL_LONGTERM
+(ublk_drv.c:5467) and matches request PFNs; ordinary buffered application I/O
+does not share those pages. System/CMA dma-heap mappings are PFN mappings, so
+do not assume they are GUP-compatible or suitable SHMEM_ZC registrations.
+memfd plus udmabuf is a separate possible experiment, not a validated bridge.
+SHMEM descriptors encode a buffer index plus offset; FunctionFS's DMA transfer
+does not accept offsets. A single large arena cannot simply be passed through.
+
+Fixed-kernel-buffer zero-copy / AUTO_BUF_REG exposes request bvecs to compatible
+io_uring operations. Normal FunctionFS read_iter/write_iter still allocates
+staging memory and invokes copy_from_iter/copy_to_iter (f_fs.c allocation and
+ffs_user_copy_worker paths). Merely switching the operation to fixed buffers
+does not make the USB leg zero-copy.
+
+## DMA-BUF submission is not a reliable per-transfer result API
+
+include/uapi/linux/usb/functionfs.h defines the DMA transfer as fd, flags and
+length; there is no offset or per-transfer result/actual-length output.
+ffs_dmabuf_attach rejects non-SG gadget controllers (f_fs.c:1544-1545).
+ffs_dmabuf_find_attachment returns -EPERM if not attached (:1529).
+Transfer queues usb_request SG entries from the DMA attachment. The function
+documents usb_ep_queue FIFO order, allowing distinct buffers to be submitted
+in protocol order before previous completions are reaped.
+
+Three independent completion problems matter for smoo:
+
+1. ffs_epfile_dmabuf_io_complete at f_fs.c:1464-1469 passes only req->status
+   to ffs_dmabuf_signal_done. The latter stores status in fence->error then
+   signals (:1444-1453). req->actual is not exported. A successful short OUT
+   transfer is not distinguishable from a full transfer by this DMA UAPI.
+2. sync_file_poll at drivers/dma-buf/sync_file.c:197-210 returns EPOLLIN for any
+   signaled fence, irrespective of its error. POLLIN is completion, not success.
+   SYNC_IOC_FILE_INFO can retrieve status for a fence actually captured.
+3. Export after submission is only a snapshot of pending work and can lose an
+   already-completed error. dma-buf.c:458-464 calls dma_resv_get_singleton and
+   substitutes dma_fence_get_stub if none. dma-resv.c:627-641 calls get_fences;
+   get_fences uses unlocked iteration (:578-579); the iterator skips signaled
+   fences (:402-404). Thus a fast failed USB completion before export can become
+   a success stub. Querying FILE_INFO after export alone does not close the race.
+
+These source facts undermine a claim that fence waiting alone establishes
+successful delivery of exactly the requested bytes. A future prototype needs
+fault injection and potentially kernel API work to obtain a stable transfer
+result and actual length. No maintainer discussion or proposed patch was
+reviewed in this session; do that prior-art work when pursuing a kernel change.
+
+## Cache and lifetime constraints
+
+include/uapi/linux/dma-buf.h:29-47 requires mapped CPU access between SYNC START
+and END, with the appropriate read/write flags. Cache management is separate
+from exclusion: no CPU or tag reuse while USB owns that memory. Both endpoint
+attachments can exist, but the same buffer must not be submitted concurrently
+to both directions. Reattach when endpoint generation changes; retain storage,
+attachments and owned fds until cancellation/completion has been reaped.
+Do not infer that aborting a userspace async task cancels its blocking ioctl.
+
+Dual endpoint attachment also needs a targeted coherency test: f_fs maps IN
+DMA_TO_DEVICE and OUT DMA_FROM_DEVICE (f_fs.c:1563), while system heap CPU
+access callbacks walk all mapped attachments using the caller's sync direction
+(drivers/dma-buf/heaps/system_heap.c:186-225). DMA debug diagnoses a sync
+direction differing from a non-bidirectional mapping (kernel/dma/debug.c:1176-1186).
+Do not presume that adjacent sync calls or changing everything to SYNC_RW solves
+this. Test with DMA_API_DEBUG and a noncoherent target; mapping policy remains
+part of the prototype rather than an established design property.
+
+## Kernel evolution verified from git
+
+- 0145e7acd29855dfba4a2f387d455b5d9a520f0e, Sam Day, DMA-BUF OUT mapping
+  direction fix: contained from v7.0-rc1.
+- 2796646f6d892c1eb6818c7ca41fdfa12568e8d1, serialize DMABUF cancel against
+  completion: contained from v7.1-rc6.
+- baa6b6068a3f2bf2ed525a1cb37975905dadc658, DMA fence leak fix: from v7.2-rc3.
+- 621707dc67c98, fence cleanup in ffs_dmabuf_transfer error paths: v7.3-rc1.
+- 7.3 also adds FUNCTIONFS_ENDPOINT_ENABLE_ZLP (c3249c462b30e) and rw_proxy
+  descriptors (0f0ea552cd215). These add functionality, not a direct ublk/DMA
+  bridge; the earlier statement about unchanged APIs must be scoped to DMA.
+- ublk BATCH_IO (e2723e6ce6025) is in 7.0; SHMEM_ZC (08677040a9119) in 7.1;
+  IO_DESC_SIZE (5c0958d801908) in 7.3 development. Current ublk also provides
+  feature negotiation and DMA alignment/segment parameters.
+
+These fixes justify checking exact commits/backports and capabilities. They
+do not justify promoting DMA based solely on a >=7.2 version check. ublk batch
+and descriptor tuning should follow correctness and measured bottlenecks.
+The ordinary shared-tag design aims to remove one explicit CPU memcpy while
+retaining the traditional ublk copy; platform DMA bounce copies are outside
+that count and must be checked on the target device.
