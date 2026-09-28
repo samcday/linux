@@ -27,6 +27,7 @@
 #include <linux/of_irq.h>
 #include <linux/of_platform.h>
 #include <linux/of_reserved_mem.h>
+#include <linux/overflow.h>
 #include <linux/platform_device.h>
 #include <linux/reset-controller.h>
 #include <linux/remoteproc.h>
@@ -2513,19 +2514,43 @@ int qcom_scm_qseecom_app_get_id(const char *app_name, u32 *app_id)
 }
 EXPORT_SYMBOL_GPL(qcom_scm_qseecom_app_get_id);
 
+static int qcom_scm_qseecom_validate_load(u64 phys, size_t mdt_len,
+					  size_t img_len,
+					  enum qcom_scm_convention convention)
+{
+	u64 end;
+
+	if (!phys || !img_len || mdt_len > img_len)
+		return -EINVAL;
+
+	if (check_add_overflow(phys, (u64)img_len - 1, &end))
+		return -EOVERFLOW;
+
+	/* The image address is a value argument, not a DMA-mapped buffer. */
+	if (convention != SMC_CONVENTION_ARM_64 && end > U32_MAX)
+		return -EOVERFLOW;
+
+	return 0;
+}
+
 /**
  * qcom_scm_qseecom_app_load() - Load a QSEE app from an assembled image.
  * @img:      Image buffer (must be TZ memory).
- * @mdt_len:  Length of the .mdt metadata at the start of @img.
+ * @mdt_len:  Length of the .mdt metadata, or zero for a complete ELF image.
  * @img_len:  Total length of the assembled image.
  * @app_id:   Out: ID of the newly loaded app.
  *
- * Hands a signed, split-ELF application image to QTEE for authentication and
- * loading. @img must hold the .mdt metadata followed by each segment file
- * concatenated in program-header order, and must be allocated from a TZ
- * memory pool. Note this is not the original unsplit file: the metadata
- * segments appear twice, since the .mdt already contains them, and any
- * padding between segments is dropped.
+ * Hands a signed application image to QTEE for authentication and loading.
+ * With nonzero @mdt_len, @img holds the .mdt metadata followed by each
+ * segment file concatenated in program-header order. This is not the original
+ * unsplit file: the metadata segments appear twice, since the .mdt already
+ * contains them, and any padding between segments is dropped. With zero
+ * @mdt_len, @img holds the complete ELF file unchanged, including its
+ * authentication data and padding. In either case it must be allocated from
+ * a TZ memory pool.
+ *
+ * On a 32-bit SCM calling convention the entire image must fit below 4 GiB.
+ * An unrepresentable image range is rejected rather than truncated.
  *
  * A 32-bit application additionally requires the cmnlib shared library to
  * have been loaded first, with the load-service-image command.
@@ -2544,8 +2569,14 @@ int qcom_scm_qseecom_app_load(void *img, size_t mdt_len, size_t img_len,
 	struct qcom_scm_desc desc = {};
 	int status;
 
-	if (!img || !mdt_len || mdt_len > img_len)
+	if (!img)
 		return -EINVAL;
+
+	img_phys = qcom_tzmem_to_phys(img);
+	status = qcom_scm_qseecom_validate_load(img_phys, mdt_len, img_len,
+						__get_convention());
+	if (status)
+		return status;
 
 	desc.owner = QSEECOM_TZ_OWNER_QSEE_OS;
 	desc.svc = QSEECOM_TZ_SVC_APP_MGR;
@@ -2558,10 +2589,6 @@ int qcom_scm_qseecom_app_load(void *img, size_t mdt_len, size_t img_len,
 	desc.arginfo = QCOM_SCM_ARGS(3);
 	desc.args[0] = mdt_len;
 	desc.args[1] = img_len;
-	img_phys = qcom_tzmem_to_phys(img);
-	if (!img_phys)
-		return -EINVAL;
-
 	desc.args[2] = img_phys;
 
 	status = qcom_scm_qseecom_call(&desc, &res);
@@ -2587,11 +2614,14 @@ EXPORT_SYMBOL_GPL(qcom_scm_qseecom_app_load);
 /**
  * qcom_scm_qseecom_load_service() - Load a shared QSEE service image.
  * @img: assembled image in TZ memory
- * @mdt_len: metadata length
+ * @mdt_len: metadata length, or zero for a complete ELF image
  * @img_len: total image length
  * @is64: true for cmnlib64, false for cmnlib
  *
  * This is APP_MGR command 7, used by Android for cmnlib and cmnlib64.
+ * Image layout and address limits are the same as for
+ * qcom_scm_qseecom_app_load(). @is64 describes the library's ELF class, not
+ * the SCM calling convention or the width of the image address.
  * The service belongs to secure firmware and must not be unloaded when an
  * individual application or loader session closes.
  *
@@ -2606,11 +2636,15 @@ int qcom_scm_qseecom_load_service(void *img, size_t mdt_len, size_t img_len,
 	phys_addr_t phys;
 	int ret;
 
-	if (!img || !mdt_len || mdt_len > img_len)
+	if (!img)
 		return -EINVAL;
+
 	phys = qcom_tzmem_to_phys(img);
-	if (!phys)
-		return -EINVAL;
+	ret = qcom_scm_qseecom_validate_load(phys, mdt_len, img_len,
+					     __get_convention());
+	if (ret)
+		return ret;
+
 	desc.owner = QSEECOM_TZ_OWNER_QSEE_OS;
 	desc.svc = QSEECOM_TZ_SVC_APP_MGR;
 	desc.cmd = QSEECOM_TZ_CMD_LOAD_SERVICE;
@@ -3451,3 +3485,7 @@ subsys_initcall(qcom_scm_init);
 
 MODULE_DESCRIPTION("Qualcomm Technologies, Inc. SCM driver");
 MODULE_LICENSE("GPL v2");
+
+#if IS_ENABLED(CONFIG_QCOM_QSEECOM_KUNIT_TEST)
+#include "qcom_scm-test.c"
+#endif
