@@ -1,0 +1,43 @@
+# Sargo fingerprint acceptance and archival handoff — 2026-09-28
+
+Subject: samcday/linux commit 3ad4e5eac8aa16c1e6dcf291fdec4fb906f803d0, the source used for kernel 7.1.2-0.pocketfed.sdm670.12.fc46. This note consolidates historical September 13 evidence; no new hardware trial ran on September 28.
+
+## Source and build identity
+
+- Original .11 baseline: 132283913205a1db1d57fc3e563eea8224f5b79a.
+- Invoke-pool fix: cad152be638f42256f26d3566842d67edc1688c1.
+- Built .12 release: this subject commit, 3ad4e5eac8aa16c1e6dcf291fdec4fb906f803d0.
+- Later review head: 962fa0a8a6c28c12161bf0a28904decf7d07571a; only changelog whitespace changed after the build.
+- drivers/tee/qseecom/core.c SHA256: 4dd57140a62c8e476940d6bd8c6ad17f71d59969f6282a53bdff3eb17a9b7bf0.
+- ARM64 COPR build 10980882 succeeded: https://copr.fedorainfracloud.org/coprs/build/10980882 .
+- Approved source RPM SHA256: 389c6ed63da1d6cf96c9d014131b01ffea0d7e71b9cf322dd0f4e0bf74cc6c9b.
+
+## Controlled comparison and what it establishes
+
+The disposable Sargo comparison used the same sealed kernel/userspace inputs and varied the allocator-selection parameter. Its native workload was initialization, 1,000 8-KiB allocation/free operations, deep sleep, TEE close and loader shutdown. One attempt with no fastboot device and one user-confirmed power-off are excluded from failure evidence.
+
+The uninterrupted original-allocator run completed the native sequence and exited 0. Loader stop began at 45.828 seconds; RPMh timeout appeared at 56.095 seconds; a spontaneous reset followed at approximately 58.97 seconds. No coordinator reset was requested. Local run: out/liveboot/runs/sargo-fingerprint-pool-baseline-04-20260913; UART SHA256 7ab618b992579dfe7c2be22b662ea9d3a7c1a2c6aee990cd94723f591ded2889.
+
+The pool-reuse comparison completed the same sequence and all three loader stops, staying responsive until an explicit diagnostic reboot at 366.032 seconds. Local run: out/liveboot/runs/sargo-fingerprint-pool-reuse-04-20260913; UART SHA256 1e9f939bc19062a97cd388164edb80d237864f7667127dfb3ebd532262f95279.
+
+Repetition passed 50 native cycles across ten firmware lifetimes, 50,000 allocation/free operations and 30 service stops in 341.0719 seconds. UART HELP responded at 447.225 seconds; the operator explicitly rebooted at 530.331 seconds. No observed stall signatures or spontaneous reset. Local run: out/liveboot/runs/sargo-fingerprint-pool-repeat-05-20260913; UART SHA256 fdf4b608f1e09d24010038f3e416816dc20aa9eaa7b250d1d0fd7462e1e4fc21.
+
+This supports the effectiveness of retaining coherent backing mappings in the device-owned TZ pool. It does not prove the exact platform fault. Each command still clears and releases its individual staging allocation; userspace-mapped TEE memory remains separate. No fingerprint modification to qcom_tzmem.c was required.
+
+## Installed and physical acceptance, September 13
+
+The signed .12 packages were incorporated into the local accepted image after package/boot/PAM/policy comparisons. The image preserved the existing PIN route, encrypted homed and unrelated phone packages; SELinux was enforcing.
+
+The installed controller performed ordinary fprintd Claim/Release only, using packaged libfprint. Fifty cycles all returned 0. Ten complete lifetimes each stopped fprintd, Keymaster startup, FPC app loader, cmnlib64 loader and qsee-supplicant: 50 explicit stops in 58.3538077 seconds. UART independently recorded completions. It started no capture and performed no credential operation. The temporary timeout override was removed.
+
+The user then enrolled additional fingers, reopened Settings roughly a dozen times and checked correct/incorrect-finger feedback. One authorized normal reboot retained enrollment metadata and fingerprint socket activation. After initial PIN login, the user confirmed approximately six mixed cycles of multiple-finger Phosh unlock, wrong-finger rejection, PIN fallback and reopening Settings' tester. The phone remained responsive on the same boot; no new UART stall signatures appeared. Historical success is not a claim about today's deployment or indefinite soak reliability.
+
+Final UART capture SHA256: 5a64fe3526bbc947db99d06fa8b578b295779886aa36a63f4a9b0c38a9dc0c1a. The task's capture was stopped cleanly and device/UART ownership released. This parking pass acquires no device ownership.
+
+## Current continuation anchor and limits
+
+PR3 is CLOSED, unmerged, superseded by https://github.com/samcday/linux/pull/14 . The open replacement series at e61cabbf29baba52d6cb63b5054e017e79731e0b targets main and was rebased to a v7.3-rc4-era base. It reports per-commit ARM64 build validation, not runtime acceptance on that base. See the separate evidence note on that commit for the source-boundary assessment. Do not transfer the above hardware pass to it automatically.
+
+Cross-repository evidence: samcday/pocketfed refs/notes/evidence on 15d4fe2d8dca65cda11e2ae47f9a2fa2c894b4c7 records userspace recovery, final versions, deferred review items and the current HWE direction. PR62 is https://github.com/samcday/pocketfed/pull/62 .
+
+Public note deliberately excludes raw device logs, personal identifiers, credential/token contents, biometric records and proprietary firmware. Full local evidence index is out/fingerprint-pool-fix-20260913/{installed-claim-lifetimes,installed-lifetimes-uart-verification.json,final-physical-acceptance.json,final-uart-error-audit.json,uart-release.json}; files are historical, not instructions to rerun device-changing operations.
