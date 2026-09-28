@@ -137,9 +137,12 @@ Loading applications
 A load session is opened on the privileged device with a single MEMREF_INPUT
 holding the application name. The image is *not* passed in: the driver fetches
 ``<name>.mdt`` and its ``.bNN`` segments with ``request_firmware()`` and
-assembles them itself, so what can be loaded is whatever the firmware search
-path holds rather than whatever bytes a process assembles. This is the same
-contract amdtee uses.
+assembles them itself. If ``<name>.mdt`` is absent, it requests ``<name>.mbn``
+instead, which must be a complete ELF image. An invalid ``.mdt``, a missing
+segment, or any error other than a missing ``.mdt`` does not trigger this
+fallback. What can be loaded is whatever the firmware search path holds
+rather than whatever bytes a process assembles. This is the same contract
+amdtee uses.
 
 The name is therefore part of a firmware path and is validated as one: it must
 be non-empty, must fit ``QSEECOM_TEE_MAX_APP_NAME``, and must not contain ``/``
@@ -147,18 +150,42 @@ or be ``.`` or ``..``.
 
 Assembly is not what ``qcom_mdt_load()`` does. That places each segment at its
 ``p_paddr`` for a remoteproc carveout, whereas QSEE's ``APP_START`` takes one
-contiguous buffer -- the ``.mdt`` followed by the segment payloads in
-program-header order -- described by an ``.mdt`` length and a total length.
-``qcom_mdt_read_image()`` produces that form, keeping the format knowledge in
-``mdt_loader.c`` rather than duplicating a parser here. For real images the
-program headers cannot be used as a file layout at all: segments have been
-observed declaring ``p_offset`` 0, which overlaps the headers being parsed, and
-two segments declaring the same ``p_offset`` with different sizes.
+contiguous buffer described by a metadata length and a total image length:
+
+* For split images, the buffer contains the ``.mdt`` followed by the segment
+  payloads in program-header order. The metadata length is the ``.mdt`` file
+  size. Segment offsets cannot be used to place those payloads: real split
+  images have overlapping ``p_offset`` values.
+* For complete ELF images, the buffer contains the file unchanged, including
+  authentication data and padding. The metadata length is zero, and the image
+  length is the file size. No ``.bNN`` files are requested.
+
+``qcom_mdt_get_image_size()`` reports both lengths and
+``qcom_mdt_read_image()`` produces the buffer, keeping the format knowledge in
+``mdt_loader.c`` rather than duplicating a parser here.
 
 Both little-endian ELF32 and ELF64 images are supported. The loader validates
 the program-header table and every segment size before assembling the image.
 A load request for a name already in the registry takes another reference
 without loading a second copy.
+
+Image address limits
+--------------------
+
+The load address is a bare physical value, not a buffer argument that SCM can
+remap. With a 32-bit SCM calling convention, the entire image must fit below
+4 GiB; an unrepresentable range returns ``-EOVERFLOW`` before calling secure
+firmware. This check is shared by application and common-library loads.
+
+The SCM calling convention is selected by the SCM driver, independently of
+the image's ELF class. An ELF64 application does not imply a 64-bit load call,
+and wide device ``dma-ranges`` do not establish what the load call accepts.
+The transport's 64-bit convention can represent higher addresses, but that
+alone does not prove that a particular secure firmware accepts them.
+
+The loader does not change the DMA mask of the shared SCM/TZ memory allocator.
+A platform requiring low memory still needs a suitable allocation policy;
+range checking prevents truncation, it does not provide that memory.
 
 Shared libraries
 ----------------
@@ -276,6 +303,26 @@ another SCM call. The transport handles QSEE INCOMPLETE listener requests. It
 does not implement the separate CONTINUE_BLOCKED/reentrant protocol; a
 BLOCKED_ON_LISTENER result returns ``-EBUSY``. Hardware validation must check
 that the selected firmware follows the implemented protocol.
+
+Image loading tests
+===================
+
+The MDT and SCM KUnit suites use synthetic firmware and do not invoke secure
+firmware. Run them on an emulated ARM64 kernel from the source root with::
+
+  ./tools/testing/kunit/kunit.py run \
+    --arch=arm64 --cross_compile=aarch64-linux-gnu- \
+    --kunitconfig=drivers/soc/qcom/mdt_loader_test.config \
+    --kunitconfig=drivers/firmware/qcom \
+    --kconfig_add=CONFIG_TEE=y --kconfig_add=CONFIG_TEE_QSEECOM=y
+
+The MDT config embeds small synthetic segment files for the split-image read
+tests. The suites cover image layout and length reporting, byte-for-byte
+complete-image copies, split-segment concatenation, malformed inputs, and the
+SCM load range checks. They do not establish secure-firmware acceptance,
+firmware-search fallback behavior, or a platform's allocation policy. Those
+still require integration testing; successful loading alone does not establish
+that an application's commands or fingerprint authentication work.
 
 Security considerations
 =======================

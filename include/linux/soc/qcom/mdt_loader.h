@@ -15,7 +15,7 @@ struct qcom_pas_context;
 #if IS_ENABLED(CONFIG_QCOM_MDT_LOADER)
 
 ssize_t qcom_mdt_get_size(const struct firmware *fw);
-ssize_t qcom_mdt_get_image_size(const struct firmware *fw);
+ssize_t qcom_mdt_get_image_size(const struct firmware *fw, size_t *mdt_len);
 ssize_t qcom_mdt_read_image(struct device *dev, const struct firmware *fw,
 			    const char *fw_name, void *mem, size_t mem_size);
 int qcom_mdt_load(struct device *dev, const struct firmware *fw,
@@ -40,7 +40,8 @@ static inline ssize_t qcom_mdt_get_size(const struct firmware *fw)
 	return -ENODEV;
 }
 
-static inline ssize_t qcom_mdt_get_image_size(const struct firmware *fw)
+static inline ssize_t qcom_mdt_get_image_size(const struct firmware *fw,
+					      size_t *mdt_len)
 {
 	return -ENODEV;
 }

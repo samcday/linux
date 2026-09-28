@@ -253,14 +253,18 @@ static int qcom_mdt_image_headers(const struct firmware *fw,
 /**
  * qcom_mdt_get_image_size() - size of a contiguous QSEECOM image
  * @fw: firmware containing the MDT header or a complete ELF image
+ * @mdt_len: optional metadata length, written only on success
  *
  * The split form contains the MDT followed by all segment payloads in
  * program-header order, including the authentication metadata. Both ELF
  * classes are accepted without changing the remoteproc loading path.
  *
+ * For split images, @mdt_len receives the size of the MDT file. Complete
+ * ELF images are passed through unchanged and use a metadata length of zero.
+ *
  * Return: assembled size, or a negative errno.
  */
-ssize_t qcom_mdt_get_image_size(const struct firmware *fw)
+ssize_t qcom_mdt_get_image_size(const struct firmware *fw, size_t *mdt_len)
 {
 	struct qcom_mdt_image image;
 	u64 size = fw->size, offset, segment_size;
@@ -280,6 +284,8 @@ ssize_t qcom_mdt_get_image_size(const struct firmware *fw)
 	}
 	if (size > SSIZE_MAX)
 		return -EOVERFLOW;
+	if (mdt_len)
+		*mdt_len = image.split ? fw->size : 0;
 	return size;
 }
 EXPORT_SYMBOL_GPL(qcom_mdt_get_image_size);
@@ -304,7 +310,7 @@ ssize_t qcom_mdt_read_image(struct device *dev, const struct firmware *fw,
 	unsigned int i;
 	ssize_t ret;
 
-	ret = qcom_mdt_get_image_size(fw);
+	ret = qcom_mdt_get_image_size(fw, NULL);
 	if (ret < 0)
 		return ret;
 	if (mem_size < (size_t)ret)

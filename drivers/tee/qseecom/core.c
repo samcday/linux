@@ -1405,7 +1405,10 @@ static void qseecom_tee_supp_release(struct tee_context *ctx)
  * qcom_mdt_read_image(), which keeps the format knowledge next to the rest of
  * it in mdt_loader.c instead of growing a second parser here.
  *
- * The program headers cannot be read as a file layout for this image at all.
+ * A complete ELF .mbn is used only when the .mdt file is absent. It is passed
+ * unchanged with a zero metadata length, not reconstructed from its segments.
+ *
+ * The program headers cannot be read as a file layout for a split image.
  * Taking a real one (Goodix gfenu): segment 0 has p_offset 0, which would
  * overwrite the very ELF and program headers being parsed, and segments 6 and
  * 7 declare the same p_offset and the same p_paddr with different sizes, so
@@ -1442,6 +1445,7 @@ static int qseecom_tee_supp_load_app(struct tee_context *ctx,
 	u32 app_id = 0;
 	int commonlib = -1;
 	bool service = arg->num_params == 2;
+	bool mbn = false;
 	int ret;
 
 	if (arg->num_params != 1 && !service)
@@ -1472,13 +1476,24 @@ static int qseecom_tee_supp_load_app(struct tee_context *ctx,
 
 	snprintf(fw_name, sizeof(fw_name), "%s.mdt", app_name);
 
-	ret = request_firmware(&mdt, fw_name, qtee->dev);
+	ret = firmware_request_nowarn(&mdt, fw_name, qtee->dev);
+	if (ret == -ENOENT) {
+		snprintf(fw_name, sizeof(fw_name), "%s.mbn", app_name);
+		ret = request_firmware(&mdt, fw_name, qtee->dev);
+		mbn = true;
+	}
 	if (ret)
 		return ret;
 
-	len = qcom_mdt_get_image_size(mdt);
+	len = qcom_mdt_get_image_size(mdt, &mdt_len);
 	if (len < 0) {
 		ret = len;
+		goto out_release;
+	}
+
+	/* An .mbn must contain every segment, never borrow .bNN files. */
+	if (mbn && mdt_len) {
+		ret = -EINVAL;
 		goto out_release;
 	}
 
@@ -1493,7 +1508,6 @@ static int qseecom_tee_supp_load_app(struct tee_context *ctx,
 		goto out_release;
 	}
 	img_len = len;
-	mdt_len = mdt->size;
 
 	/*
 	 * Stage the image through a pool of its own rather than the shared one.
