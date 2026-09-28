@@ -323,3 +323,13 @@ intermediate walk-cache entry, the same signature as the DB410c A/B (fsr 0x40000
 ```
 
 Total 'Unhandled context fault' lines in that log: 10.
+
+# Demo re-run for Sam (2026-09-28 15:34-15:36, harness/demo.sh sam; runs/V1-base-sam, V3-base-storm-to-new-sam, V2-new-sam)
+
+Same images as the matrix (verify-inputs OK, 49 digests). V1 BASE 640x480 -> 1280x720: FAULTS, first cb=4 fault at
+iova 0x386000 at 2.19 s after the banner, storm (69195 callbacks suppressed / 5 s). V3 = NEW arm: a warm kexec
+(warm-start.sh, no power cycle) FROM the storming BASE resident of V1 INTO NEW gen-2: CLEAN, 0 faults after the
+banner and in post-dmesg, Initialized msm, adb back, no 'timeout waiting for TLB SYNC' (the reviewers' inherited
+stalled-transaction concern did not manifest on this hop; the 10 fault lines in the slice are the BASE source at
+37 s, before 'Starting new kernel' at 39.6 s). V2 NEW cold 640x480 -> 1280x720: CLEAN. Board returned to U-Boot
+fastboot afterwards. UART lines 10637..12156 of uart/db410c-uart.log (12157+ = the hand-back pulse).
