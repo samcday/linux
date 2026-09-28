@@ -284,3 +284,42 @@ U-Boot resident fastboot (`product: sbc`) and the UART capture was stopped for h
   `build.md`/`rebuild.md`/`package.md` (build recipes), `review-*.md` (code/message reviews).
 - Inputs: `L/build/MANIFEST-kernels.txt`, `L/images/MANIFEST.txt`, `L/patches/000{1..8}-*.patch`,
   `L/harness/matrix-final.tsv`.
+
+# Primary evidence for the Samsung Galaxy A5 (MSM8916) symptom in the commit message
+
+Source: ~/src/pocketboot/target/a5u-smp-lab/20260911/display-phys/dmesg.log (998 lines), the destination kernel of a Pocketboot
+kexec on the A5 on 2026-09-11, before any invalidate patch existed. That lab build carried a logging-only diagnostic
+(0005-logging-only.patch beside it) that also prints the software page-table walk result (phys=) and the TTBR for
+each fault: the walk is valid (phys=0x83003000 for iova 0x732000) yet the SMMU faults at PLVL 3, i.e. a stale
+intermediate walk-cache entry, the same signature as the DB410c A/B (fsr 0x40000202, fsynr 0x23, cb=4).
+
+```
+[    0.000000] Linux version 7.1.0-rc6+ (sam@sam-desktop) (aarch64-linux-gnu-gcc (GCC) 16.1.1 20260501 (Red Hat Cross 16.1.1-1), GNU ld version 2.46-1.fc44) #54 SMP PREEMPT Fri Sep 11 18:31:05 AEST 20
+[    0.000000] Kernel command line: msm.skip_gpu=1 msm.separate_gpu_kms=1 panic=5 oops=panic printk.time=1 pocketboot.log=info pocketboot.drm_page_flips=16 drm.debug=0x6 pocketboot.lab=display-phys
+[    2.125100] [drm] Initialized msm-kms 1.13.0 for 1a01000.display-controller on minor 0
+[    3.616889] [drm:mdp5_irq_error_handler] *ERROR* errors: 04000000
+...
+[    3.687522] [drm:mdp5_plane_mode_set] plane-0: FB[64] 0,0,720,1280 -> CRTC[61] 0,0,720,1280
+[    3.687547] [drm:mdp5_plane_mode_set] scale config = 0
+[    3.687569] [drm:mdp5_crtc_atomic_flush] crtc-0: event: (____ptrval____)
+[    3.687593] [drm:mdp5_ctl_blend] lm0: blend config = 0x00040000. ext_cfg = 0x00000000
+[    3.687610] [drm:mdp5_crtc_atomic_flush] crtc-0: flush=00000840
+[    3.700080] [drm:mdp5_crtc_vblank_irq] crtc-0: send event: (____ptrval____)
+[    3.700139] qcom-iommu-ctx 1e24000.iommu-ctx: Unhandled context fault: fsr=0x40000202 iova=0x732000 phys=0x0000000083003000 fsynr=0x23 cb=4 ttbr=0x4000082150000 tcr=0x80802020 tcr2=0x38062
+[    3.700146] [drm:mdp5_plane_cleanup_fb] plane-0: cleanup: FB[62]
+[    3.700197] qcom-iommu-ctx 1e24000.iommu-ctx: Unhandled context fault: fsr=0x40000202 iova=0x732080 phys=0x0000000083003080 fsynr=0x23 cb=4 ttbr=0x4000082150000 tcr=0x80802020 tcr2=0x38062
+[    3.700325]  INFO pocketboot::ui: POCKETBOOT_DRM_PAGE_FLIP sequence=2 remaining=14
+[    3.716030] qcom-iommu-ctx 1e24000.iommu-ctx: Unhandled context fault: fsr=0x40000202 iova=0x732100 phys=0x0000000083003100 fsynr=0x23 cb=4 ttbr=0x4000082150000 tcr=0x80802020 tcr2=0x38062
+[    3.732793] [drm:mdp5_plane_atomic_check] plane-0: check (1 -> 1)
+[    3.740147] qcom-iommu-ctx 1e24000.iommu-ctx: Unhandled context fault: fsr=0x40000202 iova=0x732180 phys=0x0000000083003180 fsynr=0x23 cb=4 ttbr=0x4000082150000 tcr=0x80802020 tcr2=0x38062
+[    3.740704] [drm:mdp5_crtc_atomic_check] crtc-0: check
+[    3.757069] qcom-iommu-ctx 1e24000.iommu-ctx: Unhandled context fault: fsr=0x40000202 iova=0x732200 phys=0x0000000083003200 fsynr=0x23 cb=4 ttbr=0x4000082150000 tcr=0x80802020 tcr2=0x38062
+[    3.757097] [drm:mdp5_crtc_atomic_check] crtc-0: assign pipe plane-0 on stage=1
+[    3.773825] qcom-iommu-ctx 1e24000.iommu-ctx: Unhandled context fault: fsr=0x40000202 iova=0x732280 phys=0x0000000083003280 fsynr=0x23 cb=4 ttbr=0x4000082150000 tcr=0x80802020 tcr2=0x38062
+[    3.774348] [drm:mdp5_crtc_atomic_begin] crtc-0: begin
+[    3.790580] qcom-iommu-ctx 1e24000.iommu-ctx: Unhandled context fault: fsr=0x40000202 iova=0x732300 phys=0x0000000083003300 fsynr=0x23 cb=4 ttbr=0x4000082150000 tcr=0x80802020 tcr2=0x38062
+[    3.790965] [drm:mdp5_plane_atomic_update] plane-0: update
+[    3.807328] qcom-iommu-ctx 1e24000.iommu-ctx: Unhandled context fault: fsr=0x40000202 iova=0x732380 phys=0x0000000083003380 fsynr=0x23 cb=4 ttbr=0x4000082150000 tcr=0x80802020 tcr2=0x38062
+```
+
+Total 'Unhandled context fault' lines in that log: 10.
