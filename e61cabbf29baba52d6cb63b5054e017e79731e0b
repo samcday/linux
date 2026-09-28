@@ -1,0 +1,29 @@
+# Fingerprint continuation boundary — parking audit, 2026-09-28
+
+Subject: samcday/linux e61cabbf29baba52d6cb63b5054e017e79731e0b, open PR14 (wip/sargo-fingerprint, targeting main). Read-only source/PR audit; no new compilation or hardware operation was performed in this parking pass.
+
+PR14 is the current source continuation, replacing closed/unmerged PR3. Its 49 commits recover Dawid Wrobel's QSEECOM series, split the downstream ELF64/common-library and Sargo sensor adaptations by subsystem, and retain invoke staging wipe/pool-reuse fixes. Redhat packaging commits are omitted. Its author reports an ARM64 W=1 build at every commit, independently repeated, and DT checks with documented limitations. This note does not independently reproduce those new-base builds. Runtime on this base remains untested.
+
+Historical hardware acceptance belongs to samcday/linux 3ad4e5eac8aa16c1e6dcf291fdec4fb906f803d0 (.12/v7.1-derived); fetch refs/notes/evidence and read that commit's note. Matching fixes do not establish runtime equivalence after a kernel rebase.
+
+## Source partition retained for Fedora/HWE planning
+
+1. drivers/misc/fpc1020.c: new platform/misc reset/IRQ companion, already modular. Normal GPIO/IRQ/wakeup interfaces make it a strong external-module candidate. Electrical events do not prove biometric matches.
+2. Sargo fingerprint node/TLMM pinctrl additions: comparatively small board-description delta. Carry through the current HWE DTS patch-series machinery rather than resurrecting the superseded assumption of an immediate binary-DTBO implementation.
+3. drivers/tee/qseecom/core.c: new modular frontend, including the .12 pool-reuse fix. Existing code binds a platform device created by patched SCM, rather than an OF-compatible match. Installing its .ko alone does not instantiate that device on an unmodified base.
+4. New contiguous ELF32/64 MDT helpers can potentially become private code inside the external frontend. This is a proposed refactor; it has not been performed or validated.
+5. drivers/firmware/qcom/qcom_scm.c extensions remain the hard dependency: application loading/shutdown, listeners, common-library loading, shared serialization and boot-lifetime state. QCOM_QSEECOM is bool and requires QCOM_SCM=y in the inspected source. An ordinary module installation cannot replace those built-in changes. A supported upstream interface, reviewed refactor or explicit residual core patch is still needed.
+6. Boot-lifetime common-library state must survive frontend module reloads, and calls must preserve serialization with other QSEECOM users. Do not introduce a second independent secure-call path merely to bypass missing exports.
+7. Existing exported TZ allocation APIs are used by the final fix; no generic TEE core rewrite or fingerprint change to qcom_tzmem.c is needed. The downstream TEE implementation identifier and sensor ioctl ABI still require review.
+
+## Current upstream-preparation debt
+
+Use PR14's current body/review as the live inventory: provenance/sign-offs (notably imported authors' missing sign-offs), binding conventions/vendor prefix/interrupts/example, ioctl magic collision and registration/documentation, provisional TEE UAPI, MAINTAINERS/Kconfig entries, stale allowlist/reentrancy comments and series folding/cleanup. Do not manufacture other authors' sign-offs. The existing report notes incomplete sparse/clang/htmldocs/runtime coverage.
+
+## Changed PocketFed context
+
+PocketFed PR102 is open, unmerged at 3f5d7b6299e076eff39ddc728e804d37967b4ef6. It pins official Fedora 7.3.0-0.rc4.260924g62f4c998b297.41.fc46 and records test-sargo greeter/touch/UART acceptance. Its current lane has zero external modules because three initially missing configs have reached Fedora. This is baseline platform evidence, not fingerprint acceptance or a complete daily-phone pass.
+
+The DT builder recompiles matching Fedora/ARK DTS, verifies byte identity with the packaged DTB, applies upstream-form patches, then recompiles. Reuse this current path; issue64's earlier DTO proposal is historical. Issues64/76 own general HWE architecture, while the dedicated fingerprint follow-up owns this SCM-heavy feature.
+
+Cross-reference samcday/pocketfed refs/notes/evidence on 15d4fe2d8dca65cda11e2ae47f9a2fa2c894b4c7 for runtime source recovery and the remaining package/desktop work. No current official Fedora kernel-devel/export audit of the full fingerprint dependency set has been completed here. Pin then-current revisions and audit that exact artifact before choosing a delivery strategy.
