@@ -8,6 +8,7 @@ on:
       - "include/dt-bindings/**"
       - ".github/workflows/pdx245-dt.yml"
       - ".github/scripts/check-pdx245-dtb.py"
+      - ".github/scripts/pdx245-reserved-memory.json"
       - ".github/pdx245-bringup.md"
   workflow_dispatch:
 
@@ -25,7 +26,7 @@ jobs:
       DTB: .pdx245-build/out/arch/arm64/boot/dts/qcom/sm8650-sony-xperia-asahi-pdx245.dtb
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           persist-credentials: false
 
@@ -56,38 +57,50 @@ jobs:
 
       - name: Check negative controls for identity and bring-up boundaries
         run: |
+          expect_rejection() {
+            expected="$1"
+            shift
+            if "$@" > .pdx245-build/rejection.log 2>&1; then
+              echo "The board guard unexpectedly accepted a negative control"
+              exit 1
+            fi
+            cat .pdx245-build/rejection.log
+            if ! grep -Fq -- "$expected" .pdx245-build/rejection.log; then
+              echo "The negative control failed for the wrong reason: expected $expected"
+              exit 1
+            fi
+          }
           cp "$DTB" .pdx245-build/not-pdx245.dtb
           fdtput -t s .pdx245-build/not-pdx245.dtb / compatible \
             qcom,sm8650-qrd qcom,sm8650
-          if python3 .github/scripts/check-pdx245-dtb.py .pdx245-build/not-pdx245.dtb; then
-            echo "The board guard accepted the wrong device"
-            exit 1
-          fi
+          expect_rejection "board compatible" \
+            python3 .github/scripts/check-pdx245-dtb.py .pdx245-build/not-pdx245.dtb
           cp "$DTB" .pdx245-build/ufs-enabled.dtb
           fdtput -t s .pdx245-build/ufs-enabled.dtb /soc@0/ufshc@1d84000 status okay
-          if python3 .github/scripts/check-pdx245-dtb.py .pdx245-build/ufs-enabled.dtb; then
-            echo "The board guard accepted unverified UFS enablement"
-            exit 1
-          fi
+          expect_rejection "unresolved UFS power sequencing" \
+            python3 .github/scripts/check-pdx245-dtb.py .pdx245-build/ufs-enabled.dtb
           cp "$DTB" .pdx245-build/missing-usb-supply.dtb
           fdtput -d .pdx245-build/missing-usb-supply.dtb /soc@0/phy@88e3000 vdd-supply
-          if python3 .github/scripts/check-pdx245-dtb.py .pdx245-build/missing-usb-supply.dtb; then
-            echo "The board guard accepted a missing PHY supply"
-            exit 1
-          fi
+          expect_rejection "vdd-supply" \
+            python3 .github/scripts/check-pdx245-dtb.py .pdx245-build/missing-usb-supply.dtb
           cp "$DTB" .pdx245-build/missing-utmi-clock.dtb
           fdtput -d .pdx245-build/missing-utmi-clock.dtb /soc@0/usb@a600000 \
             qcom,select-utmi-as-pipe-clk
-          if python3 .github/scripts/check-pdx245-dtb.py .pdx245-build/missing-utmi-clock.dtb; then
-            echo "The board guard accepted USB2 without its UTMI clock selection"
-            exit 1
-          fi
+          expect_rejection "disabled SSPHY clock" \
+            python3 .github/scripts/check-pdx245-dtb.py .pdx245-build/missing-utmi-clock.dtb
           printf '[{"message":"negative control"}]\n' > .pdx245-build/nonempty-schema.json
-          if python3 .github/scripts/check-pdx245-dtb.py \
-            --schema-result .pdx245-build/nonempty-schema.json "$DTB"; then
-            echo "The board guard accepted schema diagnostics"
-            exit 1
-          fi
+          expect_rejection "expected empty DT schema diagnostics" \
+            python3 .github/scripts/check-pdx245-dtb.py \
+              --schema-result .pdx245-build/nonempty-schema.json "$DTB"
+          cp "$DTB" .pdx245-build/missing-reservation.dtb
+          fdtput -r .pdx245-build/missing-reservation.dtb /reserved-memory/camera@9b300000
+          expect_rejection "uncovered vendor reservation: camera_region@9b300000" \
+            python3 .github/scripts/check-pdx245-dtb.py .pdx245-build/missing-reservation.dtb
+          cp "$DTB" .pdx245-build/overlap.dtb
+          fdtput -t x .pdx245-build/overlap.dtb /reserved-memory/camera@9b300000 \
+            reg 0 9b200000 0 800000
+          expect_rejection "overlapping reservations" \
+            python3 .github/scripts/check-pdx245-dtb.py .pdx245-build/overlap.dtb
 
       - name: Prepare a source-identified artifact
         run: |
@@ -95,6 +108,8 @@ jobs:
           cp "$DTB" .pdx245-build/artifact/
           cp .github/pdx245-bringup.md .pdx245-build/artifact/README.md
           cp .pdx245-build/schema-result.json .pdx245-build/artifact/
+          cp .github/scripts/check-pdx245-dtb.py \
+            .github/scripts/pdx245-reserved-memory.json .pdx245-build/artifact/
           {
             echo "Experimental DTB only; not an Android boot image or a boot-tested port."
             printf 'Kernel source commit: '
@@ -105,7 +120,7 @@ jobs:
           cd .pdx245-build/artifact
           sha256sum *.dtb > SHA256SUMS
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: dtb-sm8650-sony-xperia-asahi-pdx245
           path: .pdx245-build/artifact/

@@ -63,10 +63,11 @@ VCCQ-parent relationship, other regulator upstream supply nets are not inferred
 from the HDK; their existing firmware votes remain an additional bring-up
 dependency to check.
 
-An independent comparison covered all **36 fixed reservations** in the
-downstream Pineapple base with the compiled DTB and found no overlaps in the
-resulting reservations. This does not establish the final RAM map for every
-Sony firmware release: bootloader fixups and dynamically removed hypervisor
+The guard compares all **36 fixed reservations** in the downstream Pineapple
+base, recorded in `.github/scripts/pdx245-reserved-memory.json`, against the
+compiled DTB and rejects uncovered regions, overlaps or missing `no-map`
+properties. This does not establish the final RAM map for every Sony firmware
+release: bootloader fixups and dynamically removed hypervisor
 regions still matter. Do not invent RAM sizes, a framebuffer address, or a
 persistent ramoops address from a different Xperia.
 
@@ -98,9 +99,10 @@ python3 .github/scripts/check-pdx245-dtb.py \
 Require an empty schema-diagnostics array (`[]`), not merely a successful
 `make` exit. The workflow fails on nonempty diagnostics and checks the actual
 compiled board identity, console, USB PHY/supply references, deliberately
-disabled UFS, reserved-memory coverage points and overlap invariants.
+disabled UFS, full vendor reservation coverage and overlap invariants.
 Negative-control DTBs carrying the QRD compatible, enabling UFS, removing
-the USB PHY supply, or omitting USB2's UTMI clock selection must each be rejected.
+the USB PHY supply, omitting USB2's UTMI clock selection, dropping a reservation,
+or creating an overlap must each be rejected with the expected diagnostic.
 The checker also rejects a nonempty schema-diagnostics fixture.
 
 `W=1` currently reports two inherited `avoid_unnecessary_addr_size` warnings on
@@ -108,7 +110,8 @@ the disabled SM8650 DSI controllers. They are not evidence of a working panel;
 do not enable a display or alter the shared SoC description to hide them.
 
 Artifacts include the source commit, schema version, schema diagnostics,
-this note, and a DTB checksum. They do not include a kernel or `boot.img`.
+this note, the guard and reservation fixture, and a DTB checksum.
+They do not include a kernel or `boot.img`.
 Passing these checks establishes structural consistency, not hardware support.
 
 ## Gates before a pocketboot image or hardware trial

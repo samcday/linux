@@ -64,7 +64,8 @@ def check(dtb, schema_result=None):
         ("/soc@0/phy@1d80000", "vdda-pll-supply", "regulators-3/ldo3"),
     ]:
         expect(cells(node, prop), cells(f"{rsc}/{regulator}", "phandle"), prop)
-    expect(text(f"{rsc}/regulators-3", "qcom,pmic-id"), "i", "USB PHY PMIC ID")
+    for index, pmic_id in enumerate(["b", "c", "d", "i"]):
+        expect(text(f"{rsc}/regulators-{index}", "qcom,pmic-id"), pmic_id, "RPMh PMIC ID")
     for node in ["/soc@0/ufshc@1d84000", "/soc@0/phy@1d80000"]:
         expect(text(node, "status"), "disabled", "unresolved UFS power sequencing")
 
@@ -91,6 +92,11 @@ def check(dtb, schema_result=None):
     regions = []
     for child in children:
         node = "/reserved-memory/" + child
+        properties = set(fdtget("-p", node).split())
+        if "reg" not in properties:
+            raise ValueError(f"{node}: dynamic reservations require an explicit guard update")
+        if "no-map" not in properties:
+            raise ValueError(f"{node}: the bring-up reservation must remain no-map")
         reg = cells(node, "reg")
         if len(reg) != 4:
             raise ValueError(f"{node}: expected a single 64-bit fixed reservation")
@@ -104,9 +110,19 @@ def check(dtb, schema_result=None):
         if previous[1] > current[0]:
             raise ValueError(f"overlapping reservations: {previous[2]}, {current[2]}")
 
+    fixture = Path(__file__).with_name("pdx245-reserved-memory.json")
+    expected_regions = json.loads(fixture.read_text())["regions"]
+    if not expected_regions:
+        raise ValueError("the vendor reservation fixture is empty")
+    for expected in expected_regions:
+        start = int(expected["address"], 16)
+        end = start + int(expected["size"], 16)
+        if not any(low <= start and high >= end for low, high, _ in regions):
+            raise ValueError(f"uncovered vendor reservation: {expected['name']}")
+
     print(
         f"{dtb}: PDX245 identity, console, USB/UFS wiring "
-        f"and {len(regions)} reservations checked"
+        f"and coverage of all {len(expected_regions)} vendor reservations checked"
     )
     print("Static checks only: no bootloader acceptance or hardware operation is proven.")
 
