@@ -1,0 +1,369 @@
+# Evidence for 42bb58cc11c475f24d40197fa6f4d2ef9540f8d4 (iommu/qcom: Invalidate context bank TLBs at probe, v2)
+
+Lab dir: /var/home/sam/tmp/qcom-iommu-kexec-20260928. Cross-references: linux ea3464ed5c397b35b79171a5725ecf17bc61a40a (v1 note: Sep 28 BASE/NEW/OLD matrix), pocketboot c90012f51fb90d608bccd1b6772cea4308d6d8e0. Patch content identical to ee6aa109/b96f7f3a/fbc04ce7 (cover-only rewrites).
+
+# Evidence: qcom_iommu v2 (TLBIALL at context-bank probe) A/B on the DragonBoard 410c (2026-09-29)
+
+For `refs/notes/evidence` on linux commit b96f7f3a31cc368af988160c8218e7b06d0468cb ("iommu/qcom: Invalidate
+context bank TLBs at probe", branch `b4/qcom-iommu-clean-contexts`, `~/tmp/linux-qcom-iommu-v2`; the object is
+also in `~/src/linux`). The lab applied ee6aa10964796 as `patches/0010`; ee6aa109 and b96f7f3a have the same tree
+(4dfcfa8ef61d), same message, same patch-id (8b3e3c7e3e11); they differ only in the empty b4 cover parent
+(517a07ae vs 7b1a8a1a, both tree b9e9f22c == v7.3-rc5). `patches/0010` diff body == `format-patch -1 b96f7f3a31cc`
+(diff rc=0).
+
+Cross-refs: v1 evidence = `~/src/linux` `refs/notes/evidence` on ea3464ed5c397b35b79171a5725ecf17bc61a40a
+(v1 lab A/B, 2026-09-28, BASE/NEW/OLD arms); Pocketboot lab commit c90012f51fb90d608bccd1b6772cea4308d6d8e0
+(`~/src/pocketboot`, has its own evidence note), whose initramfs is embedded in every kernel here.
+
+`L=/var/home/sam/tmp/qcom-iommu-kexec-20260928`. UART line numbers are absolute in `L/uart/db410c-uart.log`
+(capture re-armed 2026-09-29 15:11:16 at line 12228/12229, 19612 lines at the end of the phase). Board phase
+2026-09-29 15:11:36 to 15:24:00 AEST (+10:00); ledger `L/runs/attempts.jsonl` lines 37..58 (11 runs, start+done).
+
+## 1. Result
+
+Same hop as v1: a Pocketboot resident scanning out over HDMI kexecs into a second Pocketboot kernel, MSM8916 apps
+SMMU context bank cb=4 (`1e24000.iommu-ctx`, fixed ASID 4). Control B0 (lab base + upstream cb776a03, no
+invalidate): 4/4 hops FAULTS, first fault at IOVA 0x386000 every time, sustained storm (66-68k suppressed faults per
+5 s). P (B0 + this patch, nothing else): 6/6 hops CLEAN (3 primary, same-mode, P->P gen-2 chain, warm hop out of a
+storming B0 resident) plus a clean cold boot. 0 `timeout waiting for TLB SYNC` anywhere (UART or any dmesg). All 199
+context-fault lines of the phase are `cb=4`, `fsr=0x40000202`, `fsynr=0x23`, and all were printed by the four B0
+destination kernels.
+
+## 2. What was run and on what
+
+Board: DragonBoard 410c (APQ8016 = MSM8916), fastboot serial `bc72e60`, HDMI via ADV7533 with no sink/EDID (mode
+forced by `video=`), UART FT232R at `/dev/serial/by-path/pci-0000:6a:00.0-usb-0:1.1:1.0-port0`, power via lab USB
+relay channel 1. Same board, source FITs and UART capture file as v1.
+
+Kernel base: samcday/linux `pocketboot/msm8916` d87323486b79a31b9b25eb6fe30f1b503f142ff2 (7.1.0-rc6+),
+aarch64-linux-gnu-gcc 16.2.1 20260819, one `.config` (85fca913475a118c66d9e26b948acc0a968be2520105758ed5d12d7246179c3e,
+== v1) and one DTB (`apq8016-sbc.dtb` d76ac57ccabc59b1fed0bd24657901ca0aae5774964438f5c66c341b6282e130, == v1) for
+all arms. Initramfs cpio 50fb48314e9a2ccb5a1b5023622ab4917292f08ad0cb70a90ad4a8dab890e307 (Pocketboot c90012f,
+== v1). Recipe and verification: `L/notes/build-v2.md`.
+
+Lab series (`L/patches/`, sha256):
+- 0001 spin-table kexec (3714dff3), 0002 chipidea sg bounce (5ac6cda7), 0003 ffs reset_work (79ebc48c),
+  0004 ignore disabled secure ctx (de99d74a; no-op here: no ctx node is disabled), 0005 "log faults rejected by the
+  client handler" (5c2cbaa4; same hunk as upstream 1f33b8208a19), 0007 fixed secure pgtable region at 0x854e0000
+  (1b60746b; required for any kexec'd qcom-iommu probe on this board, not upstream).
+- 0009 = upstream cb776a03a534 "Enable clocks before hardware access in qcom_iommu_ctx_probe()" (ec70378a; diff
+  body == `format-patch -1 cb776a03a5342`).
+- 0010 = this patch (c04bef7b).
+
+| arm | series | kernel banner | Image sha256 | qcom_iommu.o sha256 |
+|---|---|---|---|---|
+| BASE (source FITs only; v1's control) | 0001-0005,0007 | `#2 SMP PREEMPT Mon Sep 28 11:29:12` | a3caf8820a8b054ae18c35529da6a07ce904b4ae7ea46ff6ec04a18d70733d0a | 600a197d5c5fa2179b9aba8cb7b288e62c067647e2c71db6bbd381f00e5060ab |
+| B0 (control) | BASE + 0009 (`series-b0.patch` 5d41a638) | `#1 SMP PREEMPT Tue Sep 29 14:47:25` | 95cbca82b2f97c6938c778bc46d80bc7dab403b129eaa34d4fcccd92147d0126 | 6e37b60474145d83135247cb258ee5282e2bd357cd7bfd2955b25c4ee39363f9 |
+| P (patch) | B0 + 0010 (`series-p.patch` 375486e2) | `#1 SMP PREEMPT Tue Sep 29 14:47:26` | 1b27f7a3618a171517edcb107444fdb5e34004f8a78d3a2827a5a53c7b4ef6fc | ad21b63f5b7a1024947b527d309955cddb415374fae1a7c9b494caa5af19de2c |
+
+B0 vs P source (`L/build/interdiff-b0-p.diff`, 47bed18c): qcom_iommu.c `qcom_iommu_ctx_tlb_sync()` helper split out
+of `qcom_iommu_tlb_sync()`; in `qcom_iommu_ctx_probe()` after the FSR clear, `iommu_writel(ctx,
+ARM_SMMU_CB_S1_TLBIALL, 0); qcom_iommu_ctx_tlb_sync(ctx);` before `pm_runtime_put_sync()`; arm-smmu.h `+#define
+ARM_SMMU_CB_S1_TLBIALL 0x618`. Nothing else. BASE vs B0 (`interdiff-base-b0.diff`, 500afeb2): only cb776a03's
+`pm_runtime_resume_and_get()`/`pm_runtime_put_sync()` around the FSR clear. v1's lab rows (P01-P09, S1-S3, V1-V3)
+were all built on BASE (control BASE, NEW/OLD = BASE + 0008/0006), i.e. without cb776a03; today's control B0
+has it.
+
+Images (`L/images/MANIFEST.txt`; each run's `inputs.sha256` matches; recomputed today):
+- Source FITs (cold: relay pulse, U-Boot `stage` + `bootm 93400000`), kernel BASE (payload.Image 406939a7 ==
+  `shim-prefix.bin` + BASE Image, recomputed):
+  `fit-src-640x480/image.itb` b19dba26843c2493a3b503764dafdd71f76cfa91815e399ba8d6e0e9b70aeba7, bootargs
+  `console=ttyMSM0,115200n8 earlycon loglevel=8 sysrq_always_enabled=1 androidboot.serialno=bc72e60
+  video=HDMI-A-1:640x480@60e pocketboot.drm_page_flips=16 panic=5 oops=panic pocketboot.ui=src-640x480
+  pocketboot.lab=src-640x480`; `fit-src-1280x720/image.itb` 0a56a57085ff103500b5ab09ea4f5017f48232ccb50e4bc2f056b90b19141b03
+  (same with `1280x720@60e` / `src-1280x720`).
+- Cold control FIT, kernel P: `fit-src-p-640x480/image.itb` c1b561b035107bcb275485137f99a31640944782d71153d9d401174d2fb6a4f4,
+  bootargs as the 640x480 FIT with `pocketboot.ui=src-p-640x480 pocketboot.lab=src-p-640x480`.
+- Destinations (Android v2 boot image, `fastboot -s bc72e60 boot` on the Pocketboot gadget -> Pocketboot
+  `reboot(LINUX_REBOOT_CMD_KEXEC)`), 1280x720, cmdline (verbatim in every row's `dest-cmdline.txt`, and
+  `/proc/cmdline` matched, `cmdline_matches=true`):
+  `console=ttyMSM0,115200n8 earlycon loglevel=8 sysrq_always_enabled=1 androidboot.serialno=bc72e60
+  video=HDMI-A-1:1280x720@60e pocketboot.drm_page_flips=16 pocketboot.ui=dest-<b0|p>-1280x720 panic=5 oops=panic
+  pocketboot.lab=kexec-generation-<1|2>`:
+  b0 gen1 bd4c7b8929bbab8286612caa475d8290265f33263d3f745710dd1b80bb8fca4d,
+  b0 gen2 6099df122eeb954a12ac99a65b730e873a328db25357411133afe1fac147d6f5 (unused),
+  p gen1 12f732b89ee9ac88d55b18be7444490cfd63aeb10f44452a51d4d57c1b87ff5a,
+  p gen2 9ea29e457a9a1b5bd4234da9debd15811a16a56c70ae48530b68d19609dcb9ec.
+
+Harness: v1's (`hop.sh` / `warm-start.sh` / `cold-control.sh` / `probe.sh` + `classify.py`, all mtimes
+2026-09-28, see the v1 note §2); only `verify-inputs.sh` was extended for the B0/P digests (build-v2.md §8, OK 64).
+Q08 and Q10 are warm starts: no relay pulse, the running resident is the source (its markers are checked over adb;
+the FIT argument in the ledger is recorded only, `hop.log`: "FIT arg ... ignored").
+
+## 3. Matrix (`L/runs/<run>/{result.json,hop.log,uart-hop.log,post-dmesg.txt,post-iovas.txt}`)
+
+UART range = harness `pre_kexec_mark..end`; slice line k = UART line mark+k. cb4 faults = classify count after the
+destination banner on UART / in post-probe dmesg (both are the rate limiter's first burst of 10). adb = adb
+answering after the banner (`hop.log`). s = ledger `seconds`.
+
+| run | arm | source | dest | expect | verdict | cb4 faults | uniq IOVAs | first IOVA | adb | UART | s |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| Q01-b0 | B0 | BASE FIT 640x480, cold | b0 gen1 | FAULTS | FAULTS | 10/10 | 9 | 0x386000 | 4 s | 12663..12988 | 56 |
+| Q02-p | P | BASE FIT 640x480, cold | p gen1 | CLEAN | CLEAN | 0/0 | 0 | - | 4 s | 13536..13839 | 55 |
+| Q03-b0 | B0 | BASE FIT 640x480, cold | b0 gen1 | FAULTS | FAULTS | 10/10 | 9 | 0x386000 | 4 s | 14271..14591 | 55 |
+| Q04-p | P | BASE FIT 640x480, cold | p gen1 | CLEAN | CLEAN | 0/0 | 0 | - | 4 s | 15040..15346 | 56 |
+| Q05-b0 | B0 | BASE FIT 640x480, cold | b0 gen1 | FAULTS | FAULTS | 10/10 | 9 | 0x386000 | 4 s | 15778..16103 | 55 |
+| Q06-p | P | BASE FIT 640x480, cold | p gen1 | CLEAN | CLEAN | 0/0 | 0 | - | 4 s | 16561..16867 | 55 |
+| Q07-p-samemode | P | BASE FIT 1280x720, cold | p gen1 | CLEAN | CLEAN | 0/0 | 0 | - | 4 s | 17299..17605 | 56 |
+| Q08-p-chain-gen2 | P | Q07's P gen1 resident (1280x720), warm | p gen2 | CLEAN | CLEAN | 0/0 | 0 | - | 4 s | 17606..17912 | 39 |
+| Q09-b0-storm | B0 | BASE FIT 640x480, cold | b0 gen1 | FAULTS | FAULTS | 10/10 | 9 | 0x386000 | 4 s | 18345..18671 | 57 |
+| Q10-p-warm-from-b0-storm | P | Q09's storming B0 gen1 resident (1280x720), warm | p gen2 | CLEAN | CLEAN | 0/0 (10 pre-banner = source) | 0 | - | 4 s | 18847..19175 | 40 |
+| Q11-p-cold | P | none (cold control, fit-src-p-640x480) | - | mode 640x480 | CLEAN, pass=true | 0/0 | 0 | - | cold boot, adb 2 s | 19175..19612 | 46 |
+
+All 11: `expect_match=true`, 0 crash markers, `/sys/devices/system/cpu/online` = 0-3, 4 iommu groups, `[drm]
+Initialized msm 1.13.0`, 6 mapped GEM vmas. Source allocation (`pre-iovas.txt`): 640x480 rows tx_gem 0x1000/4096 +
+dumb 0x2000/0x12e000/0x25a000 x 1228800 B (extent end 0x386000) + gpu 0x1000000/4096, 0x1001000/32768; 1280x720
+sources (Q07, Q08, Q10) 0x2000/0x386000/0x70a000 x 3686400 B (end 0xa8e000). Destination allocation identical in
+every hop row (`post-iovas.txt`): 0x2000/0x386000/0x70a000 x 3686400 B.
+
+## 4. B0 fault signature (Q01, Q03, Q05, Q09)
+
+Every fault line of the phase (199, UART 12229..19612):
+`qcom-iommu-ctx 1e24000.iommu-ctx: Unhandled context fault: fsr=0x40000202, iova=..., fsynr=0x23, cb=4`.
+fsr 0x40000202 = SS (bit 30, stalled) | FORMAT=1 (bits 10:9, AArch32 LPAE) | TF (bit 1, translation fault);
+fsynr 0x23 = PLVL=3 (bits 1:0, level-3 table) | PNU (bit 5), WNR=0 (read). `cb=` prints `ctx->asid` (4). The
+handler writes FSR back and RESUME=TERMINATE per fault. `errors: 04000000` = MDP5 INTR bit 26 `INTF1_UNDER_RUN`
+(`mdp5.xml:116`).
+
+First IOVA 0x386000 = 0x2000 + 3 x (640 x 480 x 4) = 0x2000 + 3686400 = the end of the source's mapped dumb-buffer
+extent. Note 3 x 640 x 480 x 4 == 1280 x 720 x 4, so 0x386000 is also the start of the destination's second
+buffer; `iovas_vs_source_map`: 10/10 outside the source map. All 199 lines hit 13 IOVAs 0x386000..0x386600 step
+0x80, i.e. one 4 KiB page.
+
+| run | first underrun (UART, uptime) | first fault | slice: faults / underrun lines / vblank timeouts | resident total printed faults / `qcom_iommu_fault: N callbacks suppressed` sum (lines) |
+|---|---|---|---|---|
+| Q01 | 12968, 2.280295 | 12969, 2.329758 | 10 / 10 / 0 | 60 / 339513 (5 lines, 66320..68372 each; until Q02's pulse) |
+| Q03 | 14571, 2.136348 | 14572, 2.185809 | 10 / 10 / 0 | 19 / 66324 (1) |
+| Q05 | 16082, 2.128308 | 16083, 2.177791 | 10 / 10 / 1 (`vblank time out, crtc=0`, 16090, 2.235737) | 20 / 66585 (1) |
+| Q09 | 18650, 2.316326 | 18652, 2.365791 | 10 / 10 / 0 | 100 / 612758 (9 lines, 66334..68426 each; until Q10's jump) |
+
+Unique IOVAs in each slice: 0x386000..0x386400 step 0x80 (9); first and last = 0x386000. First fault follows the
+first underrun by 49.46-49.48 ms in all four rows. Rate: 66-68k suppressed per 5 s = ~13.5k faults/s, every
+window, for as long as the B0 resident lives. Q01 UART 12965..12979, verbatim (trimmed):
+```
+12965 [15:12:27] [    1.813220] [drm] Initialized msm 1.13.0 for 1a01000.display-controller on minor 0
+12968 [15:12:27] [    2.280295] [drm:mdp5_irq_error_handler] *ERROR* errors: 04000000
+12969 [15:12:27] [    2.329758] qcom-iommu-ctx 1e24000.iommu-ctx: Unhandled context fault: fsr=0x40000202, iova=0x0000000000386000, fsynr=0x23, cb=4
+12970 [15:12:27] [    2.329820] qcom-iommu-ctx 1e24000.iommu-ctx: Unhandled context fault: fsr=0x40000202, iova=0x0000000000386080, fsynr=0x23, cb=4
+...   (0x386100 .. 0x386380, 11.5 ms apart, 12971..12976)
+12977 [15:12:27] [    2.409690] qcom-iommu-ctx 1e24000.iommu-ctx: Unhandled context fault: fsr=0x40000202, iova=0x0000000000386400, fsynr=0x23, cb=4
+12978 [15:12:27] [    2.421244] [drm:mdp5_irq_error_handler] *ERROR* errors: 04000000
+12979 [15:12:27] [    2.463100] qcom-iommu-ctx 1e24000.iommu-ctx: Unhandled context fault: fsr=0x40000202, iova=0x0000000000386000, fsynr=0x23, cb=4
+12993 [15:12:32] [    7.346647] qcom_iommu_fault: 66320 callbacks suppressed
+```
+B0 is otherwise healthy (4 CPUs, 4 groups, `secure pgtable already initialised (-22), reusing fixed region`,
+Initialized msm, adb): the faults are the only difference from P. Fact: cb776a03 alone does not prevent the faults.
+
+## 5. P health checks (Q02, Q04, Q06, Q07, Q08, Q10; Q11 cold for reference)
+
+`timeout waiting for TLB SYNC` = 0 in every P UART slice, every `post-dmesg.txt`/`pre-dmesg.txt`, `cold-dmesg.txt`,
+and the whole UART capture 12229..19612. No `secure init failed`, no Oops/SError/`Unable to handle`/WARNING/BUG.
+
+Gap = `secure pgtable already initialised` -> `platform 1b0ac00.camss: Adding to iommu group 0` (kernel timestamps).
+By source order in `qcom_iommu_device_probe()` the apps_iommu's three ctx probes (cb3/4/5, each now FSR clear +
+TLBIALL + sync) run inside this window (`devm_of_platform_populate()` then `iommu_device_register()`), so a sync
+that hit the 5 s `readl_poll_timeout` would show as >= 5000 ms and an error line (inference from source; the
+per-bank probe is not logged).
+
+| run | arm | gap ms | groups 0/1/2/3 (UART) | Initialized msm (UART, s) | 4 CPUs (UART) | underruns after banner | faults after banner | UART-silent resident window |
+|---|---|---|---|---|---|---|---|---|
+| Q02 | P | 7.525 | 13734..13737 | 13833, 1.652934 | 13627 | 1 (13839, 2.224253) | 0 | banner 15:13:42 -> pulse 15:14:23 |
+| Q04 | P | 7.530 | 15238..15241 | 15343, 1.816935 | 15131 | 1 (15346, 2.300232) | 0 | 15:16:07 -> 15:16:14 |
+| Q06 | P | 7.532 | 16759..16762 | 16857, 1.820899 | 16652 | 1 (16866, 2.316224) | 0 | 15:17:57 -> 15:19:28 |
+| Q07 | P | 7.551 | 17497..17500 | 17600, 1.732997 | 17390 | 1 (17604, 2.248251) | 0 | 15:20:16 -> kexec at uptime 38.90 s |
+| Q08 | P | 7.524 | 17804..17807 | 17901, 1.668931 | 17697 | 1 (17911, 2.140228) | 0 | 15:20:56 -> 15:21:28 |
+| Q10 | P | 7.536 | 19067..19070 | 19161, 1.701102 | 18960 | 1 (19174, 2.224306) | 0 | 15:23:06 -> 15:23:14 |
+| Q11 | P cold | 5.608 (from `pgtable size`; no reuse line on a first boot) | 19499..19502 | 19602, 1.625308 | 19393 | 1 (19610, 2.189146) | 0 | 15:23:27 -> 15:23:44 (end of capture) |
+| B0 rows | B0 | Q01 7.548, Q03 7.540, Q05 7.603, Q09 7.558 | | | | 10 (rate-limited) | 10 | |
+
+The single underrun ~2.2 s after the banner is the modeset baseline seen in every clean row of v1 too. P and B0 gaps
+are indistinguishable (P 7.524-7.551, B0 7.540-7.603 ms): the added TLBIALL + sync on three banks costs less than
+the run-to-run jitter. Groups: camss 0, video-codec 1, gpu 2, display-controller 3 in every row
+(`post-iommu.txt`). Q02 excerpt (UART, trimmed):
+```
+13540 [15:13:41] [   34.889220] kexec_core: Starting new kernel
+13556 [15:13:42] [    0.000000] Linux version 7.1.0-rc6+ (sam@sam-desktop) ... #1 SMP PREEMPT Tue Sep 29 14:47:26 AEST 2026
+13627 [15:13:42] [    0.076752] smp: Brought up 1 node, 4 CPUs
+13732 [15:13:43] [    0.926497] qcom-iommu 1ef0000.iommu: iommu sec: pgtable size: 94208
+13733 [15:13:43] [    0.930848] qcom-iommu 1ef0000.iommu: secure pgtable already initialised (-22), reusing fixed region
+13734 [15:13:43] [    0.938373] platform 1b0ac00.camss: Adding to iommu group 0
+13737 [15:13:43] [    0.984173] platform 1a01000.display-controller: Adding to iommu group 3
+13833 [15:13:44] [    1.652934] [drm] Initialized msm 1.13.0 for 1a01000.display-controller on minor 0
+13839 [15:13:44] [    2.224253] [drm:mdp5_irq_error_handler] *ERROR* errors: 04000000
+```
+then nothing from that kernel but `random: crng init done` (13840, 14.315685) until Q03's relay pulse.
+
+## 6. Warm hop out of a storming B0 resident (Q10)
+
+Source = Q09's B0 gen-1 destination, left scanning out 1280x720 (`warm-start: resident up 17.95 s`,
+`pre-cmdline.txt` `pocketboot.ui=dest-b0-1280x720 ... pocketboot.lab=kexec-generation-1`). Its storm, UART
+18652..18869, never stopped before the jump:
+- `qcom_iommu_fault: N callbacks suppressed` every 5 s: 66334 (18676, 7.382676), 68389, 68128, 68347, 68426,
+  68370, 68349, 68147, 68268 (18850, 47.484631); 612758 suppressed + 100 printed faults, all cb=4.
+- last printed fault 18861 `[   47.587392] ... iova=0x0000000000386080 ... cb=4`; last printed underrun 18869
+  (47.702015); `kexec_core: Starting new kernel` 18873 (49.418911); `Bye!` 18887 (49.496887); P banner 18889.
+  The 1.83 s without fault lines before `Starting new kernel` is inside a 5 s rate-limit window, so it does not show
+  the storm had stopped (see §9, not shown 1).
+- Q10's own slice has 10 pre-banner fault lines (`result.json` `pre_banner_faults=10`, `source_kernel` census) and
+  0 after the banner.
+- After the banner (18889..19175): 0 faults, 0 sync timeouts, `secure pgtable already initialised` 19066 ->
+  group 0 19067 (7.536 ms), groups 0..3, Initialized msm 19161, 4 CPUs 18960, 1 underrun (19174), adb 4 s after
+  the banner, post-dmesg 0 faults. The P gen-2 resident was then silent until Q11's pulse (15:23:14).
+
+## 7. Cold control (Q11): probe-time TLBIALL + TLBSYNC on all 5 banks from a cold SMMU
+
+Facts:
+- apq8016-sbc DT (built DTB, dtc): apps_iommu@1ef0000 ctx@3000 `qcom,msm-iommu-v1-sec` (camss), ctx@4000
+  `-v1-ns` (MDP), ctx@5000 `-v1-sec` (venus); gpu_iommu@1f08000 ctx@1000, ctx@2000 `-v1-ns` (gpu). No
+  `power-domains` on either IOMMU node.
+- `ctx->secured_ctx` is set only for `qcom,msm-iommu-v2-sec` (source; objdump: `of_device_is_compatible()` with
+  `.rodata.str1.8+0xb0` = "qcom,msm-iommu-v2-sec"). On MSM8916 therefore all 5 banks, including the two TZ-owned
+  v1-sec ones, execute FSR clear + TLBIALL + sync at probe. (The commit message's "Secured contexts ... are skipped"
+  is about v2-sec; it does not apply here.)
+- `qcom_scm_restore_sec_cfg()` call sites in P: `qcom_iommu_init_domain()` (first attach per bank) and
+  `qcom_iommu_resume()` only `if (dev->pm_domain)`. ctx probe runs from `devm_of_platform_populate()` before
+  `iommu_device_register()`, i.e. before any attach. Inference: with no power-domains, this kernel's first
+  restore_sec_cfg per bank comes after that bank's TLBIALL.
+- Q11 (P FIT, relay pulse -> U-Boot -> bootm, UART 19176..19612, cold-dmesg 289 lines): pass=true, verdict CLEAN,
+  mode `"640x480": 60 25175`, crtc active=1, 6 mapped vmas (3 x 1228800 B), cpus 0-3; `iommu sec: pgtable size:
+  94208` 19498 (0.919015) with no `already initialised` line (first-boot SCM path succeeded), groups 0..3
+  19499..19502 (0.924623/0.929133/0.936664/0.968523), Initialized msm 19602 (1.625308), 1 underrun (19610),
+  0 faults, 0 `timeout waiting for TLB SYNC`, 0 `secure init failed`, no abort.
+- Inference: the 5 cold-state TLBIALL writes + TLBSYNC polls completed without a 5 s timeout and without an
+  external abort, including on the v1-sec banks before TZ reconfigured them. Per-bank completion is inferred from
+  the absent error line and the 5.6 ms apps window; the gpu_iommu's two banks have no bracketing log line.
+
+## 8. objdump (`aarch64-linux-gnu-objdump -d -r`, `L/build/k-{b0,p}-*.txt`)
+
+P `qcom_iommu_ctx_probe` (0x700), straight-line for a non-secured bank:
+```
+ 780: bl  of_device_is_compatible        ("qcom,msm-iommu-v2-sec")
+ 784: cbnz w0, 83c                        (-> secured_ctx = 1, skip block)
+ 79c: bl  __pm_runtime_resume             (w1=4, pm_runtime_resume_and_get)
+ 7a8: add x1, x0, #0x58 ; 7ac: ldr w2,[x1] ; 7b0: str w2,[x1]   (CB_FSR write-back)
+ 7b4: str wzr, [x0, #1560]                (CB_S1_TLBIALL = 0x618)
+ 7bc: bl  208 <qcom_iommu_ctx_tlb_sync>
+ 7c8: bl  __pm_runtime_idle               (pm_runtime_put_sync)
+ 7f4: bl  devm_request_threaded_irq       (devm_request_irq)
+```
+`qcom_iommu_ctx_tlb_sync` (0x208): `21c: str wzr, [x0, #2032]` (CB_TLBSYNC 0x7f0), poll of 0x7f4 (TLBSTATUS)
+bit 0, timeout constant 0x1_2a05_f200 ns = 5 s, then `_dev_err`. The only `#1560` store in P's object is 0x7b4;
+B0's object has none. B0 `qcom_iommu_ctx_probe` (0x780): `__pm_runtime_resume` 81c, FSR ldr/str 82c/830,
+`__pm_runtime_idle` 83c, `devm_request_threaded_irq` 868, no #1560/#1552/#2032.
+`qcom_iommu_init_domain.isra.0` (base 0xf00, b0 0xf80, p 0xf00; 172 lines each): encoding column
+(`awk -F'\t' '{print $2}'`) sha256 3c1526558a9fedaaa3c7800b020947ccf09d869f60e3b86212ab273a24cfff92 for base, B0
+and P; normalized listings identical; no `#1552` store and no call to a TLB helper in any of them. So the attach
+path is byte-identical code in B0 and P. (build-v2.md quotes 147a958b... for the same comparison; not reproduced
+here, the identity holds either way.)
+
+## 9. What this shows / what it does not show
+
+Shows (facts unless marked):
+1. On MSM8916, kexec with a live display pipeline in the outgoing kernel reproducibly leaves stale SMMU state for
+   cb=4: B0 faulted 4/4 at 0x386000 with a ~13.5k faults/s storm, and cb776a03 does not change that.
+2. P removes it: 6/6 hops clean at the identical destination allocation, including a warm hop out of a B0
+   resident that was storming until `Starting new kernel` (Q10) and a P->P gen-2 chain (Q08); a same-mode hop
+   (Q07) is clean.
+3. Attribution: B0 and P differ only by the posted patch (interdiff §2), `init_domain` is byte-identical, and the
+   helper split is behaviour-preserving for the existing `tlb_sync` callers (inference from source). The single
+   behavioural change is CB TLBIALL + sync at ctx probe, before `devm_request_irq()` and before this kernel's
+   restore_sec_cfg/attach. That change is what removes the faults on this board.
+4. Cost/safety: 0 sync timeouts in 7 P boots (6 kexec, 1 cold); probe window unchanged within ~0.08 ms; the cold
+   boot shows TLBIALL/TLBSYNC on all 5 banks (incl. the two v1-sec banks) is harmless before TZ restore_sec_cfg.
+
+Does NOT show:
+1. A master live at destination probe. The outgoing kernel's `kernel_kexec()` -> `kernel_restart_prepare("kexec
+   reboot")` (ktree/p `kernel/kexec_core.c:1195`) -> `device_shutdown()` (`kernel/reboot.c:105`) -> mdp5
+   `.shutdown = msm_kms_shutdown` (`mdp5_kms.c:914`) -> `drm_atomic_helper_shutdown()` (`msm_kms.c:376-377`) runs
+   before `pr_notice("Starting new kernel")` (`kexec_core.c:1206`), so scanout is stopped before the jump. Source
+   analysis only: nothing logs it, and qcom_iommu has no `.shutdown`, so cb=4 stays enabled on the old TTBR0.
+   The cover letter's open question (refill by a live master, or speculative walks, between probe and attach; v1's
+   attach-time TLBIASID) is untested here.
+2. An inherited stalled transaction: Q10's source was stalling (FSR.SS) and terminating faults continuously, but the
+   FSR/SCTLR state at the jump and at destination probe is not observed (the `pdbg` arm, `patches/0011`, which dumps
+   SCTLR/TTBR0/FSR and times the TLBIALL per bank, was built (`notes/build-pdbg.md`) but not run: no ledger rows).
+3. kdump / crash kexec (no `device_shutdown()`), other SoCs or SMMU flavours (only `qcom,msm-iommu-v1`, no v2-sec
+   `secured_ctx` path), stock mainline (0001 + 0007 are required to kexec here; per the cover, the second
+   `qcom_scm_iommu_secure_ptbl_init()` fails -EINVAL without 0007), a live GPU master (no `a300_pm4.fw`, GPU never
+   runs), picture content (no sink attached).
+4. The Samsung Galaxy A5: pending, not re-run with v2.
+5. Mechanism: 0x386000 is both the source extent end and the destination's buffer-2 start, so these rows alone do
+   not discriminate stale walk-cache from stale leaf entries; TLBIALL removes both. No B0 same-mode control was run
+   today (v1's BASE same-mode S1 faulted inside the source map).
+
+## 10. Anomalies and caveats
+
+- Q02 and Q11 printed `HDMI Sink doesn't support RGB, something's wrong.`; Q02's destination mode was
+  `"1280x720": 60 74440` (CVT) vs 74250 elsewhere: ADV7533 sink-sense flapping with no sink, as in v1 (A2). Same
+  geometry and identical GEM allocation.
+- `vblank time out, crtc=0` once, Q05 (B0, during the storm); never on P.
+- Fault lines from a B0 resident continue past the next row's start mark until the relay cuts power (Q03 to 14606,
+  Q05 to 16119); attribution above is by the preceding banner.
+- `hop.log`/ledger UART ranges start at the pre-kexec mark; `result.json` line numbers are slice-relative.
+- Q11's `cold-uart.log` contains binary pre-boot bytes: `grep` needs `-a`, and Python `splitlines()` over-counts
+  (classify reports 440 lines; the file has 437 `\n` lines = 19176..19612).
+
+## 11. File map
+
+- Ledger `L/runs/attempts.jsonl` (lines 37..58). Per run `L/runs/Q*/`: `result.json`, `hop.log`, `uart-hop.log`
+  (Q11 `cold-uart.log`), `post-dmesg.txt` (Q11 `cold-dmesg.txt`), `pre-/post-iovas.txt`, `inputs.sha256`,
+  `dest-cmdline.txt`, `pre-/post-{cmdline,cpus,iommu,state,gem}.txt`.
+- UART `L/uart/db410c-uart.log` (lines 12229..19612 for this phase).
+- Build: `L/notes/build-v2.md`, `L/build/interdiff-{base-b0,b0-p}.diff`, `L/build/k-{b0,p}-ctx_probe.txt`,
+  `k-p-ctx_tlb_sync.txt`, `k-{base,b0,p}-init_domain.{txt,norm}`, `MANIFEST-kernels.txt`, `series-{b0,p}.patch`.
+- Images: `L/images/MANIFEST.txt`, `dest-header-check-v2.txt`, `L/build/verify-inputs-v2.out` (OK, 64 digests).
+
+## P-dbg diagnostic rows (lab-only, not evidence for the posted patch's behaviour beyond P)
+
+Arm pdbg = P + patches/0011-lab-only-pdbg-probe-dump.patch (dev_info of SCTLR/TTBR0/FSR before the FSR clear, ktime around TLBIALL+sync). Build: notes/build-pdbg.md. Image 1f4a7590e0fe9b99…, qcom_iommu.o 875e8f49…, init_domain instruction stream identical to base/B0/P (hash 147a958b…).
+
+| run | kind | verdict | cb4 faults |
+|---|---|---|---|
+| Q12-pdbg | hop | CLEAN | 0 |
+| Q13-pdbg-cold | cold-control | CLEAN | 0 |
+| Q14-b0-storm2 | hop | FAULTS | 10 |
+| Q15-pdbg-warm-from-b0-storm | hop | CLEAN | 0 |
+
+### Q12-pdbg probe dumps (post-dmesg.txt)
+```
+[    0.936758] qcom-iommu-ctx 1e23000.iommu-ctx: lab-dbg probe: SCTLR=0xe7 TTBR0=0x30000819ed000 FSR=0x200
+[    0.945320] qcom-iommu-ctx 1e23000.iommu-ctx: lab-dbg probe: TLBIALL+sync took 834 ns, FSR now 0x200
+[    0.954948] qcom-iommu-ctx 1e24000.iommu-ctx: lab-dbg probe: SCTLR=0xe7 TTBR0=0x40000824f4000 FSR=0x200
+[    0.963826] qcom-iommu-ctx 1e24000.iommu-ctx: lab-dbg probe: TLBIALL+sync took 5000 ns, FSR now 0x200
+[    0.973353] qcom-iommu-ctx 1e25000.iommu-ctx: lab-dbg probe: SCTLR=0xe7 TTBR0=0x50000819ee000 FSR=0x200
+[    0.982306] qcom-iommu-ctx 1e25000.iommu-ctx: lab-dbg probe: TLBIALL+sync took 1197 ns, FSR now 0x200
+[    1.007630] qcom-iommu-ctx 1f09000.iommu-ctx: lab-dbg probe: SCTLR=0xe7 TTBR0=0x10000824e5000 FSR=0x200
+[    1.012532] qcom-iommu-ctx 1f09000.iommu-ctx: lab-dbg probe: TLBIALL+sync took 886 ns, FSR now 0x200
+[    1.022235] qcom-iommu-ctx 1f0a000.iommu-ctx: lab-dbg probe: SCTLR=0xe7 TTBR0=0x20000824e5000 FSR=0x200
+[    1.031091] qcom-iommu-ctx 1f0a000.iommu-ctx: lab-dbg probe: TLBIALL+sync took 833 ns, FSR now 0x200
+```
+### Q13-pdbg-cold probe dumps (cold-dmesg.txt)
+```
+[    0.930816] qcom-iommu-ctx 1e23000.iommu-ctx: lab-dbg probe: SCTLR=0x30000000 TTBR0=0x0 FSR=0x0
+[    0.936697] qcom-iommu-ctx 1e23000.iommu-ctx: lab-dbg probe: TLBIALL+sync took 1459 ns, FSR now 0x0
+[    0.945639] qcom-iommu-ctx 1e24000.iommu-ctx: lab-dbg probe: SCTLR=0x30000080 TTBR0=0x0 FSR=0x0
+[    0.954145] qcom-iommu-ctx 1e24000.iommu-ctx: lab-dbg probe: TLBIALL+sync took 1458 ns, FSR now 0x0
+[    0.963278] qcom-iommu-ctx 1e25000.iommu-ctx: lab-dbg probe: SCTLR=0x30000000 TTBR0=0x0 FSR=0x0
+[    0.971884] qcom-iommu-ctx 1e25000.iommu-ctx: lab-dbg probe: TLBIALL+sync took 1406 ns, FSR now 0x0
+[    0.996465] qcom-iommu-ctx 1f09000.iommu-ctx: lab-dbg probe: SCTLR=0x30000000 TTBR0=0x0 FSR=0x0
+[    1.001415] qcom-iommu-ctx 1f09000.iommu-ctx: lab-dbg probe: TLBIALL+sync took 3438 ns, FSR now 0x0
+[    1.010393] qcom-iommu-ctx 1f0a000.iommu-ctx: lab-dbg probe: SCTLR=0x30000000 TTBR0=0x0 FSR=0x0
+[    1.018908] qcom-iommu-ctx 1f0a000.iommu-ctx: lab-dbg probe: TLBIALL+sync took 3281 ns, FSR now 0x0
+```
+### Q15-pdbg-warm-from-b0-storm probe dumps (post-dmesg.txt)
+```
+[    0.928736] qcom-iommu-ctx 1e23000.iommu-ctx: lab-dbg probe: SCTLR=0xe7 TTBR0=0x3000081c63000 FSR=0x200
+[    0.937283] qcom-iommu-ctx 1e23000.iommu-ctx: lab-dbg probe: TLBIALL+sync took 833 ns, FSR now 0x200
+[    0.946902] qcom-iommu-ctx 1e24000.iommu-ctx: lab-dbg probe: SCTLR=0xe7 TTBR0=0x400008262b000 FSR=0x200
+[    0.955778] qcom-iommu-ctx 1e24000.iommu-ctx: lab-dbg probe: TLBIALL+sync took 4844 ns, FSR now 0x200
+[    0.965349] qcom-iommu-ctx 1e25000.iommu-ctx: lab-dbg probe: SCTLR=0xe7 TTBR0=0x5000081c64000 FSR=0x200
+[    0.974267] qcom-iommu-ctx 1e25000.iommu-ctx: lab-dbg probe: TLBIALL+sync took 1146 ns, FSR now 0x200
+[    0.999597] qcom-iommu-ctx 1f09000.iommu-ctx: lab-dbg probe: SCTLR=0xe7 TTBR0=0x10000824b3000 FSR=0x200
+[    1.004483] qcom-iommu-ctx 1f09000.iommu-ctx: lab-dbg probe: TLBIALL+sync took 1198 ns, FSR now 0x200
+[    1.014166] qcom-iommu-ctx 1f0a000.iommu-ctx: lab-dbg probe: SCTLR=0xe7 TTBR0=0x20000824b3000 FSR=0x200
+[    1.023046] qcom-iommu-ctx 1f0a000.iommu-ctx: lab-dbg probe: TLBIALL+sync took 1094 ns, FSR now 0x200
+```
+
+Observed (facts): after kexec (Q12 from a quiesced source, Q15 from a storming B0 resident) every non-secured bank reaches ctx_probe with SCTLR=0xe7 (M|TRE|AFE|CFRE|CFIE|CFCFG) and the previous kernel's TTBR0 with ASID = bank's DT ASID in bits [55:48] (1e24000 cb4 -> 0x04). FSR=0x200 in every kexec row: bit 9 (FORMAT=LPAE) only, no fault bits, SS (bit 30) clear, so no stalled transaction was inherited even from the storming B0. Cold boot (Q13): SCTLR=0x30000000 (NSCFG only; cb4 also CFCFG), TTBR0=0, FSR=0, i.e. the bootloader leaves the banks disabled. TLBIALL+sync completes in 0.8-5 us per bank (cb4 after kexec ~5 us, cold ~1.5 us). Inference: the same-ASID reuse the patch message describes is exactly what the hardware presents at probe; the probe-time bypass/refill window discussed in the cover is real only for a master still fetching, which this source does not do.
+
+Note: SCTLR reads 0xe7, not the 0x10e7 that init_domain writes: S1_ASIDPNE (bit 12) reads as zero on this SMMU. Not relevant to the fix; recorded for completeness.
