@@ -214,6 +214,7 @@
 	maximum-speed = "high-speed";
 	phys = <&usb_1_hsphy>;
 	phy-names = "usb2-phy";
+	qcom,select-utmi-as-pipe-clk;
 
 	status = "okay";
 };

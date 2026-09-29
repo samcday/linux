@@ -33,7 +33,8 @@ not DTS fragments that can be included in a mainline build.
 
 - **USB2 diagnostic candidate:** the mainline DWC3 controller is fixed to
   peripheral/high-speed mode, referencing only the eUSB2 PHY and PM8550B
-  repeater. The vendor's `pineapple-usb.dtsi` connects the PHY to VE L1/L3;
+  repeater, with UTMI selected as its PIPE clock source while SSPHY is disabled.
+  The vendor's `pineapple-usb.dtsi` connects the PHY to VE L1/L3;
   these are RPMh group **i**, distinct from its numeric SPMI SID 8. The LDO
   voltage ranges follow `pineapple-regulators.dtsi`.
 - **Repeater assumptions are explicit:** the Android DT names the repeater but
@@ -90,15 +91,17 @@ dtb="$KBUILD_OUTPUT/arch/arm64/boot/dts/qcom/sm8650-sony-xperia-asahi-pdx245.dtb
 dt-validate \
   -s "$KBUILD_OUTPUT/Documentation/devicetree/bindings/processed-schema.json" \
   --json-output .pdx245-build/schema-result.json "$dtb"
-python3 .github/scripts/check-pdx245-dtb.py "$dtb"
+python3 .github/scripts/check-pdx245-dtb.py \
+  --schema-result .pdx245-build/schema-result.json "$dtb"
 ```
 
 Require an empty schema-diagnostics array (`[]`), not merely a successful
 `make` exit. The workflow fails on nonempty diagnostics and checks the actual
 compiled board identity, console, USB PHY/supply references, deliberately
 disabled UFS, reserved-memory coverage points and overlap invariants.
-Negative-control DTBs carrying the QRD compatible, enabling UFS, or removing
-the USB PHY supply must each be rejected.
+Negative-control DTBs carrying the QRD compatible, enabling UFS, removing
+the USB PHY supply, or omitting USB2's UTMI clock selection must each be rejected.
+The checker also rejects a nonempty schema-diagnostics fixture.
 
 `W=1` currently reports two inherited `avoid_unnecessary_addr_size` warnings on
 the disabled SM8650 DSI controllers. They are not evidence of a working panel;

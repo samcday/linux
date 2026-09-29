@@ -2,11 +2,17 @@
 """Check the compiled bring-up DTB, not just its source or schema exit status."""
 
 import argparse
+import json
 from pathlib import Path
 import subprocess
 
 
-def check(dtb):
+def check(dtb, schema_result=None):
+    if schema_result is not None:
+        diagnostics = json.loads(schema_result.read_text())
+        if diagnostics != []:
+            raise ValueError(f"expected empty DT schema diagnostics, got {diagnostics!r}")
+
     def fdtget(option, *args):
         return subprocess.check_output(
             ["fdtget", option, str(dtb), *args], text=True
@@ -42,7 +48,10 @@ def check(dtb):
     expect(text(hsphy, "status"), "okay", "eUSB2 PHY")
     expect(cells(hsphy, "phys"), cells(repeater, "phandle"), "eUSB2 repeater")
     expect(text("/soc@0/phy@88e8000", "status"), "disabled", "USB3/DP PHY")
-    if "usb-role-switch" in fdtget("-p", usb).split():
+    usb_properties = set(fdtget("-p", usb).split())
+    if "qcom,select-utmi-as-pipe-clk" not in usb_properties:
+        raise ValueError("USB2-only operation must not depend on the disabled SSPHY clock")
+    if "usb-role-switch" in usb_properties:
         raise ValueError("the diagnostic path must not require USB role switching")
     for node, prop, regulator in [
         (hsphy, "vdd-supply", "regulators-3/ldo1"),
@@ -105,8 +114,9 @@ def check(dtb):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("dtb", type=Path)
+    parser.add_argument("--schema-result", type=Path, help="require empty dt-validate JSON diagnostics")
     args = parser.parse_args()
     try:
-        check(args.dtb)
+        check(args.dtb, args.schema_result)
     except (ValueError, OSError, subprocess.CalledProcessError) as error:
         parser.exit(1, f"PDX245 DTB check failed: {error}\n")

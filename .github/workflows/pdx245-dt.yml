@@ -51,14 +51,8 @@ jobs:
           dt-validate \
             -s "$KBUILD_OUTPUT/Documentation/devicetree/bindings/processed-schema.json" \
             --json-output .pdx245-build/schema-result.json "$DTB"
-          python3 - <<'PY'
-          import json
-          from pathlib import Path
-          diagnostics = json.loads(Path(".pdx245-build/schema-result.json").read_text())
-          if diagnostics:
-              raise SystemExit(f"DT schema diagnostics: {diagnostics}")
-          PY
-          python3 .github/scripts/check-pdx245-dtb.py "$DTB"
+          python3 .github/scripts/check-pdx245-dtb.py \
+            --schema-result .pdx245-build/schema-result.json "$DTB"
 
       - name: Check negative controls for identity and bring-up boundaries
         run: |
@@ -79,6 +73,19 @@ jobs:
           fdtput -d .pdx245-build/missing-usb-supply.dtb /soc@0/phy@88e3000 vdd-supply
           if python3 .github/scripts/check-pdx245-dtb.py .pdx245-build/missing-usb-supply.dtb; then
             echo "The board guard accepted a missing PHY supply"
+            exit 1
+          fi
+          cp "$DTB" .pdx245-build/missing-utmi-clock.dtb
+          fdtput -d .pdx245-build/missing-utmi-clock.dtb /soc@0/usb@a600000 \
+            qcom,select-utmi-as-pipe-clk
+          if python3 .github/scripts/check-pdx245-dtb.py .pdx245-build/missing-utmi-clock.dtb; then
+            echo "The board guard accepted USB2 without its UTMI clock selection"
+            exit 1
+          fi
+          printf '[{"message":"negative control"}]\n' > .pdx245-build/nonempty-schema.json
+          if python3 .github/scripts/check-pdx245-dtb.py \
+            --schema-result .pdx245-build/nonempty-schema.json "$DTB"; then
+            echo "The board guard accepted schema diagnostics"
             exit 1
           fi
 
