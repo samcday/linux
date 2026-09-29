@@ -281,7 +281,7 @@ Does NOT show:
    attach-time TLBIASID) is untested here.
 2. An inherited stalled transaction: Q10's source was stalling (FSR.SS) and terminating faults continuously, but the
    FSR/SCTLR state at the jump and at destination probe is not observed (the `pdbg` arm, `patches/0011`, which dumps
-   SCTLR/TTBR0/FSR and times the TLBIALL per bank, was built (`notes/build-pdbg.md`) but not run: no ledger rows).
+   SCTLR/TTBR0/FSR and times the TLBIALL per bank, was built (`notes/build-pdbg.md`) and then run after this note was drafted: rows Q12-Q15, see the P-dbg section appended below).
 3. kdump / crash kexec (no `device_shutdown()`), other SoCs or SMMU flavours (only `qcom,msm-iommu-v1`, no v2-sec
    `secured_ctx` path), stock mainline (0001 + 0007 are required to kexec here; per the cover, the second
    `qcom_scm_iommu_secure_ptbl_init()` fails -EINVAL without 0007), a live GPU master (no `a300_pm4.fw`, GPU never
