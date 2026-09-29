@@ -110,7 +110,7 @@ the disabled SM8650 DSI controllers. They are not evidence of a working panel;
 do not enable a display or alter the shared SoC description to hide them.
 
 Artifacts include the source commit, schema version, schema diagnostics,
-this note, the guard and reservation fixture, and a DTB checksum.
+this note, the guard and reservation fixture, and checksums for all payload files.
 They do not include a kernel or `boot.img`.
 Passing these checks establishes structural consistency, not hardware support.
 

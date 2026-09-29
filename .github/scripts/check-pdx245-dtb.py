@@ -14,9 +14,14 @@ def check(dtb, schema_result=None):
             raise ValueError(f"expected empty DT schema diagnostics, got {diagnostics!r}")
 
     def fdtget(option, *args):
-        return subprocess.check_output(
-            ["fdtget", option, str(dtb), *args], text=True
-        ).strip()
+        try:
+            return subprocess.check_output(
+                ["fdtget", option, str(dtb), *args], text=True, stderr=subprocess.PIPE
+            ).strip()
+        except subprocess.CalledProcessError as error:
+            raise ValueError(
+                f"cannot read DT {option} {' '.join(args)}: {error.stderr.strip()}"
+            ) from error
 
     def text(node, prop):
         return fdtget("-ts", node, prop)
@@ -134,5 +139,5 @@ if __name__ == "__main__":
     args = parser.parse_args()
     try:
         check(args.dtb, args.schema_result)
-    except (ValueError, OSError, subprocess.CalledProcessError) as error:
+    except (ValueError, OSError) as error:
         parser.exit(1, f"PDX245 DTB check failed: {error}\n")

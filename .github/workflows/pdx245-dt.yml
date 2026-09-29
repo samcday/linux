@@ -81,7 +81,7 @@ jobs:
             python3 .github/scripts/check-pdx245-dtb.py .pdx245-build/ufs-enabled.dtb
           cp "$DTB" .pdx245-build/missing-usb-supply.dtb
           fdtput -d .pdx245-build/missing-usb-supply.dtb /soc@0/phy@88e3000 vdd-supply
-          expect_rejection "vdd-supply" \
+          expect_rejection "Error at 'vdd-supply': FDT_ERR_NOTFOUND" \
             python3 .github/scripts/check-pdx245-dtb.py .pdx245-build/missing-usb-supply.dtb
           cp "$DTB" .pdx245-build/missing-utmi-clock.dtb
           fdtput -d .pdx245-build/missing-utmi-clock.dtb /soc@0/usb@a600000 \
@@ -96,6 +96,7 @@ jobs:
           fdtput -r .pdx245-build/missing-reservation.dtb /reserved-memory/camera@9b300000
           expect_rejection "uncovered vendor reservation: camera_region@9b300000" \
             python3 .github/scripts/check-pdx245-dtb.py .pdx245-build/missing-reservation.dtb
+          # Overlap checking intentionally precedes vendor coverage checking.
           cp "$DTB" .pdx245-build/overlap.dtb
           fdtput -t x .pdx245-build/overlap.dtb /reserved-memory/camera@9b300000 \
             reg 0 9b200000 0 800000
@@ -118,7 +119,8 @@ jobs:
             dt-validate --version
           } > .pdx245-build/artifact/build-info.txt
           cd .pdx245-build/artifact
-          sha256sum *.dtb > SHA256SUMS
+          sha256sum *.dtb README.md build-info.txt schema-result.json \
+            check-pdx245-dtb.py pdx245-reserved-memory.json > SHA256SUMS
 
       - uses: actions/upload-artifact@v7
         with:
