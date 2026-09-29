@@ -5454,6 +5454,7 @@ F:	include/linux/brcmphy.h
 BROADCOM GENET ETHERNET DRIVER
 M:	Doug Berger <opendmb@gmail.com>
 M:	Florian Fainelli <florian.fainelli@broadcom.com>
+M:	Nicolai Buchwitz <nb@tipi-net.de>
 R:	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>
 L:	netdev@vger.kernel.org
 S:	Maintained
@@ -14905,7 +14906,7 @@ M:	Damien Le Moal <dlemoal@kernel.org>
 M:	Niklas Cassel <cassel@kernel.org>
 L:	linux-ide@vger.kernel.org
 S:	Maintained
-T:	git git://git.kernel.org/pub/scm/linux/kernel/git/libata/linux.git
+T:	git git://git.kernel.org/pub/scm/linux/kernel/git/libata/linux.git for-next
 F:	Documentation/ABI/testing/sysfs-ata
 F:	Documentation/devicetree/bindings/ata/
 F:	drivers/ata/
