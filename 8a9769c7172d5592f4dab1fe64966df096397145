@@ -1,0 +1,650 @@
+# Evidence for 8a9769c7172d5592f4dab1fe64966df096397145 (iommu/qcom: Invalidate context bank TLBs at probe, v2)
+
+Two boards, 2026-09-29. Patch content identical across the cover-only rewrites ee6aa109/b96f7f3a/fbc04ce7/42bb58cc/0d59939d (stable patch-id 8b3e3c7e3e11). Cross-references: linux ea3464ed5c397b35b79171a5725ecf17bc61a40a (v1 note, Sep 28 DB410c BASE/NEW/OLD matrix), pocketboot c90012f51fb90d608bccd1b6772cea4308d6d8e0. Lab dirs: DB410c /var/home/sam/tmp/qcom-iommu-kexec-20260928, A5 /var/home/sam/tmp/qcom-iommu-a5-20260929. After the A5 rows the phone was rebooted into its Pocketboot #29 resident (fastboot product=pocketboot confirmed at 16:31); that reboot is not in the lab ledger.
+
+# Part 1: DragonBoard 410c
+
+# Evidence: qcom_iommu v2 (TLBIALL at context-bank probe) A/B on the DragonBoard 410c (2026-09-29)
+
+For `refs/notes/evidence` on linux commit b96f7f3a31cc368af988160c8218e7b06d0468cb ("iommu/qcom: Invalidate
+context bank TLBs at probe", branch `b4/qcom-iommu-clean-contexts`, `~/tmp/linux-qcom-iommu-v2`; the object is
+also in `~/src/linux`). The lab applied ee6aa10964796 as `patches/0010`; ee6aa109 and b96f7f3a have the same tree
+(4dfcfa8ef61d), same message, same patch-id (8b3e3c7e3e11); they differ only in the empty b4 cover parent
+(517a07ae vs 7b1a8a1a, both tree b9e9f22c == v7.3-rc5). `patches/0010` diff body == `format-patch -1 b96f7f3a31cc`
+(diff rc=0).
+
+Cross-refs: v1 evidence = `~/src/linux` `refs/notes/evidence` on ea3464ed5c397b35b79171a5725ecf17bc61a40a
+(v1 lab A/B, 2026-09-28, BASE/NEW/OLD arms); Pocketboot lab commit c90012f51fb90d608bccd1b6772cea4308d6d8e0
+(`~/src/pocketboot`, has its own evidence note), whose initramfs is embedded in every kernel here.
+
+`L=/var/home/sam/tmp/qcom-iommu-kexec-20260928`. UART line numbers are absolute in `L/uart/db410c-uart.log`
+(capture re-armed 2026-09-29 15:11:16 at line 12228/12229, 19612 lines at the end of the phase). Board phase
+2026-09-29 15:11:36 to 15:24:00 AEST (+10:00); ledger `L/runs/attempts.jsonl` lines 37..58 (11 runs, start+done).
+
+## 1. Result
+
+Same hop as v1: a Pocketboot resident scanning out over HDMI kexecs into a second Pocketboot kernel, MSM8916 apps
+SMMU context bank cb=4 (`1e24000.iommu-ctx`, fixed ASID 4). Control B0 (lab base + upstream cb776a03, no
+invalidate): 4/4 hops FAULTS, first fault at IOVA 0x386000 every time, sustained storm (66-68k suppressed faults per
+5 s). P (B0 + this patch, nothing else): 6/6 hops CLEAN (3 primary, same-mode, P->P gen-2 chain, warm hop out of a
+storming B0 resident) plus a clean cold boot. 0 `timeout waiting for TLB SYNC` anywhere (UART or any dmesg). All 199
+context-fault lines of the phase are `cb=4`, `fsr=0x40000202`, `fsynr=0x23`, and all were printed by the four B0
+destination kernels.
+
+## 2. What was run and on what
+
+Board: DragonBoard 410c (APQ8016 = MSM8916), fastboot serial `bc72e60`, HDMI via ADV7533 with no sink/EDID (mode
+forced by `video=`), UART FT232R at `/dev/serial/by-path/pci-0000:6a:00.0-usb-0:1.1:1.0-port0`, power via lab USB
+relay channel 1. Same board, source FITs and UART capture file as v1.
+
+Kernel base: samcday/linux `pocketboot/msm8916` d87323486b79a31b9b25eb6fe30f1b503f142ff2 (7.1.0-rc6+),
+aarch64-linux-gnu-gcc 16.2.1 20260819, one `.config` (85fca913475a118c66d9e26b948acc0a968be2520105758ed5d12d7246179c3e,
+== v1) and one DTB (`apq8016-sbc.dtb` d76ac57ccabc59b1fed0bd24657901ca0aae5774964438f5c66c341b6282e130, == v1) for
+all arms. Initramfs cpio 50fb48314e9a2ccb5a1b5023622ab4917292f08ad0cb70a90ad4a8dab890e307 (Pocketboot c90012f,
+== v1). Recipe and verification: `L/notes/build-v2.md`.
+
+Lab series (`L/patches/`, sha256):
+- 0001 spin-table kexec (3714dff3), 0002 chipidea sg bounce (5ac6cda7), 0003 ffs reset_work (79ebc48c),
+  0004 ignore disabled secure ctx (de99d74a; no-op here: no ctx node is disabled), 0005 "log faults rejected by the
+  client handler" (5c2cbaa4; same hunk as upstream 1f33b8208a19), 0007 fixed secure pgtable region at 0x854e0000
+  (1b60746b; required for any kexec'd qcom-iommu probe on this board, not upstream).
+- 0009 = upstream cb776a03a534 "Enable clocks before hardware access in qcom_iommu_ctx_probe()" (ec70378a; diff
+  body == `format-patch -1 cb776a03a5342`).
+- 0010 = this patch (c04bef7b).
+
+| arm | series | kernel banner | Image sha256 | qcom_iommu.o sha256 |
+|---|---|---|---|---|
+| BASE (source FITs only; v1's control) | 0001-0005,0007 | `#2 SMP PREEMPT Mon Sep 28 11:29:12` | a3caf8820a8b054ae18c35529da6a07ce904b4ae7ea46ff6ec04a18d70733d0a | 600a197d5c5fa2179b9aba8cb7b288e62c067647e2c71db6bbd381f00e5060ab |
+| B0 (control) | BASE + 0009 (`series-b0.patch` 5d41a638) | `#1 SMP PREEMPT Tue Sep 29 14:47:25` | 95cbca82b2f97c6938c778bc46d80bc7dab403b129eaa34d4fcccd92147d0126 | 6e37b60474145d83135247cb258ee5282e2bd357cd7bfd2955b25c4ee39363f9 |
+| P (patch) | B0 + 0010 (`series-p.patch` 375486e2) | `#1 SMP PREEMPT Tue Sep 29 14:47:26` | 1b27f7a3618a171517edcb107444fdb5e34004f8a78d3a2827a5a53c7b4ef6fc | ad21b63f5b7a1024947b527d309955cddb415374fae1a7c9b494caa5af19de2c |
+
+B0 vs P source (`L/build/interdiff-b0-p.diff`, 47bed18c): qcom_iommu.c `qcom_iommu_ctx_tlb_sync()` helper split out
+of `qcom_iommu_tlb_sync()`; in `qcom_iommu_ctx_probe()` after the FSR clear, `iommu_writel(ctx,
+ARM_SMMU_CB_S1_TLBIALL, 0); qcom_iommu_ctx_tlb_sync(ctx);` before `pm_runtime_put_sync()`; arm-smmu.h `+#define
+ARM_SMMU_CB_S1_TLBIALL 0x618`. Nothing else. BASE vs B0 (`interdiff-base-b0.diff`, 500afeb2): only cb776a03's
+`pm_runtime_resume_and_get()`/`pm_runtime_put_sync()` around the FSR clear. v1's lab rows (P01-P09, S1-S3, V1-V3)
+were all built on BASE (control BASE, NEW/OLD = BASE + 0008/0006), i.e. without cb776a03; today's control B0
+has it.
+
+Images (`L/images/MANIFEST.txt`; each run's `inputs.sha256` matches; recomputed today):
+- Source FITs (cold: relay pulse, U-Boot `stage` + `bootm 93400000`), kernel BASE (payload.Image 406939a7 ==
+  `shim-prefix.bin` + BASE Image, recomputed):
+  `fit-src-640x480/image.itb` b19dba26843c2493a3b503764dafdd71f76cfa91815e399ba8d6e0e9b70aeba7, bootargs
+  `console=ttyMSM0,115200n8 earlycon loglevel=8 sysrq_always_enabled=1 androidboot.serialno=bc72e60
+  video=HDMI-A-1:640x480@60e pocketboot.drm_page_flips=16 panic=5 oops=panic pocketboot.ui=src-640x480
+  pocketboot.lab=src-640x480`; `fit-src-1280x720/image.itb` 0a56a57085ff103500b5ab09ea4f5017f48232ccb50e4bc2f056b90b19141b03
+  (same with `1280x720@60e` / `src-1280x720`).
+- Cold control FIT, kernel P: `fit-src-p-640x480/image.itb` c1b561b035107bcb275485137f99a31640944782d71153d9d401174d2fb6a4f4,
+  bootargs as the 640x480 FIT with `pocketboot.ui=src-p-640x480 pocketboot.lab=src-p-640x480`.
+- Destinations (Android v2 boot image, `fastboot -s bc72e60 boot` on the Pocketboot gadget -> Pocketboot
+  `reboot(LINUX_REBOOT_CMD_KEXEC)`), 1280x720, cmdline (verbatim in every row's `dest-cmdline.txt`, and
+  `/proc/cmdline` matched, `cmdline_matches=true`):
+  `console=ttyMSM0,115200n8 earlycon loglevel=8 sysrq_always_enabled=1 androidboot.serialno=bc72e60
+  video=HDMI-A-1:1280x720@60e pocketboot.drm_page_flips=16 pocketboot.ui=dest-<b0|p>-1280x720 panic=5 oops=panic
+  pocketboot.lab=kexec-generation-<1|2>`:
+  b0 gen1 bd4c7b8929bbab8286612caa475d8290265f33263d3f745710dd1b80bb8fca4d,
+  b0 gen2 6099df122eeb954a12ac99a65b730e873a328db25357411133afe1fac147d6f5 (unused),
+  p gen1 12f732b89ee9ac88d55b18be7444490cfd63aeb10f44452a51d4d57c1b87ff5a,
+  p gen2 9ea29e457a9a1b5bd4234da9debd15811a16a56c70ae48530b68d19609dcb9ec.
+
+Harness: v1's (`hop.sh` / `warm-start.sh` / `cold-control.sh` / `probe.sh` + `classify.py`, all mtimes
+2026-09-28, see the v1 note §2); only `verify-inputs.sh` was extended for the B0/P digests (build-v2.md §8, OK 64).
+Q08 and Q10 are warm starts: no relay pulse, the running resident is the source (its markers are checked over adb;
+the FIT argument in the ledger is recorded only, `hop.log`: "FIT arg ... ignored").
+
+## 3. Matrix (`L/runs/<run>/{result.json,hop.log,uart-hop.log,post-dmesg.txt,post-iovas.txt}`)
+
+UART range = harness `pre_kexec_mark..end`; slice line k = UART line mark+k. cb4 faults = classify count after the
+destination banner on UART / in post-probe dmesg (both are the rate limiter's first burst of 10). adb = adb
+answering after the banner (`hop.log`). s = ledger `seconds`.
+
+| run | arm | source | dest | expect | verdict | cb4 faults | uniq IOVAs | first IOVA | adb | UART | s |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| Q01-b0 | B0 | BASE FIT 640x480, cold | b0 gen1 | FAULTS | FAULTS | 10/10 | 9 | 0x386000 | 4 s | 12663..12988 | 56 |
+| Q02-p | P | BASE FIT 640x480, cold | p gen1 | CLEAN | CLEAN | 0/0 | 0 | - | 4 s | 13536..13839 | 55 |
+| Q03-b0 | B0 | BASE FIT 640x480, cold | b0 gen1 | FAULTS | FAULTS | 10/10 | 9 | 0x386000 | 4 s | 14271..14591 | 55 |
+| Q04-p | P | BASE FIT 640x480, cold | p gen1 | CLEAN | CLEAN | 0/0 | 0 | - | 4 s | 15040..15346 | 56 |
+| Q05-b0 | B0 | BASE FIT 640x480, cold | b0 gen1 | FAULTS | FAULTS | 10/10 | 9 | 0x386000 | 4 s | 15778..16103 | 55 |
+| Q06-p | P | BASE FIT 640x480, cold | p gen1 | CLEAN | CLEAN | 0/0 | 0 | - | 4 s | 16561..16867 | 55 |
+| Q07-p-samemode | P | BASE FIT 1280x720, cold | p gen1 | CLEAN | CLEAN | 0/0 | 0 | - | 4 s | 17299..17605 | 56 |
+| Q08-p-chain-gen2 | P | Q07's P gen1 resident (1280x720), warm | p gen2 | CLEAN | CLEAN | 0/0 | 0 | - | 4 s | 17606..17912 | 39 |
+| Q09-b0-storm | B0 | BASE FIT 640x480, cold | b0 gen1 | FAULTS | FAULTS | 10/10 | 9 | 0x386000 | 4 s | 18345..18671 | 57 |
+| Q10-p-warm-from-b0-storm | P | Q09's storming B0 gen1 resident (1280x720), warm | p gen2 | CLEAN | CLEAN | 0/0 (10 pre-banner = source) | 0 | - | 4 s | 18847..19175 | 40 |
+| Q11-p-cold | P | none (cold control, fit-src-p-640x480) | - | mode 640x480 | CLEAN, pass=true | 0/0 | 0 | - | cold boot, adb 2 s | 19175..19612 | 46 |
+
+All 11: `expect_match=true`, 0 crash markers, `/sys/devices/system/cpu/online` = 0-3, 4 iommu groups, `[drm]
+Initialized msm 1.13.0`, 6 mapped GEM vmas. Source allocation (`pre-iovas.txt`): 640x480 rows tx_gem 0x1000/4096 +
+dumb 0x2000/0x12e000/0x25a000 x 1228800 B (extent end 0x386000) + gpu 0x1000000/4096, 0x1001000/32768; 1280x720
+sources (Q07, Q08, Q10) 0x2000/0x386000/0x70a000 x 3686400 B (end 0xa8e000). Destination allocation identical in
+every hop row (`post-iovas.txt`): 0x2000/0x386000/0x70a000 x 3686400 B.
+
+## 4. B0 fault signature (Q01, Q03, Q05, Q09)
+
+Every fault line of the phase (199, UART 12229..19612):
+`qcom-iommu-ctx 1e24000.iommu-ctx: Unhandled context fault: fsr=0x40000202, iova=..., fsynr=0x23, cb=4`.
+fsr 0x40000202 = SS (bit 30, stalled) | FORMAT=1 (bits 10:9, AArch32 LPAE) | TF (bit 1, translation fault);
+fsynr 0x23 = PLVL=3 (bits 1:0, level-3 table) | PNU (bit 5), WNR=0 (read). `cb=` prints `ctx->asid` (4). The
+handler writes FSR back and RESUME=TERMINATE per fault. `errors: 04000000` = MDP5 INTR bit 26 `INTF1_UNDER_RUN`
+(`mdp5.xml:116`).
+
+First IOVA 0x386000 = 0x2000 + 3 x (640 x 480 x 4) = 0x2000 + 3686400 = the end of the source's mapped dumb-buffer
+extent. Note 3 x 640 x 480 x 4 == 1280 x 720 x 4, so 0x386000 is also the start of the destination's second
+buffer; `iovas_vs_source_map`: 10/10 outside the source map. All 199 lines hit 13 IOVAs 0x386000..0x386600 step
+0x80, i.e. one 4 KiB page.
+
+| run | first underrun (UART, uptime) | first fault | slice: faults / underrun lines / vblank timeouts | resident total printed faults / `qcom_iommu_fault: N callbacks suppressed` sum (lines) |
+|---|---|---|---|---|
+| Q01 | 12968, 2.280295 | 12969, 2.329758 | 10 / 10 / 0 | 60 / 339513 (5 lines, 66320..68372 each; until Q02's pulse) |
+| Q03 | 14571, 2.136348 | 14572, 2.185809 | 10 / 10 / 0 | 19 / 66324 (1) |
+| Q05 | 16082, 2.128308 | 16083, 2.177791 | 10 / 10 / 1 (`vblank time out, crtc=0`, 16090, 2.235737) | 20 / 66585 (1) |
+| Q09 | 18650, 2.316326 | 18652, 2.365791 | 10 / 10 / 0 | 100 / 612758 (9 lines, 66334..68426 each; until Q10's jump) |
+
+Unique IOVAs in each slice: 0x386000..0x386400 step 0x80 (9); first and last = 0x386000. First fault follows the
+first underrun by 49.46-49.48 ms in all four rows. Rate: 66-68k suppressed per 5 s = ~13.5k faults/s, every
+window, for as long as the B0 resident lives. Q01 UART 12965..12979, verbatim (trimmed):
+```
+12965 [15:12:27] [    1.813220] [drm] Initialized msm 1.13.0 for 1a01000.display-controller on minor 0
+12968 [15:12:27] [    2.280295] [drm:mdp5_irq_error_handler] *ERROR* errors: 04000000
+12969 [15:12:27] [    2.329758] qcom-iommu-ctx 1e24000.iommu-ctx: Unhandled context fault: fsr=0x40000202, iova=0x0000000000386000, fsynr=0x23, cb=4
+12970 [15:12:27] [    2.329820] qcom-iommu-ctx 1e24000.iommu-ctx: Unhandled context fault: fsr=0x40000202, iova=0x0000000000386080, fsynr=0x23, cb=4
+...   (0x386100 .. 0x386380, 11.5 ms apart, 12971..12976)
+12977 [15:12:27] [    2.409690] qcom-iommu-ctx 1e24000.iommu-ctx: Unhandled context fault: fsr=0x40000202, iova=0x0000000000386400, fsynr=0x23, cb=4
+12978 [15:12:27] [    2.421244] [drm:mdp5_irq_error_handler] *ERROR* errors: 04000000
+12979 [15:12:27] [    2.463100] qcom-iommu-ctx 1e24000.iommu-ctx: Unhandled context fault: fsr=0x40000202, iova=0x0000000000386000, fsynr=0x23, cb=4
+12993 [15:12:32] [    7.346647] qcom_iommu_fault: 66320 callbacks suppressed
+```
+B0 is otherwise healthy (4 CPUs, 4 groups, `secure pgtable already initialised (-22), reusing fixed region`,
+Initialized msm, adb): the faults are the only difference from P. Fact: cb776a03 alone does not prevent the faults.
+
+## 5. P health checks (Q02, Q04, Q06, Q07, Q08, Q10; Q11 cold for reference)
+
+`timeout waiting for TLB SYNC` = 0 in every P UART slice, every `post-dmesg.txt`/`pre-dmesg.txt`, `cold-dmesg.txt`,
+and the whole UART capture 12229..19612. No `secure init failed`, no Oops/SError/`Unable to handle`/WARNING/BUG.
+
+Gap = `secure pgtable already initialised` -> `platform 1b0ac00.camss: Adding to iommu group 0` (kernel timestamps).
+By source order in `qcom_iommu_device_probe()` the apps_iommu's three ctx probes (cb3/4/5, each now FSR clear +
+TLBIALL + sync) run inside this window (`devm_of_platform_populate()` then `iommu_device_register()`), so a sync
+that hit the 5 s `readl_poll_timeout` would show as >= 5000 ms and an error line (inference from source; the
+per-bank probe is not logged).
+
+| run | arm | gap ms | groups 0/1/2/3 (UART) | Initialized msm (UART, s) | 4 CPUs (UART) | underruns after banner | faults after banner | UART-silent resident window |
+|---|---|---|---|---|---|---|---|---|
+| Q02 | P | 7.525 | 13734..13737 | 13833, 1.652934 | 13627 | 1 (13839, 2.224253) | 0 | banner 15:13:42 -> pulse 15:14:23 |
+| Q04 | P | 7.530 | 15238..15241 | 15343, 1.816935 | 15131 | 1 (15346, 2.300232) | 0 | 15:16:07 -> 15:16:14 |
+| Q06 | P | 7.532 | 16759..16762 | 16857, 1.820899 | 16652 | 1 (16866, 2.316224) | 0 | 15:17:57 -> 15:19:28 |
+| Q07 | P | 7.551 | 17497..17500 | 17600, 1.732997 | 17390 | 1 (17604, 2.248251) | 0 | 15:20:16 -> kexec at uptime 38.90 s |
+| Q08 | P | 7.524 | 17804..17807 | 17901, 1.668931 | 17697 | 1 (17911, 2.140228) | 0 | 15:20:56 -> 15:21:28 |
+| Q10 | P | 7.536 | 19067..19070 | 19161, 1.701102 | 18960 | 1 (19174, 2.224306) | 0 | 15:23:06 -> 15:23:14 |
+| Q11 | P cold | 5.608 (from `pgtable size`; no reuse line on a first boot) | 19499..19502 | 19602, 1.625308 | 19393 | 1 (19610, 2.189146) | 0 | 15:23:27 -> 15:23:44 (end of capture) |
+| B0 rows | B0 | Q01 7.548, Q03 7.540, Q05 7.603, Q09 7.558 | | | | 10 (rate-limited) | 10 | |
+
+The single underrun ~2.2 s after the banner is the modeset baseline seen in every clean row of v1 too. P and B0 gaps
+are indistinguishable (P 7.524-7.551, B0 7.540-7.603 ms): the added TLBIALL + sync on three banks costs less than
+the run-to-run jitter. Groups: camss 0, video-codec 1, gpu 2, display-controller 3 in every row
+(`post-iommu.txt`). Q02 excerpt (UART, trimmed):
+```
+13540 [15:13:41] [   34.889220] kexec_core: Starting new kernel
+13556 [15:13:42] [    0.000000] Linux version 7.1.0-rc6+ (sam@sam-desktop) ... #1 SMP PREEMPT Tue Sep 29 14:47:26 AEST 2026
+13627 [15:13:42] [    0.076752] smp: Brought up 1 node, 4 CPUs
+13732 [15:13:43] [    0.926497] qcom-iommu 1ef0000.iommu: iommu sec: pgtable size: 94208
+13733 [15:13:43] [    0.930848] qcom-iommu 1ef0000.iommu: secure pgtable already initialised (-22), reusing fixed region
+13734 [15:13:43] [    0.938373] platform 1b0ac00.camss: Adding to iommu group 0
+13737 [15:13:43] [    0.984173] platform 1a01000.display-controller: Adding to iommu group 3
+13833 [15:13:44] [    1.652934] [drm] Initialized msm 1.13.0 for 1a01000.display-controller on minor 0
+13839 [15:13:44] [    2.224253] [drm:mdp5_irq_error_handler] *ERROR* errors: 04000000
+```
+then nothing from that kernel but `random: crng init done` (13840, 14.315685) until Q03's relay pulse.
+
+## 6. Warm hop out of a storming B0 resident (Q10)
+
+Source = Q09's B0 gen-1 destination, left scanning out 1280x720 (`warm-start: resident up 17.95 s`,
+`pre-cmdline.txt` `pocketboot.ui=dest-b0-1280x720 ... pocketboot.lab=kexec-generation-1`). Its storm, UART
+18652..18869, never stopped before the jump:
+- `qcom_iommu_fault: N callbacks suppressed` every 5 s: 66334 (18676, 7.382676), 68389, 68128, 68347, 68426,
+  68370, 68349, 68147, 68268 (18850, 47.484631); 612758 suppressed + 100 printed faults, all cb=4.
+- last printed fault 18861 `[   47.587392] ... iova=0x0000000000386080 ... cb=4`; last printed underrun 18869
+  (47.702015); `kexec_core: Starting new kernel` 18873 (49.418911); `Bye!` 18887 (49.496887); P banner 18889.
+  The 1.83 s without fault lines before `Starting new kernel` is inside a 5 s rate-limit window, so it does not show
+  the storm had stopped (see §9, not shown 1).
+- Q10's own slice has 10 pre-banner fault lines (`result.json` `pre_banner_faults=10`, `source_kernel` census) and
+  0 after the banner.
+- After the banner (18889..19175): 0 faults, 0 sync timeouts, `secure pgtable already initialised` 19066 ->
+  group 0 19067 (7.536 ms), groups 0..3, Initialized msm 19161, 4 CPUs 18960, 1 underrun (19174), adb 4 s after
+  the banner, post-dmesg 0 faults. The P gen-2 resident was then silent until Q11's pulse (15:23:14).
+
+## 7. Cold control (Q11): probe-time TLBIALL + TLBSYNC on all 5 banks from a cold SMMU
+
+Facts:
+- apq8016-sbc DT (built DTB, dtc): apps_iommu@1ef0000 ctx@3000 `qcom,msm-iommu-v1-sec` (camss), ctx@4000
+  `-v1-ns` (MDP), ctx@5000 `-v1-sec` (venus); gpu_iommu@1f08000 ctx@1000, ctx@2000 `-v1-ns` (gpu). No
+  `power-domains` on either IOMMU node.
+- `ctx->secured_ctx` is set only for `qcom,msm-iommu-v2-sec` (source; objdump: `of_device_is_compatible()` with
+  `.rodata.str1.8+0xb0` = "qcom,msm-iommu-v2-sec"). On MSM8916 therefore all 5 banks, including the two TZ-owned
+  v1-sec ones, execute FSR clear + TLBIALL + sync at probe. (The commit message's "Secured contexts ... are skipped"
+  is about v2-sec; it does not apply here.)
+- `qcom_scm_restore_sec_cfg()` call sites in P: `qcom_iommu_init_domain()` (first attach per bank) and
+  `qcom_iommu_resume()` only `if (dev->pm_domain)`. ctx probe runs from `devm_of_platform_populate()` before
+  `iommu_device_register()`, i.e. before any attach. Inference: with no power-domains, this kernel's first
+  restore_sec_cfg per bank comes after that bank's TLBIALL.
+- Q11 (P FIT, relay pulse -> U-Boot -> bootm, UART 19176..19612, cold-dmesg 289 lines): pass=true, verdict CLEAN,
+  mode `"640x480": 60 25175`, crtc active=1, 6 mapped vmas (3 x 1228800 B), cpus 0-3; `iommu sec: pgtable size:
+  94208` 19498 (0.919015) with no `already initialised` line (first-boot SCM path succeeded), groups 0..3
+  19499..19502 (0.924623/0.929133/0.936664/0.968523), Initialized msm 19602 (1.625308), 1 underrun (19610),
+  0 faults, 0 `timeout waiting for TLB SYNC`, 0 `secure init failed`, no abort.
+- Inference: the 5 cold-state TLBIALL writes + TLBSYNC polls completed without a 5 s timeout and without an
+  external abort, including on the v1-sec banks before TZ reconfigured them. Per-bank completion is inferred from
+  the absent error line and the 5.6 ms apps window; the gpu_iommu's two banks have no bracketing log line.
+
+## 8. objdump (`aarch64-linux-gnu-objdump -d -r`, `L/build/k-{b0,p}-*.txt`)
+
+P `qcom_iommu_ctx_probe` (0x700), straight-line for a non-secured bank:
+```
+ 780: bl  of_device_is_compatible        ("qcom,msm-iommu-v2-sec")
+ 784: cbnz w0, 83c                        (-> secured_ctx = 1, skip block)
+ 79c: bl  __pm_runtime_resume             (w1=4, pm_runtime_resume_and_get)
+ 7a8: add x1, x0, #0x58 ; 7ac: ldr w2,[x1] ; 7b0: str w2,[x1]   (CB_FSR write-back)
+ 7b4: str wzr, [x0, #1560]                (CB_S1_TLBIALL = 0x618)
+ 7bc: bl  208 <qcom_iommu_ctx_tlb_sync>
+ 7c8: bl  __pm_runtime_idle               (pm_runtime_put_sync)
+ 7f4: bl  devm_request_threaded_irq       (devm_request_irq)
+```
+`qcom_iommu_ctx_tlb_sync` (0x208): `21c: str wzr, [x0, #2032]` (CB_TLBSYNC 0x7f0), poll of 0x7f4 (TLBSTATUS)
+bit 0, timeout constant 0x1_2a05_f200 ns = 5 s, then `_dev_err`. The only `#1560` store in P's object is 0x7b4;
+B0's object has none. B0 `qcom_iommu_ctx_probe` (0x780): `__pm_runtime_resume` 81c, FSR ldr/str 82c/830,
+`__pm_runtime_idle` 83c, `devm_request_threaded_irq` 868, no #1560/#1552/#2032.
+`qcom_iommu_init_domain.isra.0` (base 0xf00, b0 0xf80, p 0xf00; 172 lines each): encoding column
+(`awk -F'\t' '{print $2}'`) sha256 3c1526558a9fedaaa3c7800b020947ccf09d869f60e3b86212ab273a24cfff92 for base, B0
+and P; normalized listings identical; no `#1552` store and no call to a TLB helper in any of them. So the attach
+path is byte-identical code in B0 and P. (build-v2.md quotes 147a958b... for the same comparison; not reproduced
+here, the identity holds either way.)
+
+## 9. What this shows / what it does not show
+
+Shows (facts unless marked):
+1. On MSM8916, kexec with a live display pipeline in the outgoing kernel reproducibly leaves stale SMMU state for
+   cb=4: B0 faulted 4/4 at 0x386000 with a ~13.5k faults/s storm, and cb776a03 does not change that.
+2. P removes it: 6/6 hops clean at the identical destination allocation, including a warm hop out of a B0
+   resident that was storming until `Starting new kernel` (Q10) and a P->P gen-2 chain (Q08); a same-mode hop
+   (Q07) is clean.
+3. Attribution: B0 and P differ only by the posted patch (interdiff §2), `init_domain` is byte-identical, and the
+   helper split is behaviour-preserving for the existing `tlb_sync` callers (inference from source). The single
+   behavioural change is CB TLBIALL + sync at ctx probe, before `devm_request_irq()` and before this kernel's
+   restore_sec_cfg/attach. That change is what removes the faults on this board.
+4. Cost/safety: 0 sync timeouts in 7 P boots (6 kexec, 1 cold); probe window unchanged within ~0.08 ms; the cold
+   boot shows TLBIALL/TLBSYNC on all 5 banks (incl. the two v1-sec banks) is harmless before TZ restore_sec_cfg.
+
+Does NOT show:
+1. A master live at destination probe. The outgoing kernel's `kernel_kexec()` -> `kernel_restart_prepare("kexec
+   reboot")` (ktree/p `kernel/kexec_core.c:1195`) -> `device_shutdown()` (`kernel/reboot.c:105`) -> mdp5
+   `.shutdown = msm_kms_shutdown` (`mdp5_kms.c:914`) -> `drm_atomic_helper_shutdown()` (`msm_kms.c:376-377`) runs
+   before `pr_notice("Starting new kernel")` (`kexec_core.c:1206`), so scanout is stopped before the jump. Source
+   analysis only: nothing logs it, and qcom_iommu has no `.shutdown`, so cb=4 stays enabled on the old TTBR0.
+   The cover letter's open question (refill by a live master, or speculative walks, between probe and attach; v1's
+   attach-time TLBIASID) is untested here.
+2. An inherited stalled transaction: Q10's source was stalling (FSR.SS) and terminating faults continuously, but the
+   FSR/SCTLR state at the jump and at destination probe is not observed (the `pdbg` arm, `patches/0011`, which dumps
+   SCTLR/TTBR0/FSR and times the TLBIALL per bank, was built (`notes/build-pdbg.md`) and then run after this note was drafted: rows Q12-Q15, see the P-dbg section appended below).
+3. kdump / crash kexec (no `device_shutdown()`), other SoCs or SMMU flavours (only `qcom,msm-iommu-v1`, no v2-sec
+   `secured_ctx` path), stock mainline (0001 + 0007 are required to kexec here; per the cover, the second
+   `qcom_scm_iommu_secure_ptbl_init()` fails -EINVAL without 0007), a live GPU master (no `a300_pm4.fw`, GPU never
+   runs), picture content (no sink attached).
+4. The Samsung Galaxy A5: pending, not re-run with v2.
+5. Mechanism: 0x386000 is both the source extent end and the destination's buffer-2 start, so these rows alone do
+   not discriminate stale walk-cache from stale leaf entries; TLBIALL removes both. No B0 same-mode control was run
+   today (v1's BASE same-mode S1 faulted inside the source map).
+
+## 10. Anomalies and caveats
+
+- Q02 and Q11 printed `HDMI Sink doesn't support RGB, something's wrong.`; Q02's destination mode was
+  `"1280x720": 60 74440` (CVT) vs 74250 elsewhere: ADV7533 sink-sense flapping with no sink, as in v1 (A2). Same
+  geometry and identical GEM allocation.
+- `vblank time out, crtc=0` once, Q05 (B0, during the storm); never on P.
+- Fault lines from a B0 resident continue past the next row's start mark until the relay cuts power (Q03 to 14606,
+  Q05 to 16119); attribution above is by the preceding banner.
+- `hop.log`/ledger UART ranges start at the pre-kexec mark; `result.json` line numbers are slice-relative.
+- Q11's `cold-uart.log` contains binary pre-boot bytes: `grep` needs `-a`, and Python `splitlines()` over-counts
+  (classify reports 440 lines; the file has 437 `\n` lines = 19176..19612).
+
+## 11. File map
+
+- Ledger `L/runs/attempts.jsonl` (lines 37..58). Per run `L/runs/Q*/`: `result.json`, `hop.log`, `uart-hop.log`
+  (Q11 `cold-uart.log`), `post-dmesg.txt` (Q11 `cold-dmesg.txt`), `pre-/post-iovas.txt`, `inputs.sha256`,
+  `dest-cmdline.txt`, `pre-/post-{cmdline,cpus,iommu,state,gem}.txt`.
+- UART `L/uart/db410c-uart.log` (lines 12229..19612 for this phase).
+- Build: `L/notes/build-v2.md`, `L/build/interdiff-{base-b0,b0-p}.diff`, `L/build/k-{b0,p}-ctx_probe.txt`,
+  `k-p-ctx_tlb_sync.txt`, `k-{base,b0,p}-init_domain.{txt,norm}`, `MANIFEST-kernels.txt`, `series-{b0,p}.patch`.
+- Images: `L/images/MANIFEST.txt`, `dest-header-check-v2.txt`, `L/build/verify-inputs-v2.out` (OK, 64 digests).
+
+## P-dbg diagnostic rows (lab-only, not evidence for the posted patch's behaviour beyond P)
+
+Arm pdbg = P + patches/0011-lab-only-pdbg-probe-dump.patch (dev_info of SCTLR/TTBR0/FSR before the FSR clear, ktime around TLBIALL+sync). Build: notes/build-pdbg.md. Image 1f4a7590e0fe9b99…, qcom_iommu.o 875e8f49…, init_domain instruction stream identical to base/B0/P (hash 147a958b…).
+
+| run | kind | verdict | cb4 faults |
+|---|---|---|---|
+| Q12-pdbg | hop | CLEAN | 0 |
+| Q13-pdbg-cold | cold-control | CLEAN | 0 |
+| Q14-b0-storm2 | hop | FAULTS | 10 |
+| Q15-pdbg-warm-from-b0-storm | hop | CLEAN | 0 |
+
+### Q12-pdbg probe dumps (post-dmesg.txt)
+```
+[    0.936758] qcom-iommu-ctx 1e23000.iommu-ctx: lab-dbg probe: SCTLR=0xe7 TTBR0=0x30000819ed000 FSR=0x200
+[    0.945320] qcom-iommu-ctx 1e23000.iommu-ctx: lab-dbg probe: TLBIALL+sync took 834 ns, FSR now 0x200
+[    0.954948] qcom-iommu-ctx 1e24000.iommu-ctx: lab-dbg probe: SCTLR=0xe7 TTBR0=0x40000824f4000 FSR=0x200
+[    0.963826] qcom-iommu-ctx 1e24000.iommu-ctx: lab-dbg probe: TLBIALL+sync took 5000 ns, FSR now 0x200
+[    0.973353] qcom-iommu-ctx 1e25000.iommu-ctx: lab-dbg probe: SCTLR=0xe7 TTBR0=0x50000819ee000 FSR=0x200
+[    0.982306] qcom-iommu-ctx 1e25000.iommu-ctx: lab-dbg probe: TLBIALL+sync took 1197 ns, FSR now 0x200
+[    1.007630] qcom-iommu-ctx 1f09000.iommu-ctx: lab-dbg probe: SCTLR=0xe7 TTBR0=0x10000824e5000 FSR=0x200
+[    1.012532] qcom-iommu-ctx 1f09000.iommu-ctx: lab-dbg probe: TLBIALL+sync took 886 ns, FSR now 0x200
+[    1.022235] qcom-iommu-ctx 1f0a000.iommu-ctx: lab-dbg probe: SCTLR=0xe7 TTBR0=0x20000824e5000 FSR=0x200
+[    1.031091] qcom-iommu-ctx 1f0a000.iommu-ctx: lab-dbg probe: TLBIALL+sync took 833 ns, FSR now 0x200
+```
+### Q13-pdbg-cold probe dumps (cold-dmesg.txt)
+```
+[    0.930816] qcom-iommu-ctx 1e23000.iommu-ctx: lab-dbg probe: SCTLR=0x30000000 TTBR0=0x0 FSR=0x0
+[    0.936697] qcom-iommu-ctx 1e23000.iommu-ctx: lab-dbg probe: TLBIALL+sync took 1459 ns, FSR now 0x0
+[    0.945639] qcom-iommu-ctx 1e24000.iommu-ctx: lab-dbg probe: SCTLR=0x30000080 TTBR0=0x0 FSR=0x0
+[    0.954145] qcom-iommu-ctx 1e24000.iommu-ctx: lab-dbg probe: TLBIALL+sync took 1458 ns, FSR now 0x0
+[    0.963278] qcom-iommu-ctx 1e25000.iommu-ctx: lab-dbg probe: SCTLR=0x30000000 TTBR0=0x0 FSR=0x0
+[    0.971884] qcom-iommu-ctx 1e25000.iommu-ctx: lab-dbg probe: TLBIALL+sync took 1406 ns, FSR now 0x0
+[    0.996465] qcom-iommu-ctx 1f09000.iommu-ctx: lab-dbg probe: SCTLR=0x30000000 TTBR0=0x0 FSR=0x0
+[    1.001415] qcom-iommu-ctx 1f09000.iommu-ctx: lab-dbg probe: TLBIALL+sync took 3438 ns, FSR now 0x0
+[    1.010393] qcom-iommu-ctx 1f0a000.iommu-ctx: lab-dbg probe: SCTLR=0x30000000 TTBR0=0x0 FSR=0x0
+[    1.018908] qcom-iommu-ctx 1f0a000.iommu-ctx: lab-dbg probe: TLBIALL+sync took 3281 ns, FSR now 0x0
+```
+### Q15-pdbg-warm-from-b0-storm probe dumps (post-dmesg.txt)
+```
+[    0.928736] qcom-iommu-ctx 1e23000.iommu-ctx: lab-dbg probe: SCTLR=0xe7 TTBR0=0x3000081c63000 FSR=0x200
+[    0.937283] qcom-iommu-ctx 1e23000.iommu-ctx: lab-dbg probe: TLBIALL+sync took 833 ns, FSR now 0x200
+[    0.946902] qcom-iommu-ctx 1e24000.iommu-ctx: lab-dbg probe: SCTLR=0xe7 TTBR0=0x400008262b000 FSR=0x200
+[    0.955778] qcom-iommu-ctx 1e24000.iommu-ctx: lab-dbg probe: TLBIALL+sync took 4844 ns, FSR now 0x200
+[    0.965349] qcom-iommu-ctx 1e25000.iommu-ctx: lab-dbg probe: SCTLR=0xe7 TTBR0=0x5000081c64000 FSR=0x200
+[    0.974267] qcom-iommu-ctx 1e25000.iommu-ctx: lab-dbg probe: TLBIALL+sync took 1146 ns, FSR now 0x200
+[    0.999597] qcom-iommu-ctx 1f09000.iommu-ctx: lab-dbg probe: SCTLR=0xe7 TTBR0=0x10000824b3000 FSR=0x200
+[    1.004483] qcom-iommu-ctx 1f09000.iommu-ctx: lab-dbg probe: TLBIALL+sync took 1198 ns, FSR now 0x200
+[    1.014166] qcom-iommu-ctx 1f0a000.iommu-ctx: lab-dbg probe: SCTLR=0xe7 TTBR0=0x20000824b3000 FSR=0x200
+[    1.023046] qcom-iommu-ctx 1f0a000.iommu-ctx: lab-dbg probe: TLBIALL+sync took 1094 ns, FSR now 0x200
+```
+
+Observed (facts): after kexec (Q12 from a quiesced source, Q15 from a storming B0 resident) every non-secured bank reaches ctx_probe with SCTLR=0xe7 (M|TRE|AFE|CFRE|CFIE|CFCFG) and the previous kernel's TTBR0 with ASID = bank's DT ASID in bits [55:48] (1e24000 cb4 -> 0x04). FSR=0x200 in every kexec row: bit 9 (FORMAT=LPAE) only, no fault bits, SS (bit 30) clear, so no stalled transaction was inherited even from the storming B0. Cold boot (Q13): SCTLR=0x30000000 (NSCFG only; cb4 also CFCFG), TTBR0=0, FSR=0, i.e. the bootloader leaves the banks disabled. TLBIALL+sync completes in 0.8-5 us per bank (cb4 after kexec ~5 us, cold ~1.5 us). Inference: the same-ASID reuse the patch message describes is exactly what the hardware presents at probe; the probe-time bypass/refill window discussed in the cover is real only for a master still fetching, which this source does not do.
+
+Note: SCTLR reads 0xe7, not the 0x10e7 that init_domain writes: S1_ASIDPNE (bit 12) reads as zero on this SMMU. Not relevant to the fix; recorded for completeness.
+
+# Part 2: Samsung Galaxy A5
+
+## Samsung Galaxy A5 A/B (samsung,a5u-eur, MSM8916), 2026-09-29
+
+Appended section, same patch as above (42bb58cc11c4 and b96f7f3a31cc: stable patch-id 8b3e3c7e3e11, re-checked
+2026-09-29). Resolves §9 "does NOT show" item 4. `A=/var/home/sam/tmp/qcom-iommu-a5-20260929`,
+`PB=/var/home/sam/src/pocketboot`, `L` as above. Board phase 2026-09-29 16:17:59 to 16:27:32 AEST (+10:00); ledger
+`A/runs/attempts.jsonl` lines 1..28 (14 runs, start+done); `R3-baseline` is a probe-only row, not in the ledger.
+No UART and no adb on this jig: every capture went over Pocketboot's userspace fastboot (`oem shell-staged`,
+`oem dmesg`, `oem cat:`, `get_staged`), so dmesg is the only kernel log.
+
+### A1. Result
+
+A Pocketboot source scanning out on the phone's own DSI panel kexecs (`fastboot boot`) into A5 builds of the
+DB410c B0/P kernels; the destination DT enables exactly one qcom-iommu context, apps cb=4 (`1e24000.iommu-ctx`,
+MDP). Control B0: 3/3 FAULTS, all valid controls (source had 2/1/2 display buffers mapped), first fault IOVA ==
+source extent end every time (0x732000 / 0x39a000 / 0x732000), destination fault IRQs 286 / 60297 / 207.
+P: 10/10 CLEAN (3 direct from a fresh resident, 3 warm straight out of the B0 destination that had just faulted,
+a 4-generation P chain), fault IRQs 0 0 0 0 and 16/16 page flips in every row. 0 `timeout waiting for TLB SYNC` in
+all 29 dmesg captures. OLD reference (#56 image, old in-kernel 0006): CLEAN. Every fault line is
+`fsr=0x40000202 ... fsynr=0x23, cb=4`: the DB410c signature (§4) and the historical A5 #54 signature.
+
+### A2. What was run and on what
+
+Board (facts from the pre-probes): DT model "Samsung Galaxy A5U (EUR)", fastboot serial `cd0ee037`, panel per the
+bootloader cmdline `mdss_mdp.panel=1:dsi:0:ss_dsi_panel_EA8061V_AMS497EE01_HD`, DRM connector DSI-1, mode
+`"720x1280": 60 80117`. Resident: Pocketboot #29 booted by the stock bootloader from BOOT (lab notes); pre-probes
+show kernel banner `#2 SMP PREEMPT Thu Sep 24 09:37:01`, GPU + gpu_iommu enabled, 3 `qcom-iommu-fault` IRQ lines,
+iommu groups gpu 0 / display 1.
+Transport: `fastboot -s cd0ee037 boot <img>` -> Pocketboot kexec. All 14 hops: `boot` rc=0, gadget dropped 0-1 s
+later, `product=pocketboot` back 5-7 s after the hop, post probe after a 12 s settle (`hop.log`).
+
+Kernels: built from the DB410c lab's `L/ktree/b0` and `L/ktree/p`, unmodified (HEAD
+d87323486b79a31b9b25eb6fe30f1b503f142ff2 + lab series 0001-0005, 0007, 0009 = cb776a03; P adds 0010 = this patch).
+Recipe and gates: `A/notes/build-a5.md`.
+- qcom_iommu.o byte-identical (cmp, re-run today) to the DB410c objects: B0 6e37b604..., P ad21b63f... (§2), so the
+  §2 interdiff and §8 objdump apply verbatim.
+- `.config` d44173cc7c6f1356fbb02ae6a45779cf76c06256b5059a05d29194e972da9cbf (b0 == p) = the #56 A5 config
+  1a52e551b6cb3c8c4be9ad0b3514a79236793d145bb0cb823bb87ae82f976dd5 with INITRAMFS_SOURCE repointed (plus 5
+  toolchain-probe symbols Kconfig rewrites); `# CONFIG_INTERCONNECT_QCOM is not set`. gcc 16.2.1 20260819.
+- DTB in every image: #56 `external.dtb` dd83626d0cab29c8e24e6279b70351cc74bc4fa42a7ad55eeda3ce7bc175c16a. Only
+  apps_iommu ctx@4000 (`qcom,msm-iommu-v1-ns`) is enabled; ctx@3000/@5000 (v1-sec), gpu_iommu and gpu are disabled.
+  So the destination probes one bank (cb4), and since `qcom_iommu_has_secure_context()` walks only available
+  children (ktree/p `qcom_iommu.c:823-831`), no secure-pgtable init runs: 0007 is a no-op here and the kernel
+  prints no qcom-iommu probe line at all.
+- initramfs cpio 7dddd06a062e2acd16e0ebfd10fcdf5f7b59a12f9bc3fd158195b19aa4558b4a (Pocketboot A5 target).
+
+| arm | kernel Image sha256 | boot image (`pocketboot.lab=` marker) |
+|---|---|---|
+| B0 | fa56fb31109cf7426cdf4f4e6338f619e4150cb79aef144df9286c84919794ee | g1 0f200fb0595c19c05819d6f0c03f4162a2cb3606698ca1e5ab8dc1717a798c4e `a5-b0-g1` (g2 a1cc6d04 built, unused) |
+| P | a673254d4bf91ae7e3acb205b8ad0d7556108555cf295067c290216dbd8c221f | g0 81a93aa8f74e8987abff136af062c15f77b685459aac0911f55cc125142a10ea, g1 10cde0ab52514921d3ff37992db13af8eca2fd671e1362bb3928db53be364e4e, g2 528d9517d7765607667af7e8d03a38707ce6cb2ffb8876fdc4dd177d772fea1e, g3 89d7ea4ea17ac784880a35e753cdc68f02043d9cafee829954f2c70ea9e9ebe2 (`a5-p-g<N>`) |
+| OLD | #56 3f28fd741647a96356ada300c4c65decaccc587f429fd2bc86a87888b77a2def | `seed/d56-boot.img` cc6c11cfa75e39630c3f0d90f1a9cd12be93d4213de28adeda3a8511a2ac8c05 == `PB/target/a5u-smp-lab/20260911/display-final/boot.img` (`display-final`) |
+
+OLD = #56 (`#56 SMP PREEMPT Fri Sep 11 18:35:00`, gcc 16.1.1): Pocketboot 0001-0006 per `display-final/patches/`,
+i.e. 0006 invalidate-new-context (TLBIASID + sync after the attach loop); no 0007 and no cb776a03 backport in that
+set.
+
+Cmdline, every image: `msm.skip_gpu=1 msm.separate_gpu_kms=1 panic=5 oops=panic printk.time=1 pocketboot.log=info
+pocketboot.drm_page_flips=16 drm.debug=0x6 pocketboot.lab=<marker>` (the #56 recipe: mkbootimg v2, page 4096,
+reproduces #56's boot.img byte-exactly, build-a5.md §6). `images/MANIFEST.txt`: 33 digests re-verified today
+(`sha256sum -c` OK); every run's `inputs.sha256` image digest matches; harness digests identical in all 14 runs
+(a5-hop d906c1bb, a5-probe ad9b5cdd, a5-verdict 3b8077a7, a5-extent f2586c9a, a5-env b1b48bbe; DB410c classify.py
+48f3e14e, parse-iovas.py 65f5ebb8, bootimg-cmdline.py f1327488); offline harness tests 66 passed / 0 failed
+against a mock fastboot (`harness/tests/offline-tests.out`).
+
+Verdict (`A/harness/a5-verdict.py`). FAULTS: any destination fault IRQ (per-CPU counts of the single
+`qcom-iommu-fault` line in `/proc/interrupts`, GIC SPI 70; shared by all apps_iommu ctxs in msm8916.dtsi, but only
+cb4 is enabled here) or any context-fault line. CLEAN needs all of: that line present and all-zero,
+`pocketboot.lab=<marker>` in the post `/proc/cmdline`, `POCKETBOOT_DRM_PAGE_FLIP_TEST_RESULT requested=16
+completed=16`, no `Unhandled context fault|Kernel panic|Internal error: Oops|WARNING:`, <= 1
+`mdp5_irq_error_handler` line, classify.py CLEAN. VOID_CONTROL (expect=FAULTS only): source mdp_kms extent end >=
+0xaca000 or >= 3 mapped buffers of >= 0x398000. Source and destination geometry are identical on the A5 (720x1280
+XR24, pitch 2944, 3768320 B = 0x398000 per buffer after a 4 KiB tx_gem at 0x1000; buffers at 0x2000 / 0x39a000 /
+0x732000), so a 3-buffer source's extent equals the destination's (0xaca000) and a stale-state control has nothing
+outside the source map to fault on. (The per-buffer size is 2944 x 1280, not 720 x 1280 x 4.)
+
+Procedure: each round = `fastboot reboot` -> K1 B0 hop -> K2 P hop out of that B0 -> `fastboot reboot` -> K3 P
+hop; then reboot -> K4 chain g0..g3; reboot -> K5. The reboots were issued outside the hop harness and are not in
+the run dirs (`a5-run-k.sh` unused: no `round-r*` dir, no `phase:"round"` ledger line). Fact: every fresh-source
+row's pre-probe shows the resident (banner #2 Sep 24, bootloader cmdline without `pocketboot.lab`, 3 fault-IRQ
+lines, all 0) at uptime 2.74-4.03 s with 1-2 display buffers mapped, CRTC active=1. Why hop that fast:
+`R3-baseline` (resident up 1426 s) already had 3 buffers mapped (extent 0xaca000), a VOID source.
+
+### A3. Matrix (`A/runs/<run>/{result.json,hop.log,pre-/post-probe.txt,pre-/post-dmesg.txt,pre-/post-extent.json}`)
+
+src = the kernel running at the pre-probe, with its uptime. IRQ = destination `qcom-iommu-fault` CPU0..3 at the
+post probe (~15 s uptime). cb4 = context-fault lines in post-dmesg (rate-limited, 10 per burst) and unique IOVAs.
+mdp5 = result.json `mdp5_error_lines` (`mdp5_irq_error_handler` lines, incl. its own "callbacks suppressed"
+notices) / `mdp5_crtc_err_irq` drm.debug lines (one per errored frame, not rate-limited); every error is
+`04000000` = INTF1_UNDER_RUN.
+
+| run (start) | src | src bufs / extent end | marker | expect | verdict | IRQ | cb4 (uniq) | first IOVA | flips | marker_ok | mdp5 |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| K1-b0-r1 (16:18:53) | resident, 2.74 s | 2 / 0x732000 | a5-b0-g1 | FAULTS | FAULTS | 286 0 0 0 | 10 (8) | 0x732000 | 16/16 | true | 9 / 9 |
+| K2-p-warm-r1 (16:19:27) | K1-r1's B0, 31.97 s, IRQ 286 | 3 / 0xaca000 | a5-p-g1 | CLEAN | CLEAN | 0 0 0 0 | 0 | - | 16/16 | true | 1 / 1 |
+| K3-p-direct-r1 (16:19:57) | resident, 2.84 s | 1 / 0x39a000 | a5-p-g0 | CLEAN | CLEAN | 0 0 0 0 | 0 | - | 16/16 | true | 1 / 1 |
+| K1-b0-r2 (16:22:06) | resident, 2.92 s | 1 / 0x39a000 | a5-b0-g1 | FAULTS | FAULTS | 60297 0 0 0 | 30 (8) | 0x39a000 | 16/16 | true | 32 / 730 |
+| K2-p-warm-r2 (16:22:25) | K1-r2's B0, 16.50 s, IRQ 63117 | 3 / 0xaca000 | a5-p-g1 | CLEAN | CLEAN | 0 0 0 0 | 0 | - | 16/16 | true | 1 / 1 |
+| K3-p-direct-r2 (16:22:57) | resident, 3.85 s | 1 / 0x39a000 | a5-p-g0 | CLEAN | CLEAN | 0 0 0 0 | 0 | - | 16/16 | true | 1 / 1 |
+| K1-b0-r3 (16:23:27) | resident, 3.86 s | 2 / 0x732000 | a5-b0-g1 | FAULTS | FAULTS | 207 0 0 0 | 10 (10) | 0x732000 | 16/16 | true | 6 / 6 |
+| K2-p-warm-r3 (16:23:46) | K1-r3's B0, 16.37 s, IRQ 207 | 3 / 0xaca000 | a5-p-g1 | CLEAN | CLEAN | 0 0 0 0 | 0 | - | 16/16 | true | 1 / 1 |
+| K3-p-direct-r3 (16:24:16) | resident, 4.03 s | 2 / 0x732000 | a5-p-g0 | CLEAN | CLEAN | 0 0 0 0 | 0 | - | 16/16 | true | 1 / 1 |
+| K4-p-chain-g0 (16:25:47) | resident, 3.94 s | 2 / 0x732000 | a5-p-g0 | CLEAN | CLEAN | 0 0 0 0 | 0 | - | 16/16 | true | 1 / 1 |
+| K4-p-chain-g1 (16:26:05) | K4-g0's P, 15.13 s | 3 / 0xaca000 | a5-p-g1 | CLEAN | CLEAN | 0 0 0 0 | 0 | - | 16/16 | true | 1 / 1 |
+| K4-p-chain-g2 (16:26:24) | K4-g1's P, 16.22 s | 3 / 0xaca000 | a5-p-g2 | CLEAN | CLEAN | 0 0 0 0 | 0 | - | 16/16 | true | 1 / 1 |
+| K4-p-chain-g3 (16:26:43) | K4-g2's P, 16.24 s | 3 / 0xaca000 | a5-p-g3 | CLEAN | CLEAN | 0 0 0 0 | 0 | - | 16/16 | true | 1 / 1 |
+| K5-old-56 (16:27:14) | resident, 3.86 s | 2 / 0x732000 | display-final | CLEAN | CLEAN | 0 0 0 0 | 0 | - | 16/16 | true | 1 / 1 |
+
+All 14: `expect_match=true`, exit 0, `cmdline_matches=true`, CPUs 0-3 (`Brought up 1 node, 4 CPUs`), `Initialized
+msm-kms 1.13.0`, one iommu group (display-controller, group 0), DSI-1 720x1280@60 active=1, post-dmesg starts at
+`Booting Linux`. Destination allocation identical in all 14 (`post-iovas.txt` data lines, sha256 8f7eab7e...):
+tx_gem 0x1000/4096 + 3 x 3768320 B at 0x2000 / 0x39a000 / 0x732000 (end 0xaca000); FB[63] -> 0x2000, FB[62] ->
+0x39a000, FB[64] -> 0x732000. Every flip test scanned out FB[62] 6x and FB[63], FB[64] 5x each, so every P
+destination exercised both ranges that faulted under B0.
+
+### A4. B0 fault signature (K1-r1..r3)
+
+All 50 fault lines in the three K1 post-dmesgs (the K2 pre-dmesgs re-capture the same B0 instances):
+`qcom-iommu-ctx 1e24000.iommu-ctx: Unhandled context fault: fsr=0x40000202, iova=..., fsynr=0x23, cb=4`, decoded as
+in §4 (SS | FORMAT=1 | TF; PLVL=3 | PNU, read). classify: every printed IOVA outside the source's mdp_kms map.
+
+| run | source extent | first IOVA (== extent end) | printed IOVAs | preceding flip | first fault | IRQ at K1 post -> K2 pre | printed / suppressed |
+|---|---|---|---|---|---|---|---|
+| r1 | 0x732000 (2 bufs) | 0x732000 (yes) | 0x732000..0x732380 step 0x80 (8) | FB[64] @ 3.691263 | 3.704447 | 286 (15.72 s) -> 286 (31.97 s) | 10 / never reported |
+| r2 | 0x39a000 (1 buf) | 0x39a000 (yes) | 0x39a000..0x39a380 (8) | FB[62] @ 3.451368 | 3.520275 | 60297 (15.95 s) -> 63117 (16.50 s) | 30 / 23260 (8.53 s) + 25135 (13.55 s) |
+| r3 | 0x732000 (2 bufs) | 0x732000 (yes) | 0x732000..0x732480 (10) | FB[64] @ 3.256508 | 3.270932 | 207 (15.83 s) -> 207 (16.37 s) | 10 / never reported |
+
+Facts:
+- `control_valid=true`, `first_iova_matches_extent=true` 3/3. The first fault follows the first flip onto the buffer
+  that starts at the source extent end. The first underrun in each row (3.621 / 3.341 / 3.096 s, 17-26 ms before
+  `FLIP_TEST_START`) is the modeset baseline seen in the clean rows; the rest follow the faults.
+- r1, r3: faults and underruns only while FB[64] was up during the flip test (last fault 3.80 / 3.27 s, last
+  underrun 4.04 / 3.75 s). The test ends on FB[62] (0x39a000, inside the 2-buffer source map) and the IRQ count
+  stays flat. r2: the faulting buffer is FB[62] itself, where the test parks, so the storm runs for the life of
+  the instance: ~4.7-5.0k faults/s (23260 and 25135 suppressed per 5 s window; the DB410c ran ~13.5k/s) and one
+  `mdp5_crtc_err_irq` per 16.67 ms frame up to the last captured line.
+- Historical #54 (`PB/target/a5u-smp-lab/20260911/display-phys/dmesg.log`, same board, same cmdline recipe with
+  marker `display-phys`, plus a fault-instrumentation patch; `L/notes/a5-20260911-kexec-fault-excerpt.md`): 10 lines,
+  all `fsr=0x40000202 fsynr=0x23 cb=4`, first IOVA 0x732000, 9 unique 0x732000..0x732400, 8 mdp5 error lines, flips
+  16/16. Same first IOVA, page and 0x80 step as r1/r3.
+- Inference: #54's source had 2 buffers mapped (no pre-probe exists for it; its fault address equals the 2-buffer
+  extent end). 0x732000 is not a fixed "third framebuffer" address: r2 moves the first fault to 0x39a000 with a
+  1-buffer source. The A5 fault tracks the source's mapped extent, as on the DB410c.
+- Inference (mechanism): PLVL=3 translation faults on IOVAs the destination has mapped, starting exactly at the
+  source extent end, fit #54's reading (valid software walk, stale intermediate walk-cache entry). Source and
+  destination geometry are identical here, so, as on the DB410c (§9 not-shown 5), these rows do not discriminate
+  walk-cache from leaf entries; TLBIALL removes both.
+
+K1-r1 `post-dmesg.txt` (line numbers in that file; trimmed):
+```
+   2 [    0.000000] Linux version 7.1.0-rc6+ ... #1 SMP PREEMPT Tue Sep 29 15:51:07 AEST 2026
+ 158 [    1.339970] platform 1a01000.display-controller: Adding to iommu group 0
+ 256 [    1.938894] [drm] Initialized msm-kms 1.13.0 for 1a01000.display-controller on minor 0
+ 641 [    3.621250] [drm:mdp5_irq_error_handler] *ERROR* errors: 04000000
+ 643 [    3.638458]  INFO pocketboot::ui: POCKETBOOT_DRM_PAGE_FLIP_TEST_START requested=16
+ 662 [    3.691263] [drm:mdp5_plane_mode_set] plane-0: FB[64] 0,0,720,1280 -> CRTC[61] 0,0,720,1280
+ 667 [    3.704447] qcom-iommu-ctx 1e24000.iommu-ctx: Unhandled context fault: fsr=0x40000202, iova=0x0000000000732000, fsynr=0x23, cb=4
+ 668 [    3.704898] qcom-iommu-ctx 1e24000.iommu-ctx: Unhandled context fault: fsr=0x40000202, iova=0x0000000000732080, fsynr=0x23, cb=4
+ ...  (0x732100 .. 0x732300, ~11.5 ms apart)
+ 674 [    3.773221] qcom-iommu-ctx 1e24000.iommu-ctx: Unhandled context fault: fsr=0x40000202, iova=0x0000000000732380, fsynr=0x23, cb=4
+ 677 [    3.784819] [drm:mdp5_irq_error_handler] *ERROR* errors: 04000000
+ 678 [    3.796140] qcom-iommu-ctx 1e24000.iommu-ctx: Unhandled context fault: fsr=0x40000202, iova=0x0000000000732000, fsynr=0x23, cb=4
+ 878 [    4.071643]  INFO pocketboot::ui: POCKETBOOT_DRM_PAGE_FLIP_TEST_RESULT requested=16 completed=16
+```
+post-probe: ` 32:        286          0          0          0 GIC-0 102 Level     qcom-iommu-fault`.
+
+Config caveat, closed (facts): B0 was built from the #56 config, `# CONFIG_INTERCONNECT_QCOM is not set`. The #54
+config (`display-phys/kernel.config` c6057ae2103e2ff9b6dde7020e7d4b45b1a5dd967bcc965b9698c17a086e2bb0, in the dir
+whose dmesg.log carries the #54 banner) differs from #56's only by `CONFIG_INTERCONNECT_QCOM=y`,
+`CONFIG_INTERCONNECT_QCOM_MSM8916=y`, `CONFIG_INTERCONNECT_QCOM_SMD_RPM=y` (non-comment diff, 3 lines). B0 faulted
+3/3 with interconnect off, so the concern that the historical A5 faults needed the #54 config is closed.
+
+### A5. P health checks (K2, K3, K4; K5 OLD for reference)
+
+- `timeout waiting for TLB SYNC` = 0 in all 29 dmesg captures (14 pre, 14 post, R3); 0 `Kernel panic|Internal
+  error|Unable to handle|SError|WARNING:|BUG:` anywhere.
+- Every P row: IRQ 0 0 0 0, 0 fault lines, 16/16 flips, exactly one underrun (`errors: 04000000`), 16.9-18.0 ms
+  (about one frame) before `FLIP_TEST_START`: the modeset baseline, also seen once in every resident boot (pre-dmesg)
+  and in every DB410c clean row.
+- Probe cost: no qcom-iommu probe line exists on this DT (A2), so the §5 gap cannot be computed. Coarse proxy,
+  `pstore: Registered ramoops` -> `Adding to iommu group 0`: B0 1110-1122 ms, P 1114-1131 ms, OLD 1126 ms. The window
+  spans unrelated probes; it bounds nothing below ~10 ms (the DB410c pdbg rows measured 0.8-5 us per bank).
+
+K2-r2 `post-dmesg.txt` (trimmed): `158 [1.542067] ... Adding to iommu group 0`, `252 [2.153021] [drm] Initialized
+msm-kms 1.13.0`, `724 [3.636583] ... errors: 04000000`, `726 [3.653674] ... FLIP_TEST_START requested=16`,
+`936 [3.953639] ... FLIP_TEST_RESULT requested=16 completed=16`; nothing iommu-related after that; post-probe
+` 32: 0 0 0 0 GIC-0 102 Level qcom-iommu-fault`.
+
+### A6. K2: P straight out of a B0 that faulted (the strongest discriminator)
+
+Facts:
+- Same instance: each K2 pre-probe has `pocketboot.lab=a5-b0-g1` in /proc/cmdline, uptime above K1's post-probe,
+  IRQ count >= K1's, and the same hashed mdp_kms vm pointer (r1 `27daec68`, r2 `c9611cdf`, r3 `ff8d6374`). Hop
+  within ~1 s of the pre-probe (`hop.log`).
+- K2 sources had all 3 buffers mapped (extent 0xaca000), so nothing B0 itself mapped can make P fault; the
+  discriminating state is what B0 inherited from the resident and was faulting on.
+- r2: that state was live at the pre-probe. IRQ 60297 (15.95 s) -> 63117 (16.50 s), +2820 in 0.55 s; one
+  `mdp5_crtc_err_irq` per frame through the last captured line (`[16.646470] ... error: 04000000`). P destination:
+  IRQ 0 0 0 0, 16/16 flips including 6 scanouts of FB[62], the range that was faulting.
+- r1, r3: the B0 source had faulted (286 / 207) but was quiescent at the pre-probe (flat count; last fault / underrun
+  line at 3.80 / 4.04 s in r1, 3.27 / 3.75 s in r3), scanout parked on FB[62], inside the resident's 2-buffer map.
+  P: CLEAN, including 5 FB[64] scanouts over the range that had faulted.
+
+Inference: K2-r2 is the A5 analogue of DB410c Q10 and the strongest single row: stale cb=4 state demonstrably live
+~1 s before the jump, absent in P. In r1/r3 the stale state was plausibly still there but dormant (scanout off the
+stale range; B0 has no probe/attach invalidate), not shown present at the jump. No B0 -> B0 warm control was run
+(b0 generation-2 built, unused), so "a B0 destination would have faulted here" rests on K1, not a measured row.
+
+### A7. K4 chain and K5 OLD
+
+- K4: fresh resident (3.94 s, 2 buffers, 0x732000: the K1-r1/r3 fault-producing state) -> P g0 -> g1 -> g2 -> g3,
+  no reboot in between; each gN pre-probe carries g(N-1)'s marker (`a5-p-g0`, `-g1`, `-g2`). 4/4 CLEAN, IRQ 0,
+  16/16. g0 discriminates (same source state as K1-r1/r3); g1-g3 sources are 3-buffer P destinations, so those hops
+  show chain health, not discrimination.
+- K5: #56 boot.img from a fresh resident (3.86 s, 2 buffers, 0x732000): CLEAN, IRQ 0, 16/16, 1 baseline underrun.
+  Fact: the old attach-time TLBIASID (0006) also clears this state on the A5 from a fault-producing source. Single
+  reference row, different compiler and series (A2).
+
+P hops from the source state B0 faulted from (fresh resident, 1-2 buffers): K3-r1..r3 + K4-g0 = 4/4 CLEAN. Warm
+out of a B0 that faulted: K2 3/3 CLEAN. Chain health: K4-g1..g3 3/3 CLEAN.
+
+### A8. What this shows / what it does not show
+
+Shows (facts unless marked):
+1. The fix on a second MSM8916 board with the phone's own panel (EA8061V AMS497EE01 over DSI-1, 720x1280@60; the
+   DB410c had an ADV7533 with no sink), using the same qcom_iommu.o objects as the DB410c arms: B0 faults 3/3 on
+   cb=4 at the source extent end, P is clean 10/10 at an identical destination allocation.
+2. From a live-scanout resident: every source had CRTC active=1 with plane-0 scanning out at the pre-probe, and
+   B0 hops out of that state fault.
+3. The fault address tracks the source's mapped extent (0x732000 with 2 buffers, 0x39a000 with 1) and reproduces the
+   historical #54 address; 0x732000 was the 2-buffer case (inference for #54 itself).
+4. P clears inherited state that was faulting ~1 s before the jump (K2-r2) and holds over a 4-generation chain.
+   Attribution as §9.3: the B0/P objects are the DB410c ones.
+5. On this DT only cb4 (v1-ns) is probed, so the A5 exercises the probe-time TLBIALL on exactly one bank; the v1-sec
+   banks and the cold path rest on DB410c Q11/Q13.
+6. The interconnect config concern is closed (A4).
+
+Does NOT show:
+1. A cold boot of P by the stock bootloader: skipped, it needs P flashed to BOOT. A BOOT backup was taken (`A/backup/
+   boot-mmcblk0p16.img`, 13631488 B, sha256 4e827752735bd503d130351565673ed609faacbcd423279fbe9efd6efd84ec79,
+   15:56:49) and not used: no flash was done.
+2. The #56 SMP workload checks (#56 parity): dropped as orthogonal to the SMMU change.
+3. A master live at destination probe. Outgoing B0/P kernels are built from the ktree that §9 not-shown 1 analysed,
+   so `device_shutdown()` -> `msm_kms_shutdown` stops scanout before the jump (source analysis); the resident and
+   #56 are other Pocketboot 7.1-rc6+ builds, not re-checked. Nothing on the A5 logs it (no UART).
+4. Inherited stalled transaction / SCTLR, TTBR0, FSR at probe on the A5: no pdbg arm was built for it.
+5. kdump / crash kexec, other SoCs or SMMU flavours, stock mainline (every A5 kernel carries the lab series), a
+   live GPU master (gpu disabled in the destination DT), the walk-cache vs leaf mechanism, and picture content (no
+   capture; 16/16 is DRM flip completion).
+6. A B0 -> B0 warm control (A6).
+
+### A9. Anomalies and caveats
+
+- B0 and P print the same banner (`#1 SMP PREEMPT Tue Sep 29 15:51:07`, parallel build). Arm identity rests on the
+  marker in /proc/cmdline (checked every row) and the image digest (kernel section == arm Image,
+  `images/section-check.txt`, `cmp-check.txt`), not the banner.
+- Printed fault lines undercount (`dev_err_ratelimited`); r1/r3 never printed a "callbacks suppressed" summary
+  (no fault after the window closed), so 276 / 197 of their faults are visible only as IRQ counts.
+- classify.py (DB410c tool) words its reason as "... after the banner on the UART, 0 in dmesg"; its input here was
+  `post-dmesg.txt`. Wording only.
+- 32 `ramoops: error in header` lines in every destination boot (14/14, B0, P and OLD alike), 2 in the resident:
+  uncorrelated with the verdict.
+- Destination `Adding to iommu group 0` lands ~0.14 s later after a kexec'd source (1.48-1.54 s) than after the
+  resident (1.34-1.36 s), for B0, P and OLD alike; the offset is already present at `pstore: Registered ramoops`.
+- a5-extent.py counts `display_buffers` as mapped mdp_kms vmas >= 0x398000; the 4 KiB tx_gem is excluded.
+
+### A10. File map
+
+- Ledger `A/runs/attempts.jsonl` (lines 1..28). Per run `A/runs/K*/`: `result.json`, `classify.json`, `hop.log`,
+  `fastboot.log`, `inputs.sha256`, `dest-cmdline.txt`, `dest-bootimg.json`, `pre-/post-{probe.txt,dmesg.txt,gem.txt,
+  getvar.txt,iovas.txt,iovas.json,iovas-mdp.json,extent.json,sha256.txt,probe.status}`. `A/runs/R3-baseline/pre-*`.
+- Build: `A/notes/build-a5.md`, `A/build/{verify-a5.txt,config-diff-{b0,p}{,.functional}.txt,
+  k-a5-{b0,p}-{ctx_probe,init_domain}.txt,k-a5-p-ctx_tlb_sync.txt,a5-verify-inputs.out}`, `A/seed/SHA256SUMS`.
+- Images: `A/images/{MANIFEST.txt,bootimg-cmdline.jsonl,section-check.txt,cmp-check.txt}`.
+- Harness: `A/harness/{a5-env.sh,a5-hop.sh,a5-probe.sh,a5-run-k.sh,a5-extent.py,a5-verdict.py,a5-verify-inputs.sh,
+  SHA256SUMS,tests/offline-tests.out}`; reused read-only from `L/harness/`: classify.py, parse-iovas.py,
+  bootimg-cmdline.py.
+- Historical: `PB/target/a5u-smp-lab/20260911/display-phys/` (#54, faulting), `.../display-final/` (#56, OLD).
