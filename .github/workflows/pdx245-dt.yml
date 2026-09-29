@@ -1,0 +1,105 @@
+name: PDX245 device tree
+
+on:
+  pull_request:
+    paths:
+      - "arch/arm64/boot/dts/qcom/**"
+      - "Documentation/devicetree/bindings/**"
+      - "include/dt-bindings/**"
+      - ".github/workflows/pdx245-dt.yml"
+      - ".github/scripts/check-pdx245-dtb.py"
+      - ".github/pdx245-bringup.md"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  device-tree:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      ARCH: arm64
+      CROSS_COMPILE: aarch64-linux-gnu-
+      KBUILD_OUTPUT: .pdx245-build/out
+      DTB: .pdx245-build/out/arch/arm64/boot/dts/qcom/sm8650-sony-xperia-asahi-pdx245.dtb
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Install DT build and schema tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y \
+            build-essential gcc-aarch64-linux-gnu bc bison flex \
+            libssl-dev libelf-dev libyaml-dev device-tree-compiler \
+            python3-dev python3-venv swig yamllint
+          python3 -m venv .pdx245-build/venv
+          .pdx245-build/venv/bin/pip install 'dtschema==2026.9'
+          echo "$PWD/.pdx245-build/venv/bin" >> "$GITHUB_PATH"
+
+      - name: Check binding and compile the board DTB
+        run: |
+          dt-doc-validate Documentation/devicetree/bindings/arm/qcom.yaml
+          make defconfig
+          make -j2 W=1 CHECK_DTBS=y qcom/sm8650-sony-xperia-asahi-pdx245.dtb
+
+      - name: Reject schema diagnostics and check board invariants
+        run: |
+          dt-validate \
+            -s "$KBUILD_OUTPUT/Documentation/devicetree/bindings/processed-schema.json" \
+            --json-output .pdx245-build/schema-result.json "$DTB"
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          diagnostics = json.loads(Path(".pdx245-build/schema-result.json").read_text())
+          if diagnostics:
+              raise SystemExit(f"DT schema diagnostics: {diagnostics}")
+          PY
+          python3 .github/scripts/check-pdx245-dtb.py "$DTB"
+
+      - name: Check negative controls for identity and bring-up boundaries
+        run: |
+          cp "$DTB" .pdx245-build/not-pdx245.dtb
+          fdtput -t s .pdx245-build/not-pdx245.dtb / compatible \
+            qcom,sm8650-qrd qcom,sm8650
+          if python3 .github/scripts/check-pdx245-dtb.py .pdx245-build/not-pdx245.dtb; then
+            echo "The board guard accepted the wrong device"
+            exit 1
+          fi
+          cp "$DTB" .pdx245-build/ufs-enabled.dtb
+          fdtput -t s .pdx245-build/ufs-enabled.dtb /soc@0/ufshc@1d84000 status okay
+          if python3 .github/scripts/check-pdx245-dtb.py .pdx245-build/ufs-enabled.dtb; then
+            echo "The board guard accepted unverified UFS enablement"
+            exit 1
+          fi
+          cp "$DTB" .pdx245-build/missing-usb-supply.dtb
+          fdtput -d .pdx245-build/missing-usb-supply.dtb /soc@0/phy@88e3000 vdd-supply
+          if python3 .github/scripts/check-pdx245-dtb.py .pdx245-build/missing-usb-supply.dtb; then
+            echo "The board guard accepted a missing PHY supply"
+            exit 1
+          fi
+
+      - name: Prepare a source-identified artifact
+        run: |
+          mkdir -p .pdx245-build/artifact
+          cp "$DTB" .pdx245-build/artifact/
+          cp .github/pdx245-bringup.md .pdx245-build/artifact/README.md
+          cp .pdx245-build/schema-result.json .pdx245-build/artifact/
+          {
+            echo "Experimental DTB only; not an Android boot image or a boot-tested port."
+            printf 'Kernel source commit: '
+            git rev-parse HEAD
+            printf 'dtschema: '
+            dt-validate --version
+          } > .pdx245-build/artifact/build-info.txt
+          cd .pdx245-build/artifact
+          sha256sum *.dtb > SHA256SUMS
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dtb-sm8650-sony-xperia-asahi-pdx245
+          path: .pdx245-build/artifact/
+          if-no-files-found: error
