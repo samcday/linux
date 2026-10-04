@@ -452,3 +452,13 @@ elsewhere with permission, but cannot recover a differently addressed writer.
 No working retained-console recovery, kernel progress or mainline runtime is
 claimed. Future mapped-reader work or hardware acquisition belongs in the
 separately coordinated build/test workflow, not this source-indexing session.
+
+Operator provenance and transient lk2nd measurement addendum, 2026-10-04 UTC
+
+Operator report from pem120: kernel repository pem120/linux, lk2nd fastboot, no qhypstub installed. git ls-remote https://github.com/pem120/linux.git refs/heads/lkml/ferrari refs/heads/ferrari/lkml resolves refs/heads/ferrari/lkml to45add32603ee4aa28979ad6ec70c10b14af4ac29. This pins the currently published branch, not necessarily the exact revision of every recalled test. Image-generation/boot commands are still described only as same as daisy; literal commands and prior changing-pixel observation remain unconfirmed.
+
+Dedicated build/test-thread measurement on Sam-unit, reported at2026-10-04 07:18:44UTC: transient fastboot boot of official lk2nd23.1 asset, SHA2568f5f788b45b96447517ff121f20841e6bfc95a5d7c4b48fdedb855d90f593144. No persistent flash or HYP change. USB re-enumerated in about1s; getvar product=lk2nd-msm8916, variant=MTPeMMC; oem log/get_staged succeeded. LK log reports Booted@0x80008000,r2=0x81e00000, detected Xiaomi Mi4i compatible xiaomi,ferrari.
+
+Live MDP continuous-splash measurement from that LK log: pipeRGB_0, base0x83200000, stride3240, source/image/output1080x1920, format0x2243f interpreted as bpp3. This corroborates the board-DTS framebuffer address, dimensions, packed stride and24-bit storage on this unit/boot path. It does NOT yet establish the exact component order r8g8b8, Linux framebuffer handover, changing Linux-generated pixels, backlight longevity, or successful mainline/pocketboot boot. Existing pstore/boot-loader-path caveats remain. Exact colour ordering needs unpack-pattern/source decoding or a suitable visual test.
+
+This addendum uses neutral device labels. No private backup paths, serials or raw device images are included.
