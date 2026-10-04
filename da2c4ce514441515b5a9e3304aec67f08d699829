@@ -214,3 +214,101 @@ Compared it byte-for-byte against git show subject:drivers/power/smb1360-charger
 Result: identical. SHA256:
 949c9a23c161ad096711aca782d23df6353f834625b9df69486503576a3e99f2
 This permits stable public line citations for the historical vendor source.
+
+# Ferrari vendor source: indexed evidence, not electrical truth
+Evidence ID: ferrari-sources-2026-10-04-vendor
+Subject: da2c4ce514441515b5a9e3304aec67f08d699829
+Repository: https://github.com/MiCode/Xiaomi_Kernel_OpenSource.git
+Ref: ferrari-l-oss; verified 2026-10-04 UTC by ls-remote and exact-SHA fetch.
+Mirror: https://github.com/msm8916-mainline/linux-downstream.git xiaomi-ferrari
+advertises the identical commit. Tree: 869a31769ce81005439eea960eec3a20bd8054a8.
+Xiaomi's release index names Mi 4i / Android L / LA.BR.1.1.2-01120-8x16.0;
+the commit identifies ferrari_debug_defconfig. Makefile is 3.10.49.
+COPYING: GPLv2 kernel, with per-file exceptions. Referenced DTS: GPL-2.0-only;
+drivers/input/touchscreen/atmel_mxt_ts_336t.c: GPL-2.0-or-later.
+
+Master inventory/recipes: refs/notes/evidence on linux
+4fecfe9561a33db1320482d5fffb03ce1d8dd7ec.
+ROM-source candidate: 6bf677fd534bae9b720a65c18b6096d2a552e71c, separately noted.
+This 2015 release is NOT the observed 3.10.107 kernel. The existing detailed
+OTG analysis on this commit remains useful specifically for this revision.
+
+All DTS paths below are under arch/arm/boot/dts/qcom/.
+V = software/vendor description; D = driver behavior; O = supplied earlier
+hardware observation; H = historical claim; U = unresolved.
+
+## CPU / boot chain
+V: msm8939-mtp-smb1360.dts:16-23 selects MSM8939 SMB1360 MTP and board-id8/0.
+msm8939.dtsi:24-27 supplies MSM IDs239/241/263. msm8939-cpu.dtsi:53-126 gives
+eight qcom,arm-cortex-acc enable-methods. O: parent observed those DT properties,
+actual socinfo id239 and eight cores; not reacquired here.
+D: mainline baseline 6addb4f uses spin-table instead (see its evidence note).
+U: firmware secure boot, HYP acceptance, execution level and mainline SMP are not
+established by fastboot unlocking or vendor CPU-start behavior.
+
+## Display
+V: msm8939-common.dtsi:93-99 reserves splash at0x83000000, size0x02000000.
+msm8939-mdss.dtsi:329 includes dsi-panel-sharp-rsp61322-1080p-video.dtsi.
+msm8939-mtp.dtsi:19-61 describes LM3533 QUP1@38, enable GPIO98.
+D: drivers/video/msm/mdss/ and drivers/mfd/lm3533-core.c are the implementation
+entry points; inclusion of several panel descriptions is not panel selection.
+O: driver reported Sharp RSP61322; Android fb32bpp, stride4352, virtual1080x3840.
+H/U: Add Mi4i 66f5c41cd5cc0383219724ba3dc0d074e31f9692 introduced the
+0x83200000/RGB888/stride3240 simplefb description without corroborating evidence
+found here. Neither the reservation nor Android's later framebuffer proves
+bootloader scanout. Native panel/backlight operation is not validated mainline.
+
+## USB
+V/O: msm8939-mtp-smb1360.dts:26-71,83-88: QUP4@14 SMB1360, GPIO110 ID,
+mode3 and vbus_otg-supply. These match the reported running DT.
+D: drivers/power/smb1360-charger-fg.c and drivers/usb/phy/phy-msm-usb.c;
+include/linux/usb/msm_hsusb.h defines mode3 as USB_OTG.
+The companion OTG audit on this commit records exact register/status semantics.
+U: a command bit is not measured5V, a software provider is not proven physical
+USBIN wiring, and a successful role request is not safe charger/boost isolation.
+The ROM candidate's charger driver differs substantially; audit that revision
+before transferring the release's initialization/IRQ/arbitration conclusions.
+
+## PMIC / regulators
+V: msm8939-regulator.dtsi describes PM8916 rails and NCP6335D QUP4@1c.
+D: drivers/regulator/onsemi-ncp6335d.c implements the downstream external buck.
+O: NCP6335D and SMB1360 were bound. Unbound fan53555 nodes do not establish a
+second fitted buck. U: mainline rail constraints and any substitute driver
+require device-specific evidence, not an address or part-family resemblance.
+Touch supply order is described below; do not turn it into a regulator cascade.
+
+## Input
+V: msm8939-mtp.dtsi:128-146: mXT336T@4a, IRQ13/reset12, pm8916_l6 vdd,
+GPIO9 power-ldo and GPIO78 power-ts. D: atmel_mxt_ts_336t.c:2811-2827 obtains/
+enables "vdd"; 5258-5261 parses the two GPIOs; 5501-5528 sets GPIO9 high before
+GPIO78. This proves the source's requested order, not rail voltages or topology.
+O: parent observed the mXT336T driver bound to QUP5@4a.
+H: 6d6e6010317dd5990771b408da8234862258501b says GPIO9-controlled rail1.8V;
+464923b94bbb6b01fbd7c93dd6fe52337b1aee53 says3.3V. Historical tip5d8f removes
+the fixed-regulator model again. U: analog/digital pin mapping, voltages and
+power dependencies. An instantiated unbound Synaptics alternative proves none.
+
+## Radio
+V: msm8939-common.dtsi:445 onward describes qcom,wcnss_wlan; also consult
+msm8939-{smem,smp2p,ipcrouter}.dtsi and drivers/net/wireless/wcnss/.
+H: early Add Mi4i selected WCN3660B. U: exact RF subtype and firmware/NV mapping
+are not corroborated here; no new live RF observation or working-radio claim.
+
+## Already-mainline-supported peripherals / gaps
+V: msm8939-mtp.dtsi:291-299 gives volume-up GPIO107; msm-pm8916.dtsi:30-51
+describes power/RESIN key codes116/114. Mainline GPIO keys and PMIC RESIN are
+implementation candidates, not tested additions.
+V/O: msm8939-mtp.dtsi:319-346 describes QUP2 LSM6DB0@08 and CM36686@60,
+matching reported driver bindings. Downstream implementation:
+drivers/iio/imu/st_sensor_hub/st_sensor_hub.c and drivers/iio/light/cm36686.c.
+Mainline CM36686 support exists in drivers/iio/light/vcnl4000.c, with different
+binding names; vdd/vio/vled routing remains unresolved.
+Mainline LM3533 requires platform data and lacks OF parsing at the pinned
+baseline. Case-insensitive searches in baseline drivers/bindings found no
+LSM6DB0, SMB1360 or NCP6335D references. That is a scoped source-search result,
+not a claim about all external patches or later kernels.
+
+Method: git show, git grep -n, exact-SHA public fetch and ref verification.
+Public COPYING, defconfig and board-DTS blobs were hash-compared with local
+objects; OTG audit additionally compared the public charger blob byte-for-byte.
+No builds, source-tree changes or hardware operations were used.
