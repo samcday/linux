@@ -79,3 +79,9 @@ authorized artifact comparison would be needed to establish exact binary
 provenance. No private image, identifying path or raw capture is needed to
 fetch/search this public source. Master inventory/recipes are in
 refs/notes/evidence on linux 4fecfe9561a33db1320482d5fffb03ce1d8dd7ec.
+
+Ferrari retained-console source addendum, 2026-10-04 UTC
+Subject: 6bf677fd534bae9b720a65c18b6096d2a552e71c
+Source-only corroboration of the separate build/test handoff: fs/pstore/ram.c:444-485 parses android,ramoops-* values;532-533 rounds console-size down to a power of two, so0x50000 becomes0x40000. record_size==0 bypasses dump allocation at347; console initialization follows at551-558. fs/pstore/ram_core.c:29-36 defines the12-byte sig/start/size header and DBGC0x43474244; the same signature and header fields exist at upstream6addb4f385570ebc11c4eb499a4f1c149f313e84 fs/pstore/ram_core.c:32-39. This is format/source correspondence, not proof of an identical binary, reset retention or successful log recovery.
+
+Sanitized build/trial evidence, from the separate phone-owning thread, is attached to Linux4fecfe9561a33db1320482d5fffb03ce1d8dd7ec. The source-indexing thread made no device reads or builds. Legacy vendor-window0xffe00000/2MiB must not be confused with the separate default window of official lk2nd23.1; see the later source-trace addendum on4fec.
