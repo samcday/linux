@@ -530,3 +530,20 @@ Static comparison, not a hardware damage claim:
 - The invented fixed-regulator cascade encodes the opposite child-before-parent shutdown. Upstream regulator core disables the current output at drivers/regulator/core.c:3280 and then its supply at3304-3305. That sequence and the analog/digital mapping have not been justified for this board.
 
 The parent explicitly directed holding the probe rather than adding an always-on workaround to bypass the unresolved shutdown path. This is an evidence/model/safety gate, not a failed upstream maXTouch-driver test. A future successful tap still would not establish the disputed rail topology.
+
+Read-only touch GPIO observation, 2026-10-04 10:07:39UTC
+
+A focused hardware session read MSM debugfs GPIO state over serial-selected ADB through the existing desktop SSH route. It mounted debugfs read-only for the capture and verified it was unmounted afterward. No GPIO requests/export/gpioget, I2C transactions, binding, reset, boot, firmware upload or source changes occurred. Parent/source pins dcbe3781 and Linux4fec, and imageSHA2562ba6a9f5d86fba137c563148dada61691e8a4414c48fc6271d03e97ee4dcecc6, were declared baseline information rather than live binary attestation.
+
+Observed identity: pocketboot product/model/device, Xiaomi Mi4i DT compatible xiaomi,ferrari+qcom,msm8939; kernel7.3.0-rc5+ #4; cmdline maxcpus=1 panic=-1 initcall_debug loglevel=8 pocketboot.acm. Uptime during capture6817.32-6817.34s.
+
+Exact sanitized GPIO context:
+gpiochip0: 122 GPIOs, parent: platform/1000000.pinctrl, 1000000.pinctrl:
+ gpio9   : in  low  func0 2mA pull down
+ gpio12  : in  low  func0 2mA pull down
+ gpio13  : in  low  func0 2mA pull down
+ gpio78  : in  low  func0 2mA pull down
+
+These numbers are chip-local TLMM offsets, not inferred legacy global GPIO numbers. The low readings on input-configured pins are input state, not separately observed output latches. The QUP adapter appears as i2c-0; unbound DT client0-004a is named maxtouch and maps to i2c@78b9000/touchscreen@4a. No bus access was made.
+
+Raw capture SHA256b6d249407db6414e66a71e203b0ab02740bba69984c6cdb03268f8f5053729b2. No private path or device serial is included here. The proposed inherited-power diagnostic required both enables already configured output-high; that precondition was NOT met. This does not establish rail voltages, parentage, analog power or physical harm from another sequence. Touch remains untested/held.
