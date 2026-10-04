@@ -1,0 +1,6 @@
+Ferrari source provenance, verified 2026-10-04 UTC
+Subject: 464923b94bbb6b01fbd7c93dd6fe52337b1aee53
+Public https://github.com/pem120/linux.git historical msm8939/mi4i ancestor. Full-commit identity and ancestry to5d8f10ccdc03ce4c0d0697e899acad3ff667dea8 verified. GPIO9-controlled reg_ts_vdda min/max changes from1.8V to3.3V here; not a measurement. The later5d8f tip removes both fixed touch-regulator nodes. Neither historical claim establishes voltage/cascade/analog-digital pin mapping.
+
+Key path: arch/arm64/boot/dts/qcom/msm8939-xiaomi-ferrari.dts (GPL-2.0-only).
+These are source/history observations, not hardware measurements or working-mainline claims. No builds or phone operations were performed. Full inventory, classifications and fetch/search recipes are in refs/notes/evidence on linux 4fecfe9561a33db1320482d5fffb03ce1d8dd7ec; chronology on 5d8f10ccdc03ce4c0d0697e899acad3ff667dea8. Each source commit is pinned under refs/sources/ferrari in the attached linux repository.
