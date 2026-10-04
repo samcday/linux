@@ -45,3 +45,40 @@ session: LineageOS15.0/Android8 kernel3.10.107-perf-g6bf677f; selected MSM8939
 SMB1360 MTP DT; GPIO110 ID; SMB1360 QUP4 address0x14. Boot/recovery/aboot/abootbak
 were backed up in the parent and only boot erased with permission. That fastboot
 state remains untouched; secure-boot fuse state remains unknown.
+
+Mi 4i bring-up evidence, 2026-10-04 UTC
+
+Subject: board-only WIP 4fecfe9561a33db1320482d5fffb03ce1d8dd7ec, based on torvalds/master 6addb4f385570ebc11c4eb499a4f1c149f313e84. Companion testbed: samcday/pocketboot 79cdf78 (no Ferrari build/boot yet). This note is hardware/preparation evidence, NOT a successful mainline runtime test.
+
+Series construction: original ferrari/lkml 45add32603ee4 remains intact. Full replay was preserved at 9ec3ca59af1e8. Current series contains only the board-compatible and board-DTS patches: three files, +181/-0. atmel_mxt_ts.c and atmel,maxtouch.yaml are byte-identical to upstream; atmel,enable-t97 is absent. Old explanatory commit prose was removed for evidence-led rewriting. The remaining touchscreen regulator topology and framebuffer layout are explicitly unverified draft claims, not endorsed hardware descriptions.
+
+Sam-unit baseline (read through ADB): LineageOS 15.0-20171031-UNOFFICIAL-ferrari, Android 8.0.0; uname reports 3.10.107-perf-g6bf677f, built 2017-10-31. The retained Xiaomi/Android5.0.2 fingerprint does not identify the running OS. Root ADB was available via adb root. /proc/device-tree model: Qualcomm Technologies, Inc. MSM 8939 SMB1360 MTP; board-id <8 0>; msm-ids <239 0 241 0 263 0>.
+
+Observed bound I2C devices via sysfs name and driver symlinks: QUP5 0x4a mxt-ts-336t -> atmel_mxt_ts_336t, input name atmel-maxtouch; QUP1 0x38 lm3533; QUP2 0x08 lsm6db0 sensor hub and 0x60 cm36686; QUP4 0x14 smb1360-chg-fg and 0x1c ncp6335d-regulator; QUP6 0x34 tfa98xx. Instantiated Synaptics@0x20 and fan53555@0x60 have no bound driver; their mere DT presence is not evidence of fitted parts. Sysfs fb0 reports Sharp RSP61322 1080p video-mode DSI panel; current Android framebuffer is 32bpp, stride4352, virtual1080x3840. This does NOT establish the earlier bootloader framebuffer address/format/stride.
+
+Provenance audit: Xiaomi vendor source da2c4ce514441515b5a9e3304aec67f08d699829, arch/arm/boot/dts/qcom/msm8939-mtp.dtsi:129-145 and drivers/input/touchscreen/atmel_mxt_ts_336t.c:5501-5528 establish touch GPIO9/78 enable order, IRQ13/reset12/address0x4a, but NOT GPIO-controlled rail voltages, supply inputs, or analog/digital pin mapping. Earlier bring-up commits 6d6e6010317dd and 464923b94bbb6 even disagree between GPIO9=1.8V and 3.3V. Do not encode sequencing as vin-supply topology. Vendor msm8939-common.dtsi:93-99 establishes splash reservation 0x83000000/32MiB, not active scanout at0x83200000/RGB888/stride3240. Vendor msm8939-mtp-smb1360.dts:83-88 and the live DT establish USB ID GPIO110, OTG mode3 and SMB1360 VBUS source. WCN3660B subtype remains unproved.
+
+Backup and bootloader preparation: read-only raw backups of /dev/block/mmcblk0p30 (boot,33554432 bytes), p31 (recovery,33554432), p11 (aboot,4194304), p12 (abootbak,4194304). Each raw transfer was size-checked and its host SHA256 compared with sha256sum run on the device. Hashes:
+boot 342aa51e1841eac295a09e5f1429c00e1ed0f808d3bb652e4b2a1584adc912c0
+recovery e0740166673cb561c7a2510dee28033d9771f477089a3cd25a460dff8fe24df3
+aboot 109a91e02445283aae463401bf5985d389f88da5b00c8469fd0065d7149cd8a8
+abootbak c596513e02e99b11682287835f0d59aa8e56b3abfdfe15ee5d7893d1f84c8f02
+Raw boot images, live DT tar and Android dmesg remain private, ignored local files. A second copy outside Delta exists in ~/device-backups/ferrari-86bce3a/20261004T054330Z with SHA256SUMS; all seven copied files were rehashed and matched. These are same-machine copies, not off-machine backup or public OTA provenance.
+
+With explicit permission: adb reboot bootloader; fastboot oem device-info returned Device unlocked:true. getvar product returns MSM8916 (not silicon identification); secure/unlocked/slot/partition-size getvars return empty, so those replies prove nothing about fuse security. Fastboot erase boot succeeded; fastboot reboot followed by getvar product and oem device-info succeeded again, proving this device now falls back to fastboot with boot erased. Recovery, bootloaders, system and userdata were not erased or flashed. No mainline or pocketboot image has yet been booted.
+
+Next runtime gates: use the proven stock-fastboot image envelope; verify USB gadget enumeration and diagnostics; verify changing pocketboot pixels, not a retained splash; check display survives late clock/regulator cleanup without masking options. Wi-Fi/BT require separate firmware/NV and RF identity validation; enabling a node is not a working-radio claim. OTG is a separate investigation.
+
+Persistent-log addendum, 2026-10-04 UTC
+
+Read ONLY the already-captured Sam-unit device-tree.tar and android-dmesg.txt; no new device interaction. This supplies an evidence-based ramoops candidate, not proof of retention across our mainline/reset path.
+
+Live DT /memory/ramoops_mem_region/reg = <0 0xffe00000 0 0x200000>, label ramoops_mem, linux,reserve-region/linux,reserve-contiguous-region/linux,remove-completely. /soc/ramoops is compatible=ramoops, status=okay, linux,contiguous-region points to that carveout. Vendor properties: android,ramoops-buffer-start=0xffe00000; buffer-size=0x200000; console-size=0x50000; record-size=0; annotate-size=0x1000; dump-oops=1.
+
+Relevant captured downstream boot log:
+[0.000000] cma: Found ramoops_mem_region, memory base 0x00000000ffe00000, size 2 MiB
+[0.000000] cma: CMA: reserved 2 MiB at 0x00000000ffe00000 for ramoops_mem
+[0.223682] console [pstore-1] enabled
+[0.223701] ramoops: attached 0x200000@0xffe00000, ecc: 0/0
+
+The captured command line also contains ramoops_memreserve=2M and bl_version=1.0; the latter is only the reported string, not a full bootloader build identifier. Do not copy vendor android,* properties into an upstream DT binding; translate using current ramoops binding and verify buffer sizing/layout. Next proof is a controlled marker/log followed by the intended warm-reset/stock-fastboot route and recovery of that marker from the next kernel. HYP/EL2/EDL modifications are not a prerequisite to this test.
