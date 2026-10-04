@@ -249,3 +249,53 @@ If push is rejected, import the new remote tip and reconcile; never force.
 Use origin only after confirming it is Sam's repository, never the local backlink
 or an upstream project. Keep source refs and evidence notes outside the two-patch
 submission; no research documents or source dumps belong in that diff.
+
+Ferrari measurement handoff provenance, 2026-10-04 UTC
+
+The following new measurement sections were relayed by the separate build/test
+thread from its unpublished refs/notes/evidence tip
+5e95bb95c9c70e929174eb6362bffe580d587950, attached there to Linux
+4fecfe9561a33db1320482d5fffb03ce1d8dd7ec. Only the newly appended, sanitized
+sections are imported, not the inherited parent text. Transport escaping of
+quotes/angle brackets is normalized. These are reported observations from that
+thread; the source-indexing thread did not build or operate the phone.
+
+This later handoff supersedes the earlier preparation note's "no image has yet
+been booted" chronology, but establishes no successful Linux/pocketboot runtime.
+Full binaries and raw captures remain outside the public evidence notes.
+
+First pocketboot transient boot on Sam-unit, 2026-10-04 06:16 UTC
+
+Linux: 4fecfe9561a33db1320482d5fffb03ce1d8dd7ec (clean, board-only series).
+Pocketboot: b99e8af01173ec615f6ceb6ed0aed5799eea996d plus uncommitted QCOM_SOC=true in the MSM8939 SoC profile, CRASH_DUMP="omit" in the Ferrari device profile, and regression assertions for those two settings. Build was performed in the isolated local-build subthread, not the parent checkout.
+Toolchain: rustc1.96.0(ac68faa20,2026-05-25), aarch64-linux-gnu-gcc16.2.1. Command: cargo xtask build qcom/msm8939-xiaomi-ferrari <attached-linux-tree>. Build exited0; strict Kconfig succeeded. CONFIG_KEXEC=n, NR_CPUS=8, cmdline maxcpus=1 pocketboot.acm. Required QCOM_SOC/SMEM/SMD_RPM/regulator and simpledrm/ChipIdea UDC/MSM/USB_HS PHY/FunctionFS/ACM/extcon options all built in.
+
+Artifacts and SHA256:
+boot.img:10614784 bytes;77b3b33b5464b4ad74a1bffaf0c587b87929eb7e406f779864e1ac8900f7a629
+Image:10559496 bytes;0af97c08a691dc580edc6fc5f3f63b0eaedde7768e377caebbbf30439873aca6
+DTB:620cad7b386d46e6f6506b8cb57672ea39a23ddde6cf0a00e0631958c0347ce0
+.config:b3745945b175b3bf154d2653ce67005b01dbf85a93f30beb2f1e8cbaa9a084bc
+initramfs CPIO:314654e8d3be67d4cf033110ce3b51ae819bf14bd3b93b41b7027f4d0a4e0f77
+Image header:text_offset0,image_size10878976,flags0xa. Raw Android-v0 image:page2048,kernel_addr0x80008000,ramdisk_size0,ramdisk_addr0x82000000,tags_addr0x80000100,dt_size0xc800. QCDTv2 with MSM239/241/263,board8/subtype0/SOCrev0; each entry references DTB offset2048,size49152. DT compatible xiaomi,ferrari qcom,msm8939; stdout-path /chosen/framebuffer@83200000. Container/image bounds, FDT magic and required config checked. Actual bootloader kernel/DTB physical placement remains unverified; these header checks do not establish successful runtime handoff.
+
+Device command: fastboot -s <Sam-unit> boot boot.img. At06:16:09.600938UTC target was stock fastboot VID:PID18d1:d00d. Output: Sending boot.img(10366KB) OKAY[0.326s]; Booting OKAY[0.106s]; exit0. Target USB port13-1.2 disconnected by06:16:10.545142UTC. A20-second bounded udev/sysfs observation saw removal only: no new device, no pocketboot fastboot enumeration, no ttyACM console. Sam reported the unchanged fastboot mascot remained visible.
+
+Conclusion: stock fastboot accepted the download and boot command; no evidence yet of kernel execution progress or pocketboot init. Retained mascot is consistent with continuing bootloader scanout, not evidence of a live fastboot service. No display-rendering, USB-runtime, SMP or kexec success is claimed. No flash/erase commands were used by this subthread; persistent boot remained erased as prepared by the parent. Next diagnostic needs a proven log capture/readback route (vendor ramoops region now sourced) and reset recovery.
+
+Raw build-layout and USB logs are retained locally under target/kernel/qcom/msm8939-xiaomi-ferrari/{first-boot-layout.json,first-boot-fastboot.log,first-boot-usb-events.log,first-boot-usb-state.log}. No private partition images or raw Android logs are included in this note.
+
+Further transient trials and diagnostic preparation, 2026-10-04 UTC
+
+Linux remains clean4fecfe9561a33db1320482d5fffb03ce1d8dd7ec. Pocketboot base remains b99e8af01173ec615f6ceb6ed0aed5799eea996d plus the prior strict-config corrections. No source commit or upstream-series change is implied by the local binary header experiment.
+
+Trial2 at06:32:32UTC: changed only the ARM64 Image.text_offset word in the first image from0 to0x80000, then recomputed the legacy Android boot ID. Exact changed bytes: offset2058 plus the20 SHA1 bytes at576-595; every other byte identical. Artifact10614784 bytes, SHA256f3f1ea9ebad2f3172e0baafb652caf81dbf570d576954c717e34f2c608570fab. Sending/Booting OKAY; USB disconnected and no new enumeration/ACM within20s. This alone did not fix boot. Sam explicitly confirmed that return to fastboot was a MANUAL Power reset, not an automatic panic/watchdog restart.
+
+Trial3 at06:35:57UTC: original modern text_offset0 and cmdline maxcpus=1 panic=-1 pocketboot.acm. ArtifactSHA256fdfd692523e71e0097a58b727682c4c35473cd69b871be7a031f3ad86f0f4210. Packaged Android-header cmdline verified. Sending/Booting OKAY, USB disconnected. Initial observer was interrupted by a user message; follow-up06:37:19-06:37:49 still found device absent, approximately112s after boot. No automatic return was observed; that is not proof that no panic occurred, since early hangs/panics before reset-driver availability can also fail to reboot.
+
+Exact saved-Lineage source investigation: public source candidate shrukul/android_kernel_xiaomi_ferrari commit6bf677fd534bae9b720a65c18b6096d2a552e71c (version/config match, not binary-source attestation). fs/pstore/ram.c:430-487 parses the live android,ramoops-* properties;530-558 rounds console0x50000 down to0x40000 and record-size0 skips allocation of dmesg records, leaving the console atregionbase0xffe00000. fs/pstore/ram_core.c has the standard sig/start/size12-byte ring header, DBGC signature0x43474244; matching mainline format. Saved Image embedded config has CONFIG_DEVMEM=n and CONFIG_DEVKMEM=n, excluding plain raw-memory readback over rooted ADB. Pstore compatibility and warm-reset retention still need hardware proof.
+
+Diagnostic source delta in pocketboot only: configs/dt-overlays/qcom/msm8939-xiaomi-ferrari.dtso adds reserved-memory ramoops@ffe00000, reg<0 0xffe00000 0 0x200000>, record-size0,console-size0x40000. Device config adds PSTORE_CONSOLE=true and cmdline maxcpus=1 panic=-1 initcall_debug loglevel=8 pocketboot.acm. No android,* DT properties or HYP changes. Build passed, dt-validate against upstream ramoops.yaml passed, packed QCDT was checked to contain the exact processed DTB, and effective PSTORE_CONSOLE=y verified. cargo fmt --check and all54 xtask tests passed (including new panic and pstore assertions).
+
+Trial4 at06:46:35UTC: this diagnostic image,10614784 bytes,SHA256d8288af6f1b5f302db67c7f66d90339affddaa6c4aacdc2777d0606cbf92a6c1. Sending/Booting OKAY, USB disconnected by06:46:36.863. Observer interrupted by parent message; no kernel-progress or automatic-reboot inference from the incomplete observation. No logs read back yet. User then requested exploring lk2nd instead of continuing the stock-loader/Lineage-reader route.
+
+lk2nd candidate verified, NOT booted or flashed at time of this note: official release23.1, sourcee9c8b21735c13dd7ace808b1e35451638f0a0c6d; assethttps://github.com/msm8916-mainline/lk2nd/releases/download/23.1/lk2nd-msm8916.img,428048bytes,SHA2568f5f788b45b96447517ff121f20841e6bfc95a5d7c4b48fdedb855d90f593144 matches both APIassetdigest and officialsha256sums.txt. QCDTv2 has118 records; entry(MSM239,board8,subtype0,SoCrev0,DTBoffset92160,size2048) contains xiaomi-ferrari modelXiaomi Mi4i,compatiblexiaomi,ferrari, and Sharp RSP61322 panel match. Thus release binary content, not just filename/source, matches the known device. Pending source-index confirmation of its ramoops window/init effects before transient boot. HYP and primary bootloader partitions remain untouched.
