@@ -1,0 +1,199 @@
+Ferrari USB OTG source investigation — mainline infrastructure and gaps
+Evidence ID: ferrari-otg-source-audit-2026-10-04-mainline
+Date: 2026-10-04 UTC
+Repository: linux
+Subject commit: 6addb4f385570ebc11c4eb499a4f1c149f313e84
+Related evidence notes in this same repository/ref:
+- da2c4ce514441515b5a9e3304aec67f08d699829: Xiaomi release driver and wiring
+- 4fecfe9561a33db1320482d5fffb03ce1d8dd7ec: initial board-only series boundary
+Ref: refs/notes/evidence; local only, not published.
+
+CONCLUSIONS / RECOMMENDATION (not hardware test results)
+
+1. No new ChipIdea dual-role engine or Qualcomm HS PHY driver is indicated by
+   this investigation. The missing host-power component is an SMB1360-specific
+   regulator provider, with correct initialization, protection and charger
+   interaction. The missing cable-detection component is a real VBUS signal
+   delivered to both controller and PHY. GPIO110 already supplies ID evidence.
+2. Keep the initial peripheral-only series unchanged. Changing dr_mode alone
+   can select host logic without creating any VBUS source: the controller's
+   regulator is optional. Probe success or a role attribute is not proof of OTG.
+3. Prefer the existing split-extcon path for the smallest follow-up:
+   controller extcon[0] = proved VBUS provider; extcon[1] = GPIO110 ID provider;
+   PHY extcon[0] = the same proved VBUS provider; controller vbus-supply = actual
+   SMB1360 boost regulator after that driver/binding exists. These are logical
+   relationships, not a proposed ready-to-apply DTS or invented phandles.
+4. First try to establish whether the existing PM8916 USBIN detector is actually
+   wired to this connector. If proved, reuse its standalone extcon and avoid
+   implementing SMB1360 VBUS-presence publication merely for redundancy. If not,
+   SMB1360 USBIN status/IRQ is the vendor-backed sensing path to implement.
+5. A switch to usb-role-switch is an architectural alternative, not a solution
+   for missing physical sensing or 5V output. It would still need a real detector
+   and consistent PHY session-valid updates, so it is not the minimal path here.
+6. Scope "OTG" initially as automatic ID-cable host/peripheral use. The shared
+   MSM8939 DTS disables ADP/HNP/SRP. Those protocol features/certification are not
+   established by source support for dual-role operation or by enumeration.
+
+PROVEN SOURCE EVIDENCE
+
+Pinned-source method and commands:
+- git cat-file -t and git show --no-patch on all three subject commits succeeded.
+- Current checkout was main at 987685ebda993e7a7c00842c3df48e7c3ee2f656, not the
+  named WIP branch. No branch checkout was performed. The named local branches
+  were absent, but exact source objects were present and read with git show.
+- git diff --name-only 6addb4f... HEAD -- Documentation/devicetree/bindings
+  drivers/usb drivers/phy/qualcomm drivers/extcon drivers/power/supply
+  arch/arm64/boot/dts/qcom produced no paths. Worktree reads of these files are
+  therefore identical to the pinned baseline; vendor/board content used git show.
+- git ls-tree -r --name-only <each subject> | rg '(^|/)AGENTS?\.md$' found no
+  project instruction files at any of the three revisions. Current attached
+  linux and pocketboot likewise had no AGENT.md/AGENTS.md from file searches.
+- git grep -n -i smb1360 6addb4f... -- drivers Documentation include arch:
+  no matches, exit 1. The independent whole-baseline search also found none.
+- Source inspection only: no kernel build, DT build, phone boot, electrical
+  measurement, ADB, fastboot, USB command or I2C access was performed.
+
+Source shorthand below: core.c, host.c, otg.c, ci.h and ci_hdrc_msm.c are in
+drivers/usb/chipidea/; phy-qcom-usb-hs.c is in drivers/phy/qualcomm/; charger
+files without a path prefix are in drivers/power/supply/.
+
+Controller and bindings (all paths at subject baseline):
+- arch/arm64/boot/dts/qcom/msm8939.dtsi:2161-2199 describes qcom,ci-hdrc at
+  0x078d9000 with ULPI qcom,usb-hs-phy-msm8916 / qcom,usb-hs-phy, default
+  dr_mode="otg", and adp-disable/hnp-disable/srp-disable (2176-2179).
+- drivers/usb/chipidea/Kconfig:3-33 selects EXTCON, ULPI bus and USB_ROLE_SWITCH;
+  host requires USB_EHCI_HCD + USB_CHIPIDEA_HOST; gadget requires USB_GADGET +
+  USB_CHIPIDEA_UDC; Qualcomm glue is USB_CHIPIDEA_MSM (42-44).
+- core.c:951-964 tests DCCPARAMS host/device capability bits at runtime. This
+  code is a capability check; no such runtime observation was made here.
+- core.c:1138-1157 initializes host/gadget according to dr_mode. In peripheral
+  mode it does not initialize the host role. core.c:674-686 only requests the
+  optional regulator named "vbus" outside peripheral-only mode; -ENODEV becomes
+  NULL rather than refusing host mode. Thus omission is not a protective gate
+  once a board is switched to dr_mode="otg".
+- Documentation/devicetree/bindings/usb/chipidea,usb2-common.yaml:89-102 defines
+  two independent extcon phandles: USB/VBUS first, USB-HOST/ID second; 175-176
+  defines vbus-supply. ci-hdrc-usb2.yaml:27,79-86 covers qcom,ci-hdrc and PHY.
+- core.c:749-780 reads those cable states; 807-830 registers notifiers.
+  otg.c:29-74 substitutes extcon states for OTGSC BSV/ID, 122-145 chooses role
+  and connects/disconnects the gadget, 174-207 stops/starts roles on ID changes.
+- host.c:38-64 controls the regulator via the EHCI port-power callback.
+  host.c:159-170 selects that normal path unless TURN_VBUS_EARLY_ON is requested;
+  ci_hdrc_msm.c:188-193 does not set that flag. No bespoke board USB driver is
+  needed to replace this power-control consumer.
+- otg.c:193-202 skips physical BSV-drain waiting when an external connector or
+  role switch supplies session state. Therefore validate detector behavior during
+  boost-off/discharge; do not publish stale self-sourced VBUS as a new B session.
+- core.c:616-631 role-switch setter converts role requests into ID/BSV software
+  states and invokes ci_irq; 1174-1184 registers usb-role-switch. A successful
+  request is not electrical power-good or successful peripheral enumeration.
+- ci.h:461-470 additionally gates the optional OTG FSM on HNP/SRP/ADP capability;
+  the disabled SoC DTS flags keep simple ID switching separate from that FSM.
+
+PHY and GPIO detector:
+- phy-qcom-usb-hs.c:42-86 sets PHY mode; with an extcon it disables OTG
+  comparators (ULPI_PWR_CLK_MNG_REG 0x88 bit0) and selects external VBUS-valid in
+  device/OTG mode (ULPI_MISC_A 0x96 bit1), deselecting it in host mode.
+- phy-qcom-usb-hs.c:91-105 sets/clears ULPI_MISC_A bit0 on EXTCON_USB; 157-165
+  initializes and subscribes to that state; 257-261 gets phandle index 0.
+  It has no role-switch notification path. Deleting extcon assumes native
+  sensing instead, which is not proved for ferrari.
+- ci_hdrc_msm.c:117-122 enables the controller's software session-valid control
+  for extcon or role-switch; this does not manufacture correct cable evidence.
+- arch/arm64/boot/dts/qcom/msm8939-pm8916.dtsi:151-153 supplies PHY 1.8V from L7
+  and 3.3V from L13. These PHY rails are not the connector's 5V VBUS source.
+- Documentation/devicetree/bindings/phy/qcom,usb-hs-phy.yaml:66-70 permits those
+  supplies and extcon. linux,extcon-usb-gpio.yaml:20-32 permits ID alone.
+- drivers/extcon/extcon-usb-gpio.c:66-82 uses vbus=id when vbus-gpios is absent.
+  A local, non-hardware truth-table calculation of that expression gave:
+      physical condition         ID  real VBUS  reported USB  reported HOST
+      disconnected               1      0           1              0
+      powered B cable            1      1           1              0
+      unpowered OTG adapter      0      0           0              1
+      powered A-side             0      1           0              1
+  Therefore ID-only does not distinguish unplugged from powered B cable.
+- drivers/usb/common/usb-conn-gpio.c:79-90 repeats the same missing-VBUS fallback,
+  then requests roles. 102-113 also controls an optional VBUS regulator.
+  Replacing extcon with gpio-usb-b-connector does not fix the signal. Do not
+  assign two independent consumers ownership of VBUS policy casually.
+
+Independent PM8916 sensing, not charger enablement:
+- arch/arm64/boot/dts/qcom/pm8916.dtsi:102-108 already has disabled pm8916_usbin,
+  compatible qcom,pm8941-misc, reg 0x1300, usb_vbus IRQ <0 0x13 1 ...>.
+- drivers/extcon/extcon-qcom-spmi-misc.c:60-73 reads IRQCHIP_STATE_LINE_LEVEL and
+  publishes EXTCON_USB; no LBC charging configuration is needed for this driver.
+  drivers/spmi/spmi-pmic-arb.c:656,921-935 resolves that to peripheral RT_STS
+  offset0x10, i.e. PM8916 USBIN 0x1310 bit1. This is a possible physical detector,
+  not proof of its wiring or health on this phone.
+- Existing MSM8916 LG C50/Samsung GT5/UFI board users demonstrate software reuse,
+  not a ferrari net connection. The vendor external-charger flag proves neither
+  the USBIN connection nor valid transitions; see related vendor evidence note.
+- Do NOT enable pm8916_lbc for sensing. drivers/power/supply/pm8916_lbc.c:94-111
+  programs charging and sets CHG_EN|PSTG_EN; probe calls it at345-346. Moreover,
+  at300-308 this baseline logs external-charger/DT errors without returning at
+  those statements. It must not be treated as a passive detector or a guaranteed
+  rejection of external-charger boards. No fix or enablement was made here.
+
+Other charger drivers are patterns, not compatible devices:
+- smb347-charger.c:1611-1624 matches SMB345/347/358, not SMB1360.
+- qcom_smbx.c:1039-1042 matches PMI8998/PM660 (SMB2); qcom_smbb.c:1009-1012
+  matches PM8226/PM8941. Their regulator/extcon integration is reusable design
+  precedent, not permission to bind SMB1360 to their register maps.
+
+SMALLEST FOLLOW-UP PLAN (requires separate implementation/hardware approval)
+
+A. Resolve only power/sense evidence first. Obtain exact running Lineage source
+   or treat the Xiaomi release as a reference, not identical firmware. Establish
+   SMB1360 silicon/configuration, output rating, input/boost isolation, UVLO and
+   discharge behavior from authoritative documentation or coordinated captures.
+   Confirm GPIO110, SMB1360 STAT GPIO62, input-valid/UV transitions and possible
+   PM8916 USBIN transitions with boost OFF. No probing or boot change is authorized
+   by this note. Prefer existing driver observations; IRQ/status reads may
+   acknowledge latched events, so blind I2C scans/dumps are not "passive" evidence.
+B. Implement new SMB1360 device-specific binding/driver in a separate follow-up,
+   with one owner for its I2C registers. Limit scope to safe OTG regulator control
+   and needed input/fault status. Use regmap/regulator/extcon infrastructure, not
+   a wholesale Android charger/fuel-gauge port or an unnecessary new role engine.
+   Audit which initialization is actually required; do not depend silently on
+   bootloader charger state or overwrite battery policy by copying hw_init.
+   If PM8916 sense is proved, reuse it; otherwise publish SMB1360 input-valid as
+   EXTCON_USB. A power_supply ONLINE property alone is not the notifier interface
+   currently consumed by the controller and PHY. Preserve unrelated register bits,
+   propagate I2C errors, handle UV/OTG-fail/overcurrent, keep a faulted output off,
+   reconcile hardware disable with regulator software state, and validate safe
+   remove/shutdown/error behavior without speculative retries.
+C. Offline review/build: binding checks and dtbs_check for the follow-up; kernel
+   build with host+gadget+PHY+chosen extcon+regulator enabled; mock/regmap tests of
+   masking, initial state, IRQ decoding, input-present guard, failed accesses,
+   fault shutdown, and enable/disable/refcount/error paths. Do not claim these
+   tests prove 5V, physical routing or working role changes.
+D. With Sam explicitly coordinating one phone session, agree a nonpersistent
+   boot/recovery method first. Preserve the backed-up/erased-boot fastboot state;
+   unlocked does not establish fuse state or permission to flash anything.
+   Test in increasing-risk stages:
+   1) boost disabled: no cable -> powered B cable -> unplug. Log ID, real input
+      sensor, controller state and PHY session-valid; prove gadget attach/detach.
+   2) only after electrical safety review: isolated/current-limited setup, no
+      externally powered VBUS tied to boost. Measure voltage, current, rise and
+      fall/discharge; start with a small known safe load. Command-bit readback
+      alone is insufficient. Do not begin with a powered hub or a hard short.
+   3) after stage2, use a separate experimental OTG DT with the real regulator
+      and detector for low-power host enumeration/transfers, unplug/return to B
+      device mode, repeated cycles, initial-cable state, suspend/resume and
+      regulator-off on teardown. Record ID, VBUS source/sense, extcon, PHY,
+      controller role, USB logs and load together. Test faults first offline;
+      any physical protection test needs its own safe agreed fixture.
+   Finalize the follow-up OTG DTS only after that evidence, not merely after
+   a successful role request. Keep the bounded first-boot series separate.
+
+REPORTED HARDWARE CONTEXT / LIMITS
+
+Sam's supplied earlier evidence: Xiaomi Mi 4i/ferrari ran LineageOS15.0/Android8,
+kernel3.10.107-perf-g6bf677f; selected DT model MSM8939 SMB1360 MTP, board-id<8 0>,
+msm-ids<239 0 241 0 263 0>; SMB1360 bound QUP4 I2C0x14; actual DT GPIO110 ID,
+OTG mode3 and SMB1360 VBUS supply. This session did not reacquire that evidence.
+The vendor release is not proved identical to that running kernel. The parent
+backed up boot/recovery/aboot/abootbak and erased only boot with permission;
+normal reboot returns to unlocked stock fastboot. No phone state was altered.
+No claim is made of measured 5V, current capability, PMIC USBIN wiring, safe
+charger/boost isolation, full OTG protocol compliance, or working role changes.
