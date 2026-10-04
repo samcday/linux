@@ -547,3 +547,21 @@ gpiochip0: 122 GPIOs, parent: platform/1000000.pinctrl, 1000000.pinctrl:
 These numbers are chip-local TLMM offsets, not inferred legacy global GPIO numbers. The low readings on input-configured pins are input state, not separately observed output latches. The QUP adapter appears as i2c-0; unbound DT client0-004a is named maxtouch and maps to i2c@78b9000/touchscreen@4a. No bus access was made.
 
 Raw capture SHA256b6d249407db6414e66a71e203b0ab02740bba69984c6cdb03268f8f5053729b2. No private path or device serial is included here. The proposed inherited-power diagnostic required both enables already configured output-high; that precondition was NOT met. This does not establish rail voltages, parentage, analog power or physical harm from another sequence. Touch remains untested/held.
+
+Targeted prior-art survey corrections, 2026-10-04
+
+This is an addendum to the source inventory, not new v1 scope. The supplied broad lore searches were not repeated. Retain the bounded conclusion: no Ferrari board submission was found by that survey, not a claim of exhaustive absence for all time.
+
+The surveyed samcday/linux main987685ebda993e7a7c00842c3df48e7c3ee2f656 and our base6addb4f385570ebc11c4eb499a4f1c149f313e84 both have Makefile7.3.0-rc5, not rc6.
+
+Historical SUNGOLDSV/msm8916-mainline-linux branch v5.9-rc1-ferrari resolves to49ac62140705af0ecf08f5138015e22bb25b3a28. Its506-line arch/arm64/boot/dts/qcom/msm8939-xiaomi-ferrari.dts uses the obsolete no-PSCI include. Touch lines110-132 use atmel,mxt-ts-336t and power GPIO9/78, consumed by a5857-line custom driver added in explicitly NON-UPSTREAMABLE commit6280fdb9750b1dc40dd4d769118d8ba71cbb0a0d. Driver5540-5567 drives the enables high. This is wiring/sequencing prior art, not evidence for generic-driver electrical modelling or current stock-driver success.
+
+Historical panel lines427-445 declare Sharp RSP61322/reset25/L17 supply, but the custom panel driver has no regulator/power-supply consumer; prepare133-152 only resets and sends DSI. No LM3533 node/backlight reference is present. The supply declaration is not proof of implemented sequencing. Panel commits e6f0c6705816efba8a9109d07e7c2325ed005512 and750646285cbcc00e5ac4bddaaad7440a86acfbc1 remain reference-only.
+
+Historical SMB1360 support came from custom WIP driver commits92b13bbcb538086f0d6c9a0d425fc27086844c24 andfb88634c4aa8ee8eae1240d937914c8df88069c2. It is not stock7.3 support. Historical radio DTS462-467 selects WCN3680; its SoC compatible is qcom,pronto-v2-pil while added PD-specific driver data requires qcom,pronto-v2-pd-pil. The snapshot therefore is not a verified modern radio recipe or RF-chip identification.
+
+LM3533 accepted cross-subsystem branch: lee/mfd refs/heads/ib-mfd-backlight-iio-leds-7.4 ->0077e5ed836a01a0c82f23b91afdd38e42ace8b8. Immutable TAG is ib-mfd-backlight-iio-leds-v7.4 (with v), tag object8e9a67350499a24bbeb9f331286edb6a89ab8f8b, peeled to the same commit. Applied notice https://lore.kernel.org/all/178904903999.1172658.13303214372114400299.b4-ty@b4/ and pull notice https://lore.kernel.org/all/20260910162841.GL1051768@google.com/ contain13 commits. No patch14 message was found in the fetched v6 thread.
+
+At0077e5ed, the core implements OF children, enable-gpios, vin-supply and boost properties; backlight consumes brightness/current/PWM/linear-mode properties. But led-sources is documented in schemas/examples and read by NONE of core/backlight/LED drivers. Output routing remains inherited register state/defaults or sysfs, not that DT property. ALS needs ti,pwm-mode or ti,resistor-ohms1575..200000, not compatible alone. At lee/leds for-leds-next05b4738b0078f7d6f154f68068a11c8a0635e9df the entire OF conversion is absent, and our6add base still requires platform data. Acceptance in an immutable branch is not availability in our base. Native LM3533/panel work remains a follow-up, not a new dependency for the functioning firmware-framebuffer path.
+
+Pinned raw/HTML source bases: https://github.com/SUNGOLDSV/msm8916-mainline-linux/tree/49ac62140705af0ecf08f5138015e22bb25b3a28 and https://git.kernel.org/pub/scm/linux/kernel/git/lee/mfd.git/tree/?id=0077e5ed836a01a0c82f23b91afdd38e42ace8b8 . This read-only investigation made no source/ref/device changes.
