@@ -1,0 +1,81 @@
+# Ferrari unofficial LineageOS source attribution
+Evidence ID: ferrari-sources-2026-10-04-rom
+Subject: 6bf677fd534bae9b720a65c18b6096d2a552e71c
+Verified repository: https://github.com/shrukul/android_kernel_xiaomi_ferrari.git
+Advertised ref: ferrari-dev; verified 2026-10-04 UTC by ls-remote, repository-
+scoped GitHub commit lookup and exact-SHA fetch into the attached linux repo.
+Tree: 6318954b511732cef404b68d301c032810f20455.
+Committer date: 2017-09-05T12:35:27Z.
+
+Result: the earlier live report 3.10.107-perf-g6bf677f has a strong, corroborated
+public source match. It is no longer an unresolved short hash. It is still NOT
+an attested binary-to-source match, exact build manifest, toolchain identification
+or proof of an unmodified build.
+
+Independent corroboration:
+- Makefile:1-4 is 3.10.107.
+- arch/arm64/configs/ferrari_defconfig:1 is CONFIG_LOCALVERSION="-perf";
+  line458 enables CONFIG_MACH_XIAOMI_FERRARI.
+- scripts/setlocalversion implements the Git-derived -g suffix.
+- Shrukul's public AndroidFileHost page
+  https://androidfilehost.com/?fid=962021903579489168 identifies
+  lineage-15.0-20171031-UNOFFICIAL-ferrari.zip, Mi 4i, uploader shrukul,
+  426.9MB, uploaded Oct31 2017 03:30PM (timezone unspecified).
+  The filename-to-ID anchor was checked in release folder
+  https://androidfilehost.com/?w=files&flid=214784 .
+  Metadata was read; the ZIP was not downloaded or inspected.
+- https://xdaforums.com/t/rom-unofficial-mi-4i-8-0-lineageos-15-0.3671815/
+  was corroborated through search-index results; direct page access returned403.
+  Treat that portion as indexed secondary evidence, not a directly read source.
+
+Later device-build source, read remotely, not imported as a kernel:
+https://github.com/shrukul/android_device_xiaomi_ferrari
+ferrari-dev at ee30e0ddce559b9ad90ce87a9dca055317a9b5ff.
+board/kernel.mk selects kernel/xiaomi/ferrari and ferrari_defconfig.
+lineage.mk:35-38 explicitly retains a Xiaomi Android5.0.2 fingerprint.
+lineage.mk is Apache-2.0. This device-tree tip POSTDATES the ROM; its exact use
+in the October build is unverified. The running Android8/LineageOS15 identity
+comes from prior live evidence, not from that retained Android5 fingerprint.
+The kernel branch named lineage-15.0 instead points at
+058adc3b7b8cad7bcf989c09eb441584ccf6b8f7; a plausible branch name is not a pin.
+
+Kernel license: COPYING specifies GPLv2 with per-file exceptions. Board DTS
+headers are GPL-2.0-only; atmel_mxt_ts_336t.c retains GPLv2-or-later wording.
+
+## Search entry points at this commit
+
+- arch/arm/boot/dts/qcom/msm8939-mtp-smb1360-ferrari.dts
+- arch/arm/boot/dts/qcom/xiaomi/ferrari/msm8939-ferrari.dtsi
+- arch/arm/boot/dts/qcom/xiaomi/ferrari/msm8939-ferrari-touchscreen.dtsi
+- arch/arm/boot/dts/qcom/xiaomi/ferrari/msm8939-ferrari-sensors.dtsi
+- arch/arm/boot/dts/qcom/xiaomi/ferrari/msm8939-ferrari-ramoops.dtsi
+- arch/arm64/configs/ferrari_defconfig
+- drivers/input/touchscreen/atmel_mxt_ts_336t.c
+- drivers/power/smb1360-charger-fg.c
+- drivers/regulator/onsemi-ncp6335d.c
+- drivers/iio/imu/st_sensor_hub/st_sensor_hub.c
+- drivers/iio/light/cm36686.c
+- drivers/mfd/lm3533-core.c
+
+The entry DTS keeps model MSM8939 SMB1360 MTP and board-id8/0, then includes a
+Ferrari-specific directory. Follow the include graph and overrides; do not
+read the generic parent alone as final board configuration.
+
+Source comparison with Xiaomi release da2c4ce514441515b5a9e3304aec67f08d699829:
+  git diff --stat da2c4ce514441515b5a9e3304aec67f08d699829 6bf677fd534bae9b720a65c18b6096d2a552e71c -- drivers/power/smb1360-charger-fg.c
+This reports 1589 changed lines. Several board files and touch/LM3533 code also
+differ. Changed-line count does not establish which OTG semantics changed;
+exact initialization, boost, IRQ/fault, presence and charger-arbitration paths
+need a focused comparison before applying the vendor-release audit to this tree.
+
+Ramoops source: xiaomi/ferrari/msm8939-ferrari-ramoops.dtsi describes the
+0xffe00000/2MiB region also reported in the parent's captured live DT/log.
+That corroborates the software carveout, not retention over a new mainline
+reset path. See parent's hardware/preparation note on
+4fecfe9561a33db1320482d5fffb03ce1d8dd7ec; no new hardware read was performed.
+
+Remaining attribution gate: a sanitized build manifest/log or separately
+authorized artifact comparison would be needed to establish exact binary
+provenance. No private image, identifying path or raw capture is needed to
+fetch/search this public source. Master inventory/recipes are in
+refs/notes/evidence on linux 4fecfe9561a33db1320482d5fffb03ce1d8dd7ec.
