@@ -20,3 +20,17 @@ Raw boot images, live DT tar and Android dmesg remain private, ignored local fil
 With explicit permission: adb reboot bootloader; fastboot oem device-info returned Device unlocked:true. getvar product returns MSM8916 (not silicon identification); secure/unlocked/slot/partition-size getvars return empty, so those replies prove nothing about fuse security. Fastboot erase boot succeeded; fastboot reboot followed by getvar product and oem device-info succeeded again, proving this device now falls back to fastboot with boot erased. Recovery, bootloaders, system and userdata were not erased or flashed. No mainline or pocketboot image has yet been booted.
 
 Next runtime gates: use the proven stock-fastboot image envelope; verify USB gadget enumeration and diagnostics; verify changing pocketboot pixels, not a retained splash; check display survives late clock/regulator cleanup without masking options. Wi-Fi/BT require separate firmware/NV and RF identity validation; enabling a node is not a working-radio claim. OTG is a separate investigation.
+
+Persistent-log addendum, 2026-10-04 UTC
+
+Read ONLY the already-captured Sam-unit device-tree.tar and android-dmesg.txt; no new device interaction. This supplies an evidence-based ramoops candidate, not proof of retention across our mainline/reset path.
+
+Live DT /memory/ramoops_mem_region/reg = <0 0xffe00000 0 0x200000>, label ramoops_mem, linux,reserve-region/linux,reserve-contiguous-region/linux,remove-completely. /soc/ramoops is compatible=ramoops, status=okay, linux,contiguous-region points to that carveout. Vendor properties: android,ramoops-buffer-start=0xffe00000; buffer-size=0x200000; console-size=0x50000; record-size=0; annotate-size=0x1000; dump-oops=1.
+
+Relevant captured downstream boot log:
+[0.000000] cma: Found ramoops_mem_region, memory base 0x00000000ffe00000, size 2 MiB
+[0.000000] cma: CMA: reserved 2 MiB at 0x00000000ffe00000 for ramoops_mem
+[0.223682] console [pstore-1] enabled
+[0.223701] ramoops: attached 0x200000@0xffe00000, ecc: 0/0
+
+The captured command line also contains ramoops_memreserve=2M and bl_version=1.0; the latter is only the reported string, not a full bootloader build identifier. Do not copy vendor android,* properties into an upstream DT binding; translate using current ramoops binding and verify buffer sizing/layout. Next proof is a controlled marker/log followed by the intended warm-reset/stock-fastboot route and recovery of that marker from the next kernel. HYP/EL2/EDL modifications are not a prerequisite to this test.
