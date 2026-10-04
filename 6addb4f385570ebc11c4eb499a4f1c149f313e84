@@ -197,3 +197,51 @@ backed up boot/recovery/aboot/abootbak and erased only boot with permission;
 normal reboot returns to unlocked stock fastboot. No phone state was altered.
 No claim is made of measured 5V, current capability, PMIC USBIN wiring, safe
 charger/boost isolation, full OTG protocol compliance, or working role changes.
+
+# Ferrari source index: upstream capabilities and limits
+Evidence ID: ferrari-sources-2026-10-04-mainline
+Subject: 6addb4f385570ebc11c4eb499a4f1c149f313e84
+Canonical repository: https://github.com/torvalds/linux.git
+Verified advertised master and exact-SHA fetch, 2026-10-04 UTC.
+
+This is the upstream source baseline, not evidence that a Ferrari booted it.
+Master inventory and source pins: evidence note on
+4fecfe9561a33db1320482d5fffb03ce1d8dd7ec.
+Software-only method: git show/grep and path comparison; no builds/hardware.
+
+CPU / boot: arch/arm64/boot/dts/qcom/msm8939.dtsi:41 onward defines eight
+spin-table CPUs with zero placeholder cpu-release-addr values and a second-stage
+shim requirement. MPIDRs are0x100..103 and0..3; boot CPU is0x100.
+Documentation/arch/arm64/booting.rst and arch/arm64/kernel/smp_spin_table.c
+define the actual handoff. This is not equivalent to downstream
+qcom,arm-cortex-acc. Pocketboot source 79cdf784c476be70f7f58cd73b37dfaeb0bf1c6f
+has only the four-core MSM8916 v1 contract; its separate repository evidence
+note pins qhypstub and both relevant lk2nd branches. EL2 is not a prerequisite
+for this source inventory, and Android unlocking does not prove firmware fuses.
+
+Already-supported peripheral candidates, not automatically valid board nodes:
+- drivers/input/keyboard/gpio_keys.c: volume-up GPIO107 candidate from vendor DT.
+- drivers/input/misc/pm8941-pwrkey.c and pm8916.dtsi: PMIC RESIN volume-down.
+- drivers/iio/light/vcnl4000.c:2003,2034 supports CM36686.
+  Documentation/devicetree/bindings/iio/light/vishay,vcnl4000.yaml:29-31 uses
+  "capella,cm36686", "vishay,vcnl4040" (not vendor "cm,cm36686").
+  Lines36-45 describe vdd/vio/vled; physical supply routing is unresolved.
+- drivers/input/touchscreen/atmel_mxt_ts.c exists, but the present draft omits
+  the three historical maXTouch patches. Driver existence does not establish
+  the board's supply chain or a successful input test.
+- Existing PM8916, QUP I2C, pinctrl and SDHCI descriptions/drivers are reuse
+  points; use msm8939.dtsi and msm8939-pm8916.dtsi as sources of truth.
+
+Support gaps verified at this revision:
+  git grep -n -i -E 'smb1360|ncp6335d|lsm6db0' 6addb4f385570ebc11c4eb499a4f1c149f313e84 -- drivers Documentation/devicetree/bindings
+returned no matches. This is scoped to the searched revision/paths.
+drivers/mfd/lm3533-core.c uses platform data and has no OF match/property parser;
+an existing LM3533 driver does not imply a ready-to-use mainline DT binding.
+
+USB infrastructure/remaining power and sensing gates are indexed by the earlier
+OTG audit on this commit; its exact downstream operations apply to Xiaomi's
+da2c4ce source only. ROM candidate6bf677fd534bae9b720a65c18b6096d2a552e71c is
+now pinned separately and must not be silently substituted.
+
+Licensing: COPYING plus per-file SPDX. Referenced CPU DTS is GPL-2.0-only;
+the CM36686 binding permits GPL-2.0 or BSD-2-Clause.
