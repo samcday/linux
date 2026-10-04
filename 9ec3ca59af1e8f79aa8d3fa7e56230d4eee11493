@@ -1,0 +1,6 @@
+Ferrari source provenance, verified 2026-10-04 UTC
+Subject: 9ec3ca59af1e8f79aa8d3fa7e56230d4eee11493
+Local preserved derivative of original ferrari/lkml45add32603ee4aa28979ad6ec70c10b14af4ac29. No verified public source URL: exact patch/raw requests at pem120/linux and samcday/linux returned404. Not proof of global absence. Range-diff shows stdout-path="framebuffer0" changed to stdout-path=&framebuffer0; not a byte-identical rebase. Local ref preserves the actual object; notes alone do not transfer annotated source commits.
+
+Key path: arch/arm64/boot/dts/qcom/msm8939-xiaomi-ferrari.dts (GPL-2.0-only).
+These are source/history observations, not hardware measurements or working-mainline claims. No builds or phone operations were performed. Full inventory, classifications and fetch/search recipes are in refs/notes/evidence on linux 4fecfe9561a33db1320482d5fffb03ce1d8dd7ec; chronology on 5d8f10ccdc03ce4c0d0697e899acad3ff667dea8. Each source commit is pinned under refs/sources/ferrari in the attached linux repository.
