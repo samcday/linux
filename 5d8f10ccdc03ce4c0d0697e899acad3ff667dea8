@@ -1,0 +1,38 @@
+# Ferrari historical bring-up provenance
+Evidence ID: ferrari-sources-2026-10-04-history
+Subject: 5d8f10ccdc03ce4c0d0697e899acad3ff667dea8
+Verified repository: https://github.com/pem120/linux.git
+Historical ref: msm8939/mi4i. Public commit API and exact-SHA fetch succeeded
+2026-10-04 UTC. The moving ref now advertises
+3a9edfebc527564f12846054a75e386a2c31b471; it is not a substitute for this pin.
+
+Authority: experimental bring-up by pem120, not vendor wiring documentation.
+Main entry: arch/arm64/boot/dts/qcom/msm8939-xiaomi-ferrari.dts, GPL-2.0-only.
+COPYING/per-file SPDX govern other code; vendor atmel_mxt_ts_336t.c retains
+GPL-2.0-or-later. Related paths: drivers/i2c/busses/i2c-qup.c,
+drivers/leds/leds-lm3533.c, drivers/video/backlight/lm3533_bl.c.
+
+Claim chronology, all confirmed ancestors of this historical tip:
+- 66f5c41cd5cc0383219724ba3dc0d074e31f9692, Add Mi4i: framebuffer layout and
+  WCN3660B choices remain uncorroborated historical descriptions.
+- 6d6e6010317dd5990771b408da8234862258501b: GPIO9-controlled reg_ts_vdda
+  modeled as a fixed1.8V supply.
+- 464923b94bbb6b01fbd7c93dd6fe52337b1aee53: changes its min/max to3.3V.
+- This subject5d8f removes both fixed GPIO9/GPIO78 regulator nodes, restoring
+  atmel,power-ldo-gpio9, atmel,power-ts-gpio78 and pm8916_l6 vdd-supply.
+These are changes to alleged switched-rail models, not GPIO pad measurements.
+Vendor driver ordering does not corroborate voltages, cascade or pin mapping.
+
+Original small series: public pem120/linux ferrari/lkml
+45add32603ee4aa28979ad6ec70c10b14af4ac29 (ls-remote and public patch verified).
+Local derivative9ec3ca59af1e8f79aa8d3fa7e56230d4eee11493 has no verified
+public URL in pem120/linux or samcday/linux. Range-diff also shows a source
+change from stdout-path="framebuffer0" to stdout-path=&framebuffer0, so do not
+describe it as a byte-identical rebase. Preserve the local object explicitly.
+Current public board draft4fecfe9561a33db1320482d5fffb03ce1d8dd7ec omits the
+three maXTouch patches; nothing in this note endorses draft electrical claims.
+
+Queries: git show <full-sha> -- arch/arm64/boot/dts/qcom/msm8939-xiaomi-ferrari.dts;
+git log <historical-tip> -- that path; git merge-base --is-ancestor <claim> <tip>.
+Master source inventory/recipes: evidence note on current board draft4fec.
+No source edits, builds, measurements or hardware interactions were performed.
