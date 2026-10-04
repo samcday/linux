@@ -1,0 +1,216 @@
+Ferrari USB OTG source investigation — Xiaomi SMB1360 implementation
+Evidence ID: ferrari-otg-source-audit-2026-10-04-vendor
+Date: 2026-10-04 UTC
+Repository: linux
+Subject commit: da2c4ce514441515b5a9e3304aec67f08d699829
+Related evidence notes in this repository, refs/notes/evidence:
+- 6addb4f385570ebc11c4eb499a4f1c149f313e84: mainline reuse, gaps and test plan
+- 4fecfe9561a33db1320482d5fffb03ce1d8dd7ec: initial board-only series boundary
+Local only; not published.
+
+CONCLUSIONS (source analysis, not phone/electrical results)
+
+The selected vendor DTS describes OTG ID on TLMM110, SMB1360 at QUP4 I2C0x14,
+and that charger as the VBUS regulator. Its OTG regulator changes CMD_CHG_REG
+0x42 bit0, preserving charging-enable bit1. Its input-presence path is inverse
+USBIN undervoltage status at0x54 bit0. These are precise missing mainline device
+operations, not evidence that the controller lacks dual-role capability.
+
+A new SMB1360-specific driver/binding must own the device coherently: required
+initialization and shared-register synchronization, regulator state/control,
+input presence if independent PM8916 sensing is not proved, and fault handling.
+No invented PMIC VBUS rail or optional FET route is justified. Do not port the
+whole charger/fuel-gauge policy merely to get boost, or depend silently on
+bootloader configuration. First determine the documented minimum safe setup.
+
+Source proves neither measured5V at the connector nor safe charging/boost
+arbitration. The selected1500mA threshold is BATTERY current, not USB output
+current. The code does not interpret UVLO encoding2 in millivolts. OTG startup
+advances after a timer, not proved voltage measurement. These remain test and
+hardware-documentation requirements before enabling output.
+
+METHOD / PROVENANCE
+
+All references below are paths/line numbers AT THE SUBJECT COMMIT, not current
+mainline. Inspected with git show <SHA>:<path>, git grep -n <SHA>, and numbered
+source windows. git cat-file -t subject returned commit. A full git ls-tree
+instruction-file scan found no AGENT.md/AGENTS.md at this revision. Parent
+checkout stayed on main987685ebda993e7a7c00842c3df48e7c3ee2f656. No checkout, source
+edits, build, phone access, ADB/fastboot, USB transaction, I2C scan or hardware
+measurement was performed. Only these explicitly requested local notes persist.
+
+Reported context from Sam, not independently acquired here: phone ran
+LineageOS15.0/Android8, kernel3.10.107-perf-g6bf677f, selected live DT Qualcomm
+Technologies, Inc. MSM8939 SMB1360 MTP, board-id<8 0>, msm-ids<239 0 241 0 263 0>,
+actual SMB1360 bound QUP4 I2C0x14. The abbreviated g6bf677f source object was not
+available locally; equivalence with this Xiaomi release is NOT established.
+
+Source key:
+ C = drivers/power/smb1360-charger-fg.c
+ U = drivers/usb/phy/phy-msm-usb.c
+ D = arch/arm/boot/dts/qcom/msm8939-mtp-smb1360.dts
+ L = drivers/power/qpnp-linear-charger.c
+ Other DT names below are in arch/arm/boot/dts/qcom/.
+
+BOARD WIRING / DOWNSTREAM CONSUMER
+
+D:20-29 selects model MSM8939 SMB1360 MTP, board-id<8 0>, i2c_4 charger@14.
+msm8939.dtsi:24-27 supplies IDs239/241/263. msm8939-common.dtsi:960-977 defines
+QUP4 at0x078b8000. D:30-33 gives STAT IRQ GPIO62, interrupts<62 8>, and smb_int
+pinctrl. msm8939-pinctrl.dtsi:328-336 gives GPIO62 2mA/pull-up.
+D:67-68: regulator-name="smb1360_otg_vreg"; qcom,otg-batt-curr-limit=<1500>.
+D:83-88: qcom,hsusb-otg-mode=<3>, qcom,usbid-gpio=<&msm_gpio 110 0>, and
+vbus_otg-supply=<&smb1360_otg_supply>. msm8939-pinctrl.dtsi:339-347 gives GPIO110
+8mA/pull-up. This matches Sam's reported selected live DT rather than an
+arbitrary other MSM8939 board variant.
+
+Mode3 is USB_OTG; inherited control2 is OTG_PMIC_CONTROL
+(include/linux/usb/msm_hsusb.h:67-89; msm8939-common.dtsi:795-796). That control
+name does not mean this board's ID signal comes from a PMIC: U:5253-5285 requests
+the SoC GPIO and both-edge IRQs, U:3794-3846 waits5ms and reads it. High sets ID;
+low clears ID and sets A_BUS_REQ. Initial ID uses the same GPIO (U:2860-2871).
+
+C:2904-2941 registers a voltage regulator on the CHARGER NODE ITSELF, with only
+enable, disable, is_enabled operations and status-change permission. There is
+no separate regulator child, parent-supply or output voltage/current constraint
+here. U:1986-1991 gets "vbus_otg" for host; U:1927-1969 controls it. Mainline's
+corresponding generic consumer uses "vbus" / vbus-supply, not this vendor name.
+
+REGULATOR OPERATIONS / WHAT THEY DO NOT PROVE
+
+Definitions C:156-158:
+  CMD_CHG_REG=0x42; CMD_CHG_EN=BIT(1); CMD_OTG_EN_BIT=BIT(0).
+Enable C:2843-2867: masked write0x42, mask0x01, value0x01.
+Disable C:2070-2091,2870-2880: masked write0x42, mask0x01, value0x00.
+Is-enabled C:2883-2895: read0x42; return bit0 state; propagate read failure.
+C:570-595 serializes RMW with read_write_lock, preserving charger bit1.
+C:427-458 uses SMBus byte-data transfers.
+
+These callbacks contain NO voltage-setting operation, measured-voltage/status
+readback, power-good poll, settling delay, battery/input-presence check, explicit
+charging disable or input-isolation sequence. Command readback != valid output.
+
+Optional qcom,otg-fet-present path (C:2848-2864,2074-2088) sets OTG bit first,
+then FET GPIO low, then current-gain correction factor3; disable clears OTG first,
+sets FET high and restores gain. GPIO request is open-drain initially high
+(C:3623-3639). Selected D has neither OTG-FET property. Do not invent this route.
+
+INITIALIZATION / LIMITS
+
+C:4358-4372 registers regulator AFTER smb1360_hw_init, including charger and FG
+configuration. Relevant sequence, not a recipe to write blindly:
+- C:728-738,3594-3601: volatile-write unlock CMD_I2C_REG0x40 bit6.
+- C:3485-3524,3603-3607: command shutdown handling via SHDN_CTRL_REG0x1a bits1
+  (command control),2(polarity), and CMD_IL_REG0x41 bit7, respecting polarity.
+- C:3611-3639: profile/gain and optional FET setup.
+- C:3642-3675: charger control0x07 mask0xe0 value0, input control0x05 mask0xe0
+  value0x60;0x06 AICL bit0 +20ms input-UV filter bit7 (0x81).
+- C:3678-3919: battery charging/JEITA settings, UVLO, IRQs, OTG battery-current
+  threshold, FG setup, charging state. Not all of this is proven necessary for
+  boost, and copying it would overwrite unrelated battery policy.
+
+D:48,70 declares rsense-10mhom and otp-rslow-cfg; C:4105-4113 disables both for
+hardware-major<3. Board-id<8 0> does not establish that hardware-major value.
+
+Battery-side OTG current threshold:
+- CFG_BATT_CHG_REG0x00, mask bits4:3=0x18, shift3 (C:41-48).
+- Table350,550,950,1500mA (C:279), codes0,1,2,3.
+- C:3892-3906 rounds up, saturates at1500; selected1500 gives masked0x18.
+- Documentation/devicetree/bindings/power/smb1360-charger-fg.txt:104-106 explicitly
+  describes current drawn FROM THE BATTERY in OTG mode, not USB output current.
+- Failure writing the threshold is logged, then rc overwritten by the FG call
+  (C:3902-3910). Successful probe does not establish correct threshold programming.
+
+UVLO: OTG_UVLO_REG0x12, bits4:2 mask0x1c, code2 shifted2 => value0x08
+(C:116-119,3812-3819). Source gives no mV mapping.
+D:53 float-voltage-mv4400 is BATTERY CHARGING voltage via0x15 (C:770-787), not VBUS.
+No output voltage operation/readback exists in this regulator.
+U:731-739: A_WAIT_VRISE timer says "TODO: use vbus_vld interrupt", then sets
+A_VBUS_VLD. Source host progression therefore is not measured5V proof.
+
+STATUS / FAULTS / INTERRUPTS
+
+IRQ_F_REG0x55 (C:195,2227-2243,2298-2356): two-bit-per-event layout:
+  power_ok: RTbit0/latchbit1
+  otg_fail: RTbit4/latchbit5
+  otg_oc:   RTbit6/latchbit7
+C:2094-2115 handles fail/OC by unconditionally clearing OTG0x42 bit0, even on
+falling status transitions. No retry, regulator fault notification, or direct
+USB FSM notification; IRQ handling later notifies battery power_supply_changed.
+USB vbus_is_on cache/regulator use count can thus diverge from hardware after
+fault shutdown. Autonomous cutoff timing and exact OTG fault IRQ enables are
+not established by this source. A port must address fault-state reconciliation,
+not silently preserve the vendor's cached-success behavior.
+
+D:51 selects stat-pulsed-irq. C:3822-3838 programs STAT0x09 mask0x1b value0x08.
+C:4395-4421 requests IRQF_TRIGGER_RISING|IRQF_ONESHOT in BOTH hardware-major
+branches, despite DT interrupts<62 8> (level-low). Resolve actual waveform and
+intended interrupt mode, rather than blindly transplanting inconsistent flags.
+Normal IRQ masks C:95-114,3840-3875:0x0f=0xc5,0x10=0xd7,0x11=0x1f. No named
+OTG fault-enable bits in these masks establish further semantics. Suspend masks
+are0xc4,0x07,0x0b (input UV retained); resume restores saved masks and services
+deferred IRQs (C:4573-4653). Shutdown disables OTG (C:4657-4670).
+
+INPUT PRESENCE / CHARGER INTERACTION
+
+IRQ_E_REG0x54 bit0=USBIN_UV; bit1=latched UV event.
+C:3143-3149 sets initial usb_present=!(status & BIT(0)) and calls
+power_supply_set_present(usb). C:1776-1794 updates on UV interrupts.
+U:4183-4187,3741-3791 maps POWER_SUPPLY_PROP_PRESENT to B_SESS_VLD. It suppresses
+subsequent state-machine work with ID grounded (U:3756-3764), and clears B-session
+validity on entering host (U:3336-3338). This is input-presence logic, not output
+voltage measurement. A new provider must cover initial state, changes, self-VBUS
+and discharge behavior, not substitute charging activity for input presence.
+
+U:1947-1968 says notify host mode before enabling regulator; disable regulator
+before notifying device mode. Comment claims charger should stop drawing input,
+but the nonlegacy notifier only sets motg->host_mode and power_supply_changed
+(U:1649-1675). SMB1360 callback reads CURRENT_MAX+ONLINE, not SCOPE
+(C:1461-1504). Charging0x42 bit1 is independent (C:809-855), and OTG preserves it.
+For requested input current<=2mA, C:1174-1186 explicitly says USB suspend is not
+supported and selects minimum USB current instead. This DT omits min-icl-100ma,
+so fallback is USB500,0x41 bits1:0=0 (C:1108-1134).
+Inference, NOT proof: chip hardware likely supplies mode arbitration. Source
+alone does not establish reverse isolation/charging interlock guarantees. Do not
+assume a notification comment is an electrical safety mechanism, and do not
+invent an unvalidated charging-disable sequence to fill that gap.
+
+PM8916 CANDIDATES / NON-EVIDENCE
+
+L:603-618 can sample USB RT status0x1310 bit1; msm-pm8916.dtsi:250-257 defines
+its USBIN IRQ<0 0x13 1>. But selected D:74-77 sets use-external-charger;
+L:2608-2636,2696-2699 disables LBC and returns-ENODEV before USB initialization,
+initial status or IRQ registration. The disabling helper L:2293-2308 writes:
+  charger0x1049 mask0x81 value1
+  BATIF0x1249 mask0xf0 value0
+  BPD0x1248 value0x09
+It does not touch USB peripheral0x1300. This proves neither unavailable PMIC
+sensing nor connected/working sensing. Mainline has a separate PM8916 USBIN
+extcon driver: see baseline companion note. Do not enable its LBC charger.
+
+msm8939-common.dtsi:1693-1703 declares VADC channel0 usb_in, but USB voltage
+getter U:4117-4134 asks for "usbin" VADC. drivers/hwmon/qpnp-adc-voltage.c:
+1430-1445 requires qcom,usbin-vadc and returns-ENODEV if absent. No8939 DT has
+that phandle; it appears only on other8226/8974 variants. Thus this selected
+release DT does not provide that getter a VADC handle. SMB1360's own VADC phandle
+is used for BATTERY ID (C:3930-3938,3974-3979), not VBUS. Neither declaration nor
+getter proves actual connector-VBUS measurement or wiring.
+
+NEXT EVIDENCE GATE
+
+See baseline note for staged implementation/test plan. Before host enablement:
+prove minimal safe register setup, actual output specification, UVLO units,
+input/boost isolation, fault delivery, sense-resistor/silicon revision effects,
+and chosen physical input sensing. Then add narrow device-specific support,
+review/test offline, and coordinate ONE serial phone session with Sam. Preserve
+its backed-up/erased-boot fastboot state. No flash/erase/boot action is authorized
+here; unlocked is not proof of secure-boot fuse state. No claimed working OTG.
+
+PUBLIC SOURCE CITATION CHECK
+
+Downloaded the public MiCode blob (HTTP GET only, no upload):
+https://raw.githubusercontent.com/MiCode/Xiaomi_Kernel_OpenSource/da2c4ce514441515b5a9e3304aec67f08d699829/drivers/power/smb1360-charger-fg.c
+Compared it byte-for-byte against git show subject:drivers/power/smb1360-charger-fg.c.
+Result: identical. SHA256:
+949c9a23c161ad096711aca782d23df6353f834625b9df69486503576a3e99f2
+This permits stable public line citations for the historical vendor source.

@@ -1,0 +1,47 @@
+Ferrari initial board series — USB OTG investigation boundary
+Evidence ID: ferrari-otg-source-audit-2026-10-04-board
+Date: 2026-10-04 UTC
+Repository: linux
+Subject commit: 4fecfe9561a33db1320482d5fffb03ce1d8dd7ec
+Baseline: 6addb4f385570ebc11c4eb499a4f1c149f313e84
+Vendor reference: da2c4ce514441515b5a9e3304aec67f08d699829
+Detailed companion notes: refs/notes/evidence on the baseline and vendor commits.
+
+RESULT
+Keep this bounded board-only framebuffer/USB-peripheral series unchanged.
+Peripheral-only is a deliberate first-boot restriction, not a hardware OTG
+limitation. OTG needs a separate SMB1360 power/sensing follow-up and coordinated
+phone validation; merely changing dr_mode would be premature.
+
+SOURCE EVIDENCE
+- git log baseline..subject shows exactly:
+  a35921d62c732 dt-bindings: arm: qcom: Add Xiaomi Mi 4i
+  4fecfe9561a33 arm64: dts: qcom: msm8939-xiaomi-ferrari: Add initial device tree
+- git diff --stat baseline..subject: qcom.yaml (1 line), DTS Makefile (1 line),
+  msm8939-xiaomi-ferrari.dts (179 lines); no maXTouch driver patches.
+- git show subject:arch/arm64/boot/dts/qcom/msm8939-xiaomi-ferrari.dts:
+  lines84-89: linux,extcon-usb-gpio, ID TLMM110 active-high; no VBUS GPIO.
+  lines128-132: controller extcon=<&usb_id>,<&usb_id>, dr_mode="peripheral".
+  lines134-137: PHY extcon=<&usb_id>.
+  lines173-178: ID pin8mA/pull-up.
+- At baseline, drivers/extcon/extcon-usb-gpio.c:66-82 substitutes VBUS=ID without
+  vbus-gpios. With floating ID high, both powered B cable and no cable publish
+  EXTCON_USB=true. This is not actual connector-power detection.
+- ChipIdea supports distinct extcon phandles for VBUS and ID plus vbus-supply;
+  Qualcomm PHY can consume that same real VBUS provider. Subject supplies neither
+  a mainline SMB1360 node/driver/regulator nor a proven physical VBUS detector.
+- Shared msm8939.dtsi:2176-2179 already describes OTG with ADP/HNP/SRP disabled;
+  board restriction overrides dr_mode without disproving controller capability.
+
+VALIDATION / LIMITS
+Read-only source inspection from pinned objects; no branch checkout, code edits,
+builds, ADB, fastboot, phone interaction or electrical/role tests. Current clone
+was on main987685ebda993e7a7c00842c3df48e7c3ee2f656; all relevant generic sources
+matched the pinned baseline. No project AGENT.md/AGENTS.md was found. Local notes
+are the only intended persistent write; no publication or merge was requested.
+
+Prior hardware facts are Sam's supplied context, not observations from this
+session: LineageOS15.0/Android8 kernel3.10.107-perf-g6bf677f; selected MSM8939
+SMB1360 MTP DT; GPIO110 ID; SMB1360 QUP4 address0x14. Boot/recovery/aboot/abootbak
+were backed up in the parent and only boot erased with permission. That fastboot
+state remains untouched; secure-boot fuse state remains unknown.
