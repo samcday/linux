@@ -77,3 +77,175 @@ Relevant captured downstream boot log:
 [0.223701] ramoops: attached 0x200000@0xffe00000, ecc: 0/0
 
 The captured command line also contains ramoops_memreserve=2M and bl_version=1.0; the latter is only the reported string, not a full bootloader build identifier. Do not copy vendor android,* properties into an upstream DT binding; translate using current ramoops binding and verify buffer sizing/layout. Next proof is a controlled marker/log followed by the intended warm-reset/stock-fastboot route and recovery of that marker from the next kernel. HYP/EL2/EDL modifications are not a prerequisite to this test.
+
+# Ferrari source/provenance index
+Evidence ID: ferrari-sources-2026-10-04-index
+Subject: linux 4fecfe9561a33db1320482d5fffb03ce1d8dd7ec
+Verification date: 2026-10-04 UTC
+
+This is a source index, not a working-mainline claim. No builds, phone access,
+flash operations or initial-series changes were performed in this investigation.
+Reported hardware below comes from the parent's earlier sanitized observations.
+The inventory and companion notes live in refs/notes/evidence, outside source
+trees. Kernel pins live in refs/sources/ferrari/<label>/<full-commit>; neither
+working branch nor moving remote-tracking branches are the research database.
+
+## Verified inventory
+
+URLs below are repositories, not assertions that every branch is authoritative.
+Branches describe what was advertised on the verification date; full commits
+are the content identity. A "canonical" vendor release is not necessarily the
+source of the installed aftermarket OS.
+
+| Label | Repository URL | Full commit | Ref and authority |
+| --- | --- | --- | --- |
+| upstream | https://github.com/torvalds/linux.git | 6addb4f385570ebc11c4eb499a4f1c149f313e84 | master; upstream capability/binding baseline |
+| xiaomi-vendor | https://github.com/MiCode/Xiaomi_Kernel_OpenSource.git | da2c4ce514441515b5a9e3304aec67f08d699829 | ferrari-l-oss; Xiaomi Mi 4i Android L release, kernel 3.10.49 |
+| vendor mirror | https://github.com/msm8916-mainline/linux-downstream.git | da2c4ce514441515b5a9e3304aec67f08d699829 | xiaomi-ferrari; reference mirror, identical commit, not a second independent source |
+| lineage-candidate | https://github.com/shrukul/android_kernel_xiaomi_ferrari.git | 6bf677fd534bae9b720a65c18b6096d2a552e71c | ferrari-dev; unofficial ROM author's tree, strong match for reported 3.10.107-perf-g6bf677f, not binary attestation |
+| historical-mi4i | https://github.com/pem120/linux.git | 5d8f10ccdc03ce4c0d0697e899acad3ff667dea8 | historical msm8939/mi4i; experimental bring-up, not hardware authority |
+| original-series | https://github.com/pem120/linux.git | 45add32603ee4aa28979ad6ec70c10b14af4ac29 | ferrari/lkml; original small draft including three maXTouch patches |
+| rebased-series | no verified public repository for this object | 9ec3ca59af1e8f79aa8d3fa7e56230d4eee11493 | preserved local derivative; NOT advertised as remotely fetchable |
+| board-draft | https://github.com/samcday/linux.git | 4fecfe9561a33db1320482d5fffb03ce1d8dd7ec | pocketboot/ferrari-minimal; published two-patch draft, +181/-0 across three files |
+| qhypstub | https://github.com/msm8916-mainline/qhypstub.git | fca3c513b6fb5e5b8fabae21dac1f4a5c0b51bc6 | main; official shim project, not proof of this phone's firmware state |
+| lk2nd-legacy | https://github.com/msm8916-mainline/lk2nd.git | 64d3c6c57b4b8af350eedd99cd7ce872705314e5 | legacy; peeled tag 0.16.0; relevant qhypstub loader/HVC implementation |
+| lk2nd-main | https://github.com/msm8916-mainline/lk2nd.git | 8b46487c4c76776c4f2f61468d44a74c69e6b9ea | main; current comparison, NOT interchangeable with legacy's HYP implementation |
+| pocketboot | https://github.com/samcday/pocketboot.git | 79cdf784c476be70f7f58cd73b37dfaeb0bf1c6f | main; attached testbed source, no Ferrari runtime demonstrated |
+
+Canonical Xiaomi attribution was checked against its release index, commit
+metadata and both advertised refs. All public kernel pins above were fetched
+by full SHA into this attached linux repository and checked with rev-parse.
+The historical branch now advertises 3a9edfebc527564f12846054a75e386a2c31b471;
+do not substitute that moving head for the pinned old tip.
+9ec3 returned HTTP 404 from exact patch/raw URLs at both pem120/linux and
+samcday/linux. This establishes no verified URL here, not global nonexistence.
+
+Licenses: Linux is GPL-2.0 with syscall-note exception where applicable; consult
+COPYING and per-file notices, not a blanket license assumption. Xiaomi/ROM and
+Ferrari DTS files cited here are GPL-2.0-only; the vendor maXTouch C driver says
+GPL-2.0-or-later. qhypstub is GPL-2.0-only. lk2nd legacy LICENSE says the linked
+fork is distributable under GPLv2 only; current main uses mixed MIT/BSD code,
+BSD-3-Clause lk2nd defaults and per-file exceptions. Pocketboot has no root
+LICENSE or package license declaration in the inspected Cargo manifests; its
+kernel parking patch adds GPL-2.0-only code. Do not infer a project-wide license.
+
+## Entry paths and companion evidence
+
+- Xiaomi: arch/arm/boot/dts/qcom/msm8939-mtp-smb1360.dts includes msm8939.dtsi
+  and msm8939-mtp.dtsi; follow msm8939-{common,cpu,mdss,pinctrl,regulator}.dtsi.
+  arch/arm64/configs/ferrari_debug_defconfig is the vendor release configuration.
+  Read the evidence note on da2c4ce514441515b5a9e3304aec67f08d699829 for driver
+  paths and source-vs-wiring distinctions.
+- ROM candidate: arch/arm/boot/dts/qcom/msm8939-mtp-smb1360-ferrari.dts includes
+  xiaomi/ferrari/msm8939-ferrari.dtsi. That directory separates touchscreen,
+  sensors, display, battery and ramoops descriptions. Configuration:
+  arch/arm64/configs/ferrari_defconfig. Read its own evidence note: this tree
+  differs materially from the 2015 Xiaomi release.
+- Mainline and historical drafts: arch/arm64/boot/dts/qcom/msm8939.dtsi,
+  msm8939-pm8916.dtsi, pm8916.dtsi, and (drafts only)
+  msm8939-xiaomi-ferrari.dts. Baseline note indexes existing driver support.
+- qhypstub: README.md, qhypstub.s, qhypstub.ld, COPYING.
+- lk2nd legacy: README.md, LICENSE, target/msm8916/qhypstub_loader.c,
+  platform/msm_shared/scm.c, lk2nd/smp/{cpu-boot.c,spin-table.c},
+  dts/msm8916/msm8939-mtp.dts. Current main's device entry moved to
+  lk2nd/device/dts/msm8916/msm8939-mtp.dts; see Documentation/devices.md.
+- Pocketboot: docs/msm8916-spin-table-abi.md, pocketpreboot/src/msm8916.rs,
+  pocketpreboot/src/spin_table.S, src/kexec.rs,
+  patches/kernel/msm8916/0001-arm64-pocketboot-spin-table-kexec.patch.
+  Full boot-chain analysis is in that repository's evidence note on
+  79cdf784c476be70f7f58cd73b37dfaeb0bf1c6f. Boot repositories were read remotely;
+  no unrelated repository was cloned, edited or mixed into linux's kernel refs.
+
+## Evidence map
+
+Classes: V = vendor/software description; D = driver implementation; O =
+reported earlier live observation; H = historical bring-up claim; U = unresolved.
+Neither V nor a bound node alone measures electrical wiring or proves mainline.
+
+| Area | Evidence and boundary |
+| --- | --- |
+| CPU / boot chain | V/O: eight qcom,arm-cortex-acc cores; live socinfo id239 and DT ids239/241/263, board-id8/0. D: mainline uses eight shim-populated spin tables, MPIDRs0x100..0x103 and0x0..0x3. U: this phone's secure-boot state, EL2 and mainline SMP. Pocketboot's pinned v1 ABI is four-core MSM8916, not MSM8939. |
+| Display | V: Sharp RSP61322 panel description; splash reservation0x83000000/32MiB. O: driver reports Sharp, Android fb32bpp/stride4352/virtual1080x3840. H/U: bootloader scanout0x83200000/RGB888/stride3240 is NOT established by either observation. |
+| USB | V/O: GPIO110 ID, mode3, SMB1360 VBUS provider. D: existing ChipIdea/HS PHY consumers; separate SMB1360 support/sensing missing. U: physical USBIN route, safe boost/isolation, measured5V and role switching. OTG notes on baseline/vendor are scoped to their pinned source, not the ROM binary. |
+| PMIC / regulators | V/O: PM8916 context, bound SMB1360@14 and NCP6335D@1c on QUP4. D: vendor touch enables GPIO9 before78. U: switched-rail voltages, cascade, analog/digital pin mapping. Software order does not prove vin-supply topology. |
+| Input | V/O: bound mXT336T QUP5@4a, IRQ13/reset12. H: conflicting GPIO9-switched rail1.8V/3.3V descriptions. Mainline maXTouch availability does not validate supply wiring or excluded workarounds. |
+| Radio | V: WCNSS description. H: WCN3660B selection in old Add Mi4i. U: RF subtype, firmware/NV compatibility and functioning Wi-Fi/BT. No RF identity proof or runtime result here. |
+| Existing-mainline candidates | D: GPIO keys, PMIC RESIN, CM36686 support; V: volume-up GPIO107 / RESIN volume-down. CM36686 supply routing still U. O: LM3533 QUP1@38 and LSM6DB0+CM36686 QUP2@08/@60; mainline LM3533 lacks OF parsing and LSM6DB0 support was not found at baseline. |
+
+O provenance: parent's earlier sysfs driver links, running DT, socinfo, framebuffer
+attributes and build identity, preserved on this subject commit. Unbound
+Synaptics/fan53555 instances are not fitted-chip evidence. TFA98xx QUP6@34 was
+reported bound; audio/camera investigation is deliberately outside this index.
+No private device ID, binary, raw full log or backup path is required here.
+
+Historical claim pins (pem120/linux; also individual evidence notes):
+- early-mi4i: 66f5c41cd5cc0383219724ba3dc0d074e31f9692
+- touch-1v8-claim: 6d6e6010317dd5990771b408da8234862258501b
+- touch-3v3-claim: 464923b94bbb6b01fbd7c93dd6fe52337b1aee53
+The 5d8f tip removes both fixed touch-regulator nodes; it does not retain the
+3.3V model. These are claimed switched-rail voltages, not measured GPIO voltage.
+
+## Reusable queries: no checkout, build or phone needed
+
+List the local immutable-named source refs:
+  git for-each-ref --format='%(refname) %(objectname)' refs/sources/ferrari
+
+Acquire a public kernel pin from the inventory, preserving any existing pin:
+  repo=https://github.com/MiCode/Xiaomi_Kernel_OpenSource.git
+  oid=da2c4ce514441515b5a9e3304aec67f08d699829
+  ref=refs/sources/ferrari/xiaomi-vendor/$oid
+  if ! git show-ref --verify --quiet "$ref"; then
+    git fetch --no-tags --no-write-fetch-head "$repo" "$oid:$ref"
+  fi
+  test "$(git rev-parse "$ref^{commit}")" = "$oid"
+Repeat with the inventory's label/repository/SHA, never a floating branch pin.
+Early historical pins are also reachable from the fetched historical tip.
+The local-only 9ec3 object needs a transfer from a repository already preserving
+it; Git notes do not carry the source commits they annotate.
+
+  V=da2c4ce514441515b5a9e3304aec67f08d699829
+  R=6bf677fd534bae9b720a65c18b6096d2a552e71c
+  U=6addb4f385570ebc11c4eb499a4f1c149f313e84
+  git grep -n -i -E 'mxt|smb1360|ncp6335|cm36686|lsm6db0|lm3533' "$V" -- arch/arm/boot/dts/qcom/msm8939-mtp.dtsi
+  git show "$V:arch/arm/boot/dts/qcom/msm8939-mtp-smb1360.dts"
+  git grep -n -E 'power_ldo_gpio|power_ts_gpio' "$V" -- drivers/input/touchscreen/atmel_mxt_ts_336t.c
+  git grep -n -i -E 'ramoops|splash|mxt|smb1360' "$R" -- arch/arm/boot/dts/qcom/xiaomi/ferrari
+  git diff "$V" "$R" -- drivers/power/smb1360-charger-fg.c
+  git grep -n -i -E 'cm36686|smb1360|ncp6335d|lsm6db0' "$U" -- drivers Documentation/devicetree/bindings
+  git log --format='%H %s' 5d8f10ccdc03ce4c0d0697e899acad3ff667dea8 -- arch/arm64/boot/dts/qcom/msm8939-xiaomi-ferrari.dts
+
+Read source-linked notes and search their complete text without line truncation:
+  git notes --ref=evidence show 4fecfe9561a33db1320482d5fffb03ce1d8dd7ec
+  git notes --ref=evidence show "$V"
+  git notes --ref=evidence show "$R"
+  git grep -n -i -E 'Ferrari|SMB1360|spin-table|provenance' refs/notes/evidence
+Results from the last command name note-tree paths; concatenate any split path
+components to recover the annotated object ID. Review source claims at their
+stated revision, not whatever happens to be checked out.
+
+Remote-only boot source reading, without editing an unattached repository:
+  Q=fca3c513b6fb5e5b8fabae21dac1f4a5c0b51bc6
+  curl -fsSL "https://raw.githubusercontent.com/msm8916-mainline/qhypstub/$Q/README.md"
+  git ls-remote https://github.com/msm8916-mainline/lk2nd.git refs/heads/legacy 'refs/tags/0.16.0^{}'
+For local boot-source editing/indexing, attach that repository first.
+
+## Notes publication / concurrency
+
+This investigation coordinated with the parent and OTG thread as sole Linux
+notes publisher. Imported public parent 87dd5b35b23ef455fc87f253dc88bd9d79e3b27d
+and independent OTG 9021ef947144e1b5b5c3fed684b40e972efc296c were merged, not
+overwritten; prior public notes and both histories were retained.
+One existing serial-bearing backup paragraph was privacy-sanitized at the live
+note tip with parent approval. Forward-only editing cannot erase prior public
+history; no force push/history rewrite was performed.
+
+For subsequent publication, coordinate a single writer first, fetch into a NEW
+incoming ref, inspect, merge, append, and push normally:
+  git fetch --no-tags origin refs/notes/evidence:refs/notes/incoming/ferrari-NEXT-UNIQUE-ID
+  GIT_EDITOR=true git notes --ref=evidence merge -s union refs/notes/incoming/ferrari-NEXT-UNIQUE-ID
+  # Inspect overlapping notes; union preserves text, not necessarily deduplication.
+  git push origin refs/notes/evidence:refs/notes/evidence
+If push is rejected, import the new remote tip and reconcile; never force.
+Use origin only after confirming it is Sam's repository, never the local backlink
+or an upstream project. Keep source refs and evidence notes outside the two-patch
+submission; no research documents or source dumps belong in that diff.
