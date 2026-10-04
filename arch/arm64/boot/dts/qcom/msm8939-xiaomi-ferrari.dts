@@ -6,6 +6,7 @@
 
 #include <dt-bindings/arm/qcom,ids.h>
 #include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/input/linux-event-codes.h>
 
 / {
 	compatible = "xiaomi,ferrari", "qcom,msm8939";
@@ -41,6 +42,19 @@
 		};
 	};
 
+	gpio-keys {
+		compatible = "gpio-keys";
+		pinctrl-0 = <&gpio_keys_default>;
+		pinctrl-names = "default";
+
+		button-volume-up {
+			debounce-interval = <15>;
+			gpios = <&tlmm 107 GPIO_ACTIVE_LOW>;
+			label = "Volume Up";
+			linux,code = <KEY_VOLUMEUP>;
+		};
+	};
+
 	reserved-memory {
 		ranges;
 		#address-cells = <2>;
@@ -62,6 +76,12 @@
 
 &pm8916_l6 {
 	regulator-always-on;
+};
+
+&pm8916_resin {
+	linux,code = <KEY_VOLUMEDOWN>;
+
+	status = "okay";
 };
 
 &sdhc_1 {
@@ -86,6 +106,13 @@
 };
 
 &tlmm {
+	gpio_keys_default: gpio-keys-default-state {
+		bias-pull-up;
+		drive-strength = <2>;
+		function = "gpio";
+		pins = "gpio107";
+	};
+
 	usb_id_default: usb-id-default-state {
 		bias-pull-up;
 		drive-strength = <8>;
