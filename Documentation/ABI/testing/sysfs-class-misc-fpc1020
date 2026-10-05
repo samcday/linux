@@ -1,0 +1,7 @@
+What:           /sys/class/misc/fpc1020/firmware_name
+Date:           September 2026
+Contact:        Sam Day <me@samcday.com>
+Description:
+                Read-only trusted-application firmware name from the device
+                tree. On Google Sargo this is fpctzappfingerprint. It describes
+                the board integration, not a probed sensor chip identifier.

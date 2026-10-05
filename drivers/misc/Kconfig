@@ -5,6 +5,15 @@
 
 menu "Misc devices"
 
+config FPC1020
+	tristate "Google Sargo fingerprint reset and IRQ companion"
+	depends on OF && GPIOLIB
+	help
+	  Provide reset and interrupt notifications for the fingerprint sensor
+	  on Google Pixel 3a. The signed trusted application performs sensor
+	  communication and biometric matching separately through QSEECOM.
+	  The misc device provides no fingerprint images or match decisions.
+
 config SENSORS_LIS3LV02D
 	tristate
 	depends on INPUT

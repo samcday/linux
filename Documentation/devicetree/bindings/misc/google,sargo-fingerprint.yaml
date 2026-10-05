@@ -1,0 +1,41 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/misc/google,sargo-fingerprint.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Google Pixel 3a fingerprint electrical companion
+
+maintainers:
+  - Sam Day <me@samcday.com>
+
+description: |
+  Normal-world reset and interrupt wiring for the FPC-family sensor used by
+  Google Sargo. The compatible identifies the board integration and Android
+  driver family, not a measured silicon revision. The trusted application
+  controls the sensor bus and performs biometric operations.
+
+properties:
+  compatible:
+    items:
+      - const: google,sargo-fingerprint
+      - const: fpc,fpc1020
+
+  firmware-name:
+    const: fpctzappfingerprint
+
+  reset-gpios:
+    maxItems: 1
+
+  irq-gpios:
+    maxItems: 1
+
+  wakeup-source: true
+
+required:
+  - compatible
+  - firmware-name
+  - reset-gpios
+  - irq-gpios
+
+additionalProperties: false
