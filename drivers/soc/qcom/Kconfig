@@ -313,6 +313,19 @@ config QCOM_MDT_LOADER
 	  secure environment select this; it is also user-selectable so that
 	  it can be built for a consumer that only needs the parsing.
 
+config QCOM_MDT_LOADER_KUNIT_TEST
+	tristate "KUnit tests for the Qualcomm MDT image loader" if !KUNIT_ALL_TESTS
+	depends on KUNIT
+	depends on QCOM_MDT_LOADER
+	default KUNIT_ALL_TESTS
+	help
+	  Test ELF32 and ELF64 QSEECOM image sizing, metadata lengths,
+	  validation and copying with synthetic firmware images.
+
+	  The split-file loading tests require the built-in firmware fixtures
+	  enabled by drivers/soc/qcom/mdt_loader_test.config, and are skipped
+	  otherwise. These tests do not require Qualcomm hardware.
+
 config QCOM_PDR_HELPERS
 	tristate
 	select QCOM_QMI_HELPERS

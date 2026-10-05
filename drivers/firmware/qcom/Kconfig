@@ -78,6 +78,17 @@ config QCOM_QSEECOM
 
 	  Select Y here to enable the QSEECOM interface driver.
 
+config QCOM_QSEECOM_KUNIT_TEST
+	bool "KUnit tests for QSEECOM image load validation" if !KUNIT_ALL_TESTS
+	depends on KUNIT=y
+	depends on QCOM_QSEECOM
+	default KUNIT_ALL_TESTS
+	help
+	  Test image lengths and address limits for QSEECOM application and
+	  shared-library loads. Exercise complete ELF and split-image lengths,
+	  the 32-bit calling convention's address boundary, and range overflow.
+	  These tests do not invoke secure firmware or require Qualcomm hardware.
+
 config QCOM_QSEECOM_UEFISECAPP
 	bool "Qualcomm SEE UEFI Secure App client driver"
 	depends on QCOM_QSEECOM
