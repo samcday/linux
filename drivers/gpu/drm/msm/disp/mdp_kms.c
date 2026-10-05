@@ -84,7 +84,11 @@ static void wait_irq(struct mdp_irq *irq, uint32_t irqstatus)
 	wake_up_all(&wait_event);
 }
 
-void mdp_irq_wait(struct mdp_kms *mdp_kms, uint32_t irqmask)
+/*
+ * Wait up to 100ms for one of the irqs in @irqmask.
+ * Returns 0 on success, or -ETIMEDOUT if none arrived.
+ */
+int mdp_irq_wait(struct mdp_kms *mdp_kms, uint32_t irqmask)
 {
 	struct mdp_irq_wait wait = {
 		.irq = {
@@ -93,10 +97,14 @@ void mdp_irq_wait(struct mdp_kms *mdp_kms, uint32_t irqmask)
 		},
 		.count = 1,
 	};
+	long ret;
+
 	mdp_irq_register(mdp_kms, &wait.irq);
-	wait_event_timeout(wait_event, (wait.count <= 0),
-			msecs_to_jiffies(100));
+	ret = wait_event_timeout(wait_event, (wait.count <= 0),
+				 msecs_to_jiffies(100));
 	mdp_irq_unregister(mdp_kms, &wait.irq);
+
+	return ret ? 0 : -ETIMEDOUT;
 }
 
 void mdp_irq_register(struct mdp_kms *mdp_kms, struct mdp_irq *irq)
