@@ -20,6 +20,9 @@ struct a3xx_gpu {
 
 	/* if OCMEM is used for GMEM: */
 	struct adreno_ocmem ocmem;
+
+	/* busy cycles discarded by software resets, see a3xx_sw_reset() */
+	u64 busy_cycles_base;
 };
 #define to_a3xx_gpu(x) container_of(x, struct a3xx_gpu, base)
 
