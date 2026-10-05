@@ -1,0 +1,95 @@
+// SPDX-License-Identifier: GPL-2.0-only
+
+/dts-v1/;
+
+#include "msm8939-pm8916.dtsi"
+
+#include <dt-bindings/arm/qcom,ids.h>
+#include <dt-bindings/gpio/gpio.h>
+
+/ {
+	compatible = "xiaomi,ferrari", "qcom,msm8939";
+	chassis-type = "handset";
+	model = "Xiaomi Mi 4i";
+
+	qcom,board-id = <QCOM_BOARD_ID_MTP 0>;
+	qcom,msm-id = <QCOM_ID_MSM8939 0>;
+
+	chosen {
+		ranges;
+		#address-cells = <2>;
+		#size-cells = <2>;
+
+		stdout-path = &framebuffer0;
+
+		framebuffer0: framebuffer@83200000 {
+			compatible = "simple-framebuffer";
+			reg = <0x0 0x83200000 0x0 (1080 * 1920 * 3)>;
+			clocks = <&gcc GCC_MDSS_AHB_CLK>,
+				 <&gcc GCC_MDSS_VSYNC_CLK>,
+				 <&gcc GCC_MDSS_AXI_CLK>,
+				 <&gcc GCC_MDSS_MDP_CLK>,
+				 <&gcc GCC_MDSS_BYTE0_CLK>,
+				 <&gcc GCC_MDSS_PCLK0_CLK>,
+				 <&gcc GCC_MDSS_ESC0_CLK>,
+				 <&xo_board>;
+			format = "r8g8b8";
+			height = <1920>;
+			power-domains = <&gcc MDSS_GDSC>;
+			stride = <(1080 * 3)>;
+			width = <1080>;
+		};
+	};
+
+	reserved-memory {
+		ranges;
+		#address-cells = <2>;
+		#size-cells = <2>;
+
+		framebuffer@83000000 {
+			reg = <0x0 0x83000000 0x0 0x2000000>;
+			no-map;
+		};
+	};
+
+	usb_id: usb-id {
+		compatible = "linux,extcon-usb-gpio";
+		id-gpios = <&tlmm 110 GPIO_ACTIVE_HIGH>;
+		pinctrl-0 = <&usb_id_default>;
+		pinctrl-names = "default";
+	};
+};
+
+&pm8916_l6 {
+	regulator-always-on;
+};
+
+&sdhc_1 {
+	status = "okay";
+};
+
+&usb {
+	dr_mode = "peripheral";
+	extcon = <&usb_id>, <&usb_id>;
+
+	status = "okay";
+};
+
+&usb_hs_phy {
+	extcon = <&usb_id>;
+
+	status = "okay";
+};
+
+&wcnss_mem {
+	status = "okay";
+};
+
+&tlmm {
+	usb_id_default: usb-id-default-state {
+		bias-pull-up;
+		drive-strength = <8>;
+		function = "gpio";
+		pins = "gpio110";
+	};
+};
