@@ -520,7 +520,8 @@ static int a3xx_pm_suspend(struct msm_gpu *gpu)
 {
 	int ret;
 
-	if (!a3xx_idle(gpu))
+	/* Resume defers ring initialization until the next submission. */
+	if (!gpu->needs_hw_init && !a3xx_idle(gpu))
 		return -EBUSY;
 
 	ret = a3xx_vbif_halt(gpu);
