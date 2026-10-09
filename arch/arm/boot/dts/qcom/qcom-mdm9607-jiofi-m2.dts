@@ -1,0 +1,211 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (c) 2020, Konrad Dybcio <konrad.dybcio@somainline.org>
+ *
+ * Reliance Jio JioFi M2 (JMR540) LTE hotspot, based on the Qualcomm
+ * MDM9307 which is a member of the MDM9x07 family and is compatible
+ * with the MDM9607.
+ */
+
+#include "qcom-mdm9607.dtsi"
+#include "qcom-pm8019.dtsi"
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/input/input.h>
+
+/ {
+	model = "Reliance Jio JioFi M2";
+	compatible = "jio,jiofi-m2", "qcom,mdm9307", "qcom,mdm9607";
+	qcom,msm-id = <298 0x10000>, <290 0x10000>, <296 0x10000>, <297 0x10000>, <299 0x10000>;
+	qcom,board-id = <8 0>;
+
+	memory {
+		device_type = "memory";
+		reg = <0x0 0x0>;
+	};
+
+	gpio-keys {
+		compatible = "gpio-keys";
+
+		key-factory-reset {
+			label = "Factory reset";
+			gpios = <&tlmm 20 GPIO_ACTIVE_LOW>;
+			linux,code = <KEY_RESTART>;
+			debounce-interval = <100>;
+		};
+
+		key-wps {
+			label = "WPS";
+			gpios = <&tlmm 22 GPIO_ACTIVE_LOW>;
+			linux,code = <KEY_WPS_BUTTON>;
+			debounce-interval = <100>;
+		};
+	};
+
+	/*
+	 * VBUS is only reported by the I2C charger (ETA6005/SMB358), which has
+	 * no mainline driver, so only the USB ID pin (PM8019 MPP1) is described.
+	 * With ID high (no OTG cable), extcon-usb-gpio also reports VBUS.
+	 */
+	usb_id: usb-id {
+		compatible = "linux,extcon-usb-gpio";
+		id-gpios = <&pm8019_mpps 1 GPIO_ACTIVE_HIGH>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&usb_id_default>;
+	};
+};
+
+/* Debug UART */
+&blsp1_uart5 {
+	status = "okay";
+};
+
+&pm8019_mpps {
+	usb_id_default: usb-id-default-state {
+		pins = "mpp1";
+		function = "digital";
+		input-enable;
+		bias-pull-up = <30000>;
+
+		power-source = <3>; /* 1.8V (L11) */
+	};
+};
+
+&pm8019_spmi_regulators {
+	pm8019_vdd_apc: s1 {
+		/*
+		 * This regulator has a minimum voltage of
+		 * 1050uV on this board, but it has the "normal
+		 * idle" value pinned at 1100uV and since undervolting
+		 * the CPU all the time isn't generally a wise idea, pin
+		 * it at 1100uV until we have proper voltage management.
+		 */
+		regulator-min-microvolt = <1100000>;
+		regulator-max-microvolt = <1350000>;
+		regulator-always-on; /* We should never let the CPU unplug itself! */
+	};
+};
+
+&rpm_requests {
+	pm8019-regulators {
+		compatible = "qcom,rpm-pm8019-regulators";
+
+		/* S1 is managed by CPR over SPMI */
+
+		pm8019_s2: s2 {
+			regulator-min-microvolt = <1237500>; //750000
+			regulator-max-microvolt = <1237500>;
+		};
+
+		/* S3 is managed by RPMPD */
+
+		pm8019_s4: s4 {
+			regulator-min-microvolt = <1950000>; //1800000
+			regulator-max-microvolt = <1950000>;
+		};
+
+		/* L1 seems inaccessible from SPMI? 1250000-1250000 uV */
+
+		pm8019_l2: l2 {
+			regulator-min-microvolt = <1800000>;
+			regulator-max-microvolt = <1800000>;
+			regulator-system-load = <5000>;
+			regulator-allow-set-load;
+		};
+
+		pm8019_l3: l3 {
+			regulator-min-microvolt = <1800000>;
+			regulator-max-microvolt = <1800000>;
+		};
+
+		pm8019_l4: l4 {
+			regulator-min-microvolt = <3075000>;
+			regulator-max-microvolt = <3075000>;
+			regulator-system-load = <5000>;
+			regulator-allow-set-load;
+		};
+
+		pm8019_l5: l5 {
+			regulator-min-microvolt = <2850000>; //1700000
+			regulator-max-microvolt = <2850000>;
+		};
+
+		pm8019_l6: l6 {
+			regulator-min-microvolt = <2850000>; //1700000
+			regulator-max-microvolt = <2850000>;
+		};
+
+		pm8019_l7: l7 {
+			regulator-min-microvolt = <1850000>; //1700000
+			regulator-max-microvolt = <1850000>;
+		};
+
+		pm8019_l8: l8 {
+			regulator-min-microvolt = <1800000>;
+			regulator-max-microvolt = <1800000>;
+		};
+
+		/* L9 seems inaccessible from SPMI? 1200000-1250000 uV */
+		pm8019_l9: l9 {
+			regulator-min-microvolt = <1250000>;
+			regulator-max-microvolt = <1250000>;
+			regulator-system-load = <10000>;
+			regulator-allow-set-load;
+			regulator-always-on;
+		};
+
+		/* L10 seems inaccessible from SPMI? 1050000-1050000 uV */
+		pm8019_l10: l10 {
+			regulator-min-microvolt = <1050000>;
+			regulator-max-microvolt = <1050000>;
+		};
+
+		pm8019_l11: l11 {
+			regulator-min-microvolt = <1800000>;
+			regulator-max-microvolt = <1800000>;
+		};
+
+		/* L12 is managed by RPMPD */
+
+		pm8019_l13: l13 {
+			regulator-min-microvolt = <2850000>; //1800000
+			regulator-max-microvolt = <2850000>;
+		};
+
+		pm8019_l14: l14 {
+			regulator-min-microvolt = <2700000>; //2650000
+			regulator-max-microvolt = <2700000>;
+		};
+	};
+};
+
+&tlmm {
+	pinctrl-names = "default";
+	pinctrl-0 = <&factory_reset_default &wps_default>;
+
+	factory_reset_default: factory-reset-default {
+		pins = "gpio20";
+		function = "gpio";
+		drive-strength = <2>;
+		bias-pull-up;
+	};
+
+	wps_default: wps-default {
+		pins = "gpio22";
+		function = "gpio";
+		drive-strength = <2>;
+		bias-pull-down;
+	};
+};
+
+&usb {
+	extcon = <&usb_id>, <&usb_id>;
+	status = "okay";
+};
+
+&usb_hs_phy {
+	status = "okay";
+
+	vdd-supply = <&pm8019_l9>;
+	vdda1p8-supply = <&pm8019_l2>;
+	vdda3p3-supply = <&pm8019_l4>;
+};

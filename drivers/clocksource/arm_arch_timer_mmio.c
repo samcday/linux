@@ -251,7 +251,12 @@ static void arch_timer_mmio_setup(struct arch_timer *at, int irq)
 		.features		   = (CLOCK_EVT_FEAT_ONESHOT |
 					      CLOCK_EVT_FEAT_DYNIRQ),
 		.name			   = "arch_mem_timer",
-		.rating			   = 400,
+		/*
+		 * Outrank the CP15 clockevent (450): on some SoCs (MDM9607)
+		 * the CP15 timer interrupts never reach the GIC, so this timer
+		 * has to provide the tick.
+		 */
+		.rating			   = 460,
 		.cpumask		   = cpu_possible_mask,
 		.irq 			   = irq,
 		.set_next_event		   = arch_timer_mmio_set_next_event,
@@ -428,7 +433,17 @@ static struct platform_driver arch_timer_mmio_drv = {
 	},
 	.probe	= arch_timer_mmio_probe,
 };
-builtin_platform_driver(arch_timer_mmio_drv);
+
+/*
+ * Register early, so that the timer probes as soon as the DT devices are
+ * created (arch_initcall_sync) and provides the tick before any driver
+ * needs to sleep.
+ */
+static int __init arch_timer_mmio_drv_init(void)
+{
+	return platform_driver_register(&arch_timer_mmio_drv);
+}
+arch_initcall(arch_timer_mmio_drv_init);
 
 static struct platform_driver arch_timer_mmio_acpi_drv = {
 	.driver	= {

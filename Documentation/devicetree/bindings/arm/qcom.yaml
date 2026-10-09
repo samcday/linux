@@ -186,6 +186,11 @@ properties:
           - const: swir,wp8548
           - const: qcom,mdm9615
 
+      - description: Reliance Jio JioFi M2 LTE hotspot
+        items:
+          - const: jio,jiofi-m2
+          - const: qcom,mdm9607
+
       - items:
           - enum:
               - fairphone,fp6
