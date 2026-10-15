@@ -262,6 +262,7 @@ properties:
 
       - items:
           - enum:
+              - lenovo,tbx304x
               - xiaomi,riva
               - xiaomi,rolex
               - xiaomi,tiare

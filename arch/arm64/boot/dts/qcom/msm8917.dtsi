@@ -37,7 +37,7 @@
 			device_type = "cpu";
 			next-level-cache = <&l2_0>;
 			enable-method = "psci";
-			clocks = <&apcs>;
+			clocks = <&apcs_clk>;
 			operating-points-v2 = <&cpu_opp_table>;
 			#cooling-cells = <2>;
 			power-domains = <&cpu_pd0>;
@@ -56,7 +56,7 @@
 			device_type = "cpu";
 			next-level-cache = <&l2_0>;
 			enable-method = "psci";
-			clocks = <&apcs>;
+			clocks = <&apcs_clk>;
 			operating-points-v2 = <&cpu_opp_table>;
 			#cooling-cells = <2>;
 			power-domains = <&cpu_pd1>;
@@ -69,7 +69,7 @@
 			device_type = "cpu";
 			next-level-cache = <&l2_0>;
 			enable-method = "psci";
-			clocks = <&apcs>;
+			clocks = <&apcs_clk>;
 			operating-points-v2 = <&cpu_opp_table>;
 			#cooling-cells = <2>;
 			power-domains = <&cpu_pd2>;
@@ -82,7 +82,7 @@
 			device_type = "cpu";
 			next-level-cache = <&l2_0>;
 			enable-method = "psci";
-			clocks = <&apcs>;
+			clocks = <&apcs_clk>;
 			operating-points-v2 = <&cpu_opp_table>;
 			#cooling-cells = <2>;
 			power-domains = <&cpu_pd3>;
@@ -218,7 +218,7 @@
 
 		smd-edge {
 			interrupts = <GIC_SPI 168 IRQ_TYPE_EDGE_RISING>;
-			qcom,ipc = <&apcs 8 0>;
+			mboxes = <&apcs 0>;
 			qcom,smd-edge = <15>;
 
 			rpm_requests: rpm-requests {
@@ -1580,9 +1580,14 @@
 			compatible = "qcom,msm8939-apcs-kpss-global", "syscon";
 			reg = <0x0b011000 0x1000>;
 			#mbox-cells = <1>;
-			clocks = <&a53pll>, <&gcc GPLL0_EARLY>, <&rpmcc RPM_SMD_XO_CLK_SRC>;
-			clock-names = "pll", "aux", "ref";
-			#clock-cells = <0>;
+
+			apcs_clk: clock-controller {
+				clocks = <&a53pll>,
+					 <&gcc GPLL0_EARLY>,
+					 <&rpmcc RPM_SMD_XO_CLK_SRC>;
+				clock-names = "pll", "aux", "ref";
+				#clock-cells = <0>;
+			};
 		};
 
 		a53pll: clock@b016000 {
